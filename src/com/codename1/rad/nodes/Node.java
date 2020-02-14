@@ -1,0 +1,453 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.codename1.rad.nodes;
+
+import com.codename1.rad.ui.Actions;
+import com.codename1.rad.ui.NodeList;
+import com.codename1.rad.ui.ViewProperty;
+import com.codename1.rad.ui.ViewPropertyParameter;
+import com.codename1.rad.attributes.NodeDecoratorAttribute;
+import com.codename1.rad.attributes.UIID;
+import com.codename1.rad.attributes.ViewPropertyParameterAttribute;
+import com.codename1.rad.nodes.ActionNode.Category;
+import com.codename1.rad.models.Attribute;
+import com.codename1.rad.models.AttributeSet;
+import com.codename1.rad.models.DateFormatterAttribute;
+import com.codename1.rad.models.NumberFormatterAttribute;
+import com.codename1.rad.models.Property;
+import com.codename1.rad.models.Tag;
+import com.codename1.rad.models.Tags;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *
+ * @author shannah
+ */
+public abstract class Node<T> extends Attribute<T> {
+    
+    /**
+     * If this node is merely a proxy node for another node...
+     */
+    private Node<T> proxying;
+    /**
+     * Node attributes.
+     */
+    protected final AttributeSet attributes = new AttributeSet();
+    protected final NodeList childNodes = new NodeList();
+    
+    /**
+     * View parameters which can be used for setting properties in views.
+     */
+    protected final Map<ViewProperty,ViewPropertyParameter> viewParameters = new HashMap<>();
+    
+    protected final Map<ActionNode.Category,ActionsNode> actions = new HashMap<>();
+    
+    /**
+     * Parent node.
+     */
+    private Node parent;
+    
+    /**
+     * Create a new node with given value and provided attributes.
+     * @param value Node value, may be null.
+     * @param atts Atrributes to set in the node.
+     */
+    public Node(T value, Attribute... atts) {
+        super(value);
+        setAttributes(atts);
+    }
+    
+    /**
+     * Create a proxy for this node.  The node class must implement {@link Proxyable}
+     * @param parent The parent node of the proxy node.
+     * @return The proxy node.
+     */
+    public Node<T> proxy(Node parent) {
+        if (canProxy() && Proxyable.class.isAssignableFrom(this.getClass())) {
+            Proxyable orig = (Proxyable)this;
+            return (Node<T>)orig.createProxy(parent);
+        }
+        throw new IllegalStateException("Cannot proxy node that doesn't implement Proxyable interface");
+    }
+    
+    /**
+     * Returns true if this node can be proxied.  Default return value is false.  Subclasses
+     * that allow proxying should implement the Proxyable interface, and return true
+     * for this method.
+     * @return 
+     */
+    public boolean canProxy() {
+        return false;
+    }
+    
+    /**
+     * Converts this node into a proxy node.
+     * @param originalNode 
+     */
+    public void setProxying(Node<T> originalNode) {
+        this.proxying = originalNode;
+    }
+    
+    /**
+     * Gets the node that this node proxies.
+     * @return 
+     */
+    public Node<T> getProxying() {
+        return proxying;
+    }
+    
+    /**
+     * Returns the original node in a proxy chain.  If this node is not proxying any
+     * nodes, then it will return itself.
+     * @return 
+     */
+    public Node getCanonicalNode() {
+        if (proxying != null) {
+            return proxying.getCanonicalNode();
+        }
+        return this;
+    }
+    
+    /**
+     * Gets an iterator for iterating up the proxy chain.  If this is not a proxy node
+     * then this will return an empty iterator.
+     * @return 
+     */
+    public Iterator<Node<T>> proxyingIterator() {
+        ArrayList<Node<T>> out = new ArrayList<>();
+        Node<T> proxy = proxying;
+        while (proxy != null) {
+            out.add(proxy);
+            proxy = proxy.getProxying();
+        }
+        return out.iterator();
+    }
+    
+    /**
+     * Sets the parent node.  You cannot re-assign a non-null parent on a node that
+     * already has a non-null parent.  A workaround is to first set parent to null, then
+     * set the parent again to the new parent.  Some node types, such as Actions, need
+     * to appear in multiple places in the UI tree.  In such cases, a proxy node is created
+     * for the action in the various positions of the tree.
+     * @param parent 
+     */
+    public void setParent(Node parent) {
+        if (parent != null && this.parent != null && this.parent != parent) {
+            throw new IllegalStateException("Cannot reassign parent of node.");
+        }
+        this.parent = parent;
+    }
+
+    /**
+     * Returns an attribute of the given type for this node.  If this is a proxy node, 
+     * it will first check its own attributes.  If none is found, it will check the
+     * node that it is proxying for the attribute.
+     * @param <V> The type of attribute to return.
+     * @param type The attribute type.
+     * @return The attribute, or null, if this node doesn't have an attribute of this type.
+     */
+    public <V extends Attribute> V findAttribute(Class<V> type) {
+        for (Attribute att : attributes) {
+            if (att.getClass() == type) {
+                return (V)att;
+            }
+        }
+        if (proxying != null) {
+            return proxying.findAttribute(type);
+        }
+        return null;
+    }
+    
+    /**
+     * Find an attribute in this node, or a parent node.  This first checks the current 
+     * node for the given attribute. If none is found, it will check the parent node.
+     * It will walk up the UI tree to the root until it finds an attribute of this type.
+     * If none is found, it will check the proxy node, and walk up the tree from there.
+     * @param <V> The attribute type to retrieve.
+     * @param type The attribute type.
+     * @return An attribute of the given type, or null if none found.
+     */
+    public <V extends Attribute> V findInheritedAttribute(Class<V> type) {
+        
+        V out = findAttribute(type);
+        if (out != null) {
+            return out;
+        }
+        if (parent != null) {
+            out = (V)parent.findInheritedAttribute(type);
+            if (out != null) {
+                return out;
+            }
+        }
+        if (proxying != null) {
+            return (V)proxying.findInheritedAttribute(type);
+        }
+        return null;
+        
+    }
+    
+    
+    /**
+     * Gets a view parameter for this node.  This will walk up the tree until it finds 
+     * a parameter for the given view property.  View properties are defined generally inside
+     * the View that consumes them.  You can then set values or bindings on these properties
+     * in the UI tree using the {@link UI#param()} method.
+     * @param <V> The view parameter type
+     * @param prop The property to retrieve.
+     * @return The property parameter, or null if none found.
+     */
+    public <V> ViewPropertyParameter<V> getViewParameter(ViewProperty<V> prop) {
+        return getViewParameter(true, prop, null);
+    }
+    
+    public <V> V getViewParameterValue(ViewProperty<V> prop) {
+        ViewPropertyParameter<V> param = getViewParameter(prop);
+        if (param == null) {
+            return null;
+        }
+        return param.getValue();
+    }
+    
+    /**
+     * Gets a view parameter for this node.  This will walk up the tree until it finds 
+     * a parameter for the given view property.  View properties are defined generally inside
+     * the View that consumes them.  You can then set values or bindings on these properties
+     * in the UI tree using the {@link UI#param()} method.
+     * @param <V> The view parameter type
+     * @param checkParent Whether to walk up the tree.
+     * @param prop The property to retrieve.
+     * @param defaultVal THe default value, if no property found.
+     * @return 
+     */
+    private <V> ViewPropertyParameter<V> getViewParameter(boolean checkParent, ViewProperty<V> prop, ViewPropertyParameter<V> defaultVal) {
+        ViewPropertyParameter<V> param =  viewParameters.get(prop);
+        if (param == null) {
+            if (proxying != null) {
+                param = proxying.getViewParameter(false, prop, null);
+            }
+            if (param == null && checkParent && parent != null) {
+                param = parent.getViewParameter(true, prop, null);
+            }
+            if (param == null && proxying != null && checkParent && proxying.parent != null) {
+                param = proxying.parent.getViewParameter(true, prop, null);
+            }
+            
+        }
+        
+        return param == null ? defaultVal : param;
+    }
+    
+    /**
+     * Gets a view parameter for this node.  This will walk up the tree until it finds 
+     * a parameter for the given view property.  View properties are defined generally inside
+     * the View that consumes them.  You can then set values or bindings on these properties
+     * in the UI tree using the {@link UI#param()} method.
+     * @param <V> The view parameter type.
+     * @param prop The property to retrieve.
+     * @param defaultVal Default value in case no property found.
+     * @return 
+     */
+    public <V> ViewPropertyParameter<V> getViewParameter(ViewProperty<V> prop, ViewPropertyParameter<V> defaultVal) {
+        return getViewParameter(true, prop, defaultVal);
+    }
+    
+    /**
+     * Gets the parent node of this node.
+     * @return 
+     */
+    public Node getParent() {
+        return parent;
+    }
+    
+    /**
+     * Sets attributes on this node.
+     * @param atts The attributes to set.
+     */
+    public void setAttributes(Attribute... atts) {
+        for (Attribute att : atts) {
+            if (att instanceof Node) {
+                Node n = (Node)att;
+                if (n.parent != null && n.parent != this) {
+                    throw new IllegalStateException("Node "+n+" already has parent "+n.parent+".  Cannot be added to "+this);
+                }
+                n.parent = this;
+                NodeDecoratorAttribute nodeDecorator = (NodeDecoratorAttribute)n.findAttribute(NodeDecoratorAttribute.class);
+                if (nodeDecorator != null) {
+                    System.out.println("Decorating node "+n+" with "+nodeDecorator.getValue());
+                    nodeDecorator.getValue().decorate(n);
+                }
+                this.childNodes.add(n);
+                
+            }
+            if (att.getClass() == ViewPropertyParameterAttribute.class) {
+                ViewPropertyParameterAttribute valueAtt = (ViewPropertyParameterAttribute)att;
+                ViewPropertyParameter val = (ViewPropertyParameter)valueAtt.getValue();
+                viewParameters.put(val.getProperty(), val);
+            }
+            if (att.getClass() == ActionsNode.class) {
+                ActionsNode actionsNode = (ActionsNode)att;
+                ActionNode.Category category = actionsNode.getCategory();
+                if (category != null) {
+                    actions.put(category, actionsNode);
+                }
+            }
+        }
+        this.attributes.setAttributes(atts);
+    }
+    
+    public NodeList getChildNodes() {
+        NodeList out = new NodeList();
+        out.add(this.childNodes);
+        return out;
+    }
+    
+    public NodeList getChildFieldNodes(Tags tags) {
+        NodeList out = new NodeList();
+        NodeList fieldNodes = getChildNodes(FieldNode.class);
+        for (Node n : fieldNodes) {
+            FieldNode fn = (FieldNode)n;
+            if (fn.getTags().intersects(tags)) {
+                out.add(fn);
+            }
+        }
+        return out;
+    }
+    
+    public NodeList getChildNodes(Class type) {
+        NodeList out = new NodeList();
+        for (Node n : childNodes) {
+            if (n.getClass() == type) {
+                out.add(n);
+            }
+        }
+        return out;
+    }
+    
+    public Actions getActions(Category category) {
+        return getActions(false, new Actions(), category);
+    }
+    
+    public ActionNode getAction(Category category) {
+        Actions actions = getActions(category);
+        if (actions.isEmpty()) {
+            return null;
+        }
+        return actions.iterator().next();
+    }
+    
+    
+    public Actions getInheritedActions(Category category) {
+        return getActions(true, new Actions(), category);
+    }
+    
+    public ActionNode getInheritedAction(Category category) {
+        Actions actions = getInheritedActions(category);
+        if (actions.isEmpty()) {
+            return null;
+        }
+        return actions.iterator().next();
+    }
+    
+    private Actions getActions(boolean recurse, Actions out, Category category) {
+        
+        ActionsNode actionsNode = actions.get(category);
+        if (actionsNode != null) {
+            out.add(actionsNode);
+        }
+        if (proxying != null) {
+            out.add(proxying.getActions(false, out, category));
+        }
+        if (recurse && parent != null) {
+            out.add(parent.getActions(true, out, category));
+        }
+        if (recurse && proxying != null && proxying.parent != null) {
+            out.add(proxying.parent.getActions(recurse, out, category));
+        }
+        return out;
+    }
+    
+    protected final static Attribute[] merge(Attribute[]... arrs) {
+        
+        int outerLen = arrs.length;
+        int totalLen = 0;
+        for (int i=0; i<outerLen; i++) {
+            Attribute[] atts = arrs[i];
+            int innerLen = atts.length;
+            totalLen += innerLen;
+        }
+        Attribute[] out = new Attribute[totalLen];
+        int i = 0;
+        for (Attribute[] atts : arrs) {
+            for (Attribute att : atts) {
+                out[i++] = att;
+            }
+        }
+        return out;
+    }
+    
+    protected final static Attribute[] mergeRecursive(Attribute[]... arrs) {
+        LinkedHashMap<Class,Attribute> map = new LinkedHashMap<>();
+        for (Attribute[] arr : arrs) {
+            for (Attribute att : arr) {
+                Attribute existing = map.get(att.getClass());
+                if (existing == null) {
+                    map.put(att.getClass(), att);
+                    continue;
+                }
+                
+                if (existing instanceof Node) {
+                    Node existingNode = (Node)existing;
+                    Node node = (Node)att;
+                    existingNode.mergeAttributes(node, true);
+                    
+                } else {
+                    
+                    map.put(att.getClass(), att);
+                }
+            }
+        }
+        return map.values().toArray(new Attribute[map.size()]);
+        
+    }
+    
+    private void mergeAttributes(Node node, boolean recursive) {
+        for (Attribute att : node.attributes) {
+            if (attributes.getAttribute(att.getClass()) == null) {
+                setAttributes(att);
+            } else {
+                if (recursive && att instanceof Node) {
+                    Node existing = (Node)attributes.getAttribute(att.getClass());
+                    Node newNode = (Node)att;
+                    existing.mergeAttributes(newNode, recursive);
+                } else {
+                    setAttributes(att);
+                }
+            }
+            
+        }
+    }
+    
+    public UIID getUIID() {
+        return (UIID)findAttribute(UIID.class);
+    }
+    
+    public DateFormatterAttribute getDateFormatter() {
+        return findInheritedAttribute(DateFormatterAttribute.class);
+        
+    }
+    
+    public NumberFormatterAttribute getNumberFormatter() {
+        return findInheritedAttribute(NumberFormatterAttribute.class);
+    }
+    
+    
+    
+}
