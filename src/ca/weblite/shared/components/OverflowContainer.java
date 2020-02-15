@@ -91,6 +91,7 @@ public class OverflowContainer extends Container {
         //setLayout(new BorderLayout());
         getStyle().setMargin(0,0,0,0);
         setScrollableX(true);
+        setScrollVisible(false);
         
         this.mainContents = mainContents;
         if (mainContents.getName() == null) {
