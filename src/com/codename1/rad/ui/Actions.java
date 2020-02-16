@@ -5,7 +5,9 @@
  */
 package com.codename1.rad.ui;
 
+import com.codename1.rad.models.Entity;
 import com.codename1.rad.nodes.ActionNode;
+import com.codename1.ui.Container;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,6 +49,12 @@ public class Actions implements Iterable<ActionNode> {
     
     public ActionNode[] toArray() {
         return actions.toArray(new ActionNode[actions.size()]);
+    }
+    
+    public void addToContainer(Container cnt, Entity entity) {
+        for (ActionNode n : this) {
+            cnt.addComponent(n.createView(entity));
+        }
     }
     
 }

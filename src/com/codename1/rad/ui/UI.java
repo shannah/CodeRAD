@@ -34,13 +34,18 @@ import com.codename1.rad.nodes.RowTemplateNode;
 import com.codename1.rad.nodes.ViewNode;
 import ca.weblite.shared.components.table.TableCellEditor;
 import ca.weblite.shared.components.table.TableCellRenderer;
+import com.codename1.rad.attributes.Condition;
+import com.codename1.rad.attributes.SelectedCondition;
+import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.DateFormatterAttribute;
+import com.codename1.rad.models.EntityTest;
 import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.NumberFormatterAttribute;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Editable;
 import com.codename1.rad.models.Tag;
+import com.codename1.rad.nodes.ActionNode.EnabledCondition;
 import com.codename1.rad.text.CurrencyFormatter;
 import com.codename1.rad.text.DateFormatter;
 import com.codename1.rad.text.DecimalNumberFormatter;
@@ -97,7 +102,9 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         return root;
     }
     
-    
+    public static UIID uiid(String uiid) {
+        return new UIID(uiid);
+    }
     
     public static SectionNode section(Attribute... atts) {
         return new SectionNode(atts);
@@ -175,6 +182,30 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     
     public static ActionNode action(Attribute... atts) {
         return new ActionNode(atts);
+    }
+    
+    public static SelectedCondition selectedCondition(EntityTest test) {
+        return new SelectedCondition(test);
+    }
+    
+    public static EnabledCondition enabledCondition(EntityTest test) {
+        return new EnabledCondition(test);
+    }
+    
+    public static Condition condition(EntityTest test) {
+        return new Condition(test);
+    }
+    
+    public static ActionNode.Selected selected(Attribute... atts) {
+        return new ActionNode.Selected(atts);
+    }
+    
+    public static ActionNode.Disabled disabled(Attribute... atts) {
+        return new ActionNode.Disabled(atts);
+    }
+    
+    public static ActionNode.Pressed pressed(Attribute... atts) {
+        return new ActionNode.Pressed(atts);
     }
     
     public static ActionsNode actions(Attribute...atts) {

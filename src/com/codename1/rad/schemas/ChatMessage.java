@@ -13,4 +13,5 @@ import com.codename1.rad.models.Tag;
  */
 public interface ChatMessage extends Comment {
     public static final Tag isOwnMessage = new Tag();
+    public static final Tag isFavorite = new Tag();
 }

@@ -9,12 +9,12 @@ import com.codename1.rad.models.EntityTest;
 import com.codename1.rad.models.Property.Test;
 
 /**
- * Selected condition, for Action Nodes
+ * Enabled condition, for Action Nodes
  * @author shannah
  */
-public class SelectedCondition extends Test {
+public class EnabledCondition extends Test {
     
-    public SelectedCondition(EntityTest value) {
+    public EnabledCondition(EntityTest value) {
         super(value);
     }
     

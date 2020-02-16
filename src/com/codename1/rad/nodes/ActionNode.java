@@ -23,6 +23,9 @@ import com.codename1.ui.Command;
 import com.codename1.ui.Component;
 import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.ControllerEvent;
+import com.codename1.rad.models.EntityTest;
+import com.codename1.rad.models.Property.Test;
+import com.codename1.rad.ui.DefaultActionViewFactory;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.ActionSource;
@@ -33,6 +36,18 @@ import java.util.Map;
  * @author shannah
  */
 public class ActionNode extends Node implements Proxyable {
+    
+    
+   
+    
+    public static class EnabledCondition extends Attribute<EntityTest> {
+        
+        public EnabledCondition(EntityTest value) {
+            super(value);
+        }
+        
+    }
+    
     public ActionNode(Attribute... atts) {
         super(null, atts);
     }
@@ -148,6 +163,10 @@ public class ActionNode extends Node implements Proxyable {
         return (SelectedCondition)findAttribute(SelectedCondition.class);
     }
     
+    public EnabledCondition getEnabledCondition() {
+        return (EnabledCondition)findAttribute(EnabledCondition.class);
+    }
+    
     public ImageIcon getImageIcon() {
         return (ImageIcon)findAttribute(ImageIcon.class);
     }
@@ -173,25 +192,25 @@ public class ActionNode extends Node implements Proxyable {
     
     
     public static class Selected extends ActionNode {
-        Selected(Attribute... atts) {
+        public Selected(Attribute... atts) {
             super(atts);
         }
     }
     
     public static class Disabled extends ActionNode {
-        Disabled(Attribute... atts) {
+        public Disabled(Attribute... atts) {
             super(atts);
         }
     }
     
     public static class Unselected extends ActionNode {
-        Unselected(Attribute... atts) {
+        public Unselected(Attribute... atts) {
             super(atts);
         }
     }
     
     public static class Pressed extends ActionNode {
-        Pressed(Attribute... atts) {
+        public Pressed(Attribute... atts) {
             super(atts);
         }
     }
@@ -314,6 +333,12 @@ public class ActionNode extends Node implements Proxyable {
  
     }
     
+    
+    public Component createView(Entity entity) {
+        ActionViewFactoryNode factoryNode = this.getViewFactory();
+        ActionViewFactory factory = factoryNode != null ? factoryNode.getValue() : new DefaultActionViewFactory();
+        return factory.createActionView(entity, this);
+    }
    
     
     public Command createCommand(Entity entity, Component source) {
