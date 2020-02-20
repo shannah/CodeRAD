@@ -69,7 +69,7 @@ class NodeUtilFunctions {
         if (left != null) {
             Container cnt = new Container(BoxLayout.x());
             for (ActionNode action : left) {
-                cnt.add(action.getViewFactory().getValue().createActionView(entity, action));
+                cnt.add(action.getViewFactory().createActionView(entity, action));
             }
             actionsBar.add(BorderLayout.CENTER, cnt);
         }
@@ -79,7 +79,7 @@ class NodeUtilFunctions {
             $(cnt).setAlignment(RIGHT);
             for (ActionNode action : right) {
                 System.out.println("right node "+action);
-                cnt.add(action.getViewFactory().getValue().createActionView(entity, action));
+                cnt.add(action.getViewFactory().createActionView(entity, action));
             }
             System.out.println("Adding to right "+cnt);
             actionsBarRight.add(BorderLayout.CENTER, cnt);

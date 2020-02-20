@@ -5,22 +5,14 @@
  */
 package com.codename1.rad.ui.table;
 
-import com.codename1.rad.ui.DefaultPropertyViewFactory;
 import com.codename1.rad.nodes.FieldNode;
-import com.codename1.rad.nodes.PropertyNode;
 import ca.weblite.shared.components.table.AbstractTableCellEditor;
-import ca.weblite.shared.components.table.AbstractTableCellRenderer;
-import ca.weblite.shared.components.table.DefaultTableCellEditor;
-import ca.weblite.shared.components.table.DefaultTableCellRenderer;
 import ca.weblite.shared.components.table.Table;
 import ca.weblite.shared.components.table.TableCellEditor;
-import ca.weblite.shared.components.table.TableCellRenderer;
 import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.Property;
-import com.codename1.rad.models.Property.Editable;
-import com.codename1.rad.models.Property.Label;
 import com.codename1.ui.Component;
 import com.codename1.rad.ui.PropertyViewFactory;
+import com.codename1.rad.ui.UI;
 
 /**
  *
@@ -37,15 +29,15 @@ public class EntityListTableCellEditor extends  AbstractTableCellEditor {
     }
     
     public EntityListTableCellEditor(TableCellEditor parent) {
-        this(parent, new DefaultPropertyViewFactory());
+        this(parent, UI.getDefaultPropertyViewFactory());
     }
     
     public EntityListTableCellEditor(PropertyViewFactory viewFactory) {
-        this(new DefaultTableCellEditor(), viewFactory);
+        this(UI.getDefaultTableCellEditor(), viewFactory);
     }
     
     public EntityListTableCellEditor() {
-        this(new DefaultTableCellEditor(), new DefaultPropertyViewFactory());
+        this(UI.getDefaultTableCellEditor(), UI.getDefaultPropertyViewFactory());
     }
 
     

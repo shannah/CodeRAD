@@ -6,6 +6,8 @@
 package com.codename1.rad.models;
 
 import com.codename1.ui.CN;
+import com.codename1.ui.EncodedImage;
+import com.codename1.ui.URLImage;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import java.util.ArrayList;
@@ -92,6 +94,43 @@ public class Entity extends Observable implements java.io.Serializable {
             properties = new HashMap<>();
         }
     }
+    
+    
+    
+    public URLImage createURLImageToStorage(Property prop, EncodedImage placeholder, String storageFile, URLImage.ImageAdapter adapter) {
+        String str = getText(prop);
+        if (str != null && (str.indexOf("http://") == 0 || str.indexOf("https://") == 0)) {
+            if (str.indexOf(" ") > 0) {
+                str = str.substring(0, str.indexOf(" "));
+            }
+            if (storageFile == null) {
+                storageFile = str + "@"+placeholder.getWidth()+"x"+placeholder.getHeight(); 
+            } else if (storageFile.indexOf("@") == 0) {
+                storageFile = str + storageFile;
+            }
+            return URLImage.createToStorage(placeholder, storageFile, str, adapter);
+        }
+        return null;
+        
+    }
+    
+    public URLImage createURLImageToFile(Property prop, EncodedImage placeholder, String file, URLImage.ImageAdapter adapter) {
+        String str = getText(prop);
+        if (str != null && (str.indexOf("http://") == 0 || str.indexOf("https://") == 0)) {
+            if (str.indexOf(" ") > 0) {
+                str = str.substring(0, str.indexOf(" "));
+            }
+            if (file == null) {
+                file = str + "@"+placeholder.getWidth()+"x"+placeholder.getHeight(); 
+            } else if (file.indexOf("@") == 0) {
+                file = str + file;
+            }
+            return URLImage.createToFileSystem(placeholder, file, str, adapter);
+        }
+        return null;
+        
+    }
+    
     
     public void setEntityType(EntityType entityType) {
         entityType.freeze();

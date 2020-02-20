@@ -5,8 +5,12 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.rad.nodes.ActionNode.ActionNodeEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A base class for all Controller classes.  
@@ -15,6 +19,18 @@ import com.codename1.ui.util.EventDispatcher;
 public class Controller implements ActionListener<ControllerEvent> {
     
     private Controller parent;
+    
+    private static class ActionHandler {
+        private ActionNode action;
+        private ActionListener<ActionNodeEvent> handler;
+        private ActionListener<ControllerEvent> wrapperListener;
+        
+    }
+    
+    private List<ActionHandler> actionHandlers = new ArrayList<>();
+    
+    
+    
     private EventDispatcher listeners = new EventDispatcher();
     {
         listeners.addListener(this);
@@ -42,6 +58,39 @@ public class Controller implements ActionListener<ControllerEvent> {
     
     public void removeEventListener(ActionListener<ControllerEvent> l) {
         listeners.removeListener(l);
+    }
+    
+    private ActionHandler findActionHandler(ActionNode action, ActionListener<ActionNodeEvent> l) {
+        ActionHandler h = null;
+        action = (ActionNode)action.getCanonicalNode();
+        for (ActionHandler candidate : actionHandlers) {
+            if (candidate.action == action && candidate.handler == l) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+    
+    public void addActionListener(ActionNode action, ActionListener<ActionNodeEvent> l) {
+        ActionHandler h = new ActionHandler();
+        h.action = (ActionNode)action.getCanonicalNode();
+        h.handler = l;
+        h.wrapperListener = evt -> {
+            if (ActionNode.getActionNodeEvent(evt, action) != null) {
+                l.actionPerformed((ActionNodeEvent)evt);
+            }
+        };
+        actionHandlers.add(h);
+        addEventListener(h.wrapperListener);
+        
+    }
+    
+    public void removeActionListener(ActionNode action, ActionListener<ActionNodeEvent> l) {
+        ActionHandler h = findActionHandler(action, l);
+        if (h != null) {
+            listeners.removeListener(h.wrapperListener);
+            actionHandlers.remove(h);
+        }
     }
     
     /**
@@ -110,6 +159,10 @@ public class Controller implements ActionListener<ControllerEvent> {
             return parent.getApplicationController();
         }
         return null;
+    }
+    
+    public void setParent(Controller parent) {
+        this.parent = parent;
     }
     
 }

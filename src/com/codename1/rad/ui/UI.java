@@ -6,6 +6,8 @@
 package com.codename1.rad.ui;
 
 
+import ca.weblite.shared.components.table.DefaultTableCellEditor;
+import ca.weblite.shared.components.table.DefaultTableCellRenderer;
 import com.codename1.rad.attributes.ActionStyleAttribute;
 import com.codename1.rad.events.EventFactory;
 import com.codename1.rad.nodes.FormNode;
@@ -37,6 +39,7 @@ import ca.weblite.shared.components.table.TableCellRenderer;
 import com.codename1.rad.attributes.Condition;
 import com.codename1.rad.attributes.SelectedCondition;
 import com.codename1.rad.attributes.UIID;
+import com.codename1.rad.events.DefaultEventFactory;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.DateFormatterAttribute;
 import com.codename1.rad.models.EntityTest;
@@ -45,6 +48,7 @@ import com.codename1.rad.models.NumberFormatterAttribute;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Editable;
 import com.codename1.rad.models.Tag;
+import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.nodes.ActionNode.EnabledCondition;
 import com.codename1.rad.text.CurrencyFormatter;
 import com.codename1.rad.text.DateFormatter;
@@ -68,6 +72,19 @@ import com.codename1.util.EasyThread;
 public class UI extends EntityType implements ActionCategories, WidgetTypes {
     private FormNode root;
     private static EntityViewFactory defaultEntityViewFactory;
+    private static ActionViewFactory defaultActionViewFactory;
+    private static EventFactory defaultEventFactory;
+    private static PropertyViewFactory defaultPropertyViewFactory;
+    private static TableCellRenderer defaultTableCellRenderer;
+    private static TableCellEditor defaultTableCellEditor;
+    private static StrongCache cache;
+    
+    public static StrongCache getCache() {
+        if (cache == null) {
+            cache = new StrongCache();
+        }
+        return cache;
+    }
     
     public static void setDefaultEntityViewFactory(EntityViewFactory factory) {
         defaultEntityViewFactory = factory;
@@ -91,6 +108,64 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         }
         return defaultEntityViewFactory;
     }
+    
+    public static ActionViewFactory getDefaultActionViewFactory() {
+        if (defaultActionViewFactory == null) {
+            defaultActionViewFactory = new DefaultActionViewFactory();
+        }
+        return defaultActionViewFactory;
+    }
+    
+    public static void setDefaultActionViewFactory(ActionViewFactory factory) {
+        defaultActionViewFactory = factory;
+    }
+    
+    public static EventFactory getDefaultEventFactory() {
+        if (defaultEventFactory == null) {
+            defaultEventFactory = new DefaultEventFactory();
+        }
+        return defaultEventFactory;
+    }
+    
+    public static void setDefaultEventFactory(EventFactory factory) {
+        defaultEventFactory = factory;
+    }
+    
+    public static PropertyViewFactory getDefaultPropertyViewFactory() {
+        if (defaultPropertyViewFactory == null) {
+            defaultPropertyViewFactory = new DefaultPropertyViewFactory();
+        }
+        return defaultPropertyViewFactory;
+    }
+    
+    public static void setDefaultPropertyViewFactory(PropertyViewFactory factory) {
+        defaultPropertyViewFactory = factory;
+    }
+    
+    public static TableCellRenderer getDefaultTableCellRenderer() {
+        if (defaultTableCellRenderer == null) {
+            defaultTableCellRenderer = new DefaultTableCellRenderer();
+        }
+        return defaultTableCellRenderer;
+    }
+    
+    public static void setDefaultTableCellRenderer(TableCellRenderer renderer) {
+        defaultTableCellRenderer = renderer;
+    }
+    
+    public static TableCellEditor getDefaultTableCellEditor() {
+        if (defaultTableCellEditor == null) {
+            defaultTableCellEditor = new DefaultTableCellEditor();
+        }
+        return defaultTableCellEditor;
+    }
+    
+    public static void setDefaultTableCellEditor(TableCellEditor editor) {
+        defaultTableCellEditor = editor;
+    }
+    
+    
+    
     
     public static EntityViewFactoryNode viewFactory(EntityViewFactory factory) {
         return new EntityViewFactoryNode(factory);
@@ -212,6 +287,12 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         return new ActionsNode(atts);
     }
     
+    public static ActionsNode actions(Category category, Actions actions) {
+        ActionsNode out = actions(actions.toArray());
+        out.setAttributes(category);
+        return out;
+    }
+    
     public static MaterialIcon icon(char icon) {
         return new MaterialIcon(icon);
     }
@@ -309,6 +390,7 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         }
         imageProcessingThread.run(r);
     }
+    
     
     
 }

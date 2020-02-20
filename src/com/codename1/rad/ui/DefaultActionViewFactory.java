@@ -49,7 +49,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         }
         EnabledCondition enabledCond = action.getEnabledCondition();
         if (enabledCond != null) {
-            boolean enabled = !enabledCond.getValue().test(entity);
+            boolean enabled = enabledCond.getValue().test(entity);
             if (enabled != btn.isEnabled()) {
                 btn.setEnabled(enabled);
                 repaint = true;
@@ -105,6 +105,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         }
         
         Button button = btn;
+        
         if (action.getLabel() != null && text) {
             button.setText(action.getLabel().getValue());
         }

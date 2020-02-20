@@ -98,7 +98,6 @@ public interface CreativeWork extends Thing {
             temporal = new Tag(),
             temporalCoverage = new Tag(),
             text = new Tag(),
-            thumbnailUrl = new Tag(),
             timeRequired = new Tag(),
             translationOfWork = new Tag(),
             translator = new Tag(),

@@ -24,6 +24,16 @@ public class EventContext {
         this.action = action;
     }
     
+    public EventContext copyWithNewAction(ActionNode action) {
+        EventContext out = new EventContext(entity, eventSource, action);
+        if (extraData != null) {
+            out.extraData = new HashMap<>();
+            out.extraData.putAll(extraData);
+        }
+        return out;
+    }
+    
+    
     public EventContext() {
         
     }

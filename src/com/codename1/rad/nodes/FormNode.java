@@ -6,11 +6,6 @@
 package com.codename1.rad.nodes;
 
 import com.codename1.rad.ui.ActionCategories;
-import com.codename1.rad.ui.DefaultActionViewFactory;
-import com.codename1.rad.ui.DefaultEntityViewFactory;
-import com.codename1.rad.events.DefaultEventFactory;
-import com.codename1.rad.ui.DefaultPropertyViewFactory;
-import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.models.Attribute;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,20 +33,7 @@ public class FormNode extends Node implements Iterable<SectionNode>, ActionCateg
     public Attribute findAttribute(Class type) {
         Attribute out = super.findAttribute(type);
         
-        if (out == null && type == PropertyViewFactoryNode.class) {
-            // IF there is no fiew factory assigned, we'll just add a default factory.
-            out = new PropertyViewFactoryNode(new DefaultPropertyViewFactory());
-            setAttributes(out);
-        } else if (out == null && type == EventFactoryNode.class) {
-            out = new EventFactoryNode(new DefaultEventFactory());
-            setAttributes(out);
-        }
-        if (out == null && type == ActionViewFactoryNode.class) {
-            out = new ActionViewFactoryNode(new DefaultActionViewFactory());
-        }
-        if (out == null && type == EntityViewFactoryNode.class) {
-            out = new EntityViewFactoryNode(new DefaultEntityViewFactory(), null);
-        }
+        
         return out;
     }
 

@@ -68,14 +68,14 @@ public class DefaultEntityListCellRenderer implements EntityListCellRenderer {
             if (!leftSwipeActions.isEmpty()) {
                 leftCnt = new Container(new GridLayout(leftSwipeActions.size()));
                 for (ActionNode action : leftSwipeActions) {
-                    leftCnt.add(action.getViewFactory().getValue().createActionView(entity, action));
+                    leftCnt.add(action.getViewFactory().createActionView(entity, action));
                 }
                 
             }
             if (!rightSwipeActions.isEmpty()) {
                rightCnt = new Container(new GridLayout(rightSwipeActions.size()));
                 for (ActionNode action : rightSwipeActions) {
-                    rightCnt.add(action.getViewFactory().getValue().createActionView(entity, action));
+                    rightCnt.add(action.getViewFactory().createActionView(entity, action));
                 }
             }
             SwipeableContainer swipeWrapper = new SwipeableContainer((Component)leftCnt, (Component)rightCnt, view);

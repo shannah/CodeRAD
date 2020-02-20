@@ -23,6 +23,7 @@ public interface Thing {
             potentialAction = new Tag(),
             sameAs = new Tag(),
             subjectOf = new Tag(),
-            url = new Tag();
+            url = new Tag(),
+            thumbnailUrl = new Tag();
             
 }

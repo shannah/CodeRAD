@@ -14,7 +14,9 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Border;
 
 /**
- *
+ * An entity view that is made explicitly to wrap another component.  
+ * May be handy if you have a renderer that must return an EntityView, and all you have
+ * is a regular component, then you can wrap the component in this view, and return it.
  * @author shannah
  */
 public class WrapperEntityView<T extends Entity> extends AbstractEntityView<T> {

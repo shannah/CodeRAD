@@ -1,0 +1,425 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.codename1.rad.ui.entityviews;
+
+import ca.weblite.shared.components.ComponentImage;
+import com.codename1.rad.models.ContentType;
+import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.Property;
+import com.codename1.rad.models.Tag;
+import com.codename1.rad.models.Tags;
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.rad.nodes.ActionNode.Category;
+import com.codename1.rad.nodes.Node;
+import com.codename1.rad.nodes.ViewNode;
+import com.codename1.rad.schemas.ListRowItem;
+import com.codename1.rad.schemas.Thing;
+import com.codename1.rad.ui.AbstractEntityView;
+import com.codename1.rad.ui.Actions;
+import com.codename1.rad.ui.EntityView;
+import com.codename1.rad.ui.UI;
+import com.codename1.rad.ui.ViewProperty;
+import com.codename1.rad.ui.ViewPropertyParameter;
+import com.codename1.rad.ui.image.AsyncImage;
+import com.codename1.rad.ui.image.EntityImageRenderer;
+import com.codename1.rad.ui.image.FirstCharEntityImageRenderer;
+import com.codename1.rad.ui.image.WrappedImage;
+import com.codename1.rad.ui.menus.PopupActionsMenu;
+import com.codename1.ui.Button;
+import com.codename1.ui.CN;
+import static com.codename1.ui.CN.NORTH;
+import static com.codename1.ui.ComponentSelector.$;
+import com.codename1.ui.EncodedImage;
+import com.codename1.ui.FontImage;
+import com.codename1.ui.Form;
+import com.codename1.ui.Graphics;
+import com.codename1.ui.Image;
+import com.codename1.ui.Label;
+import com.codename1.ui.URLImage;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
+import com.codename1.ui.geom.Dimension;
+import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.plaf.Border;
+
+/**
+ * A view that shows a profile's avatar filled in a circle.  For best results, the view model (entity) should
+ * contain both an "icon" property and a "name" property.  If an "icon" property is defined in the entity type,
+ * and the entity contains a valid value for this property (e.g. a URL for an image), then, this image 
+ * will be used as the icon.  If the entity doesn't have an icon, but a "name" property is defined and is non-empty
+ * in the entity, then the name will be used to create a badge with the first letter of the entity name.  If neither an
+ * icon, nor a name can be found on entity, it will simply display the {@link FontImage#MATERIAL_ACCOUNT_CIRCLE} material icon.
+ * 
+ * <h3>Property Resolution</h3>
+ * 
+ * <p>As mentioned above, the view model should contain both an "icon" and "name" property for best results.  The easiest way
+ * to achieve this is to add the {@link #icon} or {@link Thing#thumbnailUrl} tag to the property you wish to use for the icon, and the {@link Thing#name} tag to the
+ * property you wish to use for the name.  This view does, however, provide view properties that you can use to customize
+ * how the icon and name properties are resolved.</p>
+ * 
+ * <h4>Icon Property Resolution</h4>
+ * 
+ * <p>The Icon property will be resolved in the following order, until it identifies an eligible property on the view model:</p>
+ * 
+ * <ol>
+ *  <li>It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the  {@link #ICON_PROPERTY} view property, and use its value, if set.</li>
+ *  <li>It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the {@link #ICON_PROPERTY_TAGS}.  If found, it will use these tags to try to resolve
+ * the icon property on the view model.</li>
+ * <li>It will look for a property on the view model tagged with {@link #icon} or {@link Thing#thumbnailUrl} (in that order).  If found, it will use that property.</li>
+ * </ol>
+ * 
+ * <h4>Name Property Resolution</h4>
+ * 
+ * <p>The Name property will be resolved in the following order, until it identifies an eligible property on the view model:</p>
+ * 
+ * <ol>
+ *  <li>It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the  {@link #NAME_PROPERTY} view property, and use its value, if set.</li>
+ *  <li>It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the {@link #NAME_PROPERTY_TAGS}.  If found, it will use these tags to try to resolve
+ * the name property on the view model.</li>
+ * <li>It will look for a property on the view model tagged with {@link #name}.  If found, it will use that property.</li>
+ * </ol>
+ * 
+ * <h3>Supported Actions</h3>
+ * 
+ * <p>The following actions are supported on this view:</p>
+ * 
+ * <ul>
+ *   <li>{@link #PROFILE_AVATAR_CLICKED}</li>
+ *   <li>{@link #PROFILE_AVATAR_CLICKED_MENU}</li>
+ *  <li>{@link #PROFILE_AVATAR_LONG_PRESS}</li>
+ *   <li>{@link #PROFILE_AVATAR_LONG_PRESS_MENU}</li>
+ * </ul>
+ * 
+ * 
+ * @author shannah
+ */
+public class ProfileAvatarView extends AbstractEntityView {
+    private static final String CACHE_KEY = "circle-mask-";
+    
+    
+    
+    private Button leadButton = new Button();
+    
+    /**
+     * Default tag to mark the "icon" property in the view model.
+     * @see ListRowItem#icon
+     */
+    public static final Tag icon = ListRowItem.icon;
+    
+    /**
+     * Default tag to mark the "name" property in the view model.
+     * @see Thing#name
+     */
+    public static final Tag name = Thing.name;
+    
+    private Property iconProp, nameProp;
+    private Label label = new Label();
+    private float sizeMM = 10f;
+    
+    public static final ViewProperty<Property> 
+            
+            /**
+             * Optional view property to specify the property to use for the icon.
+             */
+            ICON_PROPERTY = new ViewProperty(ContentType.createObjectType(Property.class)),
+            
+            /**
+             * Optional view property to specify the property to use for the profile name;
+             */
+            NAME_PROPERTY = new ViewProperty(ContentType.createObjectType(Property.class));
+    
+    
+
+    public static final ViewProperty<Tags> 
+            
+            /**
+             * Optional view property to specify the tags to use for the icon property.
+             * 
+             */
+            ICON_PROPERTY_TAGS = new ViewProperty(ContentType.createObjectType(Tags.class)),
+            
+            /**
+             * Optional view property to specify the tags to use for the name property.
+             */
+            NAME_PROPERTY_TAGS = new ViewProperty(ContentType.createObjectType(Tags.class));
+    private static final ViewPropertyParameter 
+            
+            
+            defaultIconPropertyTags = ViewPropertyParameter.createValueParam(ICON_PROPERTY_TAGS, new Tags(icon, Thing.thumbnailUrl)),
+            defaultNamePropertyTags = ViewPropertyParameter.createValueParam(NAME_PROPERTY_TAGS, new Tags(name))
+            ;
+    
+    /**
+     * Action that will be fired when the avatar is clicked.
+     */
+    public static final Category PROFILE_AVATAR_CLICKED = new Category();
+    
+    /**
+     * Action that will be fired when user long presses on the avatar.
+     */
+    public static final Category PROFILE_AVATAR_LONG_PRESS = new Category();
+    
+    /**
+     * Actions that should appear in a popup menu when the avatar is clicked.  Popup menu
+     * will only be displayed if the {@link #PROFILE_AVATAR_CLICKED} action was not consumed.
+     */
+    public static final Category PROFILE_AVATAR_CLICKED_MENU = new Category();
+    
+    /**
+     * Actions that should appear in a popup menu when the avatar is long pressed.  Popup menu
+     * will only be displayed if the {@link #PROFILE_AVATAR_LONG_PRESS} action was not consumed.
+     */
+    public static final Category PROFILE_AVATAR_LONG_PRESS_MENU = new Category();
+    
+    private Node node;
+    
+    
+    /**
+     * Listener attached to the lead button to receive click and long press events.
+     * This will convert the event into {@link #PROFILE_AVATAR_CLICKED} or {@link #PROFILE_AVATAR_LONG_PRESS}
+     * events.
+     */
+    private final ActionListener avatarClickedListener = evt->{
+        evt.consume();
+        if (evt.isLongEvent()) {
+            
+            ActionNode action = node.getInheritedAction(PROFILE_AVATAR_LONG_PRESS);
+            
+            if (action != null) {
+                ActionEvent ae = action.fireEvent(getEntity(), this);
+                if (ae.isConsumed()) {
+                    return;
+                }
+                
+            }
+            Actions menu = node.getInheritedActions(PROFILE_AVATAR_LONG_PRESS_MENU).getEnabled(getEntity());
+            if (!menu.isEmpty()) {
+                PopupActionsMenu popupMenu = new PopupActionsMenu(menu, getEntity(), ProfileAvatarView.this);
+                popupMenu.showPopupDialog(ProfileAvatarView.this);
+            }
+            
+            
+        } else {
+            ActionNode action = node.getInheritedAction(PROFILE_AVATAR_CLICKED);
+            
+            if (action != null) {
+                ActionEvent ae = action.fireEvent(getEntity(), this);
+                if (ae.isConsumed()) {
+                    return;
+                }
+            }
+            
+            Actions menu = node.getInheritedActions(PROFILE_AVATAR_CLICKED_MENU).getEnabled(getEntity());
+            if (!menu.isEmpty()) {
+                PopupActionsMenu popupMenu = new PopupActionsMenu(menu, getEntity(), ProfileAvatarView.this);
+                popupMenu.showPopupDialog(ProfileAvatarView.this);
+            }
+        }
+        
+ 
+    };
+    
+    /**
+     * Creates an avatar for the given profile entity, with the given icon diameter.
+     * @param entity The view model.
+     * @param sizeMM The size of the avatar icon in mm.
+     */
+    public ProfileAvatarView(Entity entity, float sizeMM) {
+        this(entity, new ViewNode(), sizeMM);
+    }
+    
+    /**
+     * Creats an avatar for the given profile entity, with icon diameter and UI descriptor node.
+     * @param entity The view model
+     * @param node The ui view descriptor.  This can be used to register actions, view properties, etc... to customize the view.
+     * @param sizeMM The size of the avatar icon in mm.
+     */
+    public ProfileAvatarView(Entity entity, Node node, float sizeMM) {
+        super(entity);
+        setUIID("ProfileAvatarView");
+        setGrabsPointerEvents(true);
+        setFocusable(true);
+        this.sizeMM = sizeMM;
+        
+        this.node = node;
+        
+       
+        
+        Tags iconTags = (Tags)node.getViewParameter(
+                ICON_PROPERTY_TAGS,
+                defaultIconPropertyTags
+        ).getValue();
+        
+        Tags nameTags = (Tags)node.getViewParameter(
+                NAME_PROPERTY_TAGS,
+                defaultNamePropertyTags
+        ).getValue();
+        
+        
+        iconProp = (Property)node.getViewParameterValue(ICON_PROPERTY);
+        nameProp = (Property)node.getViewParameterValue(NAME_PROPERTY);
+        
+        
+        if (entity != null) {
+
+            if (iconProp == null) {
+                iconProp = entity.getEntityType().findProperty(iconTags.toArray());
+            }
+            if (nameProp == null) {
+                nameProp = entity.getEntityType().findProperty(nameTags.toArray());
+            }
+        }
+        setLayout(new BorderLayout());
+        $(label).selectAllStyles().setPadding(0).setMargin(0).setBorder(Border.createEmpty()).setBgTransparency(0x0);
+        $(this).selectAllStyles().setPadding(0).setBorder(Border.createEmpty()).setBgTransparency(0x0).setMarginMillimeters(0.5f);
+        FontImage.setMaterialIcon(label, FontImage.MATERIAL_ACCOUNT_CIRCLE, sizeMM);
+        add(CENTER, label);
+        
+        setLeadComponent(leadButton);
+        leadButton.setHidden(true);
+        leadButton.setVisible(false);
+        add(NORTH, leadButton);
+        
+        
+        
+        update();
+        
+        
+    }
+    
+    private Object getCircleMask() {
+        int size = CN.convertToPixels(sizeMM);
+        String cacheKey = CACHE_KEY+size;
+        Object mask = UI.getCache().get(cacheKey);
+        if (mask != null) {
+            return mask;
+        }
+        
+        Image roundMask = Image.createImage(size, size, 0xff000000);
+        Graphics gr = roundMask.getGraphics();
+        gr.setColor(0xffffff);
+        gr.setAntiAliased(true);
+        gr.fillArc(0, 0, size, size, 0, 360);
+        mask = roundMask.createMask();
+        UI.getCache().set(cacheKey, mask);
+        return mask;
+    }
+
+    @Override
+    protected Dimension calcPreferredSize() {
+        int size = CN.convertToPixels(sizeMM);
+        return new Dimension(size, size);
+    }
+    
+    private boolean iconLoaded;
+
+    @Override
+    public void update() {
+        if (iconLoaded) {
+            return;
+        }
+        iconLoaded = true;
+        if (getEntity() != null) {
+            
+
+            if (iconProp != null) {
+                System.out.println("Updating icon in account avatar");
+                int sizePx = CN.convertToPixels(sizeMM);
+                URLImage img = getEntity().createURLImageToStorage(iconProp, 
+                        EncodedImage.createFromImage(label.getIcon().fill(sizePx, sizePx), false), 
+                        "@avatar"+label.getIcon().getWidth()+"x"+label.getIcon().getHeight(), 
+                        URLImage.createMaskAdapter(getCircleMask()));
+                if (img != null) {
+                    label.setIcon(img);
+                    return;
+                }
+                
+            }
+
+            if (nameProp != null) {
+                FirstCharEntityImageRenderer renderer = new FirstCharEntityImageRenderer(sizeMM);
+
+                AsyncImage img = renderer.createImage(this, nameProp, 0, false, false);
+                if (img != null) {
+                    img.ready(im->{
+                        label.setIcon(im);
+                        Form f = label.getComponentForm();
+                        if (f != null) {
+                            label.repaint();
+                            
+                        }
+                    });
+                    return;
+                }
+
+            }
+            FontImage.setMaterialIcon(label, FontImage.MATERIAL_ACCOUNT_CIRCLE, sizeMM);
+            
+        } else {
+            FontImage.setMaterialIcon(label, FontImage.MATERIAL_ACCOUNT_CIRCLE, sizeMM);
+        }
+    }
+    
+    /**
+     * Sets the this view as the icon for the given label.
+     * @param label 
+     */
+    public void setIcon(Label label) {
+        int sizePx = CN.convertToPixels(sizeMM);
+        setWidth(sizePx);
+        setHeight(sizePx);
+        layoutContainer();
+        label.setIcon(new ComponentImage(this, sizePx, sizePx));
+    }
+
+    @Override
+    public void commit() {
+        
+    }
+
+    @Override
+    public Node getViewNode() {
+        return node;
+    }
+
+    /**
+     * An image renderer that will render a {@link ProfileAvatarView} as an image for the given entity.
+     */
+    public static class ImageRenderer implements EntityImageRenderer {
+
+        private float sizeMM = 10f;
+        
+        public ImageRenderer(float sizeMM) {
+            this.sizeMM = sizeMM;
+        }
+        
+        @Override
+        public AsyncImage createImage(EntityView view, Property property, int rowIndex, boolean selected, boolean focused) {
+            int size = CN.convertToPixels(sizeMM);
+            return new WrappedImage(new ComponentImage(new ProfileAvatarView(view.getEntity(), view.getViewNode(), sizeMM), size, size));
+        }
+        
+    }
+
+    @Override
+    public void bind() {
+        super.bind();
+        leadButton.addActionListener(avatarClickedListener);
+        leadButton.addLongPressListener(avatarClickedListener);
+    }
+
+    @Override
+    public void unbind() {
+        leadButton.removeActionListener(avatarClickedListener);
+        leadButton.removeLongPressListener(avatarClickedListener);
+        super.unbind();
+    }
+    
+    
+    
+    
+    
+}

@@ -98,11 +98,11 @@ public class DefaultPropertyViewFactory implements PropertyViewFactory {
                 PropertyViewFactory viewFactory = null;
                 PropertyViewFactoryNode viewFactoryNode = (PropertyViewFactoryNode)field.findInheritedAttribute(PropertyViewFactoryNode.class);
                 if (viewFactoryNode == null) {
-                    viewFactory = new DefaultPropertyViewFactory();
+                    viewFactory = UI.getDefaultPropertyViewFactory();
                 } else {
                     viewFactory = viewFactoryNode.getValue();
                 }
-                cellEditor = new EntityListTableCellEditor(new DefaultTableCellEditor(), viewFactory);
+                cellEditor = new EntityListTableCellEditor(UI.getDefaultTableCellEditor(), viewFactory);
             } else {
                 cellEditor = cellEditorAtt.getValue();
             }
@@ -113,11 +113,11 @@ public class DefaultPropertyViewFactory implements PropertyViewFactory {
                 PropertyViewFactory viewFactory = null;
                 PropertyViewFactoryNode viewFactoryNode = (PropertyViewFactoryNode)field.findInheritedAttribute(PropertyViewFactoryNode.class);
                 if (viewFactoryNode == null) {
-                    viewFactory = new DefaultPropertyViewFactory();
+                    viewFactory = UI.getDefaultPropertyViewFactory();
                 } else {
                     viewFactory = viewFactoryNode.getValue();
                 }
-                cellRenderer = new EntityListTableCellRenderer(new DefaultTableCellRenderer(), viewFactory);
+                cellRenderer = new EntityListTableCellRenderer(UI.getDefaultTableCellRenderer(), viewFactory);
             }
             Table out = new Table(tableModel, cellRenderer, cellEditor);
             out.setEditable(field.isEditable());

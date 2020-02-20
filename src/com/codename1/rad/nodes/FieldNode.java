@@ -15,6 +15,8 @@ import com.codename1.rad.models.Property.Editable;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Property.Widget;
 import com.codename1.rad.models.Tags;
+import com.codename1.rad.ui.PropertyViewFactory;
+import com.codename1.rad.ui.UI;
 
 
 /**
@@ -162,10 +164,12 @@ public class FieldNode extends Node implements Proxyable {
     }
     
     
-    public PropertyViewFactoryNode getViewFactory() {
+    public PropertyViewFactory getViewFactory() {
         PropertyViewFactoryNode n = (PropertyViewFactoryNode) findInheritedAttribute(PropertyViewFactoryNode.class);
-        
-        return n;
+        if (n != null) {
+            return n.getValue();
+        }
+        return UI.getDefaultPropertyViewFactory();
     }
     
     public OptionsNode getOptions() {

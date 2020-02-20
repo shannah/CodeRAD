@@ -12,12 +12,14 @@ import com.codename1.rad.ui.NodeDecorator;
 import com.codename1.rad.ui.UI;
 import static com.codename1.rad.ui.UI.iconRenderer;
 import com.codename1.rad.attributes.UIID;
+import com.codename1.rad.models.Tag;
 import com.codename1.rad.ui.entityviews.MultiButtonEntityView;
 import com.codename1.rad.ui.image.FirstCharEntityImageRenderer;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ActionsNode;
 import com.codename1.rad.nodes.ListNode;
 import com.codename1.rad.nodes.Node;
+import com.codename1.rad.schemas.ListRowItem;
 import com.codename1.rad.schemas.Thing;
 
 /**
@@ -25,7 +27,8 @@ import com.codename1.rad.schemas.Thing;
  * @author shannah
  */
 public class ContactListDecorator implements NodeDecorator, ActionCategories {
-
+    
+    
     @Override
     public void decorate(Node node) {
         if (!(node instanceof ListNode)) {

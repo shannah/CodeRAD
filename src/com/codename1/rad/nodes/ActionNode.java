@@ -26,6 +26,7 @@ import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.rad.models.EntityTest;
 import com.codename1.rad.models.Property.Test;
 import com.codename1.rad.ui.DefaultActionViewFactory;
+import com.codename1.rad.ui.UI;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.ActionSource;
@@ -60,8 +61,13 @@ public class ActionNode extends Node implements Proxyable {
         return (EventFactoryNode)findInheritedAttribute(EventFactoryNode.class);
     }
     
-    public ActionViewFactoryNode getViewFactory() {
-        return (ActionViewFactoryNode)findInheritedAttribute(ActionViewFactoryNode.class);
+    public ActionViewFactory getViewFactory() {
+        ActionViewFactoryNode n =  (ActionViewFactoryNode)findInheritedAttribute(ActionViewFactoryNode.class);
+        if (n != null) {
+            return n.getValue();
+        } else {
+            return UI.getDefaultActionViewFactory();
+        }
     }
     
     @Override
@@ -165,6 +171,23 @@ public class ActionNode extends Node implements Proxyable {
     
     public EnabledCondition getEnabledCondition() {
         return (EnabledCondition)findAttribute(EnabledCondition.class);
+    }
+    
+    public boolean isEnabled(Entity entity) {
+        EnabledCondition cond = getEnabledCondition();
+        if (cond != null) {
+            return cond.getValue().test(entity);
+        }
+        return true;
+    
+    }
+    
+    public boolean isSelected(Entity entity) {
+        SelectedCondition cond = getSelectedCondition();
+        if (cond != null) {
+            return cond.getValue().test(entity);
+        }
+        return true;
     }
     
     public ImageIcon getImageIcon() {
@@ -274,6 +297,17 @@ public class ActionNode extends Node implements Proxyable {
         return null;
     }
     
+    public ActionEvent fireEvent(EventContext context) {
+        EventFactoryNode eventFactory = this.getEventFactory();
+        EventContext contextCopy = context.copyWithNewAction(this);
+        ActionEvent actionEvent = eventFactory.getValue().createEvent(contextCopy);
+
+        ActionSupport.dispatchEvent(actionEvent);
+        return actionEvent;
+    }
+    
+    
+    
     public ActionEvent fireEvent(Entity entity, Component source) {
         return fireEvent(entity, source, null);
     }
@@ -281,7 +315,7 @@ public class ActionNode extends Node implements Proxyable {
     public ActionEvent fireEvent(Entity entity, Component source, Map extraData) {
         EventFactoryNode eventFactory = this.getEventFactory();
         if (eventFactory == null) {
-            eventFactory = new EventFactoryNode(new DefaultEventFactory());
+            eventFactory = new EventFactoryNode(UI.getDefaultEventFactory());
         }
         EventContext eventContext = new EventContext();
         eventContext.setEntity(entity);
@@ -335,9 +369,7 @@ public class ActionNode extends Node implements Proxyable {
     
     
     public Component createView(Entity entity) {
-        ActionViewFactoryNode factoryNode = this.getViewFactory();
-        ActionViewFactory factory = factoryNode != null ? factoryNode.getValue() : new DefaultActionViewFactory();
-        return factory.createActionView(entity, this);
+        return getViewFactory().createActionView(entity, this);
     }
    
     

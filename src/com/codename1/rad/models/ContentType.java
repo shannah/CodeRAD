@@ -29,6 +29,14 @@ public class ContentType<T> {
     public Class<T> getRepresentationClass() {
         return representationClass;
     }
+    
+    public boolean isEntity() {
+        return Entity.class.isAssignableFrom(getRepresentationClass());
+    }
+    
+    public boolean isEntityList() {
+        return EntityList.class.isAssignableFrom(getRepresentationClass());
+    }
 
     /**
      * @return the name

@@ -108,8 +108,10 @@ public class ComponentImage extends Image {
         //cmp.getStyle().setOpacity(255);
         //cmp.paintBackgrounds(g);
         //cmp.paint(g);
+        boolean antialias = g.isAntiAliased();
+        g.setAntiAliased(true);
         cmp.paintComponent(g, true);
-        
+        g.setAntiAliased(antialias);
         cmp.setX(oldX);
         cmp.setY(oldY);
         cmp.setWidth(oldW);

@@ -5,19 +5,16 @@
  */
 package com.codename1.rad.ui.table;
 
-import com.codename1.rad.ui.DefaultPropertyViewFactory;
 import com.codename1.rad.nodes.FieldNode;
-import com.codename1.rad.nodes.PropertyNode;
 import ca.weblite.shared.components.table.AbstractTableCellRenderer;
 import ca.weblite.shared.components.table.DefaultTableCellRenderer;
 import ca.weblite.shared.components.table.Table;
 import ca.weblite.shared.components.table.TableCellRenderer;
 import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Editable;
-import com.codename1.rad.models.Property.Label;
 import com.codename1.ui.Component;
 import com.codename1.rad.ui.PropertyViewFactory;
+import com.codename1.rad.ui.UI;
 
 /**
  *
@@ -34,15 +31,15 @@ public class EntityListTableCellRenderer extends  AbstractTableCellRenderer {
     }
     
     public EntityListTableCellRenderer(TableCellRenderer parent) {
-        this(parent, new DefaultPropertyViewFactory());
+        this(parent, UI.getDefaultPropertyViewFactory());
     }
     
     public EntityListTableCellRenderer(PropertyViewFactory viewFactory) {
-        this(new DefaultTableCellRenderer(), viewFactory);
+        this(UI.getDefaultTableCellRenderer(), viewFactory);
     }
     
     public EntityListTableCellRenderer() {
-        this(new DefaultTableCellRenderer(), new DefaultPropertyViewFactory());
+        this(UI.getDefaultTableCellRenderer(), UI.getDefaultPropertyViewFactory());
     }
 
     @Override

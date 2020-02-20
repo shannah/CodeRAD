@@ -27,18 +27,8 @@ public class PopupActionsMenu extends PopupMenu {
         boolean includesText = false;
         boolean includesIcon = false;
         for (ActionNode action : actions) {
-            ActionStyle actionStyle = action.getActionStyle();
             
-            if (actionStyle == null) {
-                actionStyle = ActionStyle.IconRight;
-            }
-            if (actionStyle != ActionStyle.IconOnly && action.getLabel() != null) {
-                includesText = true;
-            }
-            if (actionStyle != ActionStyle.TextOnly && (action.getMaterialIcon() != null || action.getImageIcon() != null)) {
-                includesIcon = true;
-            }
-            addCommand(action.createCommand(entity, source));
+            addCommand(action.getViewFactory().createActionView(entity, action));
             
             
         }

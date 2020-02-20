@@ -63,7 +63,7 @@ public class FieldEditor extends Container {
         WidgetType widgetType = field.getWidgetType(entity.getEntityType());
         if (widgetType != null) {
             
-            component = field.getViewFactory().getValue().createPropertyView(entity, field);
+            component = field.getViewFactory().createPropertyView(entity, field);
             wrap.add(BorderLayout.CENTER, component);
         } else {
             throw new IllegalStateException("Field "+field+" has not widget type");

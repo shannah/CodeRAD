@@ -12,6 +12,7 @@ import ca.weblite.shared.components.table.TableModel.TableModelEvent;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.DELETE;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.INSERT;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.UPDATE;
+import com.codename1.rad.ui.UI;
 import com.codename1.ui.CN;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
@@ -59,8 +60,8 @@ public class Table<T> extends Container {
     }
     private EventDispatcher listeners = new EventDispatcher();
     private TableModel model;
-    private TableCellRenderer renderer = new DefaultTableCellRenderer();
-    private TableCellEditor editor = new DefaultTableCellEditor();
+    private TableCellRenderer renderer = UI.getDefaultTableCellRenderer();
+    private TableCellEditor editor = UI.getDefaultTableCellEditor();
     private final ComplexSelection selection = new ComplexSelection();
     private int focusedRow, focusedCol;
     

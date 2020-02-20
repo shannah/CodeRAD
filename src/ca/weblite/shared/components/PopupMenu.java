@@ -11,6 +11,7 @@ import com.codename1.ui.Command;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
+import com.codename1.ui.events.ActionSource;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.Layout;
@@ -50,7 +51,7 @@ public class PopupMenu extends InteractionDialog {
     public void setMaterialIcon(char materialIcon) {
         this.materialIcon = materialIcon;
     }
-    private List<Command> commands = new ArrayList<Command>();
+    private List<Command> commands = new ArrayList<>();
     private Command cmd;
     private char materialIcon = FontImage.MATERIAL_MORE_VERT;
     private String commandLabel = "";
@@ -92,7 +93,15 @@ public class PopupMenu extends InteractionDialog {
         super.showPopupDialog(c); //To change body of generated methods, choose Tools | Templates.
     }
     
-    
+    public PopupMenu addCommand(Component component) {
+        commandsCnt.add(component);
+        if (component instanceof ActionSource) {
+            ((ActionSource)component).addActionListener(e->{
+                dispose();
+            });
+        }
+        return this;
+    }
     
     public PopupMenu addCommand(Command command) {
         commands.add(command);

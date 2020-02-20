@@ -34,6 +34,16 @@ public class Actions implements Iterable<ActionNode> {
         }
     }
     
+    public Actions getEnabled(Entity entity) {
+        Actions out = new Actions();
+        for (ActionNode action : this) {
+            if (action.isEnabled(entity)) {
+                out.add(action);
+            }
+        }
+        return out;
+    }
+    
     public int size() {
         return actions.size();
     }
