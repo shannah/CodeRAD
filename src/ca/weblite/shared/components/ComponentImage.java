@@ -17,9 +17,14 @@ import com.codename1.ui.plaf.Border;
  */
 public class ComponentImage extends Image {
 
-    Component cmp;
-    int w;
-    int h;
+    private Component cmp;
+    private int w;
+    private int h;
+    private boolean pulsingAnimation;
+    private double minPulsingAlpha = 0.2, maxPulsingAlpha = 1.0;
+    private double pulsingStepSize = 1;
+    private double pulsingCurrStep = 0;
+    private boolean animation;
 
     public ComponentImage(Component cmp, int w, int h) {
         super(null);
@@ -40,6 +45,25 @@ public class ComponentImage extends Image {
         cmp = new Label();
         this.w = w;
         this.h = h;
+    }
+    
+    public void enablePulsingAnimation(double currStep, double stepSize, double minAlpha, double maxAlpha) {
+        minAlpha = Math.min(1, Math.max(0, minAlpha));
+        maxAlpha = Math.min(1, Math.max(0, maxAlpha));
+        this.pulsingAnimation = true;
+        this.pulsingCurrStep = currStep;
+        this.pulsingStepSize = stepSize;
+        this.minPulsingAlpha = minAlpha;
+        this.maxPulsingAlpha = maxAlpha;
+    }
+    
+    public void disablePulsingAnimation() {
+        pulsingAnimation = false;
+        
+    }
+    
+    public boolean isPulsingAnimationEnabled() {
+        return pulsingAnimation;
     }
 
     @Override
@@ -71,9 +95,13 @@ public class ComponentImage extends Image {
         return new ComponentImage(cmp, w, h);
     }
 
+    public void setAnimation(boolean anim) {
+        this.animation = anim;
+    }
+    
     @Override
     public boolean isAnimation() {
-        return false;
+        return animation || pulsingAnimation;
     }
 
     @Override
@@ -83,6 +111,7 @@ public class ComponentImage extends Image {
 
     @Override
     protected void drawImage(Graphics g, Object nativeGraphics, int x, int y) {
+        
         int tx = g.getTranslateX();
         int ty = g.getTranslateY();
         //g.translate(-tx, -ty);
@@ -110,7 +139,18 @@ public class ComponentImage extends Image {
         //cmp.paint(g);
         boolean antialias = g.isAntiAliased();
         g.setAntiAliased(true);
+        
+        int alpha = g.getAlpha();
+        if (pulsingAnimation) {
+            double sinVal = (Math.sin(pulsingCurrStep) + 1)/2;
+            sinVal = minPulsingAlpha + (maxPulsingAlpha - minPulsingAlpha) * sinVal;
+            g.setAlpha((int)Math.round(sinVal * alpha));
+        }
+        
         cmp.paintComponent(g, true);
+        if (pulsingAnimation) {
+            g.setAlpha(alpha);
+        }
         g.setAntiAliased(antialias);
         cmp.setX(oldX);
         cmp.setY(oldY);
@@ -130,6 +170,16 @@ public class ComponentImage extends Image {
 
     @Override
     public boolean animate() {
-        return false;
+        if (pulsingAnimation) {
+            pulsingCurrStep += pulsingStepSize;
+            if (pulsingCurrStep >= Math.PI * 2) {
+                pulsingCurrStep -= Math.PI * 2;
+            }
+        }
+        cmp.animate();
+        return pulsingAnimation || animation;
     }
+    
+   
+    
 };
