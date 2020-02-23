@@ -328,7 +328,7 @@ public class ProfileAvatarView extends AbstractEntityView {
             if (iconProp != null) {
                 System.out.println("Updating icon in account avatar");
                 int sizePx = CN.convertToPixels(sizeMM);
-                URLImage img = getEntity().createURLImageToStorage(iconProp, 
+                Image img = getEntity().createImageToStorage(iconProp, 
                         EncodedImage.createFromImage(label.getIcon().fill(sizePx, sizePx), false), 
                         "@avatar"+label.getIcon().getWidth()+"x"+label.getIcon().getHeight(), 
                         URLImage.createMaskAdapter(getCircleMask()));

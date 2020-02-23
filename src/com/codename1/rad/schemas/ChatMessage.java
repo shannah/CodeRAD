@@ -15,4 +15,6 @@ public interface ChatMessage extends Comment {
     public static final Tag isOwnMessage = new Tag();
     public static final Tag isFavorite = new Tag();
     public static final Tag typingInProgress = new Tag();
+    public static final Tag attachment = new Tag();
+    public static final Tag attachmentPlaceholderImage = new Tag();
 }

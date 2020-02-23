@@ -23,6 +23,7 @@ public class PopupActionsMenu extends PopupMenu {
     
     
     public PopupActionsMenu(Actions actions, Entity entity, Component source) {
+        
         this.actions = actions;
         boolean includesText = false;
         boolean includesIcon = false;

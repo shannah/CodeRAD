@@ -9,6 +9,7 @@ import com.codename1.components.InteractionDialog;
 import com.codename1.ui.Button;
 import com.codename1.ui.Command;
 import com.codename1.ui.Component;
+import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.events.ActionSource;
@@ -58,7 +59,9 @@ public class PopupMenu extends InteractionDialog {
     private Container commandsCnt;
     public PopupMenu() {
         super(new BorderLayout());
-        
+        setUIID("PopupMenu");
+        setDialogUIID("PopupMenuContent");
+        $("DialogTitle", this).setUIID("PopupMenuTitle").setVisible(false).setHidden(true);
         commandsCnt = new Container(BoxLayout.y());
         commandsCnt.setScrollableY(true);
         setDisposeWhenPointerOutOfBounds(true);

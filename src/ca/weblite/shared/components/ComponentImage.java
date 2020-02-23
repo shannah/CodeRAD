@@ -6,6 +6,7 @@
 package ca.weblite.shared.components;
 
 import com.codename1.ui.Component;
+import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Graphics;
 import com.codename1.ui.Image;
 import com.codename1.ui.Label;
@@ -169,6 +170,13 @@ public class ComponentImage extends Image {
     }
 
     @Override
+    public Image scaled(int width, int height) {
+        return new ComponentImage(cmp, width, height);
+    }
+    
+    
+
+    @Override
     public boolean animate() {
         if (pulsingAnimation) {
             pulsingCurrStep += pulsingStepSize;
@@ -180,6 +188,36 @@ public class ComponentImage extends Image {
         return pulsingAnimation || animation;
     }
     
+    public EncodedImage toEncodedImage() {
+        return new EncodedWrapper();
+    }
+    
+    
+    public class EncodedWrapper extends EncodedImage {
+
+        EncodedWrapper() {
+            super(ComponentImage.this.getWidth(), ComponentImage.this.getHeight());
+        }
+
+        @Override
+        public EncodedImage scaledEncoded(int width, int height) {
+            return new ComponentImage(cmp, width, height).toEncodedImage();
+            
+        }
+
+        @Override
+        public Image scaled(int width, int height) {
+            return new ComponentImage(cmp, width, height).toEncodedImage();
+        }
+        
+        
+        
+        @Override
+        protected Image getInternal() {
+            return ComponentImage.this;
+        }
+        
+    }
    
     
 };

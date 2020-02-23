@@ -7,6 +7,7 @@ package com.codename1.rad.models;
 
 import com.codename1.ui.CN;
 import com.codename1.ui.EncodedImage;
+import com.codename1.ui.Image;
 import com.codename1.ui.URLImage;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
@@ -97,37 +98,103 @@ public class Entity extends Observable implements java.io.Serializable {
     
     
     
-    public URLImage createURLImageToStorage(Property prop, EncodedImage placeholder, String storageFile, URLImage.ImageAdapter adapter) {
-        String str = getText(prop);
-        if (str != null && (str.indexOf("http://") == 0 || str.indexOf("https://") == 0)) {
-            if (str.indexOf(" ") > 0) {
-                str = str.substring(0, str.indexOf(" "));
-            }
-            if (storageFile == null) {
-                storageFile = str + "@"+placeholder.getWidth()+"x"+placeholder.getHeight(); 
-            } else if (storageFile.indexOf("@") == 0) {
-                storageFile = str + storageFile;
-            }
-            return URLImage.createToStorage(placeholder, storageFile, str, adapter);
-        }
-        return null;
-        
+    public Image createImageToStorage(Tag tag, EncodedImage placeholder, URLImage.ImageAdapter adapter) {
+        return createImageToStorage(tag, placeholder, null, adapter);
     }
     
-    public URLImage createURLImageToFile(Property prop, EncodedImage placeholder, String file, URLImage.ImageAdapter adapter) {
-        String str = getText(prop);
-        if (str != null && (str.indexOf("http://") == 0 || str.indexOf("https://") == 0)) {
-            if (str.indexOf(" ") > 0) {
-                str = str.substring(0, str.indexOf(" "));
-            }
-            if (file == null) {
-                file = str + "@"+placeholder.getWidth()+"x"+placeholder.getHeight(); 
-            } else if (file.indexOf("@") == 0) {
-                file = str + file;
-            }
-            return URLImage.createToFileSystem(placeholder, file, str, adapter);
+    public Image createImageToStorage(Property prop, EncodedImage placeholder, URLImage.ImageAdapter adapter) {
+        return createImageToStorage(prop, placeholder, null, adapter);
+    }
+    
+    public Image createImageToStorage(Tag tag, EncodedImage placeholder) {
+        return createImageToStorage(tag, placeholder, null, null);
+    }
+    
+    public Image createImageToStorage(Property prop, EncodedImage placeholder) {
+        return createImageToStorage(prop, placeholder, null, null);
+    }
+    
+    public Image createImageToStorage(Tag tag, EncodedImage placeholder, String storageFile) {
+        return createImageToStorage(tag, placeholder, storageFile, null);
+    }
+    
+    public Image createImageToStorage(Property prop, EncodedImage placeholder, String storageFile) {
+        return createImageToStorage(prop, placeholder, storageFile, null);
+    }
+    
+    public Image createImageToStorage(Tag tag, EncodedImage placeholder, String storageFile, URLImage.ImageAdapter adapter) {
+        Property prop = getEntityType().findProperty(tag);
+        if (prop == null) {
+            return placeholder;
         }
-        return null;
+        return createImageToStorage(prop, placeholder, storageFile, adapter);
+    }
+    
+    public Image createImageToStorage(Property prop, EncodedImage placeholder, String storageFile, URLImage.ImageAdapter adapter) {
+        String str = getText(prop);
+        if (str == null || str.length() == 0) {
+            return placeholder;
+        }
+        
+        if (str.indexOf(" ") > 0) {
+            str = str.substring(0, str.indexOf(" "));
+        }
+        if (storageFile == null) {
+            storageFile = str + "@"+placeholder.getWidth()+"x"+placeholder.getHeight(); 
+        } else if (storageFile.indexOf("@") == 0) {
+            storageFile = str + storageFile;
+        }
+        return URLImage.createToStorage(placeholder, storageFile, str, adapter);
+        
+        
+        
+    }
+    public Image createImageToFile(Tag tag, EncodedImage placeholder, URLImage.ImageAdapter adapter) {
+        return createImageToFile(tag, placeholder, null, adapter);
+    }
+    
+    public Image createImageToFile(Property prop, EncodedImage placeholder, URLImage.ImageAdapter adapter) {
+        return createImageToFile(prop, placeholder, null, adapter);
+    }
+    
+    public Image createImageToFile(Tag tag, EncodedImage placeholder) {
+        return createImageToFile(tag, placeholder, (String)null);
+    }
+    
+    public Image createImageToFile(Property prop, EncodedImage placeholder) {
+        return createImageToFile(prop, placeholder, (String)null);
+    }
+    
+    public Image createImageToFile(Tag tag, EncodedImage placeholder, String file) {
+        
+    
+        return createImageToFile(tag, placeholder, file, null);
+    }
+    public Image createImageToFile(Property prop, EncodedImage placeholder, String file) {
+        return createImageToFile(prop, placeholder, file, null);
+    }
+    public Image createImageToFile(Tag tag, EncodedImage placeholder, String file, URLImage.ImageAdapter adapter) {
+        Property prop = getEntityType().findProperty(tag);
+        if (prop == null) {
+            return placeholder;
+        }
+        return createImageToFile(prop, placeholder, file, adapter);
+    }
+    public Image createImageToFile(Property prop, EncodedImage placeholder, String file, URLImage.ImageAdapter adapter) {
+        String str = getText(prop);
+        if (str == null || str.length() == 0) {
+            return placeholder;
+        }
+        
+        if (str.indexOf(" ") > 0) {
+            str = str.substring(0, str.indexOf(" "));
+        }
+        if (file == null) {
+            file = str + "@"+placeholder.getWidth()+"x"+placeholder.getHeight(); 
+        } else if (file.indexOf("@") == 0) {
+            file = str + file;
+        }
+        return URLImage.createToFileSystem(placeholder, file, str, adapter);
         
     }
     
@@ -142,6 +209,41 @@ public class Entity extends Observable implements java.io.Serializable {
             entityType = new DynamicEntityType();
         }
         return entityType;
+    }
+    
+    public EntityList getEntityList(Tag tag) {
+        Property prop = getEntityType().findProperty(tag);
+        if (prop == null) {
+            return null;
+        }
+        return getEntityList(prop);
+    }
+    
+    public EntityList getEntityList(Property prop) {
+        Object o = get(prop);
+        if (o instanceof EntityList) {
+            return (EntityList)o;
+        }
+        
+        return null;
+    }
+    
+    
+    public Entity getEntity(Tag tag) {
+        Property prop = getEntityType().findProperty(tag);
+        if (prop == null) {
+            return null;
+        }
+        return getEntity(prop);
+    }
+    
+    public Entity getEntity(Property prop) {
+        Object o = get(prop);
+        if (o instanceof Entity) {
+            return (Entity)o;
+        }
+        
+        return null;
     }
    
     /**
@@ -194,6 +296,10 @@ public class Entity extends Observable implements java.io.Serializable {
         }
         if (key instanceof Property) {
             ((Property)key).setValue(this, value);
+        }
+        if (key instanceof Tag) {
+            Property prop = findProperty((Tag)key);
+            set(prop, value);
             return;
         }
         Object existing = properties.get(key);
@@ -276,6 +382,48 @@ public class Entity extends Observable implements java.io.Serializable {
     
     public boolean setBoolean(boolean val, Tag... tags) {
         return getEntityType().setBoolean(this, val, tags);
+    }
+    
+    public boolean isEmpty(Property prop) {
+        if (prop == null) {
+            return true;
+        }
+        Object val = get(prop);
+        if (val instanceof EntityList) {
+            return ((EntityList)val).size() == 0;
+        }
+        return val == null || "".equals(String.valueOf(val));
+    }
+    
+    public boolean isEmpty(Tag tag) {
+        Object val = get(tag);
+        return val == null || "".equals(String.valueOf(val));
+    }
+    
+    public boolean isFalsey(Property prop) {
+        if (prop == null) {
+            return true;
+        }
+        Object val = get(prop);
+        if (val == null) {
+            return true;
+        }
+        if (Number.class.isAssignableFrom(prop.getContentType().getRepresentationClass())) {
+            return ((Number)val).intValue() == 0;
+        }
+        if (prop.getContentType().getRepresentationClass() == Boolean.class) {
+            return !((Boolean)val);
+        }
+        return isEmpty(prop);
+        
+    }
+    
+    public boolean isFalsey(Tag tag) {
+        Property prop = getEntityType().findProperty(tag);
+        if (prop == null) {
+            return true;
+        }
+        return isFalsey(prop);
     }
     
     
