@@ -1,0 +1,47 @@
+
+PopupMenu {
+    background-color: white;
+    border: 1px solid white;
+    border-radius: 1mm;
+    padding:0;
+    margin:0;
+}
+
+PopupMenuContent {
+    background-color:transparent;
+    margin: 0;
+    padding:2mm;
+    
+}
+
+PopupMenuTitle {
+    padding:0;
+    margin:0;
+    
+}
+
+SwipeableContainerButton {
+    color: white;
+    background-color: #f44336;
+    font-family: 'native:MainRegular';
+    font-size: 5mm;
+}
+
+ContactListLine1 {
+    cn1-derive: 'MultiLine1';
+    font-family: 'native:MainLight';
+    font-size: 5mm;
+    
+}
+
+ContactListLine2 {
+    cn1-derive: 'MultiLine2'; 
+    font-family: 'native:MainLight';
+    font-size: 4mm;
+}
+
+AccountAvatarsTitleComponentText {
+    font-family: 'native:MainLight';
+    font-size: 1.5mm;
+    color: #666666; 
+}

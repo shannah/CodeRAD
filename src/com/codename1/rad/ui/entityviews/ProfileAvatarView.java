@@ -53,46 +53,230 @@ import com.codename1.ui.plaf.Border;
  * in the entity, then the name will be used to create a badge with the first letter of the entity name.  If neither an
  * icon, nor a name can be found on entity, it will simply display the {@link FontImage#MATERIAL_ACCOUNT_CIRCLE} material icon.
  * 
- * <h3>Property Resolution</h3>
+ * === Property Resolution
  * 
- * <p>As mentioned above, the view model should contain both an "icon" and "name" property for best results.  The easiest way
+ * As mentioned above, the view model should contain both an "icon" and "name" property for best results.  The easiest way
  * to achieve this is to add the {@link #icon} or {@link Thing#thumbnailUrl} tag to the property you wish to use for the icon, and the {@link Thing#name} tag to the
  * property you wish to use for the name.  This view does, however, provide view properties that you can use to customize
- * how the icon and name properties are resolved.</p>
+ * how the icon and name properties are resolved.
  * 
- * <h4>Icon Property Resolution</h4>
+ * ==== Icon Property Resolution
  * 
- * <p>The Icon property will be resolved in the following order, until it identifies an eligible property on the view model:</p>
+ * The Icon property will be resolved in the following order, until it identifies an eligible property on the view model:
  * 
- * <ol>
- *  <li>It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the  {@link #ICON_PROPERTY} view property, and use its value, if set.</li>
- *  <li>It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the {@link #ICON_PROPERTY_TAGS}.  If found, it will use these tags to try to resolve
- * the icon property on the view model.</li>
- * <li>It will look for a property on the view model tagged with {@link #icon} or {@link Thing#thumbnailUrl} (in that order).  If found, it will use that property.</li>
- * </ol>
+ * . It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the  {@link #ICON_PROPERTY} view property, and use its value, if set.
+ * . It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the {@link #ICON_PROPERTY_TAGS}.  If found, it will use these tags to try to resolve
+ * the icon property on the view model.
+ * .It will look for a property on the view model tagged with {@link #icon} or {@link Thing#thumbnailUrl} (in that order).  If found, it will use that property.
  * 
- * <h4>Name Property Resolution</h4>
  * 
- * <p>The Name property will be resolved in the following order, until it identifies an eligible property on the view model:</p>
+ * ==== Name Property Resolution
  * 
- * <ol>
- *  <li>It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the  {@link #NAME_PROPERTY} view property, and use its value, if set.</li>
- *  <li>It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the {@link #NAME_PROPERTY_TAGS}.  If found, it will use these tags to try to resolve
- * the name property on the view model.</li>
- * <li>It will look for a property on the view model tagged with {@link #name}.  If found, it will use that property.</li>
- * </ol>
+ * The Name property will be resolved in the following order, until it identifies an eligible property on the view model:
  * 
- * <h3>Supported Actions</h3>
  * 
- * <p>The following actions are supported on this view:</p>
+ * . It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the  {@link #NAME_PROPERTY} view property, and use its value, if set.
+ * . It will check to see if the UI descriptor includes a {@link ViewPropertyParameter} for the {@link #NAME_PROPERTY_TAGS}.  If found, it will use these tags to try to resolve
+ * the name property on the view model.
+ * . It will look for a property on the view model tagged with {@link #name}.  If found, it will use that property.
  * 
- * <ul>
- *   <li>{@link #PROFILE_AVATAR_CLICKED}</li>
- *   <li>{@link #PROFILE_AVATAR_CLICKED_MENU}</li>
- *  <li>{@link #PROFILE_AVATAR_LONG_PRESS}</li>
- *   <li>{@link #PROFILE_AVATAR_LONG_PRESS_MENU}</li>
- * </ul>
+ * === Supported Actions
  * 
+ * The following actions are supported on this view:
+ * 
+ * . {@link #PROFILE_AVATAR_CLICKED}
+ * . {@link #PROFILE_AVATAR_CLICKED_MENU}
+ * . {@link #PROFILE_AVATAR_LONG_PRESS}
+ * . {@link #PROFILE_AVATAR_LONG_PRESS_MENU}
+ * 
+ * 
+ * == Example
+ * 
+ * The following example demonstrates the three different rendering strategies imployed by the AvatarProfileView:
+ * 
+ * 1. Render an image, using the {@link Thing#thumbnailImageUrl}.
+ * 2. Render a large letter in a circle with the first letter of the name, using {@link Thing#name}.
+ * 3. Render generic icon.
+ * 
+ * 
+ * [source,java]
+ * ----
+ //require CodeRAD
+package com.codename1.samples;
+
+
+
+import static com.codename1.ui.CN.*;
+import com.codename1.ui.Form;
+import com.codename1.ui.Dialog;
+import com.codename1.ui.plaf.UIManager;
+import com.codename1.ui.util.Resources;
+import com.codename1.io.Log;
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.ControllerEvent;
+import com.codename1.rad.controllers.ViewController;
+import com.codename1.ui.Toolbar;
+import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.EntityType;
+import com.codename1.rad.models.StringProperty;
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.rad.nodes.ViewNode;
+import com.codename1.rad.schemas.Thing;
+import static com.codename1.rad.ui.UI.*;
+import com.codename1.rad.ui.entityviews.ProfileAvatarView;
+import com.codename1.ui.FontImage;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.ui.layouts.FlowLayout;
+
+/**
+ * This file was generated by <a href="https://www.codenameone.com/">Codename One</a> for the purpose 
+ * of building native mobile applications using Java.
+ * *{slash}
+public class ProfileAvatarViewSample {
+
+    private Form current;
+    private Resources theme;
+
+    public void init(Object context) {
+        // use two network threads instead of one
+        updateNetworkThreadCount(2);
+
+        theme = UIManager.initFirstTheme("/theme");
+
+        // Enable Toolbar on all Forms by default
+        Toolbar.setGlobalToolbar(true);
+
+        // Pro only feature
+        Log.bindCrashProtection(true);
+
+        addNetworkErrorListener(err -> {
+            // prevent the event from propagating
+            err.consume();
+            if(err.getError() != null) {
+                Log.e(err.getError());
+            }
+            Log.sendLogAsync();
+            Dialog.show("Connection Error", "There was a networking error in the connection to " + err.getConnectionRequest().getUrl(), "OK", null);
+        });        
+    }
+    
+    public void start() {
+        if(current != null){
+            current.show();
+            return;
+        }
+        
+        
+        Form hi = new Form("Hi World", BoxLayout.y());
+        
+        Profile profile = new Profile(); <1>
+        profile.set(Profile.name, "Steve");
+        profile.set(Profile.icon, "https://www.codenameone.com/img/steve.jpg");
+        
+        ProfileAvatarView avatar = new ProfileAvatarView(profile, 30f); <2>
+        
+        hi.add("Avatar with Name and Icon");
+        hi.add(FlowLayout.encloseCenter(avatar));
+        
+        profile = new Profile();
+        profile.set(Profile.name, "Steve");
+        
+        avatar = new ProfileAvatarView(profile, 30f);
+        hi.add("Avatar with only Name");
+        hi.add(FlowLayout.encloseCenter(avatar));
+        
+        profile = new Profile();
+        avatar = new ProfileAvatarView(profile, 30f);
+        hi.add("Avatar with no name or icon");
+        hi.add(FlowLayout.encloseCenter(avatar));
+        
+        profile = new Profile();
+        profile.set(Profile.name, "Steve");
+        profile.set(Profile.icon, "https://www.codenameone.com/img/steve.jpg");
+        hi.add("Avatar with view controller");
+        hi.add(FlowLayout.encloseCenter(new ProfileViewController(null, profile).getView())); <3>
+        
+        hi.show();
+        
+        
+    }
+
+    public void stop() {
+        current = getCurrentForm();
+        if(current instanceof Dialog) {
+            ((Dialog)current).dispose();
+            current = getCurrentForm();
+        }
+    }
+    
+    public void destroy() {
+    }
+    
+    public static class Profile extends Entity { <4>
+        public static StringProperty name, icon;
+        public static final EntityType TYPE = new EntityType() {{
+            name = string(tags(Thing.name));
+            icon = string(tags(Thing.thumbnailUrl));
+            
+        }};
+    }
+    
+    
+    public static class ProfileViewController extends ViewController { <5>
+        private static final ActionNode phone = action( <6>
+                icon(FontImage.MATERIAL_PHONE),
+                label("Phone")
+        );
+                
+        
+        public ProfileViewController(Controller parent, Profile profile) {
+            super(parent);
+            ViewNode viewNode = new ViewNode(
+                    actions(ProfileAvatarView.PROFILE_AVATAR_CLICKED_MENU, phone) <7>
+            );
+            ProfileAvatarView avatar = new ProfileAvatarView(profile, viewNode, 20f);
+            setView(avatar);
+            
+            addActionListener(phone, evt->{ <8>
+                evt.consume();
+                Dialog.show("Phone Action clicked", "For user "+evt.getEntity().getText(Thing.name), "OK", null);
+            });
+        }
+
+        @Override
+        public void actionPerformed(ControllerEvent evt) {
+            System.out.println("Event "+evt);
+        }
+        
+        
+    }
+
+}
+
+
+ * ----
+ * <1> We create a view model for the view.  The ViewModel just has to be an {@link Entity} with properties tagged with {@link Thing#name} and {@link Thing.thumbnailUrl}.
+ * <2> We create a `ProfileAvatarView` with the view model we created.
+ * <3> To demonstrate actions we wrap a `ProfileAvatarView` inside a {@link ViewController}.  Action events will propagate up the component hierarchy until it finds a 
+ * controller that handles it.  This example doesn't use a {@link FormController} or an {@link ApplicationController}, so we use a {@link ViewController} for the particular `ProfileAvatarView`
+ * to handle events.
+ * <4> The definition of the view model.  A simple `Entity` subclass with two properties.  Notice that we tag properties with {@link Thing#name} and {@link Thing#thumbnailUrl} since
+ * these are expected by the view.
+ * <5> The definition of the view controller that we use for the last view.  Using a view controller allows us to inject actions in the view and handle their events.
+ * <6> We define a "phone" action which will be rendered in the view as a menu item when the avatar is clicked.
+ * <7> We register the "phone" action with the {@link #PROFILE_AVATAR_CLICKED_MENU} category so that it will appear in a popup menu when the user clicks it.
+ * <8> We register a listener to receive action events from the phone action.
+ * 
+ * The outcome is
+ * 
+ * .Running the above sample in the Codename One simulator
+ * image::doc-files/ProfileAvatarView.png[]
+ * 
+ * When the user clicks on the last avatar they receive the following popup menu because we registered an action with the {@link #PROFILE_AVATAR_CLICKED_MENU} category of the view node.
+ * 
+ * .Popup menu shown when user clicked on avatar because we added an action via the controller.
+ * image::doc-files/ProfileAvatarViewClickedMenu.png[]
  * 
  * @author shannah
  */

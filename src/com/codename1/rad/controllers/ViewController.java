@@ -67,13 +67,29 @@ public class ViewController extends Controller {
     }
     
     public static ViewController getViewController(Component cmp) {
-        while (cmp != null) {
-            ViewController ctrl = (ViewController)cmp.getClientProperty(KEY);
+        Component orig = cmp;
+        ViewController ctrl = (ViewController)cmp.getClientProperty(KEY);
+        if (ctrl != null) {
+            return ctrl;
+        }
+        cmp = orig.getOwner();
+        if (cmp != null) {
+            ctrl =  getViewController(cmp);
             if (ctrl != null) {
                 return ctrl;
             }
-            cmp = cmp.getParent();
         }
+        
+        
+        cmp = orig.getParent();
+        if (cmp != null) {
+            ctrl = getViewController(cmp);
+            if (ctrl != null) {
+                return ctrl;
+            }
+        }
+        
+        
         return null;
     }
     

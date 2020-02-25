@@ -60,8 +60,10 @@ public class ActionSupport<T extends ActionEvent> {
         if (evt.isConsumed()) {
             return;
         }
+        System.out.println("Dispatching event "+evt);
         Object source = evt.getSource();
         if (source instanceof EventProducer) {
+            System.out.println("Source is a producer");
             EventProducer ep = (EventProducer)source;
             ep.getActionSupport().fireActionEvent(evt);
         }
@@ -72,6 +74,7 @@ public class ActionSupport<T extends ActionEvent> {
             if (source instanceof Component) {
                 Component cmp = (Component)source;
                 ViewController controller = ViewController.getViewController(cmp);
+                System.out.println("Dispatching to view controller "+controller);
                 if (controller != null) {
                     controller.dispatchEvent((ControllerEvent)evt);
                 }

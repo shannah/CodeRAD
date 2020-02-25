@@ -5,3 +5,5 @@ build
 dist
 lib/CodenameOne_SRC.zip
 nbproject/build-impl.xml~
+.DS_Store
+!asciidoclet-1.5.7-SNAPSHOT-shaded.jar

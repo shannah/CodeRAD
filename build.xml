@@ -74,7 +74,8 @@
         <antcall target="buildNativeSE" />        
         <antcall target="buildNativeWIN" />        
         <antcall target="buildNativeME" />       
-        <antcall target="buildNativeJS" />       
+        <antcall target="buildNativeJS" /> 
+        <antcall target="buildCSS" />        
         <mkdir dir="dist" />
         <zip basedir="build/lib" compress="true" destfile="dist/${application.title}.cn1lib" />
     </target>
@@ -209,6 +210,52 @@
         unless="doesntHaveJsFiles">
         <echo>Zipping javascript native code</echo>
         <zip basedir="native/javascript" compress="false" destfile="build/lib/nativejavascript.zip" />
+    </target>
+    
+    <target  description="Build Javadoc." name="javadoc" depends="init">
+        
+
+        <javadoc destdir="docs/javadoc"
+        linkoffline="https://www.codenameone.com/javadoc/ javadoc-dependencies/com.codename1"
+        classpath="lib/CodenameOne.jar:lib/CLDC11.jar"
+         executable="/Library/Java/JavaVirtualMachines/zulu8.40.0.25-ca-fx-jdk8.0.222-macosx_x64/bin/javadoc"
+         sourcepath="src"
+         overview="src/overview.adoc">
+        <doclet name="org.asciidoctor.Asciidoclet" path="lib/asciidoclet-1.5.7-SNAPSHOT-shaded.jar">
+          <param name="--base-dir" value="${basedir}"/>
+          <param name="--attribute" value="name=${ant.project.name}"/>
+          <param name="--attribute" value="version=${version}"/>
+          <param name="--attribute" value="title-link=http://example.com[${ant.project.name} ${version}]"/>
+        </doclet>
+      </javadoc>
+    </target>
+    
+    <target name="buildCSS">
+        <path id="cssDir">
+            <fileset dir="css"/>
+        </path> 
+        <property name="test.cssDir.property" refid="cssDir"/> 
+        <condition property="doesntHaveCssFiles">
+            <equals arg1="" arg2="${test.cssDir.property}"/>
+        </condition> 
+
+        <antcall target="createCssZip" />        
+    </target>
+    <target name="createCssZip"
+            unless="doesntHaveCssFiles">
+        <echo>Zipping CSS files</echo>
+        <zip basedir="css" compress="false" destfile="build/lib/css.zip" />
+    </target>
+    
+    <target name="generate-css-scaffold" depends="init" description="Generate CSS Scaffold">
+        <mkdir dir="css"/>
+        <touch file="css/theme.css"/>
+        <mkdir dir="css/lib"/>
+        <mkdir dir="css/lib/${application.title}"/>
+        <echo>Created css/theme.css</echo>
+        <echo message="Created css/lib/${application.title}"/>
+        <echo>Add your CSS Styles into css/theme.css</echo>
+        <echo message="Dependencies such as images and fonts should be placed inside the css/lib/${application.title} directory."/>
     </target>
             
 </project>

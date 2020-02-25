@@ -61,7 +61,8 @@ public class PopupMenu extends InteractionDialog {
         super(new BorderLayout());
         setUIID("PopupMenu");
         setDialogUIID("PopupMenuContent");
-        $("DialogTitle", this).setUIID("PopupMenuTitle").setVisible(false).setHidden(true);
+        setTitle("Menu");
+        $("DialogTitle", this).setUIID("PopupMenuTitle").remove();
         commandsCnt = new Container(BoxLayout.y());
         commandsCnt.setScrollableY(true);
         setDisposeWhenPointerOutOfBounds(true);
