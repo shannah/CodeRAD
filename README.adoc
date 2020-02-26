@@ -1,8 +1,37 @@
 = CodeRAD
+
 An MVC, Rapid-Application-Development library for Codename One
+
+== Project Status
+
+This project is at an early stage but there are already a handful of polished components that can be incorporated into Codename One apps today.
+
+== Features
+
+. *Reusable Components* - Facilitates the creation of View components that can be easily reused across projects without requiring any dependencies.
+. *Rich UI Components* - Components built with CodeRAD are richer than the standard Codename One UI components.  They are designed to be useful right out of the box, while still being customizable.
+. *Clean Separation of Code* - Provides model, view, and controller classes which facilitate the clean separation of code following MVC (Model-View-Controller) principles.
+. *Loose Coupling* - Views can be "loosely" coupled to their model, allowing them to be used with many different model classes. 
 
 == Documentation
 
-. https://shannah.github.io/CodeRAD/javadoc[Java Docs]
+. https://shannah.github.io/CodeRAD/javadoc[Java Docs] 
+
+== Existing Components
+
+The following is a sample of a few components that have been developed with CodeRAD, and can be used in your Codename One application today:
+
+. https://github.com/shannah/RADChatRoom[RADChatRoom, window=_top] - A full-featured messaging application UI that can be used to add "Chat" capability to your app.
++
+image::https://shannah.github.io/RADChatRoom/images/Image-210220-105119.095.png[RADChatRoom,240]
+. *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileAvatarView.html[ProfileAvatarView]* - Shows an entity's thumbnail image inside a round mask.
++
+image::com/codename1/rad/ui/entityviews/doc-files/ProfileAvatarView.png[ProfileAvatarView,240]
+. *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.html[ProfileAvatarsTitleComponent]* - A component that displays a number of ProfileAvatarViews in a "fan" layout (i.e. like BoxLayout.X_AXIS, except that it will "fan them out" with overlap if there isn't enough space for everything).  This is used as the form's title component for the https://github.com/shannah/RADChatRoom[RADChatRoom] component.
++
+image::https://shannah.github.io/RADChatRoom/images/Image-210220-020916.612.png[ProvileAvatarsTitleComponent]
+. *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileListView.html[ProfileListView]* - Displays a list of profile entities with avatar, name, and a customizable set of actions that can be performed for each one.
++
+image::https://shannah.github.io/RADChatRoom/images/Image-220220-084136.625.png[ProfileListView,320]
 
 

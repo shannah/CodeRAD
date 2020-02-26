@@ -49,7 +49,7 @@ import com.codename1.ui.plaf.Border;
  * A view that shows a profile's avatar filled in a circle.  
  * 
  * .A sample with 3 ProfileAvatarViews rendered on 3 different entities.  The first entity has a thumbnail.  The 2nd only a name.  The 3rd, neither a name nor thumbnail.
- * image::com/codename1/rad/ui/entityviews/doc-files/ProfileAvatarView.png[ProfileAvatarView,240]
+ * image::doc-files/ProfileAvatarView.png[ProfileAvatarView,240]
  * 
  * For best results, the view model (entity) should
  * contain both an "icon" property and a "name" property.  If an "icon" property is defined in the entity type,
