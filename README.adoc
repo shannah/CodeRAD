@@ -26,7 +26,7 @@ The following is a sample of a few components that have been developed with Code
 image::https://shannah.github.io/RADChatRoom/images/Image-210220-105119.095.png[RADChatRoom,240]
 . *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileAvatarView.html[ProfileAvatarView]* - Shows an entity's thumbnail image inside a round mask.
 +
-image::com/codename1/rad/ui/entityviews/doc-files/ProfileAvatarView.png[ProfileAvatarView,240]
+image::https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/doc-files/ProfileAvatarView.png[ProfileAvatarView,240]
 . *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.html[ProfileAvatarsTitleComponent]* - A component that displays a number of ProfileAvatarViews in a "fan" layout (i.e. like BoxLayout.X_AXIS, except that it will "fan them out" with overlap if there isn't enough space for everything).  This is used as the form's title component for the https://github.com/shannah/RADChatRoom[RADChatRoom] component.
 +
 image::https://shannah.github.io/RADChatRoom/images/Image-210220-020916.612.png[ProvileAvatarsTitleComponent]
