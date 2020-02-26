@@ -50,6 +50,7 @@ import com.codename1.rad.models.Property.Editable;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.nodes.ActionNode.EnabledCondition;
+import com.codename1.rad.nodes.ActionViewFactoryNode;
 import com.codename1.rad.text.CurrencyFormatter;
 import com.codename1.rad.text.DateFormatter;
 import com.codename1.rad.text.DecimalNumberFormatter;
@@ -66,7 +67,11 @@ import com.codename1.util.EasyThread;
 
 
 /**
- *
+ * The base class for UI descriptors. This class sits at the foundation of CodeRAD's dynamic form generation
+ * capability.
+ * 
+ * See {@link FormNode} for some usage examples.
+ * 
  * @author shannah
  */
 public class UI extends EntityType implements ActionCategories, WidgetTypes {
@@ -77,6 +82,8 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     private static PropertyViewFactory defaultPropertyViewFactory;
     private static TableCellRenderer defaultTableCellRenderer;
     private static TableCellEditor defaultTableCellEditor;
+    private static EntityListCellRenderer defaultListCellRenderer;
+    
     private static StrongCache cache;
     
     public static StrongCache getCache() {
@@ -84,6 +91,17 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
             cache = new StrongCache();
         }
         return cache;
+    }
+    
+    public static void setDefaultListCellRenderer(EntityListCellRenderer renderer) {
+        defaultListCellRenderer = renderer;
+    }
+    
+    public static EntityListCellRenderer getDefaultListCellRenderer() {
+        if (defaultListCellRenderer == null) {
+            defaultListCellRenderer = new DefaultEntityListCellRenderer();
+        }
+        return defaultListCellRenderer;
     }
     
     public static void setDefaultEntityViewFactory(EntityViewFactory factory) {
@@ -167,8 +185,12 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     
     
     
-    public static EntityViewFactoryNode viewFactory(EntityViewFactory factory) {
-        return new EntityViewFactoryNode(factory);
+    public static EntityViewFactoryNode viewFactory(EntityViewFactory factory, Attribute... atts) {
+        return new EntityViewFactoryNode(factory, atts);
+    }
+    
+    public static ActionViewFactoryNode actionViewFactory(ActionViewFactory factory, Attribute... atts) {
+        return new ActionViewFactoryNode(factory, atts);
     }
 
     private static EasyThread imageProcessingThread;
@@ -247,12 +269,32 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         return new ListCellRendererAttribute(renderer);
     }
     
-    public static  PropertyViewFactoryNode factory(PropertyViewFactory factory, Attribute... atts) {
+    public static  PropertyViewFactoryNode propertyViewFactory(PropertyViewFactory factory, Attribute... atts) {
         return new PropertyViewFactoryNode(factory, atts);
     }
     
-    public static EventFactoryNode event(EventFactory factory, Attribute... atts) {
+    public static  PropertyViewFactoryNode viewFactoryFactory(PropertyViewFactory factory, Attribute... atts) {
+        return new PropertyViewFactoryNode(factory, atts);
+    }
+    
+    public static PropertyViewFactoryNode factory(PropertyViewFactory factory, Attribute... atts) {
+        return propertyViewFactory(factory, atts);
+    }
+    
+    public static PropertyViewFactoryNode propertyView(PropertyViewFactory factory, Attribute... atts) {
+        return propertyViewFactory(factory, atts);
+    }
+    
+    public static EventFactoryNode eventFactory(EventFactory factory, Attribute... atts) {
         return new EventFactoryNode(factory, atts);
+    }
+    
+    public static EventFactoryNode event(EventFactory factory, Attribute... atts) {
+        return eventFactory(factory, atts);
+    }
+    
+    public static EventFactoryNode factory(EventFactory factory, Attribute... atts) {
+        return eventFactory(factory, atts);
     }
     
     public static ActionNode action(Attribute... atts) {

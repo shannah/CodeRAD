@@ -13,7 +13,6 @@ import com.codename1.rad.attributes.Condition;
 import com.codename1.rad.attributes.ImageIcon;
 import com.codename1.rad.attributes.MaterialIcon;
 import com.codename1.rad.attributes.SelectedCondition;
-import com.codename1.rad.events.DefaultEventFactory;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property.Description;
@@ -24,16 +23,67 @@ import com.codename1.ui.Component;
 import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.rad.models.EntityTest;
-import com.codename1.rad.models.Property.Test;
-import com.codename1.rad.ui.DefaultActionViewFactory;
 import com.codename1.rad.ui.UI;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
-import com.codename1.ui.events.ActionSource;
 import java.util.Map;
 
 /**
- *
+ * A special {@link Node} that defines an action. When added to prescribed {@link Category}, an Action may manifest itself as a button,
+ * or a menu item.  The exact visual form of an can be customized using an {@link ActionViewFactory} to the node hierarchy.  It is up to the
+ * View to decide how to render actions that it finds in its node hierarchy, or whether to render them at all.  Generally a View will document
+ * which action categories it supports so that controllers know to register actions in those categories.  For example, the {@link ProfileAvatarView} supports
+ * the {@link com.codename1.rad.ui.entityviews.ProfileAvatarView#PROFILE_AVATAR_CLICKED_MENU} category.  Actions added to that category will be rendered
+ * as menu items in a popup menu that is shown when the user clicks the avatar.  If the user, then clicks on the menu item for the action, it will fire 
+ * an event which can be handled by the Controller.
+ * 
+ * == Example
+ * 
+ * .Excerpts from `ChatFormController`.  Defines a single action `send`, and adds it to the view.  Also handles the events when the `send` action is "fired".   See https://shannah.github.io/RADChatRoom/getting-started-tutorial.html[this tutorial,target=top] for a more comprehensive treatment of this material.
+[source,java]
+----
+public class ChatFormController extends FormController {
+    // Define the "SEND" action for the chat room
+    public static final ActionNode send = action( <1>
+        enabledCondition(entity-> {
+            return !entity.isEmpty(ChatRoom.inputBuffer);
+        }),
+        icon(FontImage.MATERIAL_SEND)
+    );
+    
+    //... More action definitions
+    
+    public ChatFormController(Controller parent) {
+        super(parent); <2>
+        Form f = new Form("My First Chat Room", new BorderLayout());
+        
+        // Create a "view node" as a UI descriptor for the chat room.
+        // This allows us to customize and extend the chat room.
+        ViewNode viewNode = new ViewNode(
+            actions(ChatRoomView.SEND_ACTION, send), <3>
+            // ... more action definitions
+        );
+        
+        // Add the viewNode as the 2nd parameter
+        ChatRoomView view = new ChatRoomView(createViewModel(), viewNode, f); <4>
+        f.add(CENTER, view);
+        setView(f);
+        
+        // Handle the send action
+        addActionListener(send, evt->{ <5>
+            evt.consume();
+            //.. code to handle the send action.
+            
+        });
+    }
+}
+----
+<1> Define an action.
+<2> Call `super(parent)` to register the given controller as its parent controller, so that unhandled events will propagate to it.
+<3> Assign `send` action to the `SEND_ACTION` category (requirement of the `ChatRoomView` component). The `ChatRoomView` will check this category for the presense of an action.  If none is found, it simply won't include a send button in the UI, nor will it fire "send" events.
+<4> Create a new `ChatRoomView`, passing it a dummy view model, and the `viewNode` that includes our action.
+<5> Register a handler for the "send" action.  Notice that we could have registered this handler in the parent controller instead (i.e. the ApplicationController) because unhandled events would propagate up.  In this case, it makes more sense as a part of the ChatFormController though.
+
  * @author shannah
  */
 public class ActionNode extends Node implements Proxyable {

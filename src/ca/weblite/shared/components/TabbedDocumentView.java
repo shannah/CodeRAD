@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * A frame for keeping multiple documents opened in separate tabs.  Each document is contained inside its own {@link InternalFrame}.
  * @author shannah
  */
 public class TabbedDocumentView extends Container {

@@ -9,7 +9,7 @@ import com.codename1.ui.Component;
 import com.codename1.ui.table.TableLayout;
 
 /**
- *
+ * An abstract base class for the {@link TableCellRenderer}.
  * @author shannah
  */
 public abstract class AbstractTableCellRenderer implements TableCellRenderer {

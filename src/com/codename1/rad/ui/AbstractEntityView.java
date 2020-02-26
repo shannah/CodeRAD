@@ -11,7 +11,7 @@ import com.codename1.ui.Container;
 import com.codename1.ui.events.ActionListener;
 
 /**
- *
+ * A base class for a view that can bind to an entity.  Sublasses just need toi implement {@link #update() }.
  * @author shannah
  */
 public abstract class AbstractEntityView<T extends Entity> extends Container implements EntityView<T> {

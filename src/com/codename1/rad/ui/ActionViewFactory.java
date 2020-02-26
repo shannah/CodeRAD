@@ -10,8 +10,14 @@ import com.codename1.rad.models.Entity;
 import com.codename1.ui.Component;
 
 /**
- *
+ * A factory to create a view for a given action, which acts on the provided entity.
  * @author shannah
+ * 
+ * @see DefaultActionViewFactory
+ * @see com.codename1.rad.ui.UI#setDefaultActionViewFactory(com.codename1.rad.ui.ActionViewFactory) 
+ * @see com.codename1.rad.ui.UI#getDefaultActionViewFactory() 
+ * @see ActionNode
+ * @see Entity
  */
 public interface ActionViewFactory {
     public Component createActionView(Entity entity, ActionNode action);

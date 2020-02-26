@@ -35,7 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Default factory used to convert a {@link FieldNode} into a {@link PropertyView}.
+ * 
  * @author shannah
  */
 public class DefaultPropertyViewFactory implements PropertyViewFactory {

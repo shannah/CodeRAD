@@ -10,8 +10,13 @@ import com.codename1.rad.models.AttributeSet;
 import com.codename1.rad.models.ContentType;
 
 /**
- *
+ * A property of a {@link EntityView}.  A View Property allows an EntityView to declare parameters
+ * that it will accept to customize its rendering or behaviour.  The property can be "filled" by adding a {@link ViewPropertyParameter}
+ * to the node tree in the view's view node or any parent. This allows a view to, for example, accept direction on what UIID
+ * to use in the component, or which Tags to bind parts of its UI to.
  * @author shannah
+ * @see UI#param(com.codename1.rad.ui.ViewProperty, java.lang.Object) 
+ * @see UI#param(com.codename1.rad.ui.ViewProperty, com.codename1.rad.models.Tag...) 
  */
 public class ViewProperty<T> {
     private ContentType<T> contentType;

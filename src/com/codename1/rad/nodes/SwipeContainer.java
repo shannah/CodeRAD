@@ -9,7 +9,7 @@ import com.codename1.rad.nodes.Node;
 import com.codename1.rad.models.Attribute;
 
 /**
- *
+ * A {@link Node} that can be used to create a SwipeContainer.
  * @author shannah
  */
 public class SwipeContainer extends Node {

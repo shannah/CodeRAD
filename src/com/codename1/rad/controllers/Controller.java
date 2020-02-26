@@ -13,7 +13,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A base class for all Controller classes.  
+ * A base class for all Controller classes.
+ * 
+ * Each application should implement a single {@link ApplicationController} class which will be used as the app's main lifecycle class.  Forms should all have associated {@link FormController} classes.  
+ * In some cases, for more complex views, you may also want to have a dedicated {@link ViewController} for the view also.  
+ * 
+ * == Controller Hierarchy
+ * 
+ * Similar to {@link com.codename1.ui.Component}, controllers have a hierarchy that is used for managing user navigation and event dispatch. 
+ * A Controller may have a "parent" controller.  All events received by a Controller will propagate up to its parent controller if it isn't 
+ * consumed.  Additionally, {@link FormController} views its "parent" controller as the previous form for navigation purposes.  E.g. If a {@link FormController}
+ * has a parent controller that is also a {@link FormController}, then it will automatically add a "back" event to its form so that the user will return
+ * to the "parent" controller's form when the user selects "back".
+ * 
+ * == Actions and Events
+ * 
+ * The primary mechanism for receiving notification about user actions is via Actions.  The controller defines the action, and the passes it to the view, associating it with
+ * {@link ActionCategory}.  If the {@link EntitView} supports that {@link ActionCategory} it will fire an {@link ActionNode.ActionNodeEvent} event which the controller can process.
+ * 
+ * For example, the {@link com.codename1.rad.ui.entityviews.ProfileAvatarView} view supports the {@link com.codename1.rad.ui.entityviews.ProfileAvatarView#PROFILE_AVATAR_CLICKED} category
+ * so a controller can register an action with that view as follows:
+ * 
+ * [source,java]
+ * ----
+ * public class MyViewController extends ViewController {
+ *     public static final ActionNode showDetails = UI.action(icon(FontImage.MATERIAL_INFO)); <1>
+ *     public MyViewController(Controller parent, Entity profile) {
+ *         super(parent);
+ *         setLayout(new BorderLayout());
+ *         ProfileAvatarView view = new ProfileAvatarView(profile, new ViewNode(
+ *             actions(ProfileAvatarView.PROFILE_AVATAR_CLICKED, showDetails) <2>
+ *         ), 10);
+ *         addActionListener(showDetails, evt->{ <3>
+ *             evt.consume();
+ * 
+ *             new ProfileDetailsController(this, profile).getView().show(); <4>
+ *         });
+ *     }
+ *        
+ * }
+ * ----
+ * <1> We define the action.  It doesn't need be `static` or `public`.  It just needs to be addressable within the Controller.  I make it public and static so that
+ * it is also easily accessible by other controllers that may want to listen for that action.
+ * <2> We add the `showDetails` action to the ViewNode of the `ProfileAvatarView`'s `PROFILE_AVATAR_CLICKED category so that it knows to fire that action when users click on the avatar.
+ * <3> We add a listener for the `showDetails` action so that we can handle the event where a user clicks on the avatar.
+ * <4> This is a made up class `ProfileDetailsController`, but we assume it is a subclass of {@link FormController}, and it shows the details for a profile.
+ * 
+ * 
  * @author shannah
  */
 public class Controller implements ActionListener<ControllerEvent> {

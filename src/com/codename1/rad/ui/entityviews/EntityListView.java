@@ -5,7 +5,6 @@
  */
 package com.codename1.rad.ui.entityviews;
 
-import com.codename1.rad.ui.DefaultEntityListCellRenderer;
 import com.codename1.rad.ui.EntityListCellRenderer;
 import com.codename1.rad.ui.AbstractEntityView;
 import com.codename1.rad.ui.ActionCategories;
@@ -16,28 +15,30 @@ import com.codename1.rad.ui.ViewPropertyParameter;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ListNode;
 import com.codename1.rad.nodes.Node;
-import com.codename1.rad.nodes.ViewNode;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityList.EntityListEvent;
 import com.codename1.components.FloatingActionButton;
+import com.codename1.rad.ui.UI;
 import com.codename1.ui.Component;
 import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
-import com.codename1.ui.Form;
 import com.codename1.ui.animations.ComponentAnimation;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
-import com.codename1.ui.list.ListCellRenderer;
 import com.codename1.ui.plaf.Border;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
- *
+ * A view that renders an {@link EntityList} visually.  This will bind to the list's events so that rows will animate in and 
+ * out appropriately when they are added to the model.  The list can be customized with a {@link EntityListCellRenderer}.
+ * 
+ * @see ListCellRendererAttribute
+ * @see RowTemplateNode
+ * 
  * @author shannah
  */
 public class EntityListView<T extends EntityList> extends AbstractEntityView<T> {
@@ -107,7 +108,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         this.node = node;
         renderer = node.getListCellRenderer();
         if (renderer == null) {
-            renderer = new DefaultEntityListCellRenderer();
+            renderer = UI.getDefaultListCellRenderer();
         }
         
         Boolean scrollableY = (Boolean)node.getViewParameter(SCROLLABLE_Y, ViewPropertyParameter.createValueParam(SCROLLABLE_Y, false)).getValue(list);

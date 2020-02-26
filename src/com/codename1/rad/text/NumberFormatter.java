@@ -8,7 +8,7 @@ package com.codename1.rad.text;
 import com.codename1.l10n.ParseException;
 
 /**
- *
+ * Interface for an object that can format and parse numbers.
  * @author shannah
  */
 public interface NumberFormatter {

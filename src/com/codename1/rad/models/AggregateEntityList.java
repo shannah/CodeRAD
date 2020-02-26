@@ -6,7 +6,7 @@
 package com.codename1.rad.models;
 
 /**
- *
+ * An entity list that automatically adds its items to its aggregate root.
  * @author shannah
  */
 public class AggregateEntityList<T extends Entity> extends EntityList<T> implements Iterable<T> {

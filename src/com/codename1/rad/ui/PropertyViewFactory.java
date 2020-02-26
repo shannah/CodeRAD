@@ -9,7 +9,7 @@ import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.Entity;
 
 /**
- *
+ * Factory for creating a property view.  I.e. Renders a {@link FieldNode} as a {@link PropertyView}.
  * @author shannah
  */
 public interface PropertyViewFactory {

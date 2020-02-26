@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * A table model that allows using a {@link Table} to render and edit an EntityList.
  * @author shannah
  */
 public class EntityListTableModel<T extends Entity> implements TableModel {

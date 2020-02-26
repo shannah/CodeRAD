@@ -1,3 +1,0 @@
-= Entity Views
-
-This package contains entity views.

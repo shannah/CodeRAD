@@ -9,8 +9,9 @@ import com.codename1.rad.models.EntityTest;
 import com.codename1.rad.models.Property.Test;
 
 /**
- * Enabled condition, for Action Nodes
+ * Enabled condition, for Action Nodes.  Supported by {@link ActionNode}.
  * @author shannah
+ * @see com.codename1.rad.ui.UI#enabledCondition(com.codename1.rad.models.EntityTest) 
  */
 public class EnabledCondition extends Test {
     

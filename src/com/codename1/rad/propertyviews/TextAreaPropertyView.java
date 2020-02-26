@@ -9,16 +9,14 @@ import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
 import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.ui.TextArea;
-import com.codename1.ui.TextField;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
 import java.util.Objects;
 
 /**
- *
+ * A view for binding to {@link TextArea} components.
  * @author shannah
  */
 public class TextAreaPropertyView extends PropertyView<TextArea> {

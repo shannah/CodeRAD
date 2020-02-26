@@ -6,8 +6,9 @@
 package com.codename1.rad.models;
 
 /**
- *
+ * A {@link Property} containing an {@link EntityList}
  * @author shannah
+ * @see EntityType#list(java.lang.Class, com.codename1.rad.models.Attribute...) 
  */
 public class ListProperty<T extends EntityList> extends EntityProperty<T> {
     

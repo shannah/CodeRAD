@@ -9,7 +9,7 @@ import com.codename1.rad.models.Entity;
 import com.codename1.ui.Form;
 
 /**
- *
+ * A form with an embedded {@link EntityEditor}.
  * @author shannah
  */
 public class EntityForm extends Form {

@@ -10,7 +10,9 @@ import com.codename1.l10n.ParseException;
 import java.util.Date;
 
 /**
- *
+ * A date formatter for formatting dates in the current locale in short format.
+ * 
+ * NOTE: Does not support parsing.
  * @author shannah
  */
 public class LocalDateShortStyleFormatter implements DateFormatter {

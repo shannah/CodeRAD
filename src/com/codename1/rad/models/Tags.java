@@ -12,8 +12,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
- *
+ * An attribute whose sole purpose is to contain tags.  When tags are added to a {@link Property} or {@link FieldNode}, they are always wrapped inside a {@link Tags} attribute.
  * @author shannah
+ * @see Tag
+ * @see EntityType#tags(com.codename1.rad.models.Tag...) 
+ * @see com.codename1.rad.ui.UI#tags(com.codename1.rad.models.Tag...) 
  */
 public class Tags extends Attribute<Tag[]> implements Iterable<Tag> {
     private LinkedHashSet<Tag> tags = new LinkedHashSet<>();

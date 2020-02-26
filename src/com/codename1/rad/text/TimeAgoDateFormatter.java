@@ -5,13 +5,14 @@
  */
 package com.codename1.rad.text;
 
-import com.codename1.l10n.L10NManager;
 import com.codename1.l10n.ParseException;
 import com.codename1.util.DateUtil;
 import java.util.Date;
 
 /**
- *
+ * A date formatter that formats dates like "2 days ago".
+ * 
+ * NOTE: Does not support parsing.
  * @author shannah
  */
 public class TimeAgoDateFormatter implements DateFormatter {

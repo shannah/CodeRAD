@@ -12,7 +12,7 @@ import com.codename1.rad.models.Tag;
 import com.codename1.rad.models.Tags;
 
 /**
- *
+ * A parameter that can be added to the node hierarchy to set the value or binding of a ViewProperty.
  * @author shannah
  */
 public class ViewPropertyParameter<T> {

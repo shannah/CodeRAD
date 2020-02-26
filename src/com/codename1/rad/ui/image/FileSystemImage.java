@@ -13,7 +13,7 @@ import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
 
 /**
- *
+ * An image loaded from file system storage.
  * @author shannah
  */
 public class FileSystemImage extends AsyncImage {

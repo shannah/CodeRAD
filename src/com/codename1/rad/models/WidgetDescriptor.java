@@ -11,8 +11,11 @@ import com.codename1.rad.models.Property.Label;
 
 
 /**
- *
+ * A special class that provides configuration for a "widget" which is used to edit a {@link Property} in the {@link EntityEditor}.
  * @author shannah
+ * @see EntityType#widget(com.codename1.rad.models.Attribute...) 
+ * @see com.codename1.rad.ui.UI#widget(com.codename1.rad.models.Attribute...) 
+ * 
  */
 public class WidgetDescriptor {
     private Property property;

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- *
+ * A table model that gets its data from a {@link String} array.
  * @author shannah
  */
 public class StringArrayTableModel implements TableModel {
@@ -25,7 +25,11 @@ public class StringArrayTableModel implements TableModel {
     private String[] columnNames;
     private List<String[]> rows = new ArrayList<>();
     
-    
+    /**
+     * Create a new table cell model with the given data.
+     * @param columns The number of columns
+     * @param colnames The cell data.  The first {@literal columns} values are interpreted as the column names, and the rest is row data.
+     */
     public StringArrayTableModel(int columns, String... colnames) {
         columnNames = new String[columns];
         int len = colnames.length;

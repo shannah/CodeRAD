@@ -9,7 +9,7 @@ import com.codename1.rad.attributes.WidgetType;
 import com.codename1.rad.models.Property;
 
 /**
- *
+ * An interface to keep the standard widget types.  This list will grow.
  * @author shannah
  */
 public interface WidgetTypes {

@@ -5,11 +5,10 @@
  */
 package com.codename1.rad.ui;
 
-import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ActionNode.Category;
 
 /**
- *
+ * An interface that keeps a number of commonly used Action categories.
  * @author shannah
  */
 public interface ActionCategories {

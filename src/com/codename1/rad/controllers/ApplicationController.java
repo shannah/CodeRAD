@@ -20,6 +20,27 @@ import com.codename1.ui.util.Resources;
  * Applications should extend this class and use it as their main application class.  Then can
  * then override the actionPerformed() method to handle events of type {@link StartEvent}, {@link StopEvent},
  * {@link DestroyEvent}, and {@link InitEvent}.
+ * 
+ * The application controller is ideally suited to act as the main class for a CodenameOne application.  It implements all of the
+ * lifecycle methods ({@link #init(java.lang.Object) }, {@link #start() }, {@link #stop() }, and {@link #destroy() }, and dispatches 
+ * corresponding events that you can handle in your controller.
+ * 
+ * == Example
+ * 
+ * .Typical application structure, replacing the main app class with an ApplicationController
+ * [source,java]
+ * ----
+ * public class MyApplication extends ApplicationController {
+ *      public void actionPerformed(ActionEvent evt) {
+ *          if (evt instance of StartEvent) {
+ *              evt.consume();
+ * 
+ *              // Show a form
+ *              new MyFormController(this).getView().show();
+ *          }
+ *      }
+ * }
+ * ----
  * @author shannah
  */
 public class ApplicationController extends Controller {

@@ -10,7 +10,7 @@ import com.codename1.rad.nodes.ViewNode;
 import com.codename1.rad.models.Entity;
 
 /**
- *
+ * An interface used by views that can bind to entities.
  * @author shannah
  */
 public interface EntityView<T extends Entity> {

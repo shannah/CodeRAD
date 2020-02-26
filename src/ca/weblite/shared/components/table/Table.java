@@ -26,7 +26,7 @@ import com.codename1.ui.util.EventDispatcher;
 
 
 /**
- *
+ * A Table UI component similar to swing's JTable.  Supports row selection, column selection, cell selection, and editing.
  * @author shannah
  */
 public class Table<T> extends Container {

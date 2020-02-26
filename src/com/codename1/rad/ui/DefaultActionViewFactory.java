@@ -28,8 +28,12 @@ import com.codename1.ui.events.ActionListener;
 import java.util.Objects;
 
 /**
- *
+ * The default factory to use for creating views for actions.
  * @author shannah
+ * @see com.codename1.rad.ui.UI#setDefaultActionViewFactory(com.codename1.rad.ui.ActionViewFactory) 
+ * @see com.codename1.rad.ui.UI#getDefaultActionViewFactory() 
+ * @see ActionNode
+ * @see Entity
  */
 public class DefaultActionViewFactory implements ActionViewFactory {
     

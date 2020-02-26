@@ -14,7 +14,7 @@ import com.codename1.ui.plaf.Style;
 import com.codename1.ui.plaf.UIManager;
 
 /**
- *
+ * A limited implementation of the FontAwesome font.  Currently only includes a few brand logos.
  * @author shannah
  */
 public class FontAwesome {

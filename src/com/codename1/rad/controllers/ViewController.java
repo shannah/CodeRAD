@@ -11,7 +11,14 @@ import com.codename1.ui.events.ActionSource;
 import com.codename1.ui.events.ComponentStateChangeEvent;
 
 /**
- * A controller class that handles application logic for a view.
+ * A controller class that handles application logic for a view.  In most cases a FormController will be sufficient to
+ * handle the logic for a form.  Some more complex views may require their own controllers as well, in which case you 
+ * might use a ViewController to handle Action dispatch on the view.
+ * 
+ * == Controller Hierarchy
+ * 
+ * Controllers form a hierarchy similar to UI components.  E.g. A controller has a parent controller, and events that are not 
+ * consumed by the child will propagate to the parent.  See {@link FormController} for a more details discussion of the Controller hierarchy.
  * @author shannah
  */
 public class ViewController extends Controller {

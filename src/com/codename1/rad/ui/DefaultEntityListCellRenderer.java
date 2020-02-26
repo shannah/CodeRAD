@@ -19,8 +19,11 @@ import com.codename1.ui.SwipeableContainer;
 import com.codename1.ui.layouts.GridLayout;
 
 /**
- *
+ * The default renderer for rendering a row of the EntityListView.
  * @author shannah
+ * @see com.codename1.rad.ui.UI#cellRenderer(com.codename1.rad.ui.EntityListCellRenderer)
+ * @see com.codename1.rad.ui.UI#getDefaultListCellRenderer() 
+ * @see com.codename1.rad.ui.UI#setDefaultListCellRenderer(com.codename1.rad.ui.EntityListCellRenderer) 
  */
 public class DefaultEntityListCellRenderer implements EntityListCellRenderer {
 

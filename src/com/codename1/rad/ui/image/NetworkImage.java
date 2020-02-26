@@ -9,7 +9,7 @@ import com.codename1.io.Util;
 import com.codename1.ui.EncodedImage;
 
 /**
- *
+ * An image that is loaded over the network.
  * @author shannah
  */
 public class NetworkImage extends AsyncImage {

@@ -15,7 +15,7 @@ import com.codename1.rad.ui.PropertyViewFactory;
 import com.codename1.rad.ui.UI;
 
 /**
- *
+ * A cell editor for editing cell in a Table that uses {@link EntityListTableModel} as a model.
  * @author shannah
  */
 public class EntityListTableCellEditor extends  AbstractTableCellEditor {

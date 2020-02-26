@@ -10,7 +10,9 @@ import com.codename1.l10n.ParseException;
 import java.util.Date;
 
 /**
- *
+ * A formatter for formatting dates as date/time in current locale in medium format.
+ * 
+ * NOTE: Does not support parsing.
  * @author shannah
  */
 public class LocalDateTimeMediumStyleFormatter implements DateFormatter {

@@ -10,7 +10,7 @@ import com.codename1.rad.models.ContentType;
 import com.codename1.rad.models.Property;
 
 /**
- *
+ * Default renderer for rendering an Entity image.
  * @author shannah
  */
 public class DefaultEntityImageRenderer implements EntityImageRenderer {

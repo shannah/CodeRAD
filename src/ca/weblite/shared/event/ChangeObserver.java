@@ -10,11 +10,14 @@ import com.codename1.ui.TextArea;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
- *
+ * A utility class for observing changes on TextAreas.  API lends itself to expanding to other types of of components also. It subscribes to receive action events from the textareas,
+ * but only propagates the event to its listeners if the value of the text area has changed since the last event.
+ * 
+ * NOTE:  This class isn't used by CodeRAD for its property binding functionality.  It is still a useful class for monitoring plain old
+ * text areas, though.
  * @author shannah
  */
 public class ChangeObserver {

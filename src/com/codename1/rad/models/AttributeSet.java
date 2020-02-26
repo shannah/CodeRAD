@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- *
+ * A set of attributes.  This will store one of each type of {@link Attribute}.
  * @author shannah
  */
 public class AttributeSet implements Iterable<Attribute> {

@@ -13,7 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * Encapsulates a list of entities. This list is observable, as it will fire {@link EntityListEvent} events when items are added 
+ * and removed from this list.
  * @author shannah
  */
 public class EntityList<T extends Entity> extends Entity implements Iterable<T> {

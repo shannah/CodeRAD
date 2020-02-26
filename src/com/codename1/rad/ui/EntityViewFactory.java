@@ -10,7 +10,7 @@ import com.codename1.rad.nodes.ViewNode;
 import com.codename1.rad.models.Entity;
 
 /**
- *
+ * A factory for converting {@link ViewNode} objects into views.
  * @author shannah
  */
 public interface EntityViewFactory  {

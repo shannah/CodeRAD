@@ -11,7 +11,7 @@ import com.codename1.ui.Label;
 import com.codename1.ui.table.TableLayout;
 
 /**
- *
+ * A default {@link TableCellRenderer} implementation that renders cell as a {@link Label}.
  * @author shannah
  */
 public class DefaultTableCellRenderer implements TableCellRenderer {

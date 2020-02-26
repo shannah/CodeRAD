@@ -16,7 +16,58 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * Encapsulates an entity "type" for an {@link Entity} class.  This is sort of like a "meta-class" that provides run-time support for data conversion, 
+ * property lookup, and property binding.  An EntityType should create its {@link Property}s in its instance initializer.  Typically, the entity type
+ * is declared as a static final anonymous class inside the {@link Entity} class definition as follows:
+ * 
+[source,java]
+----
+public class UserProfile extends Entity {
+    public static StringProperty name, description; <1>
+    public static final EntityType TYPE = new EntityType(){{ <2>
+        name = string(); <3>
+        description = string();
+    }};
+    {
+        setEntityType(TYPE); <4>
+    }
+}
+----
+<1> We define 2 properties of type {@link com.codename1.rad.models.StringProperty} on the class.  A `StringProperty` is simply a property that contains a {@link java.lang.String}.  These are defined `public static` so that we can access them conveniently from anywhere.
+<2> We define an {@link com.codename1.rad.models.EntityType} for the class.  This is also `public static` because it is class-level (all objects of this class should share the same entity type).
+<3> We create `name` and `description` properties on this entity type.  Notice that this code runs in the *instance intializer* of the EntityType (the `{{` and `}}` braces are not a typo).  Running this code inside the instance initializer will ensure that the properties are added to the `EntityType`'s property index.
+<4> Inside the `UserProfile` instance initializer, we set the entity type to the entity type that we created above.
+* 
+* Technically, you don't need to provide direct property access to your entity properties at all.  In our above `UserProfile` class we retained explicit references to the `name` and `description` properties, but we could have simply omitted this.  I.e. The following is also a perfectly valid entity type definition:
+
+.An entity type that doesn't retain explicit references to its properties.  The properties can still be accessed via their assigned tags.
+[source,java]
+----
+public class UserProfile extends Entity {
+    public static final EntityType TYPE = new EntityType(){{
+        string(tags(Thing.name));
+        string(tags(Thing.description));
+    }};
+    {
+        setEntityType(TYPE);
+    }
+}
+----
+* 
+* == Property Types
+* 
+* {@link EntityType} includes convenience methods for creating the standard property types:
+* 
+* . {@link #string(com.codename1.rad.models.Attribute...) }
+* . {@link #Integer(com.codename1.rad.models.Attribute...) }
+* . {@link #Boolean(com.codename1.rad.models.Attribute...) }
+* . {@link #Double(com.codename1.rad.models.Attribute...) }
+* . {@link #date(com.codename1.rad.models.Attribute...) }
+* . {@link #entity(java.lang.Class) } - an entity
+* . {@link #list(java.lang.Class, com.codename1.rad.models.Attribute...) } - A list of entities.
+* 
+* These methods will create the corresponding property and add it to the {@link EntityType} using {@link #addProperty(com.codename1.rad.models.Property) }.  You can also create custom property types by subclassing {@link AbstractProperty}
+* 
  * @author shannah
  */
 public class EntityType implements Iterable<Property> {
@@ -117,6 +168,13 @@ public class EntityType implements Iterable<Property> {
     
     public <T extends EntityList> ListProperty<T> list(Class<T> type, Attribute... atts) {
         return compose(type, atts);
+    }
+    
+    public <T extends Entity> EntityProperty<T> entity(Class<T> type, Attribute... atts) {
+        EntityProperty<T> p =  new EntityProperty(type);
+        p.setAttributes(atts);
+        propertiesSet.add(p);
+        return p;
     }
     
     

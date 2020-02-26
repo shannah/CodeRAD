@@ -11,7 +11,7 @@ import com.codename1.io.Storage;
 import com.codename1.ui.EncodedImage;
 
 /**
- *
+ * An image that is loaded from storage.
  * @author shannah
  */
 public class StorageImage extends AsyncImage {

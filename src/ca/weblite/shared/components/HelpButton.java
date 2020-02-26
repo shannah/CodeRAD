@@ -13,11 +13,14 @@ import com.codename1.ui.FontImage;
 import com.codename1.ui.layouts.BorderLayout;
 
 /**
- *
+ * A button that, when clicked on, displays some help text in a popup bubble.
  * @author shannah
  */
 public class HelpButton extends Button {
 
+    /**
+     * Help button types.
+     */
     public static enum HelpButtonType {
         Info(FontImage.MATERIAL_HELP, "HelpButtonInfo"),
         Error(FontImage.MATERIAL_ERROR, "HelpButtonError");

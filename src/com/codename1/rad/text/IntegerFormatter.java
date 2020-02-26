@@ -9,7 +9,7 @@ import com.codename1.l10n.L10NManager;
 import com.codename1.l10n.ParseException;
 
 /**
- *
+ * A formatter for parsing and formatting integers.
  * @author shannah
  */
 public class IntegerFormatter implements NumberFormatter {

@@ -12,8 +12,18 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * A wrapper node for adding multiple actions to a Node hierarchy.  Common attributes that this will accept:
+ * 
+ * . {@link ActionNode}
+ * . {@link Category}
+ * . {@link ActionStyle}
+ * 
  * @author shannah
+ * @see ActionNode
+ * @see Category
+ * @see ActionStyle
+ * @see com.codename1.rad.ui.UI#actions(com.codename1.rad.models.Attribute...) 
+ * @see com.codename1.rad.ui.UI#actions(com.codename1.rad.nodes.ActionNode.Category, com.codename1.rad.ui.Actions) 
  */
 public class ActionsNode extends Node implements Iterable<ActionNode> {
     private List<ActionNode> actions;

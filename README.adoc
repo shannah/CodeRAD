@@ -1,0 +1,8 @@
+= CodeRAD
+An MVC, Rapid-Application-Development library for Codename One
+
+== Documentation
+
+. https://shannah.github.io/CodeRAD/javadoc[Java Docs]
+
+

@@ -36,7 +36,9 @@ import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 
 /**
- *
+ * A view that renders an {@link Entity} as a MultiButton.  
+ * 
+ * TODO Add documentation about view properties, bindings and actions.
  * @author shannah
  */
 public class MultiButtonEntityView<T extends Entity> extends MultiButton implements EntityView<T> {

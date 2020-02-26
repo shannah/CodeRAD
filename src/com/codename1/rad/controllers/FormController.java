@@ -14,6 +14,68 @@ import com.codename1.ui.events.ActionEvent;
 
 /**
  * A controller for handling application logic related to a Form.
+ * 
+ * == Controller Hierarchy
+ * 
+ * Controllers have a hierarchy similar to UI components.  The {@link ApplicationController} is generally the "root"
+ * controller.  The top-level form controller is a "child" of the application controller.  If the user navigates to another
+ * form from which they should be able to navigate back, then the new FormController is a "child" of the previous FormController.
+ * 
+ * == Back Navigation
+ * 
+ * If a FormController's parent controller is also a FormController, then "back" functionality will automatically be connected
+ * to its Form.  When the user clicks "back", they will automatically navigate to the parent controller's form.
+ * 
+ * Views may also request a "back" navigation by firing a {@link FormBackEvent}, which will propagate up the controller hierarchy
+ * to the first FormController, where it will be handled.
+ * 
+ * == Event Propagation
+ * 
+ * Events which are dispatched to a Controller will be propagated to the controller's parent, and its parent, and so on... until the event
+ * is consumed, or until it reaches the root.  In this way, it is possible to create a catch-all event handler in the ApplicationController
+ * that will catch all events in the application that haven't been consumed by another controller.
+ * 
+ * 
+ * == Example
+ * .A FormController for the ChatRoomView.  Excerpt from https://shannah.github.io/RADChatRoom/getting-started-tutorial.html[this tutorial,window=top].
+[source,java]
+* ----
+public class ChatFormController extends FormController {
+    
+    // Define the "SEND" action for the chat room
+    public static final ActionNode send = action(
+        enabledCondition(entity-> {
+            return !entity.isEmpty(ChatRoom.inputBuffer);
+        }),
+        icon(FontImage.MATERIAL_SEND)
+    );
+    public ChatFormController(Controller parent) {
+        super(parent);
+        Form f = new Form("My First Chat Room", new BorderLayout());
+        
+        // Create a "view node" as a UI descriptor for the chat room.
+        // This allows us to customize and extend the chat room.
+        ViewNode viewNode = new ViewNode(
+            actions(ChatRoomView.SEND_ACTION, send)
+        );
+        
+        // Add the viewNode as the 2nd parameter
+        ChatRoomView view = new ChatRoomView(createViewModel(), viewNode, f);
+        f.add(CENTER, view);
+        setView(f);
+        
+        addActionListener(send, evt->{
+            evt.consume();
+            // ... handle send event
+            
+        });
+    }
+    //...
+ }
+ ----
+ * 
+   
+
  * @author shannah
  */
 public class FormController extends ViewController {

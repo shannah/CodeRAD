@@ -8,7 +8,7 @@ package com.codename1.rad.schemas;
 import com.codename1.rad.models.Tag;
 
 /**
- *
+ * Schema with tags to identify properties in a list row item.
  * @author shannah
  */
 public interface ListRowItem extends Thing {

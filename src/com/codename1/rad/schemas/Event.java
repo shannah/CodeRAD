@@ -8,7 +8,7 @@ package com.codename1.rad.schemas;
 import com.codename1.rad.models.Tag;
 
 /**
- *
+ * From https://schema.org/Event
  * @author shannah
  */
 public interface Event extends Thing {

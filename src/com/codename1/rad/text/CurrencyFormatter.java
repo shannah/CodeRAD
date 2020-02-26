@@ -9,7 +9,7 @@ import com.codename1.l10n.L10NManager;
 import com.codename1.l10n.ParseException;
 
 /**
- *
+ * A number formatter for formatting currency.
  * @author shannah
  */
 public class CurrencyFormatter implements NumberFormatter {

@@ -8,8 +8,10 @@ package com.codename1.rad.models;
 import static com.codename1.rad.models.ContentType.Text;
 
 /**
- *
+ * A {@link Property} containing a {@link String} value.
  * @author shannah
+ * 
+ * @see EntityType#string(com.codename1.rad.models.Attribute...) 
  */
 public class StringProperty extends AbstractProperty<String> {
     public StringProperty() {

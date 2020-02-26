@@ -17,7 +17,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
 
 /**
- *
+ * An editor for a {@link FieldNode}.  Used internally by {@link EntityEditor} for rendering its fields.
  * @author shannah
  */
 public class FieldEditor extends Container {

@@ -14,7 +14,7 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.FlowLayout;
 
 /**
- *
+ * An internal frame, which is used inside the {@link TabbedDocumentView}
  * @author shannah
  */
 public class InternalFrame extends Container {

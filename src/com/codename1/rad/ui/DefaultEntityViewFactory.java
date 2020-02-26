@@ -20,7 +20,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import java.util.HashMap;
 
 /**
- *
+ * The default factory used for rendering a ViewNode as an EntityView.
  * @author shannah
  */
 public class DefaultEntityViewFactory implements EntityViewFactory {

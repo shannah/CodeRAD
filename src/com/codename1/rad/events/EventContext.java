@@ -13,7 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * Encapsulates a context in which an {@link ActionNode}'s event is fired.  The context
+ * includes the Component that the event originated from, the {@link Entity} that the 
+ * event relates to (usually the value obtained from {@link com.codename1.rad.ui.EntityView#getEntity() } of the 
+ * view in which the event is fired), and the {@link ActionNode} that the event pertains to.
+ * 
+ * 
  * @author shannah
  */
 public class EventContext {

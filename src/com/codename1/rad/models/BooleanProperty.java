@@ -8,8 +8,11 @@ package com.codename1.rad.models;
 import static com.codename1.rad.models.ContentType.BooleanType;
 
 /**
- *
+ * A {@link Property} type for {@link Boolean} values.  Use {@link EntityType#Boolean(com.codename1.rad.models.Attribute...) } as a short cut.
+ * 
  * @author shannah
+ * 
+ * @see EntityType#Boolean(com.codename1.rad.models.Attribute...) 
  */
 public class BooleanProperty extends AbstractProperty<Boolean> {
     public BooleanProperty() {

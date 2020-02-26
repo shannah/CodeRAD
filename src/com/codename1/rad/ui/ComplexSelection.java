@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- *
+ * A complex selection in a {@link Table} or List.  A complex selection is one that consists of 
+ * one or more sub-selections.
  * @author shannah
  */
 public class ComplexSelection extends Selection implements Iterable<Selection> {

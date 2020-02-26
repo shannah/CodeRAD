@@ -9,7 +9,7 @@ import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.models.Property;
 
 /**
- *
+ * Creates an image for a given entity.
  * @author shannah
  */
 public interface EntityImageRenderer {

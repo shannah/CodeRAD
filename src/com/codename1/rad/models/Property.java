@@ -8,7 +8,7 @@ package com.codename1.rad.models;
 import java.util.Objects;
 
 /**
- *
+ * An interface to be implemented by all properties of entities.  Generally new Property types should extend {@link AbstractProperty} since it includes default implementations of the boiler plate stuff.
  * @author shannah
  */
 public interface Property<T> {

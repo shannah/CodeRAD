@@ -8,10 +8,11 @@ package com.codename1.rad.schemas;
 import com.codename1.rad.models.Tag;
 
 /**
- *
+ * A schema with tags to identify common properties you would expect for a Chat message.
  * @author shannah
  */
 public interface ChatMessage extends Comment {
+    
     public static final Tag isOwnMessage = new Tag();
     public static final Tag isFavorite = new Tag();
     public static final Tag typingInProgress = new Tag();

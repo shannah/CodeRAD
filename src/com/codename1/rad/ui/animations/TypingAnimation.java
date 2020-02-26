@@ -6,7 +6,6 @@
 package com.codename1.rad.ui.animations;
 
 import ca.weblite.shared.components.ComponentImage;
-import com.codename1.ui.Component;
 import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
@@ -17,7 +16,7 @@ import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.plaf.Border;
 
 /**
- *
+ * An animation that indicates that the other user is currently typing a message.  It is three dots, pulsing.
  * @author shannah
  */
 public class TypingAnimation extends Container {

@@ -13,7 +13,7 @@ import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.Entity;
 
 /**
- *
+ * A node representing an EntityView.
  * @author shannah
  */
 public class ViewNode extends Node {

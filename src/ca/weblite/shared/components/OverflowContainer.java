@@ -7,18 +7,17 @@ package ca.weblite.shared.components;
 
 import com.codename1.ui.CN;
 import com.codename1.ui.Component;
-import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Container;
 import com.codename1.ui.events.ScrollListener;
 import com.codename1.ui.geom.Dimension;
-import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.Layout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 /**
- *
+ * A container that can provide some "overflow" content when the user swipes left.  This is similar to a {@link SwipeContainer}, except that the overflow
+ * area will automatically scroll out of view again when the user releases their finger.
  * @author shannah
  */
 public class OverflowContainer extends Container {

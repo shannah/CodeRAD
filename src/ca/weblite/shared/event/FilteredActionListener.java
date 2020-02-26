@@ -5,7 +5,6 @@
  */
 package ca.weblite.shared.event;
 
-import com.codename1.ui.ComponentSelector;
 import com.codename1.ui.TextArea;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;

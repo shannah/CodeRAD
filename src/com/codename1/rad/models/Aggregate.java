@@ -13,7 +13,10 @@ import java.util.Observer;
 import java.util.Set;
 
 /**
- *
+ * A special type of Entity that helps to propagate changes from any entity in the aggregate to the 
+ * aggregate root.  This can be handy if there is a primary entity that contains some aggregated "sub-entities".  The sub-entities
+ * cannot exist outside the context of their aggregate root, and changes to any of the sub-entities will imply that the 
+ * root is dirty.
  * @author shannah
  */
 public class Aggregate extends Entity implements Iterable<Entity> {

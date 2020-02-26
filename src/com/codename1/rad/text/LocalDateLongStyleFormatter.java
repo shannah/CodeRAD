@@ -10,7 +10,9 @@ import com.codename1.l10n.ParseException;
 import java.util.Date;
 
 /**
- *
+ * A date formatter that can format dates in the current locale in long format. 
+ * 
+ * NOTE: Does not support parsing.
  * @author shannah
  */
 public class LocalDateLongStyleFormatter implements DateFormatter {

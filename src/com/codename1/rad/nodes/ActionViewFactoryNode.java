@@ -9,8 +9,10 @@ import com.codename1.rad.ui.ActionViewFactory;
 import com.codename1.rad.models.Attribute;
 
 /**
- *
+ * A node wrapper for an {@link ActionViewFactory}.
  * @author shannah
+ * 
+ * @see com.codename1.rad.ui.UI#actionViewFactory(com.codename1.rad.ui.ActionViewFactory, com.codename1.rad.models.Attribute...) 
  */
 public class ActionViewFactoryNode extends Node<ActionViewFactory> {
     

@@ -8,11 +8,13 @@ package com.codename1.rad.attributes;
 import com.codename1.rad.ui.WidgetTypes;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.Property.Name;
-import java.util.Objects;
 
 /**
- *
+ * Attribute for specifying the {@link WidgetType} for a {@link FieldNode}.  The {@link WidgetType} is used by the {@link PropertyViewFactory}
+ * for rendering the view for a {@link FieldNode}.
  * @author shannah
+ * @see com.codename1.rad.ui.UI#field(com.codename1.rad.models.Attribute...) 
+ * 
  */
 public class WidgetType extends Attribute<Name> implements WidgetTypes {
     
@@ -21,22 +23,6 @@ public class WidgetType extends Attribute<Name> implements WidgetTypes {
         super(name);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj.getClass() == WidgetType.class) {
-            WidgetType t = (WidgetType)obj;
-            return Objects.equals(t.getValue(), getValue());
-        }
-        return super.equals(obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getValue());
-    }
     
     
     

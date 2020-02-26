@@ -5,10 +5,8 @@
  */
 package ca.weblite.shared.components.table;
 
-import com.codename1.ui.Component;
-
 /**
- *
+ * An abstract base class for The TableCellEditor interface.
  * @author shannah
  */
 public abstract class AbstractTableCellEditor implements TableCellEditor {

@@ -11,7 +11,7 @@ import com.codename1.ui.Component;
 import com.codename1.ui.TextField;
 
 /**
- *
+ * A default {@link TableCellEditor} which renders cell content in a {@link TextField}.
  * @author shannah
  */
 public class DefaultTableCellEditor implements TableCellEditor {

@@ -8,10 +8,17 @@ package com.codename1.rad.models;
 import java.util.Objects;
 
 /**
- *
+ * An internal utility class for Properties to get their "raw" properties from their entity.
  * @author shannah
  */
 public class PropertyUtil {
+    
+    /**
+     * Get the raw value of a property from an entity.
+     * @param entity
+     * @param prop
+     * @return 
+     */
     public static Object getRawProperty(Entity entity, Property prop) {
         if (entity.properties != null) {
             return entity.properties.get(prop);
@@ -19,6 +26,12 @@ public class PropertyUtil {
         return null;
     }
     
+    /**
+     * Set the raw value of a property in an entity.
+     * @param entity
+     * @param prop
+     * @param value 
+     */
     public static void setRawProperty(Entity entity, Property prop, Object value) {
         if (value != null && !prop.getContentType().getRepresentationClass().isAssignableFrom(value.getClass())) {
             throw new IllegalArgumentException("Property "+prop+" of type "+prop.getContentType().getRepresentationClass()+" is not assignable by value "+value+" of type "+value.getClass());

@@ -14,7 +14,7 @@ import com.codename1.ui.TextField;
 import com.codename1.ui.list.MultipleSelectionListModel;
 
 /**
- *
+ * A component for editing tags.
  * @author shannah
  */
 public class TagEditor<T> extends Container {

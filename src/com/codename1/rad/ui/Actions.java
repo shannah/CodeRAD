@@ -13,7 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * A light-weight list of actions.  Includes some utility methods that are handy for performing on 
+ * groups of actions together.
  * @author shannah
  */
 public class Actions implements Iterable<ActionNode> {

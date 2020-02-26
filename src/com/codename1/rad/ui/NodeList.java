@@ -11,7 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- *
+ * A light-weight data structure for Nodes.  A thin wrapper around a {@link java.util.Set}
  * @author shannah
  */
 public class NodeList implements Iterable<Node> {

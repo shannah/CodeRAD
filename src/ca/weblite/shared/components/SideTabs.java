@@ -22,7 +22,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 
 /**
- *
+ * A {@link Tabs} component that displays the tab buttons on the left side.
  * @author shannah
  */
 public class SideTabs extends Container {

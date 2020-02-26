@@ -9,7 +9,7 @@ import com.codename1.l10n.ParseException;
 import java.util.Date;
 
 /**
- *
+ * Interface for objects that can format and parse dates.
  * @author shannah
  */
 public interface DateFormatter {

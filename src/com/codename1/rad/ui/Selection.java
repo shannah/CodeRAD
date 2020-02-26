@@ -11,7 +11,7 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 
 /**
- *
+ * Encapsulates the selection of a list or table.
  * @author shannah
  */
 public class Selection {

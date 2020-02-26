@@ -18,7 +18,7 @@ import com.codename1.ui.events.DataChangedListener;
 import java.util.Objects;
 
 /**
- *
+ * View for binding to {@link ComboBox} components.
  * @author shannah
  */
 public class ComboBoxPropertyView extends PropertyView<ComboBox> {

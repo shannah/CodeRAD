@@ -6,8 +6,10 @@
 package com.codename1.rad.models;
 
 /**
- *
+ * A {@link Property} containing an {@link Entity} value.
  * @author shannah
+ * 
+ * @see EntityType#entity(java.lang.Class) 
  */
 public  class EntityProperty<T extends Entity> extends AbstractProperty<T> {
     

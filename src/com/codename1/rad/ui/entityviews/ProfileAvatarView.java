@@ -46,12 +46,20 @@ import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Border;
 
 /**
- * A view that shows a profile's avatar filled in a circle.  For best results, the view model (entity) should
+ * A view that shows a profile's avatar filled in a circle.  
+ * 
+ * .A sample with 3 ProfileAvatarViews rendered on 3 different entities.  The first entity has a thumbnail.  The 2nd only a name.  The 3rd, neither a name nor thumbnail.
+ * image::com/codename1/rad/ui/entityviews/doc-files/ProfileAvatarView.png[ProfileAvatarView,240]
+ * 
+ * For best results, the view model (entity) should
  * contain both an "icon" property and a "name" property.  If an "icon" property is defined in the entity type,
  * and the entity contains a valid value for this property (e.g. a URL for an image), then, this image 
  * will be used as the icon.  If the entity doesn't have an icon, but a "name" property is defined and is non-empty
  * in the entity, then the name will be used to create a badge with the first letter of the entity name.  If neither an
  * icon, nor a name can be found on entity, it will simply display the {@link FontImage#MATERIAL_ACCOUNT_CIRCLE} material icon.
+ * 
+ * 
+ * 
  * 
  * === Property Resolution
  * 

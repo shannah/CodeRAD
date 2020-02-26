@@ -29,8 +29,108 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * A View that can render forms for editing an entity.  The form can be customized with a view descriptor to specify
+ * the sections, actions, layout, and fields to include in the form.
+ * 
+ * .A UI descriptor for a form to edit a "Person" entity
+[source,java]
+----
+
+package com.codename1.demos.ddddemo;
+
+import com.codename1.rad.ui.UI;
+import com.codename1.rad.nodes.ActionNode;
+import static com.codename1.demos.ddddemo.PersonEntityType.*;
+import com.codename1.ui.FontImage;
+import static com.codename1.ui.FontImage.MATERIAL_DELETE;
+import static com.codename1.rad.nodes.FormNode.OVERFLOW_MENU;
+import static com.codename1.rad.nodes.FormNode.BOTTOM_RIGHT_MENU;
+import static com.codename1.rad.nodes.FormNode.TOP_LEFT_MENU;
+
+
+public class PersonEditor extends UI {
+    
+    // Define some actions
+    public static ActionNode 
+        deleteAction = action(
+            label("Delete"),
+            description("Delete this user"),
+            icon(MATERIAL_DELETE)
+        ),
+        showContactsAction = action(
+            label("Open Contacts"),
+            description("Show all contacts"),
+            icon(FontImage.MATERIAL_CONTACTS)
+        ),
+        printAction = action(
+            label("Print"),
+            description("Print this page"),
+            icon(FontImage.MATERIAL_PRINT)
+        );
+    
+    {
+        
+
+        // Define the root form.
+        form(
+            actions(OVERFLOW_MENU, deleteAction, printAction),  <1>
+            actions(TOP_LEFT_MENU, deleteAction, printAction, showContactsAction), <2>
+            actions(BOTTOM_RIGHT_MENU, deleteAction, printAction), <3>
+            editable(true),
+            description("Please edit the person's information in the fields below"),
+            label("Person Details"),
+            columns(2),
+            textField(
+                label("Name"),
+                description("Please enter your name"),
+                tags(Person.name)
+            ),
+            textField(
+                tags(description)
+            ),
+            comboBox(
+                tags(DemoTags.hairColor)
+            ),
+            section(
+                actions(TOP_LEFT_MENU, deleteAction, printAction),
+                columns(1),
+                label("Section 2"),
+                textArea(
+                    tags(DemoTags.userProfile)
+                ),
+                table(actions(OVERFLOW_MENU, deleteAction, printAction),
+                   label("Quick Links"),
+                   description("Useful links related to this person"),
+                   editable(true),
+                   //property(quicklinks),
+                   tags(com.codename1.rad.schemas.Person.url),
+                   columns(new QuickLinkEditor().getAllFields())
+                )
+            )
+            
+        );
+    
+}}
+
+----
+<1> We add an overflow menu to the form.
+<2> Add some actions to the top-left menu.
+<3> Add some actions to the bottom-right menu.
+
+Notice how succinct, yet readable this code is.  We can convert this into an actual view with the following:
+
+[source,java]
+----
+new EntityEditor(entity, new PersonEditor());
+----
+
+And the result:
+
+.The UI generated from the above UI descriptor.  All fields are bound to the entity, so changes to the entity will instantly update the UI, and vice-versa.
+image::../../../../doc-files/EntityEditor.png[]
+ * 
  * @author shannah
+ * 
  */
 public class EntityEditor extends Container {
     private EntityForm form;

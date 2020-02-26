@@ -13,12 +13,11 @@ import ca.weblite.shared.components.table.Table;
 import ca.weblite.shared.components.table.Table.TableEvent;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
-import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.ui.events.ActionListener;
 
 /**
- *
+ * A view for binding to {@link Table} components. 
  * @author shannah
  */
 public class TablePropertyView extends PropertyView<Table> {

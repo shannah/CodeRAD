@@ -17,7 +17,7 @@ import com.codename1.rad.ui.PropertyViewFactory;
 import com.codename1.rad.ui.UI;
 
 /**
- *
+ * A renderer for rendering cells of {@link Table}s that use {@link EntityListTableModel} as a model.
  * @author shannah
  */
 public class EntityListTableCellRenderer extends  AbstractTableCellRenderer {

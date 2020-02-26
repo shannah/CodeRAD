@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- *
+ * A cache that keeps a strong reference to its items.
  * @author shannah
  */
 public class StrongCache implements Iterable<String> {

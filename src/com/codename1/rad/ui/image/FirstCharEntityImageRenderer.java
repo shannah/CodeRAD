@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * A renderer that renders the first letter of a given entity's property in a nice colored circle.
  * @author shannah
  */
 public class FirstCharEntityImageRenderer implements EntityImageRenderer {

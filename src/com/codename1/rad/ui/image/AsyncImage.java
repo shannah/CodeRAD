@@ -16,7 +16,7 @@ import com.codename1.ui.util.Resources;
 import com.codename1.util.AsyncResource;
 
 /**
- *
+ * Encapsulates an image that is loaded asynchronously.
  * @author shannah
  */
 public abstract class AsyncImage extends AsyncResource<Image> {

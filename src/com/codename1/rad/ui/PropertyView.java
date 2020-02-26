@@ -6,17 +6,15 @@
 package com.codename1.rad.ui;
 
 import com.codename1.rad.nodes.FieldNode;
-import com.codename1.rad.nodes.PropertyNode;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.Editable;
-import com.codename1.ui.events.FocusListener;
 import com.codename1.ui.layouts.BorderLayout;
 
 /**
- *
+ * Wrapper around a component that supports binding to a property.
  * @author shannah
  */
 public abstract class PropertyView<T extends Component> extends Container implements Editable {

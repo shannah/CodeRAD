@@ -17,18 +17,16 @@ import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.AttributeSet;
 import com.codename1.rad.models.DateFormatterAttribute;
 import com.codename1.rad.models.NumberFormatterAttribute;
-import com.codename1.rad.models.Property;
-import com.codename1.rad.models.Tag;
 import com.codename1.rad.models.Tags;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * A special type of attribute that can contain child nodes.  This is the basis of the UI descriptor hierarchy. 
+ * 
  * @author shannah
  */
 public abstract class Node<T> extends Attribute<T> {

@@ -45,25 +45,28 @@ import java.util.ArrayList;
  * form's Title component in forms that involve interaction between people, such as in a chat
  * form.
  * 
- * <h3>View Model Requirements</h3>
- * <p>For the view model, this view expects an EntityList where each entity in the list contains an "icon",
+ * .A ProfileAvatarsTitleComponent rendering two entities that have {@link Thing#thumbnailUrl} properties.
+ * image::https://shannah.github.io/RADChatRoom/images/Image-210220-020916.612.png[ProvileAvatarsTitleComponent]
+ * 
+ * === View Model Requirements
+ * 
+ * For the view model, this view expects an EntityList where each entity in the list contains an "icon",
  * and a "name".  The individual avatars are rendered as {@link ProfileAvatarView}, so you can refer to its
- * documentation for details the view model requirements for each individual profile.</p>
+ * documentation for details the view model requirements for each individual profile.
  * 
- * <h3>Supported Actions</h3>
+ * === Supported Actions
  * 
- * <p>The following actions are supported on this view:</p>
+ * The following actions are supported on this view:
  * 
- * <ul>
- *  <li>{@link #PROFILE_AVATAR_TITLE_COMPONENT_CLICKED}</li>
- *  <li>{@link #PROFILE_AVATAR_TITLE_COMPONENT_LONG_PRESS}</li>
- *  <li>{@link #PROFILE_AVATAR_CLICKED}</li>
- *  <li>{@link #PROFILE_AVATAR_LONG_PRESS}</li>
- *  <li>{@link #PROFILE_AVATAR_TITLE_COMPONENT_CLICKED_MENU}</li>
- *  <li>{@link #PROFILE_AVATAR_TITLE_COMPONENT_LONG_PRESS_MENU}</li>
- *  <li>{@link #PROFILE_AVATAR_CLICKED_MENU}</li>
- *  <li>{@link #PROFILE_AVATAR_LONG_PRESS_MENU}</li>
- * </ul>
+ *  . {@link #PROFILE_AVATAR_TITLE_COMPONENT_CLICKED}
+ *  . {@link #PROFILE_AVATAR_TITLE_COMPONENT_LONG_PRESS}
+ *  . {@link #PROFILE_AVATAR_CLICKED}
+ *  . {@link #PROFILE_AVATAR_LONG_PRESS}
+ *  . {@link #PROFILE_AVATAR_TITLE_COMPONENT_CLICKED_MENU}
+ *  . {@link #PROFILE_AVATAR_TITLE_COMPONENT_LONG_PRESS_MENU}
+ *  . {@link #PROFILE_AVATAR_CLICKED_MENU}
+ *  . {@link #PROFILE_AVATAR_LONG_PRESS_MENU}
+ * 
  * 
  * 
  * @author shannah

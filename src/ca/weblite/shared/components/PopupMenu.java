@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * A popup-menu with commands that the user can click on.
  * @author shannah
  */
 public class PopupMenu extends InteractionDialog {

@@ -9,7 +9,7 @@ The CodeRAD project was conceived as a way to make it easier to create richer re
 
 The following is a sample of a few components that have been developed with CodeRAD, and can be used in your Codename One application today:
 
-. https://github.com/shannah/RADChatRoom[RADChatRoom] - A full-featured messaging application UI that can be used to add "Chat" capability to your app.
+. https://github.com/shannah/RADChatRoom[RADChatRoom,target=top] - A full-featured messaging application UI that can be used to add "Chat" capability to your app.
 +
 image::https://shannah.github.io/RADChatRoom/images/Image-210220-105119.095.png[RADChatRoom,240]
 . {@link com.codename1.rad.ui.entityviews.ProfileAvatarView} - Shows an entity's thumbnail image inside a round mask.
@@ -22,7 +22,7 @@ image::https://shannah.github.io/RADChatRoom/images/Image-210220-020916.612.png[
 +
 image::https://shannah.github.io/RADChatRoom/images/Image-220220-084136.625.png[ProfileListView,320]
 
-See the {@link com.codename1.rad.ui.entityviews} package for a list of available components, although this list wouldn't include 3rd-party components that use CodeRAD as a dependency (e.g. https://github.com/shannah/RADChatRoom[RADChatRoom]).
+See the {@link com.codename1.rad.ui.entityviews} package for a list of available components, although this list wouldn't include 3rd-party components that use CodeRAD as a dependency (e.g. https://github.com/shannah/RADChatRoom[RADChatRoom,target=top]).
 
 [NOTE]
 ====
@@ -215,7 +215,7 @@ public class UserProfile extends Entity {
 
 === Views
 
-The "View" is the piece of the MVC pie that we are most interested in sharing and reusing.  A View is simply a {@link com.codename1.ui.Component} that includes support to "bind" to a view model (an {@link com.codename1.rad.models.Entity}), such that when properties on the view model are changed, the "View" updates to reflect the change.  The {@link com.codename1.rad.ui.entityviews} package includes a set of read-developed view classes.  The best current example of a CodeRAD view is the https://github.com/shannah/RADChatRoom[RADChatRoom]'s `ChatRoomView` component.
+The "View" is the piece of the MVC pie that we are most interested in sharing and reusing.  A View is simply a {@link com.codename1.ui.Component} that includes support to "bind" to a view model (an {@link com.codename1.rad.models.Entity}), such that when properties on the view model are changed, the "View" updates to reflect the change.  The {@link com.codename1.rad.ui.entityviews} package includes a set of read-developed view classes.  The best current example of a CodeRAD view is the https://github.com/shannah/RADChatRoom[RADChatRoom,target=top]'s `ChatRoomView` component.
 
 NOTE: Creating view classes is more complex than creating models or controllers because they require a deeper understanding of both Codeame One concepts, and CodeRAD concepts.  The goal of this project is to provide a comprehensive set of quality views that can be reused so that developers don't need to create their own views very often.  They can focus on their application's control flow and business logic (i.e. models and controllers).
 

@@ -8,8 +8,10 @@ package com.codename1.rad.models;
 import com.codename1.ui.events.ActionEvent;
 
 /**
- *
+ * An event that is fired when the value of a {@link Property} changes in an entity.
  * @author shannah
+ * @see Entity#addPropertyChangeListener(com.codename1.ui.events.ActionListener) 
+ * @see Entity#removePropertyChangeListener(com.codename1.ui.events.ActionListener) 
  */
 public class PropertyChangeEvent extends ActionEvent {
 

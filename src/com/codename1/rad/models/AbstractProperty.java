@@ -8,12 +8,14 @@ package com.codename1.rad.models;
 
 
 /**
- *
+ * An abstract base class for {@link Property} that includes most of the essential plumbing 
+ * to handle attributes and getting and setting values.
  * @author shannah
+ * @param <T> The type of value held in thi sproperty.
  */
 public class AbstractProperty<T> implements Property<T>  {
-    private AttributeSet attributes = new AttributeSet();
-    private ContentType contentType;
+    private final AttributeSet attributes = new AttributeSet();
+    private final ContentType<T> contentType;
     
     public AbstractProperty(ContentType<T> contentType) {
         this.contentType = contentType;

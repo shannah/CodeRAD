@@ -8,7 +8,7 @@ package com.codename1.rad.schemas;
 import com.codename1.rad.models.Tag;
 
 /**
- *
+ * A schema with tags to identify properties you woud expect in a ChatRoom.
  * @author shannah
  */
 public interface ChatRoom extends Thing {

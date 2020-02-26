@@ -10,7 +10,7 @@ import com.codename1.ui.CN;
 import com.codename1.ui.EncodedImage;
 
 /**
- *
+ * An image that is loaded from the classpath.
  * @author shannah
  */
 public class ClasspathImage extends AsyncImage {

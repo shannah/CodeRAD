@@ -15,7 +15,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.Layout;
 
 /**
- *
+ * A popup menu for rendering a list of actions.
  * @author shannah
  */
 public class PopupActionsMenu extends PopupMenu {

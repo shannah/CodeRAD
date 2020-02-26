@@ -6,12 +6,28 @@
 package ca.weblite.shared.components.table;
 
 /**
- *
+ * Selection mode for a table.
  * @author shannah
  */
 public enum SelectionMode {
+    
+    /**
+     * Allow only row selection.
+     */
     RowOnly,
+    
+    /**
+     * Allow only column selection.
+     */
     ColumnOnly,
+    
+    /**
+     * Allow single cell selection.
+     */
     SingleCell,
+    
+    /**
+     * Allow cell range selection.
+     */
     CellRange
 }

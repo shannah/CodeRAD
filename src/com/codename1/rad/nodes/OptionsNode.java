@@ -9,8 +9,9 @@ import com.codename1.rad.models.Attribute;
 import com.codename1.ui.list.ListModel;
 
 /**
- *
+ * A {@link Node} representing the options of a {@link FieldNode} when the field has "options" (e.g. for a combobox).
  * @author shannah
+ 
  */
 public class OptionsNode extends Node<ListModel> {
     

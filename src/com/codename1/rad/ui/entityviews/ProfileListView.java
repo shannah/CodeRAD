@@ -30,26 +30,32 @@ import com.codename1.ui.layouts.GridLayout;
 import java.util.Objects;
 
 /**
- * A list view that can show a list of profiles.  Each row shows the profile avatar/icon,
+ * A list view that can show a list of profiles.  
+ * 
+ * .A ProfileListView rendering an EntityList with 2 entities, and 2 actions.
+ * image::https://shannah.github.io/RADChatRoom/images/Image-220220-084136.625.png[]
+ * 
+ * Each row shows the profile avatar/icon,
  * name, and optionally a set of actions that will be rendered as buttons for the user to perform.  Row click 
  * events can be handled by registering an action in the {@link #ACCOUNT_LIST_ROW_SELECTED} category.  Row actions
  * can be assigned to the {@link #ACCOUNT_LIST_ROW_ACTIONS} category.
  * 
- * <h3>View Model Requirements</h3>
- * <p>This view will accept any {@link EntityList} where the row items are "profiles". For best results, each profile
- * should contain a name and icon, although it will fall back to suitable output if one or both of those fields are missing.</p>
- * <p>The icon is rendered using the {@link ProfileAvatarView} view, so see its docs for details on what information it needs.  A simple
- * solution, that will always work, is to make sure that the profile entities contain properties tagged with {@link Thing#name} and {@link Thing#thumbnailUrl}.</p>
- * <p>Since rows are rendered using {@link ProfileListRowView}, you can also see its docs for information about row view model requirements.</p>
+ * === View Model Requirements
  * 
- * <h3>Supported Actions</h3>
+ * This view will accept any {@link EntityList} where the row items are "profiles". For best results, each profile
+ * should contain a name and icon, although it will fall back to suitable output if one or both of those fields are missing.
  * 
- * <p>The following actions are supported by this view:</p>
+ * The icon is rendered using the {@link ProfileAvatarView} view, so see its docs for details on what information it needs.  A simple
+ * solution, that will always work, is to make sure that the profile entities contain properties tagged with {@link Thing#name} and {@link Thing#thumbnailUrl}.
  * 
- * <ul>
- *  <li>{@link #ACCOUNT_LIST_ROW_ACTIONS}</li>
- *  <li>{@link #ACCOUNT_LIST_ROW_SELECTED}</li>
- * </ul>
+ * Since rows are rendered using {@link ProfileListRowView}, you can also see its docs for information about row view model requirements.
+ * 
+ * === Supported Actions
+ * 
+ * The following actions are supported by this view:
+ * 
+ *  . {@link #ACCOUNT_LIST_ROW_ACTIONS}
+ *  . {@link #ACCOUNT_LIST_ROW_SELECTED}
  * 
  * @author shannah
  */

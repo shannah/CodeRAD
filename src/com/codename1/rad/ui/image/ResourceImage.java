@@ -11,7 +11,7 @@ import com.codename1.ui.Image;
 import com.codename1.ui.util.Resources;
 
 /**
- *
+ * An image that is loaded from a resource file.
  * @author shannah
  */
 public class ResourceImage extends AsyncImage {
