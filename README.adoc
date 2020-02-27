@@ -21,7 +21,7 @@ This project is at an early stage but there are already a handful of polished co
 . *https://shannah.github.io/RADChatRoom/getting-started-tutorial.html[How to Build a Messenging App in Codename One]* - A good startng place for getting a feel for what it is like to develop an app using CodeRAD.
 
 
-. https://shannah.github.io/CodeRAD/javadoc[Java Docs] 
+. *https://shannah.github.io/CodeRAD/javadoc[Java Docs]* - The overview page gives a good introduction to the concepts, and provides some code examples.  Most classes include descriptions.  Some have examples.  Still working on adding documentation for most methods.
 
 
 == Existing Components
