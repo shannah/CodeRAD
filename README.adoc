@@ -12,10 +12,17 @@ This project is at an early stage but there are already a handful of polished co
 . *Rich UI Components* - Components built with CodeRAD are richer than the standard Codename One UI components.  They are designed to be useful right out of the box, while still being customizable.
 . *Clean Separation of Code* - Provides model, view, and controller classes which facilitate the clean separation of code following MVC (Model-View-Controller) principles.
 . *Loose Coupling* - Views can be "loosely" coupled to their model, allowing them to be used with many different model classes. 
+. *Declarative Java UI Syntax* - Introduces a flexible declarative syntax for describing user interfaces, in pure Java.
+.. Generate forms (for editing entities) using declarative syntax, and less code.
+
 
 == Documentation
 
+. *https://shannah.github.io/RADChatRoom/getting-started-tutorial.html[How to Build a Messenging App in Codename One]* - A good startng place for getting a feel for what it is like to develop an app using CodeRAD.
+
+
 . https://shannah.github.io/CodeRAD/javadoc[Java Docs] 
+
 
 == Existing Components
 
