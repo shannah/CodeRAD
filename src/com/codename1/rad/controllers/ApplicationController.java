@@ -45,7 +45,7 @@ import com.codename1.ui.util.Resources;
  */
 public class ApplicationController extends Controller {
     
-    private Form current;
+    protected Form current;
     private Resources theme;
     
     public static ApplicationController instance;
@@ -84,7 +84,14 @@ public class ApplicationController extends Controller {
         dispatchEvent(new InitEvent(context));
     }
     
+    protected void showCurrentForm() {
+        if (current != null) {
+            current.show();
+        }
+    }
+    
     public void start() {
+        showCurrentForm();
         dispatchEvent(new StartEvent());
     }
     
