@@ -7,6 +7,7 @@ package ca.weblite.shared.components;
 
 import com.codename1.ui.Component;
 import com.codename1.ui.EncodedImage;
+import com.codename1.ui.Font;
 import com.codename1.ui.Graphics;
 import com.codename1.ui.Image;
 import com.codename1.ui.Label;
@@ -46,6 +47,10 @@ public class ComponentImage extends Image {
         cmp = new Label();
         this.w = w;
         this.h = h;
+    }
+    
+    public Component getComponent() {
+        return cmp;
     }
     
     public void enablePulsingAnimation(double currStep, double stepSize, double minAlpha, double maxAlpha) {
@@ -147,8 +152,18 @@ public class ComponentImage extends Image {
             sinVal = minPulsingAlpha + (maxPulsingAlpha - minPulsingAlpha) * sinVal;
             g.setAlpha((int)Math.round(sinVal * alpha));
         }
+        Font font = g.getFont();
+        int color = g.getColor();
+        int clipX = g.getClipX();
+        int clipY = g.getClipY();
+        int clipW = g.getClipWidth();
+        int clipH = g.getClipHeight();
         
         cmp.paintComponent(g, true);
+        g.setFont(font);
+        g.setColor(color);
+        g.setClip(clipX, clipY, clipW, clipH);
+        
         if (pulsingAnimation) {
             g.setAlpha(alpha);
         }

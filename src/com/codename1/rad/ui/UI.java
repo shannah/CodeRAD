@@ -36,8 +36,13 @@ import com.codename1.rad.nodes.RowTemplateNode;
 import com.codename1.rad.nodes.ViewNode;
 import ca.weblite.shared.components.table.TableCellEditor;
 import ca.weblite.shared.components.table.TableCellRenderer;
+import com.codename1.io.File;
+import com.codename1.rad.attributes.Badge;
+import com.codename1.rad.attributes.BadgeUIID;
 import com.codename1.rad.attributes.Condition;
+import com.codename1.rad.attributes.IconUIID;
 import com.codename1.rad.attributes.SelectedCondition;
+import com.codename1.rad.attributes.TextIcon;
 import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.events.DefaultEventFactory;
 import com.codename1.rad.models.Attribute;
@@ -47,6 +52,8 @@ import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.NumberFormatterAttribute;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Editable;
+import com.codename1.rad.models.Property.Label;
+import com.codename1.rad.models.StringProvider;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.nodes.ActionNode.EnabledCondition;
@@ -83,6 +90,7 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     private static TableCellRenderer defaultTableCellRenderer;
     private static TableCellEditor defaultTableCellEditor;
     private static EntityListCellRenderer defaultListCellRenderer;
+    private static File tmpDir;
     
     private static StrongCache cache;
     
@@ -182,7 +190,21 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         defaultTableCellEditor = editor;
     }
     
+    public static File getTempDir() {
+        if (tmpDir == null) {
+            tmpDir = new File("CodeRadTmp");
+            tmpDir.mkdirs();
+        }
+        return tmpDir;
+    }
     
+    public static File getTempFile(String name) {
+        if (name.startsWith("file:/")) {
+            return new File(name);
+        } else {
+            return new File(getTempDir(), name);
+        }
+    }
     
     
     public static EntityViewFactoryNode viewFactory(EntityViewFactory factory, Attribute... atts) {
@@ -192,6 +214,11 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     public static ActionViewFactoryNode actionViewFactory(ActionViewFactory factory, Attribute... atts) {
         return new ActionViewFactoryNode(factory, atts);
     }
+    
+    public static ActionViewFactoryNode viewFactory(ActionViewFactory factory, Attribute... atts) {
+        return actionViewFactory(factory, atts);
+    }
+    
 
     private static EasyThread imageProcessingThread;
     protected FormNode form(Attribute... atts) {
@@ -201,6 +228,22 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     
     public static UIID uiid(String uiid) {
         return new UIID(uiid);
+    }
+    
+    public static IconUIID iconUiid(String uiid) {
+        return new IconUIID(uiid);
+    }
+    
+    public static BadgeUIID badgeUiid(String uiid) {
+        return new BadgeUIID(uiid);
+    }
+    
+    public static Badge badge(String badgeText) {
+        return new Badge(badgeText);
+    }
+    
+    public static Badge badge(String badgeText, StringProvider provider) {
+        return new Badge(badgeText, provider);
     }
     
     public static SectionNode section(Attribute... atts) {
@@ -424,6 +467,30 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         return new ViewPropertyParameterAttribute<T>(ViewPropertyParameter.createBindingParam(prop, tags));
     }
     
+    public static TextIcon icon(String text) {
+        return new TextIcon(text);
+    }
+    
+    public static TextIcon icon(String text, StringProvider provider) {
+        return new TextIcon(text, provider);
+    }
+    
+    public static TextIcon icon(StringProvider provider) {
+        return new TextIcon("", provider);
+    }
+            
+    
+    public static Label label(String label) {
+        return new Label(label);
+    }
+    
+    public static Label label(String label, StringProvider provider) {
+        return new Label(label, provider);
+    }
+    
+    public static Label label(StringProvider provider) {
+        return new Label("", provider);
+    }
     
     public synchronized static void runOnImageProcessingThread(Runnable r) {
         if (imageProcessingThread == null) {

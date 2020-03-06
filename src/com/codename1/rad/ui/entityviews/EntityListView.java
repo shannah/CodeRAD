@@ -47,7 +47,18 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     private ListNode node;
     private EntityListCellRenderer renderer;
     private ComplexSelection selection = new ComplexSelection();
-    private Container wrapper = new Container(BoxLayout.y());
+    private Container wrapper = new Container(BoxLayout.y()) {
+        @Override
+        public void pointerPressed(int x, int y) {
+            super.pointerPressed(x, y); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void pointerDragged(int x, int y) {
+            super.pointerDragged(x, y); //To change body of generated methods, choose Tools | Templates.
+        }
+        
+    };
     boolean firstUpdate = true;
     private ActionListener<EntityListEvent> listListener = evt-> {
         if (evt instanceof EntityList.EntityAddedEvent) {
@@ -105,6 +116,9 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
 
     public EntityListView(T list, ListNode node) {
         super(list);
+        setUIID("EntityListView");
+        setName("EntityListView");
+        this.getStyle().stripMarginAndPadding();
         this.node = node;
         renderer = node.getListCellRenderer();
         if (renderer == null) {
@@ -114,6 +128,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         Boolean scrollableY = (Boolean)node.getViewParameter(SCROLLABLE_Y, ViewPropertyParameter.createValueParam(SCROLLABLE_Y, false)).getValue(list);
         if (scrollableY != null) {
             wrapper.setScrollableY(scrollableY);
+            wrapper.setGrabsPointerEvents(true);
         }
         setLayout(new BorderLayout());
         //add(BorderLayout.CENTER, wrapper);
@@ -225,6 +240,10 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     @Override
     public Node getViewNode() {
         return node;
+    }
+    
+    public Container getScrollWrapper() {
+        return wrapper;
     }
     
 }

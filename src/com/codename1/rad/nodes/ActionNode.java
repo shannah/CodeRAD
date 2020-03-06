@@ -8,11 +8,14 @@ package com.codename1.rad.nodes;
 import com.codename1.rad.ui.ActionStyle;
 import com.codename1.rad.ui.ActionViewFactory;
 import com.codename1.rad.attributes.ActionStyleAttribute;
+import com.codename1.rad.attributes.Badge;
+import com.codename1.rad.attributes.BadgeUIID;
 import com.codename1.rad.events.EventContext;
 import com.codename1.rad.attributes.Condition;
 import com.codename1.rad.attributes.ImageIcon;
 import com.codename1.rad.attributes.MaterialIcon;
 import com.codename1.rad.attributes.SelectedCondition;
+import com.codename1.rad.attributes.TextIcon;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property.Description;
@@ -23,6 +26,7 @@ import com.codename1.ui.Component;
 import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.rad.models.EntityTest;
+import com.codename1.rad.ui.ComponentDecorators;
 import com.codename1.rad.ui.UI;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
@@ -104,7 +108,13 @@ public class ActionNode extends Node implements Proxyable {
     }
     
     
+    public ComponentDecorators getComponentDecorators() {
+        return new ComponentDecorators(getChildNodes(ComponentDecoratorNode.class));
+    }
    
+    public void decorateComponent(Component cmp) {
+        getComponentDecorators().decorate(cmp);
+    }
 
     public EventFactoryNode getEventFactory() {
         
@@ -166,6 +176,14 @@ public class ActionNode extends Node implements Proxyable {
         return true;
     }
     
+    public Badge getBadge() {
+        return (Badge)findAttribute(Badge.class);
+    }
+    
+    public BadgeUIID getBadgeUIID() {
+        return (BadgeUIID)findAttribute(BadgeUIID.class);
+    }
+    
     
     public ActionNode getSelected() {
         Selected sel = (Selected)findAttribute(Selected.class);
@@ -200,7 +218,21 @@ public class ActionNode extends Node implements Proxyable {
     }
     
     public Category getCategory() {
-        return (Category)findAttribute(Category.class);
+        Category out = (Category)findAttribute(Category.class);
+        if (out != null) {
+            return out;
+        }
+        if (getParent() != null) {
+            Node parent = getParent();
+            if (parent instanceof ActionNode) {
+                return ((ActionNode)parent).getCategory();
+            } else if (parent instanceof ActionsNode) {
+                return ((ActionsNode)parent).getCategory();
+            }
+            
+        }
+        return null;
+        
     }
     
     public Label getLabel() {
@@ -246,6 +278,10 @@ public class ActionNode extends Node implements Proxyable {
     
     public MaterialIcon getMaterialIcon() {
         return (MaterialIcon)findAttribute(MaterialIcon.class);
+    }
+    
+    public TextIcon getTextIcon() {
+        return (TextIcon) findAttribute(TextIcon.class);
     }
 
     @Override
@@ -395,7 +431,15 @@ public class ActionNode extends Node implements Proxyable {
         return l.getValue();
     }
     
-    public void decorate(com.codename1.ui.Label label) {
+    public String getLabelText(Entity context) {
+        Label l = getLabel();
+        if (l == null) {
+            return "";
+        }
+        return l.getValue(context);
+    }
+    /*
+    public void decorate(com.codename1.ui.Label label, Entity context) {
         ActionStyle style = getActionStyle();
         if (style == null) {
             style = ActionStyle.IconRight;
@@ -403,7 +447,7 @@ public class ActionNode extends Node implements Proxyable {
         boolean icon = style != ActionStyle.TextOnly;
         boolean text = style != ActionStyle.IconOnly;
         if (text) {
-            label.setText(getLabelText());
+            label.setText(getLabelText(context));
         } else {
             label.setText("");
         }
@@ -412,10 +456,13 @@ public class ActionNode extends Node implements Proxyable {
                 label.setMaterialIcon(getMaterialIcon().getValue());
             } else if (getImageIcon() != null) {
                 label.setIcon(getImageIcon().getValue());
+            } else if (getTextIcon() != null) {
+                label.setIcon(getTextIcon().getValue(context));
             }
         }
  
     }
+*/
     
     
     public Component createView(Entity entity) {
@@ -466,4 +513,5 @@ public class ActionNode extends Node implements Proxyable {
         
         
     }
+    
 }

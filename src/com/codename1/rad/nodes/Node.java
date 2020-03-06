@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.nodes;
 
+import com.codename1.rad.attributes.IconUIID;
 import com.codename1.rad.ui.Actions;
 import com.codename1.rad.ui.NodeList;
 import com.codename1.rad.ui.ViewProperty;
@@ -265,6 +266,19 @@ public abstract class Node<T> extends Attribute<T> {
         return parent;
     }
     
+    
+    public T getValue() {
+        if (proxying != null) {
+            T out = proxying.getValue();
+            if (out != null) {
+                return out;
+            }
+        }
+        return super.getValue();
+    }
+    
+   
+    
     /**
      * Sets attributes on this node.
      * @param atts The attributes to set.
@@ -274,9 +288,14 @@ public abstract class Node<T> extends Attribute<T> {
             if (att instanceof Node) {
                 Node n = (Node)att;
                 if (n.parent != null && n.parent != this) {
-                    throw new IllegalStateException("Node "+n+" already has parent "+n.parent+".  Cannot be added to "+this);
+                    if (n.canProxy()) {
+                        n = n.proxy(this);
+                    } else {
+                        throw new IllegalStateException("Node "+n+" already has parent "+n.parent+".  Cannot be added to "+this);
+                    }
+                } else {
+                    n.parent = this;
                 }
-                n.parent = this;
                 NodeDecoratorAttribute nodeDecorator = (NodeDecoratorAttribute)n.findAttribute(NodeDecoratorAttribute.class);
                 if (nodeDecorator != null) {
                     System.out.println("Decorating node "+n+" with "+nodeDecorator.getValue());
@@ -304,6 +323,9 @@ public abstract class Node<T> extends Attribute<T> {
     public NodeList getChildNodes() {
         NodeList out = new NodeList();
         out.add(this.childNodes);
+        if (proxying != null) {
+            out.add(proxying.getChildNodes());
+        }
         return out;
     }
     
@@ -325,6 +347,9 @@ public abstract class Node<T> extends Attribute<T> {
             if (n.getClass() == type) {
                 out.add(n);
             }
+        }
+        if (proxying != null) {
+            out.add(proxying.getChildNodes(type));
         }
         return out;
     }
@@ -435,6 +460,10 @@ public abstract class Node<T> extends Attribute<T> {
     
     public UIID getUIID() {
         return (UIID)findAttribute(UIID.class);
+    }
+    
+    public IconUIID getIconUIID() {
+        return (IconUIID)findAttribute(IconUIID.class);
     }
     
     public DateFormatterAttribute getDateFormatter() {

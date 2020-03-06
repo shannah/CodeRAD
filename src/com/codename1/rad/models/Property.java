@@ -32,8 +32,24 @@ public interface Property<T> {
     }
     
     public static class Label extends Attribute<String> {
+        private StringProvider provider;
         public Label(String value) {
+            this(value, entity -> {
+                return value;
+            });
+        }
+        
+        public Label(String value, StringProvider provider) {
             super(value);
+            this.provider = provider;
+        }
+        
+        public String getValue(Entity context) {
+            if (provider != null) {
+                return provider.getString(context);
+            } else {
+                return getValue();
+            }
         }
     }
     

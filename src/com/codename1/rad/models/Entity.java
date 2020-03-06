@@ -5,13 +5,17 @@
  */
 package com.codename1.rad.models;
 
+import com.codename1.rad.ui.UI;
 import com.codename1.ui.CN;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
 import com.codename1.ui.URLImage;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
+import com.codename1.util.Base64;
+import com.codename1.util.StringUtil;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -294,10 +298,19 @@ public class Entity extends Observable  {
         if (str.indexOf(" ") > 0) {
             str = str.substring(0, str.indexOf(" "));
         }
+        String encodedStr = Base64.encodeNoNewline(str.getBytes());
+        
+        if (file != null && file.indexOf("%") > 0) {
+            file = StringUtil.replaceAll(file, "%", encodedStr);
+        }
+        
         if (file == null) {
-            file = str + "@"+placeholder.getWidth()+"x"+placeholder.getHeight(); 
+            
+            file = UI.getTempFile(encodedStr + "@"+placeholder.getWidth()+"x"+placeholder.getHeight()).getAbsolutePath(); 
         } else if (file.indexOf("@") == 0) {
-            file = str + file;
+            file = UI.getTempFile(encodedStr + file).getAbsolutePath();
+        } else {
+            file = UI.getTempFile(file).getAbsolutePath();
         }
         return URLImage.createToFileSystem(placeholder, file, str, adapter);
         
@@ -487,6 +500,42 @@ public class Entity extends Observable  {
     
     public boolean setBoolean(boolean val, Tag... tags) {
         return getEntityType().setBoolean(this, val, tags);
+    }
+    
+    public java.util.Date getDate(Property prop) {
+        return getEntityType().getDate(prop, this);
+    }
+    
+    public java.util.Date getDate(Tag... tags) {
+        return getEntityType().getDate(this, tags);
+    }
+    
+    public void setDate(Property prop, Date date) {
+        getEntityType().setDate(prop, this, date);
+    }
+    
+    public boolean setDate(Tag tag, Date date) {
+        return getEntityType().setDate(this, date, tag);
+    }
+    
+    public boolean setDate(Date date, Tag... tags) {
+        return getEntityType().setDate(this, date, tags);
+    }
+    
+    public boolean isEntity(Property prop) {
+        if (isEmpty(prop)) {
+            return false;
+        }
+        return prop.getContentType().isEntity();
+    }
+    
+    public boolean isEntity(Tag tag) {
+        
+        Property prop = getEntityType().findProperty(tag);
+        if (prop == null) {
+            return false;
+        }
+        return isEntity(prop);
     }
     
     public boolean isEmpty(Property prop) {

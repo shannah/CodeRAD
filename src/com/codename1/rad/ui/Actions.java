@@ -5,9 +5,15 @@
  */
 package com.codename1.rad.ui;
 
+import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.nodes.ActionNode;
+import com.codename1.rad.nodes.Node;
 import com.codename1.ui.Container;
+import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.ui.layouts.FlowLayout;
+import com.codename1.ui.layouts.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -63,9 +69,52 @@ public class Actions implements Iterable<ActionNode> {
     }
     
     public void addToContainer(Container cnt, Entity entity) {
+        boolean requiresFlowLayoutWrapperForBadge = (cnt.getLayout() instanceof GridLayout || cnt.getLayout() instanceof BorderLayout || cnt.getLayout() instanceof BoxLayout);
         for (ActionNode n : this) {
-            cnt.addComponent(n.createView(entity));
+            if (requiresFlowLayoutWrapperForBadge && n.getBadge() != null) {
+                // If there is a badge, we'll wrap it in a flowlayout
+                Container fl = FlowLayout.encloseCenter(n.createView(entity));
+                fl.getStyle().stripMarginAndPadding();
+                cnt.addComponent(fl);
+            } else {
+                cnt.addComponent(n.createView(entity));
+            }
         }
+    }
+    
+    public Actions proxy(Node parent) {
+        Actions out = new Actions();
+        for (ActionNode action : this) {
+            out.add((ActionNode)action.proxy(parent));
+        }
+        return out;
+    }
+    
+    public Actions proxy() {
+        Actions out = new Actions();
+        for (ActionNode action : this) {
+            out.add((ActionNode)action.proxy(action.getParent()));
+        }
+        return out;
+    }
+    
+    public Actions setAttributes(Attribute... atts) {
+        for (ActionNode action : this) {
+            action.setAttributes(atts);
+        }
+        return this;
+    }
+    
+    public Actions setAttributesIfNotSet(Attribute... atts) {
+        for (ActionNode action : this) {
+            for (Attribute att : atts) {
+                Attribute existing = action.findAttribute(att.getClass());
+                if (existing == null) {
+                    action.setAttributes(att);
+                }
+            }
+        }
+        return this;
     }
     
 }

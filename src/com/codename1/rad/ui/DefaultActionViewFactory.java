@@ -5,13 +5,16 @@
  */
 package com.codename1.rad.ui;
 
+import ca.weblite.shared.components.ComponentImage;
+import com.codename1.rad.attributes.Badge;
+import com.codename1.rad.attributes.BadgeUIID;
 import com.codename1.rad.attributes.Condition;
-import com.codename1.rad.attributes.ImageIcon;
-import com.codename1.rad.attributes.MaterialIcon;
+import com.codename1.rad.attributes.IconUIID;
 import com.codename1.rad.attributes.SelectedCondition;
 import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.Property.Label;
 import com.codename1.ui.Button;
 import com.codename1.ui.Component;
 import static com.codename1.ui.Component.BOTTOM;
@@ -24,7 +27,9 @@ import com.codename1.ui.CheckBox;
 import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.Form;
+import com.codename1.ui.Image;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.ui.plaf.Style;
 import java.util.Objects;
 
 /**
@@ -41,6 +46,9 @@ public class DefaultActionViewFactory implements ActionViewFactory {
     private static void update(Button btn, Entity entity, ActionNode action) {
         boolean repaint = false;
         boolean revalidate = false;
+        
+        
+        
         Condition cond = action.getCondition();
         if (cond != null) {
             boolean hidden = !cond.getValue().test(entity);
@@ -59,6 +67,15 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                 repaint = true;
             }
         }
+        
+        String currTextVal = btn.getText();
+        String newTextVal = action.getLabelText(entity);
+        if (!Objects.equals(currTextVal, newTextVal)) {
+            btn.setText(newTextVal);
+            repaint = true;
+        }
+       
+        
         if (btn instanceof CheckBox) {
             SelectedCondition selectedCond = action.getSelectedCondition();
             if (selectedCond != null) {
@@ -70,7 +87,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                     ActionNode oldState = selected ? action.getUnselected() : action.getSelected();
                     if (oldState != newState) {
                         String currText = btn.getText();
-                        String newText = newState.getLabelText();
+                        String newText = newState.getLabelText(entity);
                         if (!newState.isTextStyle()) {
                             newText = "";
                         }
@@ -80,6 +97,15 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                         }
                     }
                 }
+            }
+        }
+        
+        Badge badge = action.getBadge();
+        if (badge != null) {
+            btn.setBadgeText(badge.getValue(entity));
+            BadgeUIID badgeUiid = action.getBadgeUIID();
+            if (badgeUiid != null) {
+                btn.setBadgeUIID(badgeUiid.getValue());
             }
         }
         if (revalidate || repaint) {
@@ -100,18 +126,22 @@ public class DefaultActionViewFactory implements ActionViewFactory {
     }
     
     private static void initUI(Button btn, Entity entity, ActionNode action) {
-        
+        btn.setBlockLead(true);
         boolean text = action.isTextStyle();
         boolean includeIcon = action.isIconStyle();
         UIID uiid = action.getUIID();
         if (uiid != null) {
             btn.setUIID(uiid.getValue());
         }
+        IconUIID iconUiid = action.getIconUIID();
+        if (iconUiid != null) {
+            btn.setIconUIID(iconUiid.getValue());
+        }
         
         Button button = btn;
         
         if (action.getLabel() != null && text) {
-            button.setText(action.getLabel().getValue());
+            button.setText(action.getLabel().getValue(entity));
         }
         
         if (action.getImageIcon() != null && includeIcon) {
@@ -137,6 +167,26 @@ public class DefaultActionViewFactory implements ActionViewFactory {
             char disabledIcon = action.getDisabled().getMaterialIcon().getValue();
             //button.setMaterialIcon(action.getMaterialIcon().getValue());
             FontImage.setMaterialIcon(btn, new char[]{unselectedIcon, selectedIcon, pressedIcon, selectedPressed, disabledIcon}, -1);
+        }
+        if (action.getTextIcon() != null && includeIcon) {
+            String iconText = action.getTextIcon().getValue(entity);
+            Button iconLabel = new Button(iconText);
+            if (btn.getIconStyleComponent() != btn) {
+                iconLabel.setUIID(btn.getIconStyleComponent().getUIID());
+                
+            } else {
+                iconLabel.setUIID(btn.getUIID());
+                
+                // IF the button has a border and padding set, we don't 
+                // want to to also be applied to the icon.
+                iconLabel.getAllStyles().stripMarginAndPadding();
+            }
+            iconLabel.setWidth(iconLabel.getPreferredW());
+            iconLabel.setHeight(iconLabel.getPreferredH());
+            btn.setIcon(new ComponentImage(iconLabel, iconLabel.getWidth(), iconLabel.getHeight()));
+            
+            
+            
         }
         
 
@@ -167,6 +217,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         });
         
         update(button, entity, action);
+        action.decorateComponent(btn);
     }
     
     private static Component findEntityViewParent(Component start) {
@@ -196,6 +247,34 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         }
 
         @Override
+        public void setIcon(Image icon) {
+            Image oldIcon = getIcon();
+            if (oldIcon != null) {
+                if (oldIcon instanceof ComponentImage) {
+                    ComponentImage cimg = (ComponentImage)oldIcon;
+                    Component cmp = cimg.getComponent();
+                    if (cmp instanceof Button) {
+                        Button b = (Button)cmp;
+                        b.unbindStateFrom(this);
+                    }
+                }
+            }
+            super.setIcon(icon);
+            if (icon != null) {
+                if (icon instanceof ComponentImage) {
+                    ComponentImage cimg = (ComponentImage)icon;
+                    Component cmp = cimg.getComponent();
+                    if (cmp instanceof Button) {
+                        Button b = (Button)cmp;
+                        b.bindStateTo(this);
+                    }
+                }
+            }
+        }
+        
+        
+
+        @Override
         protected void initComponent() {
             super.initComponent();
             entity.addPropertyChangeListener(pcl);
@@ -206,6 +285,8 @@ public class DefaultActionViewFactory implements ActionViewFactory {
             entity.removePropertyChangeListener(pcl);
             super.deinitialize();
         }
+        
+        
         
         
     }
@@ -225,6 +306,32 @@ public class DefaultActionViewFactory implements ActionViewFactory {
             initUI(this, entity, action);
             
         
+        }
+        
+        @Override
+        public void setIcon(Image icon) {
+            Image oldIcon = getIcon();
+            if (oldIcon != null) {
+                if (oldIcon instanceof ComponentImage) {
+                    ComponentImage cimg = (ComponentImage)oldIcon;
+                    Component cmp = cimg.getComponent();
+                    if (cmp instanceof Button) {
+                        Button b = (Button)cmp;
+                        b.unbindStateFrom(this);
+                    }
+                }
+            }
+            super.setIcon(icon);
+            if (icon != null) {
+                if (icon instanceof ComponentImage) {
+                    ComponentImage cimg = (ComponentImage)icon;
+                    Component cmp = cimg.getComponent();
+                    if (cmp instanceof Button) {
+                        Button b = (Button)cmp;
+                        b.bindStateTo(this);
+                    }
+                }
+            }
         }
 
         @Override

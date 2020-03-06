@@ -469,7 +469,6 @@ public class ProfileAvatarView extends AbstractEntityView {
         $(this).selectAllStyles().setPadding(0).setBorder(Border.createEmpty()).setBgTransparency(0x0).setMarginMillimeters(0.5f);
         FontImage.setMaterialIcon(label, FontImage.MATERIAL_ACCOUNT_CIRCLE, sizeMM);
         add(CENTER, label);
-        
         setLeadComponent(leadButton);
         leadButton.setHidden(true);
         leadButton.setVisible(false);

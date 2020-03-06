@@ -154,6 +154,17 @@ public class FormController extends ViewController {
             }
         }
     }
+    
+    public boolean hasBackCommand() {
+        if (getParent() instanceof ViewController) {
+            
+            Component parentView = ((ViewController)getParent()).getView();
+            if (parentView instanceof Form) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Handles Controller event.  This implementation consumes {@link FormBackEvent} events.

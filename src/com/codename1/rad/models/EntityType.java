@@ -9,6 +9,7 @@ package com.codename1.rad.models;
 import com.codename1.rad.models.Property.Description;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Property.Widget;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -405,6 +406,30 @@ public class EntityType implements Iterable<Property> {
     
     public Boolean getBoolean(Tag prop, Entity entity, Boolean defaultVal) {
         return (Boolean)getPropertyValue(prop, entity, ContentType.BooleanType, defaultVal);
+    }
+     
+    public Date getDate(Property prop, Entity entity) {
+        return (Date)getPropertyValue(prop, entity, ContentType.DateType);
+    }
+    
+    public Date getDate(Tag tag, Entity entity) {
+        return (Date)getPropertyValue(tag, entity, ContentType.DateType);
+    }
+    
+    public Date getDate(Entity entity, Tag... tags) {
+        return (Date)getPropertyValue(entity, ContentType.DateType);
+    }
+    
+    public void setDate(Property prop, Entity entity, Date date) {
+        setPropertyValue(prop, entity, ContentType.DateType, date);
+    }
+    
+    public boolean setDate(Tag tag, Entity entity, Date date) {
+        return setPropertyValue(tag, entity, ContentType.DateType, date);
+    }
+    
+    public boolean setDate(Entity entity, Date date, Tag... tags) {
+        return setPropertyValue(entity, ContentType.DateType, date, tags);
     }
     
 

@@ -105,7 +105,8 @@ public interface CreativeWork extends Thing {
             version = new Tag(),
             video = new Tag(),
             workExample = new Tag(),
-            workTranslation = new Tag();
+            workTranslation = new Tag(),
+            viewCount = new Tag();
             
             
 }
