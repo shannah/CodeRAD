@@ -10,6 +10,8 @@ import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.PropertyChangeEvent;
+import com.codename1.rad.models.PropertySelector;
+import com.codename1.rad.ui.UI;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
 import java.util.Objects;
@@ -26,10 +28,12 @@ public class SpanLabelPropertyView extends PropertyView<com.codename1.components
         update();
     };
     
-    private DataChangedListener dcl = (type, index) ->{
-        commit();
-    };
     
+    
+    
+    public SpanLabelPropertyView(com.codename1.components.SpanLabel component, Entity entity, PropertySelector property) {
+        this(component, entity, new FieldNode(UI.property(property)));
+    }
     
     public SpanLabelPropertyView(com.codename1.components.SpanLabel component, Entity entity, FieldNode field) {
         super(component, entity, field);
@@ -50,11 +54,7 @@ public class SpanLabelPropertyView extends PropertyView<com.codename1.components
     @Override
     public void update() {
         String oldVal = getComponent().getText();
-        String newVal = ContentType.convert(
-                getProperty().getContentType(), 
-                getProperty().getValue(getEntity()),
-                ContentType.Text
-        );
+        String newVal = getPropertySelector().getText("");
         if (!Objects.equals(oldVal, newVal)) {
             getComponent().setText(newVal);
         }
@@ -62,14 +62,7 @@ public class SpanLabelPropertyView extends PropertyView<com.codename1.components
     
     @Override
     public void commit() {
-        getProperty().setValue(
-                getEntity(), 
-                ContentType.convert(
-                        ContentType.Text, 
-                        getComponent().getText(), 
-                        getProperty().getContentType()
-                )
-        );
+        
     }
     
 }

@@ -29,4 +29,8 @@ public class ControllerEvent extends ActionEvent {
         super(source);
     }
     
+    public <T extends ControllerEvent> T as(Class<T> type) {
+        return (T)this;
+    }
+    
 }

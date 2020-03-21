@@ -6,7 +6,9 @@
 package com.codename1.rad.ui;
 
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
+import com.codename1.rad.models.Tag;
 import com.codename1.ui.Container;
 import com.codename1.ui.events.ActionListener;
 
@@ -53,5 +55,8 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         this.entity = entity;
     }
     
+    protected Property findProperty(Tag... tags) {
+        return getEntity().getEntityType().findProperty(tags);
+    }
     
 }

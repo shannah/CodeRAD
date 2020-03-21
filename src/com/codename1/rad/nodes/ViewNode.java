@@ -9,8 +9,10 @@ import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.ui.EntityViewFactory;
 import com.codename1.rad.ui.UI;
 import com.codename1.rad.attributes.IconRendererAttribute;
+import com.codename1.rad.attributes.PropertySelectorAttribute;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.PropertySelector;
 
 /**
  * A node representing an EntityView.
@@ -50,5 +52,7 @@ public class ViewNode extends Node {
     public EntityView createView(Entity entity, EntityViewFactory defaultFactory) {
         return getViewFactory(defaultFactory).createView(entity, this);
     }
+    
+    
     
 }

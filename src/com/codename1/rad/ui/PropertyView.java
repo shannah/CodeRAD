@@ -8,6 +8,7 @@ package com.codename1.rad.ui;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
+import com.codename1.rad.models.PropertySelector;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.Editable;
@@ -21,9 +22,11 @@ public abstract class PropertyView<T extends Component> extends Container implem
     private T component;
     private Entity entity;
     private FieldNode field;
+    private PropertySelector propertySelector;
     
     public PropertyView(T component, Entity entity, FieldNode field) {
         setLayout(new BorderLayout());
+        getStyle().stripMarginAndPadding();
         this.component = component;
         setEditingDelegate(component);
         this.entity = entity;
@@ -42,41 +45,6 @@ public abstract class PropertyView<T extends Component> extends Container implem
     public void setNextFocusRight(Component nextFocusRight) {
         component.setNextFocusRight(nextFocusRight);
     }
-    /*
-    @Override
-    public boolean isFocusable() {
-        if (component == null) {
-            return false;
-        }
-        return component.isFocusable();
-    }
-
-    @Override
-    public void setFocus(boolean focused) {
-        component.setFocus(focused);
-    }
-
-    @Override
-    public void addFocusListener(FocusListener l) {
-        component.addFocusListener(l);
-    }
-
-    @Override
-    public void removeFocusListener(FocusListener l) {
-        component.removeFocusListener(l);
-    }
-    
-    
-    
-    
-    */
-    
-    
-    
-    
-    
-    
-    
     
     
 
@@ -84,6 +52,7 @@ public abstract class PropertyView<T extends Component> extends Container implem
     protected void initComponent() {
         super.initComponent();
         bind();
+        update();
 
     }
 
@@ -105,6 +74,13 @@ public abstract class PropertyView<T extends Component> extends Container implem
     
     public Property getProperty() {
         return getField().getProperty(entity.getEntityType());
+    }
+    
+    public PropertySelector getPropertySelector() {
+        if (propertySelector == null) {
+            propertySelector = field.getPropertySelector(entity);
+        }
+        return propertySelector;
     }
     
     public FieldNode getField() {

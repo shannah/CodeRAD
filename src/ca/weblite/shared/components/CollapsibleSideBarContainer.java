@@ -49,7 +49,7 @@ public class CollapsibleSideBarContainer extends Container {
     private int slidePos = 0;
     
     private int startDragX, startDragY, startSlidePos;
-    private boolean dragging, pressed;
+    private boolean dragging, pressed, dragLock;
     private class SideBarLayout extends Layout {
 
         @Override
@@ -189,8 +189,12 @@ public class CollapsibleSideBarContainer extends Container {
     };
     
     private ActionListener formPointerListener = evt -> {
+        if (pressed && dragging && dragLock) {
+            evt.consume();
+        }
         if (evt.getEventType() == ActionEvent.Type.PointerPressed) {
             startDragX = evt.getX();
+            
             startDragY = evt.getY();
             startSlidePos = slidePos;
             Component cmp = getComponentAt(evt.getX(), evt.getY());
@@ -234,6 +238,21 @@ public class CollapsibleSideBarContainer extends Container {
                     return;
                 }
                 dragging = true;
+                
+                if (diffX> CN.convertToPixels(3) && diffY < CN.convertToPixels(1) ) {
+                    dragLock = true;
+                    Form f = getComponentForm();
+                    if (f != null) {
+                        
+                        f.clearComponentsAwaitingRelease();
+                    }
+                    evt.consume();
+                } else if (dragLock) {
+                    evt.consume();
+                } else {
+                    
+                }
+                
                 sideMenuWidth = getLeft().getPreferredW();
                 slidePos = Math.min(sideMenuWidth, Math.max(0, startSlidePos + evt.getX() - startDragX));
                 revalidateWithAnimationSafety();

@@ -130,6 +130,13 @@ public class EntityType implements Iterable<Property> {
         return out;
     }
     
+    public <T> SimpleProperty<T> object(Class<T> type, Attribute... atts) {
+        SimpleProperty<T> out = new SimpleProperty<T>(type);
+        out.setAttributes(atts);
+        propertiesSet.add(out);
+        return out;
+    }
+    
     public DateProperty date(Attribute... atts) {
         DateProperty out = new DateProperty();
         out.setAttributes(atts);

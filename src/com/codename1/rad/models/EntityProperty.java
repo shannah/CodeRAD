@@ -13,8 +13,18 @@ package com.codename1.rad.models;
  */
 public  class EntityProperty<T extends Entity> extends AbstractProperty<T> {
     
+    private static <V> ContentType<V> toContentType(Class<V> cls) {
+        if (cls == Entity.class) {
+            return (ContentType<V>)ContentType.EntityType;
+        }
+        if (cls == EntityList.class) {
+            return (ContentType<V>)ContentType.EntityListType;
+        }
+        return ContentType.createObjectType(cls);
+    }
+    
     public EntityProperty(Class<T> cls) {
-        super(new ContentType(new Name(cls.getName()), cls));
+        super(toContentType(cls));
     }
     
     

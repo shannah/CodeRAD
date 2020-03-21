@@ -25,12 +25,17 @@ import ca.weblite.shared.components.table.DefaultTableCellRenderer;
 import ca.weblite.shared.components.table.Table;
 import ca.weblite.shared.components.table.TableCellEditor;
 import ca.weblite.shared.components.table.TableCellRenderer;
+import com.codename1.components.CheckBoxList;
+import com.codename1.components.RadioButtonList;
+import com.codename1.components.SwitchList;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property.Name;
+import com.codename1.rad.propertyviews.ButtonListPropertyView;
 import com.codename1.ui.ComboBox;
 import com.codename1.ui.TextArea;
 import com.codename1.ui.TextField;
+import com.codename1.ui.list.MultipleSelectionListModel;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -124,6 +129,26 @@ public class DefaultPropertyViewFactory implements PropertyViewFactory {
             out.setEditable(field.isEditable());
             return new TablePropertyView(out, entity, field);  
         });
+        
+        registry.put(WidgetType.CHECKBOX_LIST, (entity, field) -> {
+            OptionsNode options = field.getOptions();
+            CheckBoxList list = new CheckBoxList((MultipleSelectionListModel)options.getValue());
+            return new ButtonListPropertyView(list, entity, field);
+        });
+        
+        registry.put(WidgetType.SWITCH_LIST, (entity, field) -> {
+            OptionsNode options = field.getOptions();
+            SwitchList list = new SwitchList((MultipleSelectionListModel)options.getValue());
+            return new ButtonListPropertyView(list, entity, field);
+        });
+        
+        registry.put(WidgetType.RADIO_LIST, (entity, field) -> {
+            OptionsNode options = field.getOptions();
+            RadioButtonList list = new RadioButtonList(options.getValue());
+            return new ButtonListPropertyView(list, entity, field);
+        });
+        
+        
     }
     
     @Override

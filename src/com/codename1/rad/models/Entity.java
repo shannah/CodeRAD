@@ -7,6 +7,7 @@ package com.codename1.rad.models;
 
 import com.codename1.rad.ui.UI;
 import com.codename1.ui.CN;
+import com.codename1.ui.Display;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
 import com.codename1.ui.URLImage;
@@ -179,8 +180,11 @@ public class Entity extends Observable  {
     
     protected void firePropertyChangeEvent(PropertyChangeEvent pce) {
         if (!CN.isEdt()) {
-            CN.callSerially(()->firePropertyChangeEvent(pce));
-            return;
+            if (Display.isInitialized()) {
+                CN.callSerially(()->firePropertyChangeEvent(pce));
+                
+                return;
+            }
         }
         if (propertyChangeListenersMap != null) {
             Set<ActionListener> listeners = propertyChangeListenersMap.get(pce.getProperty());
@@ -347,7 +351,7 @@ public class Entity extends Observable  {
     }
     
     
-    public Entity getEntity(Tag tag) {
+    public Entity getEntity(Tag... tag) {
         Property prop = getEntityType().findProperty(tag);
         if (prop == null) {
             return null;
@@ -522,6 +526,19 @@ public class Entity extends Observable  {
         return getEntityType().setDate(this, date, tags);
     }
     
+    public void setEntity(Property prop, Entity e) {
+        set(prop, e);
+        
+    }
+    
+    public boolean setEntity(Tag tag, Entity e) {
+        return set(tag, ContentType.EntityType, e);
+    }
+    
+    public boolean setEntity(Entity e, Tag... tags) {
+        return set(ContentType.EntityType, e, tags);
+    }
+    
     public boolean isEntity(Property prop) {
         if (isEmpty(prop)) {
             return false;
@@ -585,6 +602,12 @@ public class Entity extends Observable  {
         super.setChanged();
     }
     
-    
+    public void setChanged(Property prop, boolean firePropertyChange) {
+        super.setChanged();
+        if (firePropertyChange) {
+            firePropertyChangeEvent(new PropertyChangeEvent(this, prop, get(prop), get(prop)));
+        }
+        
+    }
     
 }

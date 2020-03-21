@@ -125,6 +125,16 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         }
         return false;
     }
+    
+    public void clear() {
+        List<T> toRemove = new ArrayList<>();
+        for (T e : this) {
+            toRemove.add(e);
+        }
+        for (T e : toRemove) {
+            remove(e);
+        }
+    }
 
     public int size() {
         return entities.size();

@@ -15,39 +15,32 @@
  */
 package com.codename1.rad.ui.image;
 
-import ca.weblite.shared.components.ComponentImage;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
+import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.schemas.ListRowItem;
 import com.codename1.rad.schemas.Thing;
-import com.codename1.rad.ui.UI;
-import com.codename1.ui.CN;
-import com.codename1.ui.Component;
 import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Container;
-import com.codename1.ui.Display;
 import com.codename1.ui.EncodedImage;
-import com.codename1.ui.Graphics;
 import com.codename1.ui.Image;
 import com.codename1.ui.Label;
-import com.codename1.ui.URLImage;
+import static com.codename1.ui.URLImage.createMaskAdapter;
+
 import com.codename1.ui.geom.Dimension;
-import com.codename1.ui.geom.GeneralPath;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.Layout;
 import com.codename1.ui.plaf.Border;
-import com.codename1.ui.plaf.RoundBorder;
-import com.codename1.ui.plaf.RoundRectBorder;
 
 /**
- *
+ * A that manages the loading of URLImages, application of mask (rect or roundrect), and proper sizing
+ * according to the current layout manager.
  * @author shannah
  */
 public class ImageContainer extends Container {
     private String storageFile, filePath;
     private boolean useStorage, useFileSystem;
-    private Entity entity;
-    private Property property;
+    private PropertySelector property;
     private double aspectRatio = 16.0/9.0;
     private Image image;
     
@@ -64,10 +57,6 @@ public class ImageContainer extends Container {
         add(imageLabel);
     }
 
-   
-    
-    
-    
     private class FillLayout extends Layout {
 
         @Override
@@ -98,175 +87,44 @@ public class ImageContainer extends Container {
         
     }
     
-    private GeneralPath createShape(RoundRectBorder border, int shapeW, int shapeH) {
-        GeneralPath gp = new GeneralPath();
-        float radius = Display.getInstance().convertToPixels(border.getCornerRadius());
-        float x = 0;
-        float y = 0;
-        float widthF = shapeW;
-        float heightF = shapeH;
-        
-        if(border.isTopLeft()) {
-            gp.moveTo(x + radius, y);
-        } else {
-            gp.moveTo(x, y);            
-        }
-        
-        if(border.isTopRight()) {
-            gp.lineTo(x + widthF - radius, y);            
-            gp.quadTo(x + widthF, y, x + widthF, y + radius);
-        } else {
-            gp.lineTo(x + widthF, y);
-        }
-        
-        
-        if(border.isBottomRight()) {
-            gp.lineTo(x + widthF, y + heightF - radius);
-            gp.quadTo(x + widthF, y + heightF, x + widthF - radius, y + heightF);
-        } else {
-            gp.lineTo(x + widthF, y + heightF);
-        }
-        
-        
-        
-        
-        if(border.isBottomLeft()) {
-            gp.lineTo(x + radius, y + heightF);
-            gp.quadTo(x, y + heightF, x, y + heightF - radius);
-        } else {
-            gp.lineTo(x, y + heightF);
-        }
-        
-        
-        
-        if(border.isTopLeft()) {
-            gp.lineTo(x, y + radius);
-            gp.quadTo(x, y, x + radius, y);
-        } else {
-            gp.lineTo(x, y);            
-        }
-        
-        
-        gp.closePath();  
-        
-        
-        return gp;
-    }
-    
-    private void fillShape(RoundBorder border, Graphics g, int color, int opacity, int width, int height) {
-        g.setColor(color);
-        g.setAlpha(opacity);
-        if(!border.isRectangle() || width <= height) {
-            
-            int x = 0; 
-            int y = 0;
-            int size = width;
-            if(width != height) {
-                if(width > height) {
-                    size = height;
-                    x = (width - height) / 2;
-                } else {
-                    size = width;
-                    y = (height - width) / 2;
-                }
-            }
-            if(size < 5) {
-                // probably won't be visible anyway so do nothing, otherwise it might throw an exception
-                return;
-            }
-            
-            g.fillArc(x, y, size, size, 0, 360);
-            
-        } else {
-            GeneralPath gp = new GeneralPath();
-            float sw = 0;
-            gp.moveTo(height / 2.0, sw);
-            if(border.isOnlyLeftRounded()) {
-                gp.lineTo(width, sw);
-                gp.lineTo(width , height-sw);                
-            } else {
-                gp.lineTo(width - (height / 2.0), sw);
-                gp.arcTo(width - (height / 2.0), height / 2.0, width - (height / 2.0), height-sw, true);
-            }
-            if(border.isOnlyRightRounded()) {
-                gp.lineTo(sw, height-sw);
-                gp.lineTo(sw, sw);                
-            } else {
-                gp.lineTo(height / 2.0, height-sw);
-                gp.arcTo(height / 2.0, height / 2.0, height / 2.0, sw, true);
-            }
-            gp.closePath();
-            g.fillShape(gp);
-                  
-        }
-    }
-    
     public Object createImageMask(int width) {
-        Border border = getStyle().getBorder();
-        if (!(border instanceof RoundRectBorder || border instanceof RoundBorder)) {
-            return null;
-        }
         int height = (int)Math.round(width / aspectRatio);
-        String cacheKey = "ImageContainer."+getUIID()+"#"+getName()+width+"x"+height;
-        Object mask = UI.getCache().get(cacheKey);
-        if (mask != null) {
-            return mask;
-        }
+        return ImageUtil.createImageMask(getUIID(), getStyle(), width, height);
         
-        Image maskImage = Image.createImage(width, height, 0xff000000);
-        Graphics gr = maskImage.getGraphics();
-        gr.setAntiAliased(true);
-        //gr.drawImage(cim, 0, 0);
-        gr.setColor(0xffffff);
-        if (border instanceof RoundRectBorder) {
-            RoundRectBorder rb = (RoundRectBorder)border;
-            gr.fillShape(createShape(rb, width, height));
-        } else if (border instanceof RoundBorder) {
-            RoundBorder rb = (RoundBorder)border;
-            fillShape(rb, gr, 0xffffff, 0xff, width, height);
-        } else {
-            return null;
-        }
-        
-        mask = maskImage.createMask();
-        UI.getCache().set(cacheKey, mask);
-
-        return mask;
     }
     
-    private URLImage.ImageAdapter createMaskAdapter(int width) {
-        Object mask = createImageMask(width);
-        if (mask == null) {
-            return null;
-        }
-        return URLImage.createMaskAdapter(mask);
-    }
+    
     
     private Image createImage(int width) {
         if (filePath != null || useFileSystem) {
-            return entity.createImageToFile(property, createPlaceholder(width), filePath, createMaskAdapter(width));
+            return property.createImageToFile(createPlaceholder(width), filePath, createMaskAdapter(createImageMask(width)));
         } else {
-            return entity.createImageToStorage(property, createPlaceholder(width), storageFile, createMaskAdapter(width));
+            return property.createImageToStorage(createPlaceholder(width), storageFile, createMaskAdapter(createImageMask(width)));
         }
             
     }
     
     private EncodedImage createPlaceholder(int width) {
         int height = (int)Math.round(width / aspectRatio);
-        Component cmp = new Component() {
-            
-        };
-        cmp.setWidth(width);
-        cmp.setHeight(height);
-        return new ComponentImage(cmp, width, height).toEncodedImage();
+        return ImageUtil.createPlaceholder(width, height);
     }
 
     public static ImageContainer createToStorage(Entity entity, Property property, String storageFile) {
         ImageContainer out = new ImageContainer();
         out.storageFile = storageFile;
         out.useStorage = true;
+        out.property = new PropertySelector(entity, property);
+        
+        
+        return out;
+    }
+    
+    public static ImageContainer createToStorage(PropertySelector property, String storageFile) {
+        ImageContainer out = new ImageContainer();
+        out.storageFile = storageFile;
+        out.useStorage = true;
         out.property = property;
-        out.entity = entity;
+        
         
         return out;
     }
@@ -277,17 +135,32 @@ public class ImageContainer extends Container {
         return createToStorage(entity, property, (String)null);
     }
     
+    public static ImageContainer createToStorage(PropertySelector property) {
+        return createToStorage(property, (String)null);
+    }
+    
     public static ImageContainer createToStorage(Entity entity) {
         return createToStorage(entity, entity.getEntityType().findProperty(Thing.image, Thing.thumbnailUrl, ListRowItem.icon));
     }    
+    
     
     
     public static ImageContainer createToFileSystem(Entity entity, Property property, String filePath) {
         ImageContainer out = new ImageContainer();
         out.filePath = filePath;
         out.useFileSystem = true;
+        out.property = new PropertySelector(entity, property);
+        
+        
+        return out;
+    }
+    
+    public static ImageContainer createToFileSystem(PropertySelector property, String filePath) {
+        ImageContainer out = new ImageContainer();
+        out.filePath = filePath;
+        out.useFileSystem = true;
         out.property = property;
-        out.entity = entity;
+        
         
         return out;
     }
@@ -295,6 +168,10 @@ public class ImageContainer extends Container {
     
     public static ImageContainer createToFileSystem(Entity entity, Property property) {
         return createToFileSystem(entity, property, (String)null);
+    }
+    
+    public static ImageContainer createToFileSystem(PropertySelector property) {
+        return createToFileSystem(property, (String)null);
     }
     
     public static ImageContainer createToFileSystem(Entity entity) {
@@ -307,7 +184,9 @@ public class ImageContainer extends Container {
         this.aspectRatio = aspect;
     }
     
-    
+    public void invalidateImage() {
+        image = null;
+    }
     
     
 }

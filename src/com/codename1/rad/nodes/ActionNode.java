@@ -27,9 +27,11 @@ import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.rad.models.EntityTest;
 import com.codename1.rad.ui.ComponentDecorators;
+import com.codename1.rad.ui.NodeList;
 import com.codename1.rad.ui.UI;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.ui.util.EventDispatcher;
 import java.util.Map;
 
 /**
@@ -92,7 +94,18 @@ public class ChatFormController extends FormController {
  */
 public class ActionNode extends Node implements Proxyable {
     
+    private static class ActionListenerNode extends Node<ActionListener> {
+        private ActionListenerNode(ActionListener l) {
+            super(l);
+        }
+    }
     
+    public void addActionListener(ActionListener l) {
+        setAttributes(new ActionListenerNode(l));
+        
+    }
+    
+   
    
     
     public static class EnabledCondition extends Attribute<EntityTest> {
@@ -414,7 +427,14 @@ public class ActionNode extends Node implements Proxyable {
         }
 
         ActionEvent actionEvent = eventFactory.getValue().createEvent(eventContext);
-
+        NodeList actionListeners = getChildNodes(ActionListenerNode.class);
+        for (Node n : actionListeners) {
+            ActionListenerNode aln = (ActionListenerNode)n;
+            aln.getValue().actionPerformed(actionEvent);
+            if (actionEvent.isConsumed()) {
+                return actionEvent;
+            }
+        }
         ActionSupport.dispatchEvent(actionEvent);
         return actionEvent;
     }

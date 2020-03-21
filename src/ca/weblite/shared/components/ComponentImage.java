@@ -117,7 +117,6 @@ public class ComponentImage extends Image {
 
     @Override
     protected void drawImage(Graphics g, Object nativeGraphics, int x, int y) {
-        
         int tx = g.getTranslateX();
         int ty = g.getTranslateY();
         //g.translate(-tx, -ty);

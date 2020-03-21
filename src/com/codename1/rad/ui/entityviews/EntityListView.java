@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui.entityviews;
 
+import ca.weblite.shared.components.CollapsibleHeaderContainer.ScrollableContainer;
 import com.codename1.rad.ui.EntityListCellRenderer;
 import com.codename1.rad.ui.AbstractEntityView;
 import com.codename1.rad.ui.ActionCategories;
@@ -28,6 +29,7 @@ import com.codename1.ui.animations.ComponentAnimation;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.ui.layouts.Layout;
 import com.codename1.ui.plaf.Border;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +43,14 @@ import java.util.List;
  * 
  * @author shannah
  */
-public class EntityListView<T extends EntityList> extends AbstractEntityView<T> {
+public class EntityListView<T extends EntityList> extends AbstractEntityView<T> implements ScrollableContainer {
+    
+    
+    
     
     public static final ViewProperty<Boolean> SCROLLABLE_Y = ViewProperty.booleanProperty();
+    public static final ViewProperty<Boolean> SCROLLABLE_X = ViewProperty.booleanProperty();
+    
     private ListNode node;
     private EntityListCellRenderer renderer;
     private ComplexSelection selection = new ComplexSelection();
@@ -244,6 +251,17 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     
     public Container getScrollWrapper() {
         return wrapper;
+    }
+
+    @Override
+    public Container getVerticalScroller() {
+        return getScrollWrapper();
+    }
+    
+    
+    
+    public void setListLayout(Layout l) {
+        wrapper.setLayout(l);
     }
     
 }

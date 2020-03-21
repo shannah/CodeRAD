@@ -73,6 +73,14 @@ public class ContentType<T> {
     public Name getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(name);
+    }
+    
+    
+    
     private Class<T> representationClass;
     private Name name;
     
@@ -227,9 +235,76 @@ public class ContentType<T> {
     
     public static final ContentType<Float> FloatType = new ContentType<Float>(new Name("Float"), Float.class) {};
     public static final ContentType<Double> DoubleType = new ContentType<Double>(new Name("Double"), Double.class){};
-    public static final ContentType<Entity> EntityType = new ContentType<Entity>(new Name("Entity"), Entity.class){};
-    public static final ContentType<EntityList> EntityListType = new ContentType<EntityList>(new Name("EntityList"), EntityList.class);
+    public static final ContentType<Entity> EntityType = new ContentType<Entity>(new Name("Entity"), Entity.class){
+        @Override
+        public boolean canConvertFrom(ContentType otherType) {
+            return otherType.isEntity();
+            
+        }
+        
+        
+
+        @Override
+        public <V> V to(ContentType<V> otherType, Entity data) {
+            if (data == null) {
+                return null;
+            }
+            if (otherType.getRepresentationClass().isAssignableFrom(data.getClass())) {
+                return (V)data;
+            }
+            return super.to(otherType, data);
+        }
+
+        @Override
+        public <V> Entity from(ContentType<V> otherType, V data) {
+            if (data instanceof Entity) {
+                return (Entity)data;
+            }
+            return super.from(otherType, data); 
+        }
+
+        
+        
+        
+    }; 
+    public static final ContentType<EntityList> EntityListType = new ContentType<EntityList>(new Name("EntityList"), EntityList.class) {
+        @Override
+        public boolean canConvertFrom(ContentType otherType) {
+            return otherType.isEntityList();
+        }
+
+         @Override
+        public <V> V to(ContentType<V> otherType, EntityList data) {
+            if (data == null) {
+                return null;
+            }
+            if (otherType.getRepresentationClass().isAssignableFrom(data.getClass())) {
+                return (V)data;
+            }
+            return super.to(otherType, data);
+        }
+        
+        @Override
+        public <V> EntityList from(ContentType<V> otherType, V data) {
+            if (data == null) {
+                return null;
+            }
+            if (data instanceof EntityList) {
+                return (EntityList)data;
+            }
+            return super.from(otherType, data);
+        }
+        
+        
+        
+    };
     public static <V> ContentType<V> createObjectType(Class<V> representationClass) {
+        if (representationClass == Entity.class) {
+            return (ContentType<V>)EntityType;
+        }
+        if (representationClass == EntityList.class) {
+            return (ContentType<V>)EntityListType;
+        }
         return new ContentType<V>(new Name(representationClass.getName()), representationClass) {
             @Override
             public boolean equals(Object obj) {
@@ -241,11 +316,38 @@ public class ContentType<T> {
             public int hashCode() {
                 return representationClass.hashCode();
             }
+
+            @Override
+            public boolean canConvertFrom(ContentType otherType) {
+                
+                return representationClass.isAssignableFrom(otherType.representationClass);
+            }
+
+            @Override
+            public <U> V from(ContentType<U> otherType, U data) {
+                if (representationClass.isAssignableFrom(otherType.representationClass)) {
+                    return (V)data;
+                }
+                return super.from(otherType, data);
+            }
+
+            @Override
+            public <U> U to(ContentType<U> otherType, V data) {
+                if (otherType.representationClass.isAssignableFrom(representationClass)) {
+                    return (U)data;
+                }
+                return super.to(otherType, data);
+            }
+            
+            
+            
             
             
             
         };
     }
+    
+    
     
     public static final ContentType<Date> DateType = new ContentType<Date>(new Name("Date"), Date.class){
         @Override
@@ -301,7 +403,9 @@ public class ContentType<T> {
     };
     
     
-    
+    //public static <T> ContentType<T> createPojoType(Class<T> type) {
+    //    return new ContentType<T>(new Name(type.getName()), type);
+    //}
             
    
     

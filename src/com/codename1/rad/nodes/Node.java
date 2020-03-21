@@ -11,13 +11,16 @@ import com.codename1.rad.ui.NodeList;
 import com.codename1.rad.ui.ViewProperty;
 import com.codename1.rad.ui.ViewPropertyParameter;
 import com.codename1.rad.attributes.NodeDecoratorAttribute;
+import com.codename1.rad.attributes.PropertySelectorAttribute;
 import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.attributes.ViewPropertyParameterAttribute;
 import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.AttributeSet;
 import com.codename1.rad.models.DateFormatterAttribute;
+import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.NumberFormatterAttribute;
+import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.models.Tags;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -277,7 +280,13 @@ public abstract class Node<T> extends Attribute<T> {
         return super.getValue();
     }
     
-   
+   public void setAttributesIfNotExists(Attribute... atts) {
+       for (Attribute att : atts) {
+           if (findAttribute(att.getClass()) == null) {
+               setAttributes(att);
+           }
+       }
+   }
     
     /**
      * Sets attributes on this node.
@@ -476,5 +485,27 @@ public abstract class Node<T> extends Attribute<T> {
     }
     
     
+    public <V extends Node> V as(Class<V> type) {
+        if (type.isAssignableFrom(this.getClass())) {
+            return (V)this;
+        }
+        return null;
+    }
+    
+    public PropertySelector createPropertySelector(Entity entity) {
+        PropertyNode prop = findAttribute(PropertyNode.class);
+        if (prop != null) {
+            return new PropertySelector(entity, prop.getValue());
+        }
+        Tags tags = findAttribute(Tags.class);
+        if (tags != null) {
+            return new PropertySelector(entity, tags.toArray());
+        }
+        PropertySelectorAttribute att = (PropertySelectorAttribute)findAttribute(PropertySelectorAttribute.class);
+        if (att != null) {
+            return att.getValue(entity);
+        }
+        return null;
+    }
     
 }

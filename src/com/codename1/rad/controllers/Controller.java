@@ -7,10 +7,14 @@ package com.codename1.rad.controllers;
 
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ActionNode.ActionNodeEvent;
+import com.codename1.rad.nodes.Node;
+import com.codename1.rad.nodes.ViewNode;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A base class for all Controller classes.
@@ -63,8 +67,9 @@ import java.util.List;
  * @author shannah
  */
 public class Controller implements ActionListener<ControllerEvent> {
-    
+    private ViewNode node;
     private Controller parent;
+    private Map<Class,Object> lookups;
     
     private static class ActionHandler {
         private ActionNode action;
@@ -193,6 +198,23 @@ public class Controller implements ActionListener<ControllerEvent> {
     }
     
     /**
+     * Gets the section controller for the current controller context.  This will walk up the 
+     * controller hierarchy until it finds an instance of {@link AppSectionController}.
+     * 
+     * @return The AppSectionController, or null if none found.
+     */
+    public AppSectionController getSectionController() {
+        if (this instanceof AppSectionController) {
+            return (AppSectionController)this;
+        }
+        if (parent != null) {
+            return parent.getSectionController();
+        }
+        return null;
+        
+    }
+    
+    /**
      * Gets the ApplicationController for the current controller context.  This will walk up
      * the controller hierarchy (i.e. {@link #getParent()} until it finds an instance of {@link ApplicationController}.
      * @return The ApplicationController or null if none found.
@@ -210,5 +232,42 @@ public class Controller implements ActionListener<ControllerEvent> {
     public void setParent(Controller parent) {
         this.parent = parent;
     }
+    
+    protected ViewNode createViewNode() {
+        return new ViewNode();
+    }
+    
+    public ViewNode getViewNode() {
+        if (node == null) {
+            node = createViewNode();
+            ViewNode parentNode = null;
+            if (parent != null) {
+                parentNode = parent.getViewNode();
+            }
+            node.setParent(parentNode);
+        }
+        return node;
+    }
+    
+    public <T> T lookup(Class<T> type) {
+        if (lookups != null) {
+            T out = (T)lookups.get(type);
+            if (out != null) {
+                return out;
+            }
+        }
+        if (parent != null) {
+            return parent.lookup(type);
+        }
+        return null;
+    }
+    
+    public void addLookup(Object obj) {
+        if (lookups == null) {
+            lookups = new HashMap<>();
+        }
+        lookups.put(obj.getClass(), obj);
+    }
+    
     
 }

@@ -214,6 +214,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
 
         button.addActionListener(evt->{
             action.fireEvent(entity, button);
+            update(button, entity, action);
         });
         
         update(button, entity, action);
@@ -278,6 +279,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         protected void initComponent() {
             super.initComponent();
             entity.addPropertyChangeListener(pcl);
+            update(ActionButton.this, entity, action);
         }
 
         @Override
@@ -338,6 +340,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         protected void initComponent() {
             super.initComponent();
             entity.addPropertyChangeListener(pcl);
+            update(ActionToggleButton.this, entity, action);
         }
 
         @Override

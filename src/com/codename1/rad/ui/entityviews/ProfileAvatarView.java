@@ -517,7 +517,6 @@ public class ProfileAvatarView extends AbstractEntityView {
             
 
             if (iconProp != null) {
-                System.out.println("Updating icon in account avatar");
                 int sizePx = CN.convertToPixels(sizeMM);
                 Image img = getEntity().createImageToStorage(iconProp, 
                         EncodedImage.createFromImage(label.getIcon().fill(sizePx, sizePx), false), 

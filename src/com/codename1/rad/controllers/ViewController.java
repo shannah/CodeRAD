@@ -25,6 +25,52 @@ public class ViewController extends Controller {
     private Component view;
     private static final String KEY = "com.codename1.ui.controllers.ViewController";
     
+    /**
+     * Event that is fired when a "view" is set in a view controller.
+     */
+    public static class DidSetViewEvent extends ControllerEvent {
+        private Component view;
+        public DidSetViewEvent(ViewController source, Component view) {
+            super(source);
+            this.view = view;
+        }
+        
+        public Controller getSource() {
+            return (Controller)super.getSource();
+        }
+        
+        public Component getView() {
+            return view;
+        }
+        
+        public <T extends Component> T getView(Class<T> asClass) {
+            return (T)getView();
+        }
+    }
+    
+    /**
+     * Event that is fired when a "view" is unset from a view controller.
+     */
+    public static class DidUnSetViewEvent extends ControllerEvent {
+        private Component view;
+        public DidUnSetViewEvent(ViewController source, Component view) {
+            super(source);
+            this.view = view;
+        }
+        
+        public Controller getSource() {
+            return (Controller)super.getSource();
+        }
+        
+        public Component getView() {
+            return view;
+        }
+        
+        public <T extends Component> T getView(Class<T> asClass) {
+            return (T)getView();
+        }
+    }
+    
     private ActionListener viewListener = evt->{
         if (evt instanceof ControllerEvent) {
             dispatchEvent((ControllerEvent)evt);
@@ -59,6 +105,7 @@ public class ViewController extends Controller {
             }
             this.view.removeStateChangeListener(stateChangeListener);
             this.view.putClientProperty(KEY, null);
+            dispatchEvent(new DidUnSetViewEvent(this, this.view));
             
         }
         this.view = view;
@@ -70,6 +117,8 @@ public class ViewController extends Controller {
                 ((ActionSource)this.view).addActionListener(viewListener);
             }
             this.view.putClientProperty(KEY, this);
+            System.out.println("Dispatching did set view event");
+            dispatchEvent(new DidSetViewEvent(this, this.view));
         }
     }
     

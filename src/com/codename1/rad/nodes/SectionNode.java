@@ -57,8 +57,9 @@ public class SectionNode extends Node implements Iterable<FieldNode> {
         
         for (Attribute att : atts) {
             if (att.getClass() == FieldNode.class) {
+                att = ((FieldNode)att).createProxy(this);
                 fields.add((FieldNode)att);
-                ((FieldNode)att).setParent(this);
+                //((FieldNode)att).setParent(this);
             } else {
                 super.setAttributes(att);  
             }

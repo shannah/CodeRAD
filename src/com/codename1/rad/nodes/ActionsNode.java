@@ -41,11 +41,7 @@ public class ActionsNode extends Node implements Iterable<ActionNode> {
                 if (actions == null) {
                     actions = new ArrayList<ActionNode>();
                 }
-                if (n.getParent() == null) {
-                    n.setParent(this);
-                } else {
-                    n = (ActionNode)n.createProxy(this);
-                }
+                n = (ActionNode)n.createProxy(this);
                 actions.add(n);
             } else {
                 super.setAttributes(att);

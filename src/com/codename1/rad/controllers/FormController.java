@@ -5,12 +5,21 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.rad.models.Property;
+import com.codename1.rad.ui.EntityEditor;
+import com.codename1.rad.ui.UI;
+import static com.codename1.rad.ui.UI.columns;
+import com.codename1.ui.Button;
 import com.codename1.ui.Command;
 import com.codename1.ui.Component;
+import static com.codename1.ui.ComponentSelector.$;
+import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.Form;
+import com.codename1.ui.Label;
 import com.codename1.ui.Toolbar;
 import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.layouts.BorderLayout;
 
 /**
  * A controller for handling application logic related to a Form.
@@ -79,17 +88,31 @@ public class ChatFormController extends FormController {
  * @author shannah
  */
 public class FormController extends ViewController {
+    private String title;
     
     /**
      * Base class for FormController events.
      */
-    public static class FormControllerEvent extends ControllerEvent {}
+    public static class FormControllerEvent extends ControllerEvent {
+        public FormControllerEvent() {
+            
+        }
+        
+        public FormControllerEvent(Object source) {
+            super(source);
+        }
+    }
     
     /**
      * Event that can be fired by any view to request that the current form go back 
      * to the previous form.
      */
-    public static class FormBackEvent extends FormControllerEvent {}
+    public static class FormBackEvent extends FormControllerEvent {
+        
+        public FormBackEvent(Object source) {
+            super(source);
+        }
+    }
     
     public FormController(Controller parent) {
         super(parent);
@@ -119,6 +142,17 @@ public class FormController extends ViewController {
         }
     }
     
+    public void setTitle(String title) {
+        this.title = title;
+        
+    }
+    
+    public String getTitle() {
+        return title;
+    }
+    
+    
+    
     /**
      * Overrides parent setView().  Delegates to {@link #setView(com.codename1.ui.Form} if cmp is 
      * a form.  Throws IllegalArgumentException otherwise.
@@ -128,7 +162,39 @@ public class FormController extends ViewController {
         if (cmp instanceof Form) {
             setView((Form)cmp);
         } else {
-            throw new IllegalArgumentException("View must be a form");
+            Form f = new Form(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
+            f.getToolbar().hideToolbar();
+            Container titleBar = new Container(new BorderLayout());
+            titleBar.setSafeArea(true);
+            titleBar.setUIID("TitleArea");
+
+            if (hasBackCommand()) {
+                Button back = new Button();
+                FontImage.setIcon(back, FontImage.MATERIAL_ARROW_BACK_IOS, -1);
+                titleBar.add(BorderLayout.WEST, back);
+                back.addActionListener(evt->{
+                    evt.consume();
+                    ActionSupport.dispatchEvent(new FormController.FormBackEvent(back));
+                });
+
+            }
+
+            AppSectionController sectionCtl = getSectionController();
+            if (sectionCtl != null) {
+                Button done = new Button("Done");
+                done.addActionListener(evt->{
+                    evt.consume();
+                    ActionSupport.dispatchEvent(new AppSectionController.ExitSectionEvent(done));
+                });
+                titleBar.add(BorderLayout.EAST, done);
+            }
+
+            if (title != null) {
+                titleBar.add(BorderLayout.CENTER, new Label(title, "Title"));
+            }
+
+            f.add(BorderLayout.CENTER, cmp);
+            setView(f);
         }
     }
     
@@ -146,24 +212,18 @@ public class FormController extends ViewController {
      * form, if the parent controller is a FormController.
      */
     public void back() {
-        if (getParent() instanceof ViewController) {
-            
-            Component parentView = ((ViewController)getParent()).getView();
-            if (parentView instanceof Form) {
-                ((Form)parentView).showBack();
+        Controller parent = getParent();
+        if (parent != null) {
+            FormController fc = parent.getFormController();
+            if (fc != null) {
+                fc.getView().showBack();
             }
         }
     }
     
     public boolean hasBackCommand() {
-        if (getParent() instanceof ViewController) {
-            
-            Component parentView = ((ViewController)getParent()).getView();
-            if (parentView instanceof Form) {
-                return true;
-            }
-        }
-        return false;
+        Controller parent = getParent();
+        return parent != null && parent.getFormController() != null;
     }
 
     /**

@@ -22,7 +22,14 @@ public class AbstractProperty<T> implements Property<T>  {
     }
     
     public void setAttributes(Attribute... atts) {
-        attributes.setAttributes(atts);
+        for (Attribute att : atts) {
+            if (att instanceof Tag) {
+                getTags().addTags((Tag)att);
+            } else {
+                attributes.setAttributes(att);
+            }
+        }
+        
     }
     
     

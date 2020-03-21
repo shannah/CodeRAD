@@ -76,6 +76,12 @@ public interface Property<T> {
             return Objects.hashCode(getValue());
         }
 
+        @Override
+        public String toString() {
+            return getValue();
+        }
+
+        
     
     }
     

@@ -41,6 +41,8 @@ import com.codename1.rad.attributes.Badge;
 import com.codename1.rad.attributes.BadgeUIID;
 import com.codename1.rad.attributes.Condition;
 import com.codename1.rad.attributes.IconUIID;
+import com.codename1.rad.attributes.PropertyImageRendererAttribute;
+import com.codename1.rad.attributes.PropertySelectorAttribute;
 import com.codename1.rad.attributes.SelectedCondition;
 import com.codename1.rad.attributes.TextIcon;
 import com.codename1.rad.attributes.UIID;
@@ -53,11 +55,16 @@ import com.codename1.rad.models.NumberFormatterAttribute;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Editable;
 import com.codename1.rad.models.Property.Label;
+import com.codename1.rad.models.PropertySelector;
+import com.codename1.rad.models.PropertySelectorProvider;
 import com.codename1.rad.models.StringProvider;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.nodes.ActionNode.EnabledCondition;
 import com.codename1.rad.nodes.ActionViewFactoryNode;
+import com.codename1.rad.nodes.OptionsNode;
+import com.codename1.rad.propertyviews.ButtonListPropertyView;
+import com.codename1.rad.propertyviews.ButtonListPropertyView.ButtonListLayout;
 import com.codename1.rad.text.CurrencyFormatter;
 import com.codename1.rad.text.DateFormatter;
 import com.codename1.rad.text.DecimalNumberFormatter;
@@ -69,7 +76,9 @@ import com.codename1.rad.text.LocalDateTimeMediumStyleFormatter;
 import com.codename1.rad.text.LocalDateTimeShortStyleFormatter;
 import com.codename1.rad.text.NumberFormatter;
 import com.codename1.rad.text.TimeAgoDateFormatter;
+import com.codename1.rad.ui.image.PropertyImageRenderer;
 import com.codename1.ui.Image;
+import com.codename1.ui.list.ListModel;
 import com.codename1.util.EasyThread;
 
 
@@ -262,6 +271,20 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         return new PropertyNode(prop, atts);
     }
     
+    public static PropertySelectorAttribute property(PropertySelectorProvider value) {
+        return new PropertySelectorAttribute(value);
+    }
+    
+    public static PropertySelectorAttribute property(PropertySelector value) {
+        return property((PropertySelectorProvider)(entity -> {
+            return value;
+        }));
+    }
+    
+    public static PropertyImageRendererAttribute iconRenderer(PropertyImageRenderer renderer) {
+        return new PropertyImageRendererAttribute(renderer);
+    }
+    
     public static ActionStyleAttribute actionStyle(ActionStyle style) {
         return new ActionStyleAttribute(style);
     }
@@ -273,6 +296,63 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     public static FieldNode textField(Attribute... atts) {
         FieldNode fieldNode = new FieldNode(atts);
         fieldNode.setAttributes(TEXT);
+        return fieldNode;
+    }
+    
+    public static ButtonListPropertyView.ButtonListLayoutAttribute buttonListLayout(ButtonListPropertyView.ButtonListLayout layout) {
+        return new ButtonListPropertyView.ButtonListLayoutAttribute(layout);
+    }
+    
+    public static ButtonListPropertyView.ButtonListLayoutAttribute buttonListY() {
+        return buttonListLayout(ButtonListLayout.Y);
+    }
+    
+    public static ButtonListPropertyView.ButtonListLayoutAttribute buttonListX() {
+        return buttonListLayout(ButtonListLayout.X);
+    }
+    
+    public static ButtonListPropertyView.ButtonListLayoutAttribute buttonListFlow() {
+        return buttonListLayout(ButtonListLayout.Flow);
+    }
+    
+    public static ButtonListPropertyView.ButtonListLayoutAttribute buttonListGrid() {
+        return buttonListLayout(ButtonListLayout.Grid);
+    }
+    
+    
+    public static FieldNode radioList(Attribute... atts) {
+        FieldNode fieldNode = new FieldNode(atts);
+        fieldNode.setAttributes(RADIO_LIST);
+        return fieldNode;
+    }
+    
+    public static FieldNode radioListY(Attribute... atts) {
+        FieldNode out = radioList(atts);
+        out.setAttributes(buttonListY());
+        return out;
+    }
+    
+    public static FieldNode checkboxList(Attribute... atts) {
+        FieldNode fieldNode = new FieldNode(atts);
+        fieldNode.setAttributes(CHECKBOX_LIST);
+        return fieldNode;
+    }
+    
+    public static FieldNode checkboxListY(Attribute... atts) {
+        FieldNode fieldNode = checkboxList(atts);
+        fieldNode.setAttributes(buttonListY());
+        return fieldNode;
+    }
+    
+    public static FieldNode switchList(Attribute... atts) {
+        FieldNode fieldNode = new FieldNode(atts);
+        fieldNode.setAttributes(SWITCH_LIST);
+        return fieldNode;
+    }
+    
+    public static FieldNode switchListY(Attribute... atts) {
+        FieldNode fieldNode = switchList(atts);
+        fieldNode.setAttributes(buttonListY());
         return fieldNode;
     }
     
@@ -490,6 +570,10 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     
     public static Label label(StringProvider provider) {
         return new Label("", provider);
+    }
+    
+    public static OptionsNode options(ListModel model, Attribute... atts) {
+        return new OptionsNode(model, atts);
     }
     
     public synchronized static void runOnImageProcessingThread(Runnable r) {
