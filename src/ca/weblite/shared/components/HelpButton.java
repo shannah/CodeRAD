@@ -14,6 +14,19 @@ import com.codename1.ui.layouts.BorderLayout;
 
 /**
  * A button that, when clicked on, displays some help text in a popup bubble.
+ * 
+ * === Example
+ * 
+ * [source,java]
+ * ----
+Form hi = new Form("Hi World", BoxLayout.y());
+HelpButton btn = new HelpButton("This is some help text to give you some hints");
+hi.add(FlowLayout.encloseIn(new Label("Hi World"), btn));
+hi.show();
+ * ----
+ * 
+ * image::doc-files/help-button-animated.gif[]
+ * 
  * @author shannah
  */
 public class HelpButton extends Button {
