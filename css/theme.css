@@ -73,6 +73,7 @@ SettingsFormAction {
     border-left: none;
     border-right: none;
     border-bottom: 1px solid #aaaaaa;
+    padding:2mm;
 }
 
 SettingsFormAction.pressed {

@@ -168,6 +168,9 @@ public class FormController extends ViewController {
                    int maxLeftX = 0;
                    ComponentSelector cmps =  $(".left-inset", this);
                    for (Component c : cmps) {
+                       if (!c.isVisible() || c.isHidden() || c.getWidth() == 1 || c.getHeight() == 0) {
+                           continue;
+                       }
                        Component wrap = $(c).parents(".left-edge").first().asComponent();
                        if (wrap == null) {
                            continue;
@@ -176,9 +179,12 @@ public class FormController extends ViewController {
                        maxLeftX = Math.max(maxLeftX, thisLeftX);
 
                    }
-                   maxLeftX -= getAbsoluteX();
+                   //maxLeftX -= getAbsoluteX();
 
                    for (Component c : cmps) {
+                       if (!c.isVisible() || c.isHidden() || c.getWidth() == 1 || c.getHeight() == 0) {
+                           continue;
+                       }
                        Component wrap = $(c).parents(".left-edge").first().asComponent();
                        if (wrap == null) {
                            continue;
