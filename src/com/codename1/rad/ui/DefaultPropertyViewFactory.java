@@ -27,17 +27,25 @@ import ca.weblite.shared.components.table.TableCellEditor;
 import ca.weblite.shared.components.table.TableCellRenderer;
 import com.codename1.components.CheckBoxList;
 import com.codename1.components.RadioButtonList;
+import com.codename1.components.Switch;
 import com.codename1.components.SwitchList;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property.Name;
 import com.codename1.rad.propertyviews.ButtonListPropertyView;
+import com.codename1.rad.propertyviews.CheckBoxPropertyView;
+import com.codename1.rad.propertyviews.SwitchPropertyView;
+import com.codename1.ui.CheckBox;
 import com.codename1.ui.ComboBox;
 import com.codename1.ui.TextArea;
 import com.codename1.ui.TextField;
 import com.codename1.ui.list.MultipleSelectionListModel;
 import java.util.HashMap;
 import java.util.Map;
+import com.codename1.rad.ui.PropertyViewDecorator;
+import com.codename1.rad.attributes.PropertyViewDecoratorAttribute;
+import com.codename1.rad.nodes.PropertyViewDecoratorNode;
+import com.codename1.rad.nodes.Node;
 
 /**
  * Default factory used to convert a {@link FieldNode} into a {@link PropertyView}.
@@ -136,6 +144,16 @@ public class DefaultPropertyViewFactory implements PropertyViewFactory {
             return new ButtonListPropertyView(list, entity, field);
         });
         
+        registry.put(WidgetType.SWITCH, (entity, field) -> {
+            return new SwitchPropertyView(new Switch(), entity, field);
+        });
+        
+        registry.put(WidgetType.CHECKBOX, (entity, field) -> {
+            return new CheckBoxPropertyView(new CheckBox(), entity, field);
+        });
+        
+        
+        
         registry.put(WidgetType.SWITCH_LIST, (entity, field) -> {
             OptionsNode options = field.getOptions();
             SwitchList list = new SwitchList((MultipleSelectionListModel)options.getValue());
@@ -157,7 +175,18 @@ public class DefaultPropertyViewFactory implements PropertyViewFactory {
         if (typeFactory == null) {
             throw new IllegalArgumentException("Type "+field.getWidgetType()+" not supported");
         }
-        return typeFactory.createPropertyView(entity, field);
+        PropertyView out =  typeFactory.createPropertyView(entity, field);
+        PropertyViewDecoratorAttribute decoratorAtt = (PropertyViewDecoratorAttribute)field.findAttribute(PropertyViewDecoratorAttribute.class);
+        if (decoratorAtt != null) {
+            out = decoratorAtt.getValue().decorate(out);
+        }
+        NodeList decorators = field.getChildNodes(PropertyViewDecoratorNode.class);
+        if (decorators != null) {
+            for (Node n : decorators) {
+                out = ((PropertyViewDecoratorNode)n).getValue().decorate(out);
+            }
+        }
+        return out;
     }
     
 }

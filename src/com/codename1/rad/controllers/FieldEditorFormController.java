@@ -19,6 +19,10 @@ import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.ui.EntityEditor;
+import com.codename1.rad.ui.EntityEditor.DescriptionStyle;
+import com.codename1.rad.ui.EntityEditor.DescriptionStyleAttribute;
+import com.codename1.rad.ui.EntityEditor.LabelStyle;
+import com.codename1.rad.ui.EntityEditor.LabelStyleAttribute;
 import com.codename1.rad.ui.UI;
 import com.codename1.ui.Button;
 import com.codename1.ui.Container;
@@ -34,13 +38,14 @@ public class FieldEditorFormController extends FormController {
     private FieldNode field;
     private Entity entity;
     
-    public FieldEditorFormController(Controller parent, Entity entity, FieldNode field) {
+    public FieldEditorFormController(Controller parent, Entity entity, FieldNode fld) {
         super(parent);
         this.entity = entity;
-        this.field = field;
+        fld = (FieldNode)fld.createProxy(fld.getParent());
+        this.field = fld;
         Form f = new Form(new BorderLayout());
         f.getToolbar().hideToolbar();
-        Container titleBar = new Container(new BorderLayout());
+        Container titleBar = new Container(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
         titleBar.setSafeArea(true);
         titleBar.setUIID("TitleArea");
         
@@ -71,14 +76,22 @@ public class FieldEditorFormController extends FormController {
         } 
         f.add(BorderLayout.NORTH, titleBar);
         
+        field.setAttributes(
+                new LabelStyleAttribute(LabelStyle.None),
+                new DescriptionStyleAttribute(DescriptionStyle.SpanLabel)
+                
+        );
+        
         UI ui = new UI() {{
             form(
                 columns(1),
-                field   
+                field,
+                editable(true)
             );
         }};
-        
-        f.add(BorderLayout.CENTER, new EntityEditor(entity, ui));
+        EntityEditor editor = new EntityEditor(entity, ui);
+        editor.setScrollableY(true);
+        f.add(BorderLayout.CENTER, editor);
         setView(f);
         
     }

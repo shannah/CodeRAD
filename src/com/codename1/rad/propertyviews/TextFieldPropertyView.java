@@ -9,6 +9,7 @@ import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.ui.TextField;
 import com.codename1.ui.events.ActionListener;
@@ -40,14 +41,14 @@ public class TextFieldPropertyView extends PropertyView<TextField> {
 
     @Override
     public void bind() {
-        getEntity().addPropertyChangeListener(getProperty(), pcl);
+        getPropertySelector().addPropertyChangeListener(pcl);
         getComponent().addDataChangedListener(dcl);
     }
 
     @Override
     public void unbind() {
         getComponent().removeDataChangedListener(dcl);
-        getEntity().removePropertyChangeListener(getProperty(), pcl);
+        getPropertySelector().removePropertyChangeListener(pcl);
     }
     
     @Override
@@ -65,8 +66,10 @@ public class TextFieldPropertyView extends PropertyView<TextField> {
     
     @Override
     public void commit() {
-        getProperty().setValue(
-                getEntity(), 
+        Entity leafEntity = getPropertySelector().getLeafEntity();
+        Property leafProperty = getPropertySelector().getLeafProperty();
+        leafProperty.setValue(
+                leafEntity, 
                 ContentType.convert(
                         ContentType.Text, 
                         getComponent().getText(), 

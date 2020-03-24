@@ -59,6 +59,7 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
         }
     }
     
+    
     private static ButtonList decorateButtonList(FieldNode field, ButtonList bl) {
         
         ButtonListLayoutAttribute att = (ButtonListLayoutAttribute)field.findInheritedAttribute(ButtonListLayoutAttribute.class);
@@ -83,6 +84,12 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
                     break;
                     
             }
+        }
+        
+        String uiid = field.getUIID(null);
+        if (uiid != null) {
+            bl.setUIID(uiid);
+            bl.setCellUIID(uiid+"Cell");
         }
         return bl;
     }

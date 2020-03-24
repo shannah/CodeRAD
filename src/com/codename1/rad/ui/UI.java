@@ -350,6 +350,24 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         return fieldNode;
     }
     
+    public static FieldNode checkbox(Attribute... atts) {
+        FieldNode fieldNode = new FieldNode(atts);
+        fieldNode.setAttributes(CHECKBOX);
+        return fieldNode;
+    }
+    
+    public static FieldNode radio(Attribute... atts) {
+        FieldNode fieldNode = new FieldNode(atts);
+        fieldNode.setAttributes(RADIO);
+        return fieldNode;
+    }
+    
+    public static FieldNode toggleSwitch(Attribute... atts) {
+        FieldNode fieldNode = new FieldNode(atts);
+        fieldNode.setAttributes(SWITCH);
+        return fieldNode;
+    }
+    
     public static FieldNode switchListY(Attribute... atts) {
         FieldNode fieldNode = switchList(atts);
         fieldNode.setAttributes(buttonListY());

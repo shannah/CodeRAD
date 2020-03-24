@@ -11,6 +11,9 @@ import ca.weblite.shared.components.HelpButton;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
 import com.codename1.components.SpanLabel;
+import com.codename1.rad.ui.EntityEditor.DescriptionStyle;
+import com.codename1.rad.ui.EntityEditor.LabelStyle;
+import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -46,17 +49,46 @@ public class FieldEditor extends Container {
         
         setLayout(BoxLayout.y());
         Property.Label lbl = field.getLabel(entity.getEntityType());
+        LabelStyle labelStyle = field.getLabelStyle(LabelStyle.Default);
+        
         Property.Description description = field.getDescription(entity.getEntityType());
+        DescriptionStyle descriptionStyle = field.getDescriptionStyle(DescriptionStyle.HelpButton);
         Container above = new Container(new FlowLayout());
+        above.stripMarginAndPadding();
+        
         Container wrap = new Container(new BorderLayout());
-        if (lbl != null) {
+        wrap.stripMarginAndPadding();
+        if (lbl != null && labelStyle != LabelStyle.None) {
             above.add(new SpanLabel(lbl.getValue()));
             if (description != null) {
-                above.add(new HelpButton(description.getValue()));
+                switch (descriptionStyle) {
+                    case HelpButton:
+                        above.add(new HelpButton(description.getValue()));
+                        break;
+                    case SpanLabel:
+                        SpanLabel descriptionSpanLabel = new SpanLabel(description.getValue(), "FieldDescriptionText");
+                        above.add(descriptionSpanLabel);
+                        break;
+                        
+                }
             }
         } else {
             if (description != null) {
-                wrap.add(BorderLayout.EAST, new HelpButton(description.getValue()));
+                Component descCmp = null;
+                switch (descriptionStyle) {
+                    case HelpButton:
+                        descCmp = new HelpButton(description.getValue());
+                        wrap.add(BorderLayout.EAST, descCmp);
+                        break;
+                    case SpanLabel:
+                        descCmp = new SpanLabel(description.getValue(), "FieldDescriptionText");
+                        above.add(descCmp);
+                        break;
+                        
+                }
+                if (descCmp != null) {
+                    
+                }
             }
         }
         

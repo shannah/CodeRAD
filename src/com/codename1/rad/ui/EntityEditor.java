@@ -20,6 +20,7 @@ import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Name;
 import com.codename1.components.SpanLabel;
+import com.codename1.rad.models.Attribute;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.layouts.BorderLayout;
@@ -147,6 +148,57 @@ public class EntityEditor extends Container {
     public static final ActionNode.Category INLINE_RIGHT = new ActionNode.Category(new Name("inline_right"));
     public static final ActionNode.Category INLINE_LEFT_LABEL = new ActionNode.Category(new Name("inline_left_label"));
     public static final ActionNode.Category INLINE_RIGHT_LABEL = new ActionNode.Category(new Name("inline_right_label"));
+    
+    /**
+     * The style used for rendering field labels.  Can be set on individual field nodes or on a parent node.
+     */
+    public static enum LabelStyle {
+        /**
+         * Do not display label
+         */
+        None,
+        
+        /**
+         * Display the label.
+         */
+        Default
+    }
+    
+    /**
+     * Attribute for setting {@link LabelStyle}.
+     */
+    public static class LabelStyleAttribute extends Attribute<LabelStyle> {
+        public LabelStyleAttribute(LabelStyle value) {
+            super(value);
+        }
+    }
+    
+    /**
+     * Attribute for setting {@link DescriptionStyle}
+     */
+    public static enum DescriptionStyle {
+        
+        /**
+         * Don't display description
+         */
+        None,
+        
+        /**
+         * Display field description as a {@link HelpButton}
+         */
+        HelpButton,
+        
+        /**
+         * Display description as text
+         */
+        SpanLabel
+    }
+    
+    public static class DescriptionStyleAttribute extends Attribute<DescriptionStyle> {
+        public DescriptionStyleAttribute(DescriptionStyle style) {
+            super(style);
+        }
+    }
     
     public EntityEditor(Entity entity, UI uiDescriptor, EntityForm form) {
         this(entity, uiDescriptor.getRoot(), form);

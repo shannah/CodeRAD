@@ -14,5 +14,6 @@ import com.codename1.rad.models.Entity;
  */
 public interface PropertyViewFactory {
     
+    
     public PropertyView createPropertyView(Entity entity, FieldNode field);
 }

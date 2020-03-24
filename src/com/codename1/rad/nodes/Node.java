@@ -13,6 +13,7 @@ import com.codename1.rad.ui.ViewPropertyParameter;
 import com.codename1.rad.attributes.NodeDecoratorAttribute;
 import com.codename1.rad.attributes.PropertySelectorAttribute;
 import com.codename1.rad.attributes.UIID;
+import com.codename1.rad.attributes.UIIDPrefix;
 import com.codename1.rad.attributes.ViewPropertyParameterAttribute;
 import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.models.Attribute;
@@ -269,6 +270,21 @@ public abstract class Node<T> extends Attribute<T> {
         return parent;
     }
     
+    /**
+     * Gets the first ancestor whose class matches the given type.
+     * @param <V> 
+     * @param type The class
+     * @return The first matching ancestor or null
+     */
+    public <V extends Node> V getAncestor(Class<V> type) {
+        if (parent != null && parent.getClass() == type) {
+            return (V)parent;
+        }
+        if (parent != null) {
+            return (V)parent.getAncestor(type);
+        }
+        return null;
+    }
     
     public T getValue() {
         if (proxying != null) {
@@ -294,6 +310,9 @@ public abstract class Node<T> extends Attribute<T> {
      */
     public void setAttributes(Attribute... atts) {
         for (Attribute att : atts) {
+            if (att == null) {
+                continue;
+            }
             if (att instanceof Node) {
                 Node n = (Node)att;
                 if (n.parent != null && n.parent != this) {
@@ -467,8 +486,28 @@ public abstract class Node<T> extends Attribute<T> {
         }
     }
     
+    public String getUIID(String defaultVal) {
+        UIID out = getUIID();
+        if (out == null) {
+            return defaultVal;
+        }
+        return out.getValue();
+    }
+    
     public UIID getUIID() {
         return (UIID)findAttribute(UIID.class);
+    }
+    
+    public String getUIIDPrefix(String defaultVal) {
+        UIIDPrefix out = getUIIDPrefix();
+        if (out == null) {
+            return defaultVal;
+        }
+        return out.getValue();
+    }
+    
+    public UIIDPrefix getUIIDPrefix() {
+        return (UIIDPrefix)findInheritedAttribute(UIIDPrefix.class);
     }
     
     public IconUIID getIconUIID() {

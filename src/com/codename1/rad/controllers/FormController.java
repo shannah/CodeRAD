@@ -5,13 +5,10 @@
  */
 package com.codename1.rad.controllers;
 
-import com.codename1.rad.models.Property;
-import com.codename1.rad.ui.EntityEditor;
-import com.codename1.rad.ui.UI;
-import static com.codename1.rad.ui.UI.columns;
 import com.codename1.ui.Button;
 import com.codename1.ui.Command;
 import com.codename1.ui.Component;
+import com.codename1.ui.ComponentSelector;
 import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
@@ -20,6 +17,7 @@ import com.codename1.ui.Label;
 import com.codename1.ui.Toolbar;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.plaf.Style;
 
 /**
  * A controller for handling application logic related to a Form.
@@ -125,7 +123,7 @@ public class FormController extends ViewController {
      */
     public void setView(Form form) {
         super.setView(form);
-        if (getParent() instanceof FormController) {
+        if (hasBackCommand()) {
             form.setBackCommand(new Command("") {
                 @Override
                 public void actionPerformed(ActionEvent evt) {
@@ -162,9 +160,41 @@ public class FormController extends ViewController {
         if (cmp instanceof Form) {
             setView((Form)cmp);
         } else {
-            Form f = new Form(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
+            Form f = new Form(new BorderLayout()) {
+                @Override
+               public void layoutContainer() {
+                   super.layoutContainer();
+                   
+                   int maxLeftX = 0;
+                   ComponentSelector cmps =  $(".left-inset", this);
+                   for (Component c : cmps) {
+                       Component wrap = $(c).parents(".left-edge").first().asComponent();
+                       if (wrap == null) {
+                           continue;
+                       }
+                       int thisLeftX = c.getAbsoluteX() + c.getStyle().getPaddingLeftNoRTL() - wrap.getAbsoluteX();
+                       maxLeftX = Math.max(maxLeftX, thisLeftX);
+
+                   }
+                   maxLeftX -= getAbsoluteX();
+
+                   for (Component c : cmps) {
+                       Component wrap = $(c).parents(".left-edge").first().asComponent();
+                       if (wrap == null) {
+                           continue;
+                       }
+                       int absX = c.getAbsoluteX() + c.getStyle().getPaddingLeftNoRTL() - wrap.getAbsoluteX();
+                       if (absX < maxLeftX) {
+                           int marginLeft = c.getStyle().getMarginLeftNoRTL();
+                           c.getAllStyles().setMarginUnitLeft(Style.UNIT_TYPE_PIXELS);
+                           c.getAllStyles().setMarginLeft(marginLeft + maxLeftX - absX);
+                       }
+                   }
+
+               }
+           };
             f.getToolbar().hideToolbar();
-            Container titleBar = new Container(new BorderLayout());
+            Container titleBar = new Container(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
             titleBar.setSafeArea(true);
             titleBar.setUIID("TitleArea");
 
@@ -192,7 +222,7 @@ public class FormController extends ViewController {
             if (title != null) {
                 titleBar.add(BorderLayout.CENTER, new Label(title, "Title"));
             }
-
+            f.add(BorderLayout.NORTH, titleBar);
             f.add(BorderLayout.CENTER, cmp);
             setView(f);
         }
