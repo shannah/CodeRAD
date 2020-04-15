@@ -1,0 +1,214 @@
+== Controllers
+
+=== Application Structure and Form Navigation Pre-CodeRAD
+
+How do you structure your Codename One apps?  How do you share data between different forms?  How do you maintain state between forms?  How do you manage navigation between forms?  E.g. When the user presses "Back", how do you decide what to do?
+
+Codename One is not opinionated on these questions.  Essentially, you may structure your app however you like.  The "old" GUI builder used a `StateMachine` as a monolithic controller that managed state and navigation.  All forms used this single controller for all of their event handling and callbacks.  This worked well for small to mid-sized apps, but on larger apps, it soon became necessary to refactor the logic into separate files.  
+
+The new GUI builder moved to a less opinionated approach.  A GUI builder form would map to either a "Form" or a "Container".  I.e. just the view.  You were free to use these views in your application however you liked.  You could structure your app however you liked.  
+
+The other day I was asked by a new developer "How do you push and pop forms?".  The question seems to assume that there must be some sort of navigation stack for forms, but there isn't really.  The Codename One API leaves you free to implement a navigation stack however you like.  The `Form` API allows you to show a form with `show()` (and `showBack()` to show it with a reverse transition), but you are free to organize your form navigation stack however you like.
+
+A common, though quick and dirty, approach is to grab a reference to the "current" form when you create a new form, and use this for your "back" command.  E.g.
+
+.Sample code using the "current" form for the back command on a new form.
+[source,java]
+----
+Form f2 = new Form("Result", new BorderLayout());
+Form f = CN.getCurrentForm();
+if (f != null) {
+    f2.setBackCommand("Back", null, evt->{
+        f.showBack();
+    });
+    f2.getToolbar().addCommandToLeftBar("Back", null, evt->{
+        f.showBack();
+    });
+}
+f2.show();
+----
+
+There's nothing wrong with this approach, other than the fact that it gets tedious doing this on every single form.  We could reduce the boilerplate code here by abstracting this behaviour out into a separate class, so that we can "reuse" our solution on every form.  Let's look at such an abstraction:
+
+
+.A very simple abstraction for "Back" functionality on forms.
+[source,java]
+----
+public class MyFormController {
+    private Form form;
+    
+    public MyFormController(Form form) {
+        this.form = form;
+        Form backForm = CN.getCurrentForm();
+        if (backForm != null) {
+            form.setBackCommand("Back", null, evt->{
+                backForm.showBack();
+            });
+            form.getToolbar().addCommandToLeftBar("Back", null, evt->{
+                backForm.showBack();
+            });
+        }
+    }
+    
+    public void show() {
+        form.show();
+    }
+    
+    public void showBack() {
+        form.showBack();
+    }
+}
+----
+
+
+What we've created here is a very simple controller, as in the "C" in MVC.  This controller implements the "back" navigation for our forms, so that the form itself doesn't need to contain the logic itself. 
+
+=== App Structure as a Tree
+
+Once you start walking down the path extracting navigation logic into a "controller" class, you can start to think about your application's structure more clearly. For example, we naturally think of UI component hierarchy as a tree-like structure, where the `Form` is the root, and the containers and components are the nodes.  Thinking in these terms makes it easy to visualize the structure of a form:
+
+. Containers have child components
+. Components have a parent container
+. Events can propagate up from a child component, to its parent, and ultimately up to the root - the `Form` itself.
+. Containers can be laid out and painted, which will propagate layout and painting down to its children, and their children, all the way down to the leaves of the container's branch.
+. The state of a container can affect the state of its children. E.g.: 
+.. Shifting a container 5 pixels to the right, will shift all children's absolute position 5 to the right also.
+.. Changing the alpha or transform setting while painting a container will affect the alpha or transform on its children.
+
+.A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.
+image::images/Image-300320-021231.287.png[]
+
+.A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.
+image::images/Image-300320-020346.131.png[]
+
+In fact, we derive many benefits from the fact that the UI can be mapped to a tree data structure.  Trees are nice to work with because they lend themselves nicely to software.  If you can write a function that operates on a single node of the tree, you can easily expand this function to operate on the entire tree.
+
+Now, try to imagine your application as a tree structure.  Each node of the tree is a controller - the root node is the "Application", and most of the other nodes are Forms.  The "child" nodes of a Form node are those forms that you navigate to from a given form.  This implies that the "Back" command for any given node will navigate back to the "parent" Form node.
+
+In order to properly encapsulate all of this structure without it bleeding into the views themselves, we implement these nodes as "Controller" classes.
+
+As an example, consider the Twitter mobile app.  A few of its screens are shown below:
+
+.Screenshots from the Twitter mobile app.
+image::images/Image-300320-023353.927.png[]
+
+The app structure of Twitter has 4 top-level FormControllers corresponding to the tabs at the bottom of the app:  Home, Search, Alerys, and Inbox.  The "Home" tab contains a list of tweets, and clicking on any of these tweets will bring the user to a "Tweet Details" form.  Hence in the controller hierarchy, the "Home" tab is a top-level form (a child of the ApplicationController), and it has at least one child, the "Tweet Details" form controller.
+
+.A partial controller hierarchy for the Twitter mobile app.  **Note that this is not a class hierarchy**, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".
+image::images/Image-300320-023007.132.png[]
+
+
+
+=== CodeRAD Core Controllers
+
+.The main controller classes provided by CodeRAD.
+image::images/Image-300320-015455.241.png[]
+
+CodeRAD provides a set of fundamental controller classes to help structure your app in this way:
+
+. `ApplicationController` - The root application controller.
+. `SectionController` - A controller for a section of the app.  This can be a useful parent node to a set of related form nodes, to help group them together.
+. `FormController` - A controller for a single form.
+. `ViewController` - A controller for a single Component on a form.  (This is a superclass of `FormController`, and in most cases `ViewController` on sub-components of a form aren't necessary.  Only in complex cases).
+
+=== Event Propagation
+
+Mapping our app structure onto a controller tree brings other benefits as well.  Just as we can propagate events up a UI component hierarchy for handling.  We can propagate events up a controller hierarchy as well.  In GUI applications, events are a very effective way of passing information between different parts of the application without introducing coupling.  
+
+The `Controller` class implements `ActionListener`, and all `ControllerEvents` that are fired in the UI, will be dispatched to the nearest `ViewController`, and then propagated up the controller hierarchy until it is consumed by a `Controller`, or until it reaches the root controller.  Additionally, `Controller` implements `ActionSource` (i.e. implements `addActionListener()`) so that interested parties can subscribe to receive notifications about these controller events.
+
+Event propagation is used to great effect internally in the CodeRAD library for such things as "Back" events, but it can and should also be utilized by application code to help reduce coupling and keep code clean.
+
+=== Code-sharing / Lookups
+
+CodeRAD controllers also exploit their tree structure to facilitate sharing of data from a "parent" controller to its children via the "lookup" mechanism.  For example, perhaps you need to keep track of the current logged-in user for your app.  One way to do it is to use static globals (this includes using a Singleton).  But a more elegant approach is to use lookups in your ApplicationController, which are available to be "looked up" from all of its children.
+
+E.g.
+
+[source,java]
+----
+//.. somewhere in the application controller
+UserProfile loggedInUser = getLoggedInUser();
+addLookup(loggedInUser);
+
+...
+
+//.. in a child controller
+UserProfile loggedInUser = lookup(UserProfile.class);
+----
+
+The `lookup()` method exploits the tree structure of the controller hierarchy by checking the current controller for an object of type `UserProfile.class`, and if it doesn't exist, it checks the parent controller.  And so on until it reaches the root.  
+
+This allows us to completely encapsulate all functionality related to the logged in user in the ApplicationController, or a specific sub-controller, and it is made available to all parts of the app.
+
+=== Example Controllers
+
+NOTE: The following examples all use an ApplicationController as the root of the controller hierarchy, but it is also possible to use a controller in isolation.  You just won't receive the full benefits of an application-wide controller hierarchy.
+
+The easiest way to implement an application controller in your app is for your app's main lifecycle class (i.e. the class with `init()`, `start()`, `stop()` and `destroy()`) to extend `ApplicationController`.  The `ApplicationController` class implements all of the lifecycle methods with sensible defaults.  Therefore, you can simply override the start() method as shown below:
+
+
+
+.MyApplication.java - A minimal application controller.   This controller overrides the `start()` method and instantiates a `FormController`, then shows it.
+[source,java]
+----
+public class MyApplication extends ApplicationController {
+    @Override
+    public void start() {
+        super.start();
+        new MainFormController(this).show();
+    }
+}
+----
+
+.MainFormController.java - A minimal FormController.
+[source,java]
+----
+public class MainFormController extends FormController {
+    public MainFormController(Controller parent) {
+        super(parent);
+        Form f = new Form("Hello");
+        f.add(new Label("Hello World"));
+        setView(f);
+    }
+}
+----
+
+=== Form Navigation
+
+As we've already seen, "back" functionality is handled automatically by the `FormController`.  If there is a "parent" FormController of the form, then it will add a "back" button to the toolbar and set a "back" command to go to that toolbar.  However, you can also explicitly trigger a "back" event by firing a `FormBackEvent` (an internal class in `FormController`).
+
+For example, we might want to create a reusable view called "BackButton", which is just a Button, that, when pressed, will fire a "FormBackEvent".
+
+.View that fires a `FormBackEvent`.  This view can be added anywhere in the UI, and clicking it cause the app to navigate back to the "parent" (previous) form.
+[source,java]
+----
+class BackButton extends Button {
+    public BackButton() {
+        super("Go Back");
+        addActionListener(evt->{
+            evt.consume();
+            ActionSupport.dispatchEvent(new FormBackEvent(this));
+        });
+    }
+}
+----
+
+This `BackButton` can be added anywhere in the UI.  You don't need to write any "handling" code to catch this `FormBackEvent` because it will propagate up the component hierarchy until it finds the nearest ViewController, then continue to propagate up to the FormController, which will consume the event.
+
+.The flow of the `FormBackEvent` as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.
+image::images/Image-300320-014315.510.png[]
+
+
+
+
+
+
+
+
+
+
+
+
+
+

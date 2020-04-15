@@ -1,0 +1,628 @@
+== Getting Started
+
+The time has come to start writing some *actual* code - the "hello world" application.  We could just use the "Hello world bare-bones" project template for our project and be done with it (and we will use that template), be we want to do it the "CodeRAD" way, using MVC.
+
+=== Step 1: Create a New Project
+
+To begin, let's create a new project, named "Hello World", using the "Hello world bare-bones" project template, activate CSS, and install the CodeRAD cn1lib.  See <<installation, Installation>> for instructions on these housekeeping tasks.
+
+NOTE: I'm going to use the project name "HelloCodeRAD", project package "com.codename1.rad.hello", and "HelloCodeRAD" for my main class name in this tutorial.
+
+=== Step 2: Create an Application Controller
+
+After you've created a new project, open up the main class, and replace the enter class contents with the following:
+
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.ApplicationController;
+import com.codename1.ui.Form;
+import com.codename1.ui.Label;
+import com.codename1.ui.layouts.BoxLayout;
+
+public class HelloCodeRAD extends ApplicationController {
+    @Override
+    public void start() {
+        super.start();
+        Form f = new Form("Hello", BoxLayout.y());
+        f.add(new Label("Hello World"));
+        f.show();
+    }
+}
+----
+
+If you run this project in the simulator, you'll see a form with "Hello World" as shown below:
+
+image::https://i.imgur.com/Aeh90Hi.png[]
+
+=== Step 3: Create a FormController
+
+Currently our app just contains a single ApplicationController that shows a form directly.  It is good practice, however, to create a FormController for each form.  The promotes more modularity, and will be easier to manage in the long run.  So let's create a form controller for our form.
+
+Create a new class in the same package, named "HelloFormController" with the following contents:
+
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.FormController;
+import com.codename1.ui.Form;
+import com.codename1.ui.Label;
+import com.codename1.ui.layouts.BoxLayout;
+
+public class HelloFormController extends FormController {
+    
+    public HelloFormController(Controller parent) {
+        super(parent); <1>
+        Form f = new Form("Hello", BoxLayout.y());
+        f.add(new Label("Hello World"));
+        setView(f); <2>
+    }
+    
+}
+
+----
+<1> Controllers always take a "parent" controller as a parameter.  This assists in event propagation (unhandled controller events are automatically propagated up to the parent for handling), and navigation (Form "back" functionality is handled automatically, with the "back" command always navigating back to the parent form controller.
+<2> A `FormController` constructor should always call `setView(Form)` or `setView(Component)` with its view.  This registers the controller with the view so that events are properly propagated from the view to the controller, and it makes the Form available via `getView()` to be shown.
+
+And change the code in our application controller to use our `HelloFormController` instead of creating a Form directly:
+
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.ApplicationController;
+
+public class HelloCodeRAD extends ApplicationController {
+    @Override
+    public void start() {
+        super.start();
+        new HelloFormController(this).getView().show(); <1>
+    }
+}
+----
+<1> We removed our previous code the created and showed a form directly, and instead, we instantiate a form controller, and show its view.
+
+Now, if we run our project in the simulator, it should be unchanged from the first run, since all we've done is refactored our code to use controllers.
+
+=== Adding another Form
+
+In order to demonstrate some of the advantages of using controllers, let's go ahead and add another form to our project.  Create a new class in the same page named "MoreInfoFormController", with the following contents:
+
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.FormController;
+import com.codename1.ui.Label;
+
+public class MoreInfoFormController extends FormController {
+    public MoreInfoFormController(Controller parent) {
+        super(parent);
+        setTitle("More Info"); <1>
+        setView(new Label("Hello Again!"));
+    }
+}
+----
+<1> We call `setTitle()` in the controller because we aren't creating the form manually here.  We're passing a `Label` to `setView()`, so it will be wrapped in `Form` automatically.  By calling `setTitle()` we're providing a title for the form when created.
+
+
+And add a button to our first form to navigate to this new form.  E.g, in the `HelloFormController`, add the following inside the constructor when building the form:
+
+[source,java]
+----
+Button moreInfo = new Button("More Info...");
+moreInfo.addActionListener(evt->{
+    new MoreInfoFormController(this).getView().show(); <1>
+});
+f.add(moreInfo);
+----
+<1> We pass the `HelloFormController` instance as the parent controller of `MoreInfoFormController` so that the "back" button will return the user to this form.
+
+Running the app inside the simulator now shows a "More Info..." button on the first form:
+
+image::https://i.imgur.com/2jFMZLQ.png[]
+
+Clicking this button shows the second form:
+
+image::https://i.imgur.com/suuPIn2.png[]
+
+Notice that the second form automatically includes a "back" button that returns to the previous form.
+
+=== Adding a View Model: Asking the User's Name
+
+We've successfully jumped the first hurdle.  We have a working hello world.  Let's make the app a little bit more personalized now, by prompting the user to enter their name, and then saying "Hello <Name>" instead of "Hello World".  To do this we're going to create a view model for our application, called "UserProfile".
+
+To promote best practices we'll create a separate package for our model classes.  I'm going to call my package `com.codename1.rad.hello.models`.  Create a new class in this package named "UserProfile" with the following contents:
+
+.Boilerplate for a model class with a single property.
+[source,java]
+----
+package com.codename1.rad.hello.models;
+
+import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.EntityType;
+import com.codename1.rad.schemas.Person;
+
+public class UserProfile extends Entity { <1>
+    public static final EntityType TYPE = new EntityType() {{ <2>
+        string(Person.name); <3>
+    }};
+    {
+        setEntityType(TYPE); <4>
+    }
+}
+----
+<1> Model classes always extends `Entity`.  This provides all of the functionality required for binding, reflection, change events, and loose-coupling.
+<2> We define an `EntityType` for this class, as a `static final` which defines the properties that are included in this entity. 
+<3> We define the properties of the EntityType inside its initializer. (The double braces `{{` and `}}` is not a typo.). In this case we are defining a string field, and we are tagging it with the `Person.name` tag.  This allows for loose-coupling as any view can bind to this property without explicit knowledge that this field exists.  The View simply specifies that it binds to the `Person.name` tag, and it the `UserProfile` entity will know what to do to bind it.
+<4> In the initializer for `UserProfile` we set the entity type.  **This is very important**, otherwise instances of the `UserProfile` class won't know what entity type they are.
+
+==== Personalizing HelloFormController
+
+Let's modify our HelloFormController to take a UserProfile as an argument, and display the user's name instead.  Let's modify it as follows:
+
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.FormController;
+import com.codename1.rad.hello.models.UserProfile;
+import com.codename1.rad.schemas.Person;
+import com.codename1.ui.Form;
+import com.codename1.ui.Label;
+import com.codename1.ui.layouts.BoxLayout;
+
+public class HelloFormController extends FormController {
+    
+    public HelloFormController(Controller parent, UserProfile user) { <1>
+        super(parent);
+        Form f = new Form("Hello", BoxLayout.y());
+        f.add(new Label("Hello " + user.getText(Person.name))); <2>
+        setView(f);
+    }
+    
+}
+----
+<1> We added the `user` parameter to set the user to say "hello" to.
+<2> We used the `user.getText(Person.name)` to get the value of the `Person.name` property as text.  This is loosely coupled as there are no specific references to the the "name" field in UserProfile.
+
+TIP: We declared the argument type as `UserProfile`, but we could have simply left it generic as `Entity` and it would work fine since we aren't dependent on any thing specific about our UserProfile.  Declaring it a `UserProfile` might just be helpful for development since it allows you to more easily see which properties you expect to find on this entity.
+
+Now our `HelloFormController`, instead of saying "Hello World", it will say "Hello <Name>" where "<Name>" is the name stored in the provided user profile.  Next we'll create a form to request the user's name.
+
+
+==== Creating the AskUserNameFormController
+
+Create a new class in the main project package (the same package as our other controllers) named "AskUserNameFormController", with the following contents:
+
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.FormController;
+import com.codename1.rad.hello.models.UserProfile;
+import com.codename1.rad.schemas.Person;
+import com.codename1.ui.Button;
+import com.codename1.ui.Form;
+import com.codename1.ui.Label;
+import com.codename1.ui.TextField;
+import com.codename1.ui.layouts.BoxLayout;
+
+
+public class AskUserNameFormController extends FormController {
+    public AskUserNameFormController(Controller parent) {
+        super(parent);
+        UserProfile user = new UserProfile(); <1>
+        Form f = new Form("Enter Name", BoxLayout.y());
+        TextField nameField = new TextField();
+        Button submit = new Button("Submit");
+        submit.addActionListener(evt->{
+            user.setText(Person.name, nameField.getText()); <2>
+            new HelloFormController(this, user).getView().show(); <3>
+        });
+        f.addAll(new Label("Please enter your name:"), nameField, submit);
+        setView(f); <4>
+        
+    }
+}
+
+----
+<1> We create a new "model" object to store the user's information.
+<2> When the user presses the "Submit" button, it sets the user name in the model.
+<3> After setting the user name in the model, it will display the HelloWorldFormController, and pass the user model to it.
+<4> **Don't forget to call `setView()` with our form.**
+
+==== Changing Start Form
+
+Finally, we need to modify our application controller to show the `AskUserNameForm` on start rather than the `HelloForm` directly:
+
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.ApplicationController;
+
+public class HelloCodeRAD extends ApplicationController {
+    @Override
+    public void start() {
+        super.start();
+        new AskUserNameFormController(this).getView().show();
+    }
+}
+----
+
+When you run this in the simulator you should now see something like:
+
+image::https://i.imgur.com/E0jnw0y.png[]
+
+After entering your name and pressing "Submit" you should see:
+
+image::https://i.imgur.com/jCym8Eq.png[]
+
+
+=== Refactoring: Creating Views
+
+Up until now, we've been building our views directly inside the controller because they have been trivial.  This strategy won't scale well, however.  For best results in real-world apps  we should adopt MVC in its entirety, and not just "MC" as we've done to this point.
+
+Let's begin with a simple refactor.  Create a new package named "com.codename1.rad.hello.views", and add two new classes there to house the two views in our app: "HelloView" and "AskUserNameView".
+
+.HelloView.java - Component extends a plain `Container` because it doesn't require two-way binding.
+[source.java]
+----
+package com.codename1.rad.hello.views;
+
+import com.codename1.rad.hello.models.UserProfile;
+import com.codename1.rad.schemas.Person;
+import com.codename1.ui.Container;
+import com.codename1.ui.Label;
+import com.codename1.ui.layouts.BoxLayout;
+
+
+public class HelloView extends Container {
+    public HelloView(UserProfile user) {
+        super(BoxLayout.y());
+        add(new Label("Hello " + user.getText(Person.name)));
+    }
+}
+----
+
+.AskUserNameView.java - Component extends `AbstractEntityView` because it needs to be able to fire events which can be caught by ViewController
+[source,java]
+----
+package com.codename1.rad.hello.views;
+
+import com.codename1.rad.hello.models.UserProfile;
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.rad.nodes.ActionNode.Category;
+import com.codename1.rad.nodes.Node;
+import com.codename1.rad.nodes.ViewNode;
+import com.codename1.rad.schemas.Person;
+import com.codename1.rad.ui.AbstractEntityView;
+import com.codename1.ui.Button;
+import com.codename1.ui.Label;
+import com.codename1.ui.TextField;
+
+
+public class AskUserNameView extends AbstractEntityView { <1>
+    public static final Category SUBMIT_FORM = new Category(); <2>
+    private ViewNode node;
+    public AskUserNameView(UserProfile user, ViewNode node) { <3>
+        super(user);
+        this.node = node;
+        TextField nameField = new TextField();
+        Button submit = new Button("Submit");
+        submit.addActionListener(evt->{
+            user.setText(Person.name, nameField.getText());
+            ActionNode submitAction = node.getInheritedAction(SUBMIT_FORM); <4>
+            if (submitAction != null) {
+                submitAction.fireEvent(user, this); <5>
+            }
+        });
+        addAll(new Label("Please enter your name:"), nameField, submit);
+    }
+
+    @Override
+    public void update() {
+        <6>
+    }
+
+    @Override
+    public void commit() {
+        <7>
+    }
+
+    @Override
+    public Node getViewNode() {
+        return node; <8>
+    }
+}
+
+----
+<1> Since the `AskUserNameView` is more complex than the `HelloView` we will derive from `AbstractEntityView` instead of `Container` because it includes some handy features for property binding and event dispatching.
+<2> We define a `Category` so that controllers that instantiate this view can register actions in this category to receive events when the user presses "Submit".  We'll refer to this later from our controller.
+<3> The constructor takes a model (`Entity`) and a `ViewNode` as a parameter.  We'll learn more about `ViewNode` in a moment. A view node is kind of like a "schema" for the view.  It allows you to pass attributes to the view that will affect how the view behaves.
+<4> We check to see if the controller has registered an action to be notified when the user presses "Submit".  You'll see later how this action is registered from the controller.
+<5> We fire an event to the registered action.  We pass the current model, `user`, and the originating component of the event `this`.  This event will be dispatched to the controller, and will propagate up the controller hierarchy until it is consumed, or until it reaches the top of the hierarchy.
+<7> The `update()` method will be run any time any of the properties in the model (i.e. `user`) are changed.  This can be used to help keep the view in sync with its model.
+<8> The `commit()` method is a placeholder that is meant to be called when the view makes changes that should update the model.  In this case it doesn't do anything because our view hasn't bound any listeners to the view.
+
+==== Changing Controllers to use Views
+
+Now that we have our views, let's modify our two form controllers to use these views instead of building the UI directly in the controller.
+
+Changing `HelloFormController` is trivial. 
+
+.HelloFormController.java
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.FormController;
+import com.codename1.rad.hello.models.UserProfile;
+import com.codename1.rad.hello.views.HelloView;
+
+public class HelloFormController extends FormController {
+    
+    public HelloFormController(Controller parent, UserProfile user) {
+        super(parent);
+        setTitle("Hello");
+        setView(new HelloView(user)); <1>
+    }
+    
+}
+----
+<1> In this example we set the view using the `HelloView` directly because it will be wrapped in a Form automatically.  We could have still created a form manually, and added the `HelloView` instance to it.
+
+The `AskUserNameFormController` requires a few more changes since we need to register an action to be notified when the user presses "Submit".
+
+.AskUserNameFormController.java
+[source,java]
+----
+package com.codename1.rad.hello;
+
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.FormController;
+import com.codename1.rad.hello.models.UserProfile;
+import com.codename1.rad.hello.views.AskUserNameView;
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.rad.nodes.ViewNode;
+import static com.codename1.rad.ui.UI.actions;
+import com.codename1.ui.Form;
+import com.codename1.ui.layouts.BorderLayout;
+
+
+public class AskUserNameFormController extends FormController {
+    public static final ActionNode submit = new ActionNode(); <1>
+            
+    public AskUserNameFormController(Controller parent) {
+        super(parent);
+        UserProfile user = new UserProfile();
+        Form f = new Form("Enter Name", new BorderLayout());
+        f.add(BorderLayout.CENTER, new AskUserNameView(user, new ViewNode(
+                actions(AskUserNameView.SUBMIT_FORM, submit) <2>
+        )));
+        setView(f);
+        
+        addActionListener(submit, evt-> { <3>
+            evt.consume();
+            new HelloFormController(this, user).getView().show();
+        });
+        
+    }
+
+}
+
+----
+<1> We define a `submit` action that we will pass to the `AskUserNameView` in order to be notified when the user presses the `submit` button.  This is a bare minimal action that solely designed to register to receive events, but you'll find out later that Actions are incredibly powerful as a tool for customizing Views to suit your application's needs.
+<2> We pass the `submit` action to the view here, registering it with the `SUBMIT_FORM` category, so that the view knows to notify us when the user presses submit.
+<3> We add an action listener for the `submit` action to actually handle the event that the view dispatches to us.  Notice that we consume the event as this signals to the view that the action was processed, lest it try to perform some fall-back behaviour.
+
+At first, this refactoring may make the application appear more complicated.  It is more lines of code, and we've had to introduce some new concepts - *Categories*, *Actions*, *ViewNodes*.  What have we gained here to justify the added complexity?  Quite a lot, actually.  
+
+By separating the "view" logic from the "controller" logic, we are able to potentially reuse the view in other contexts.  In the next step, we'll do some further refactoring that will highlight a few other advantages also.
+
+=== Property View Binding
+
+Our current `AskUserNameView` doesn't yet exploit CodeRAD's property binding features. We are manually setting the "name" property on the model when the user presses "Submit".  Instead of this, let's use a `PropertyView` to use a view that automatically binds to the "name" property so that the text field is always kept in sync with the property value.
+
+[source,java]
+----
+package com.codename1.rad.hello.views;
+
+import com.codename1.rad.hello.models.UserProfile;
+import static com.codename1.rad.ui.UI.*;
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.rad.nodes.ActionNode.Category;
+import com.codename1.rad.nodes.Node;
+import com.codename1.rad.nodes.ViewNode;
+import com.codename1.rad.propertyviews.TextFieldPropertyView;
+import com.codename1.rad.schemas.Thing;
+import com.codename1.rad.ui.AbstractEntityView;
+import com.codename1.ui.Button;
+import com.codename1.ui.Label;
+import com.codename1.ui.TextField;
+
+
+public class AskUserNameView extends AbstractEntityView {
+    public static final Category SUBMIT_FORM = new Category();
+    private ViewNode node;
+    public AskUserNameView(UserProfile user, ViewNode node) {
+        super(user);
+        this.node = node;
+        TextFieldPropertyView nameField = new TextFieldPropertyView( <1>
+                new TextField(), <2>
+                user, <3>
+                textField( <4>
+                        tags(Thing.name) <5>
+                )
+        );
+        Button submit = new Button("Submit");
+        submit.addActionListener(evt->{
+            ActionNode submitAction = node.getInheritedAction(SUBMIT_FORM);
+            if (submitAction != null) {
+                submitAction.fireEvent(user, this);
+            }
+        });
+        addAll(new Label("Please enter your name:"), nameField, submit);
+    }
+
+    @Override
+    public void update() {
+        
+    }
+
+    @Override
+    public void commit() {
+        
+    }
+
+    @Override
+    public Node getViewNode() {
+        return node;
+    }
+}
+
+----
+<1> Rather than create a `TextField` for the user to enter their name, we create a `TextFieldPropertyView`.  The difference is that the `TextFieldPropertyView` has 2-way binding with the "name" property so that it is always up to date.
+<2> We create the actual text field that will be used in this view, and pass it as the first parameter.
+<3> 2nd parameter is the entity to which the view is bound.
+<4> 3rd parameter is a `FieldNode` with with settings for the view, including which property is bound. `textField()` is a static method of the `UI` class that creates a `FieldNode` with widget type TEXT.
+<5> Binds to the `Thing.name` property.  Note that this is loose-binding, since it doesn't depend directly on the properties of `UserProfile`.
+
+Once again, this may look like we've added complexity, since there are more lines of code. However, we have made the solution more elegant.  Notice that we removed the line in the action listener that sets the "name" property.  This is no longer necessary because the text field is bound to the "name" property, so it is always in sync.
+
+If you run the project in the simulator, it should be exactly the same as before the refactor.
+
+==== Using `EntityEditor` for the Input Form
+
+The last couple of refactors actually increased the amount of code.  I did them to incrementally demonstrate some core features of CodeRAD.  In the next step, I'd like to demonstrate the `EntityEditor` class to show you, perhaps, an easier way to add input forms to your apps.  The EntityEditor takes an entity and a UI description to render an input form.
+
+The following snippet shows how to create an EntityEditor for editing the "name" field in an entity:
+
+.Creating an EntityEditor to edit a single property.
+[source,java]
+----
+import static com.codename1.rad.ui.UI.*;
+
+...
+
+FormNode formNode = new FormNode( <1>
+    editable(true), <2>
+    textField( <3>
+        label("Please enter your name:"), <4>
+        tags(Thing.name) <5>
+    )
+);
+EntityEditor ee = new EntityEditor(user, formNode); <6>
+----
+<1> We create a `FormNode` as a UI descriptor for our input form.  This allows us to describe the UI declaratively.
+<2> The `editable(true)` call makes the form editable.  If we don't include this, then the form would be read-only.
+<3> The `textField()` method is a static method defined in the `UI` class, which returns a `FieldNode` with the `TEXT` widget type.  This is like a command that tells the EntityEditor to render a text field.
+<4> The `label()` method sets the field label for the form.
+<5> `tags(Thing.name)` will bind the text field to the "name" property of the entity that will be edited.
+<6> Finally we create the `EntityEditor`, which is a subclass of `Container`, so it can be added directly to your form.  It takes two parameters: the "user", which serves as the "view model", or "what to edit", and the "formNode" which serves as the ui descriptor, or "how to edit".
+
+
+After replacing our text field with this entity editor in our `AskUserNameView`, the source becomes:
+
+[source,java]
+----
+package com.codename1.rad.hello.views;
+
+import com.codename1.rad.hello.models.UserProfile;
+import com.codename1.rad.nodes.ActionNode;
+import static com.codename1.rad.ui.UI.*;
+import com.codename1.rad.nodes.ActionNode.Category;
+import com.codename1.rad.nodes.FormNode;
+import com.codename1.rad.nodes.Node;
+import com.codename1.rad.nodes.ViewNode;
+import com.codename1.rad.schemas.Thing;
+import com.codename1.rad.ui.AbstractEntityView;
+import com.codename1.rad.ui.EntityEditor;
+import com.codename1.ui.Button;
+
+
+public class AskUserNameView extends AbstractEntityView {
+    public static final Category SUBMIT_FORM = new Category();
+    private ViewNode node;
+    public AskUserNameView(UserProfile user, ViewNode node) {
+        super(user);
+        this.node = node;
+        FormNode formNode = new FormNode(
+            editable(true),
+            textField(
+                label("Please enter your name:"),
+                tags(Thing.name)
+            )
+        );
+        EntityEditor ee = new EntityEditor(user, formNode);
+        Button submit = new Button("Submit");
+        submit.addActionListener(evt->{
+            ActionNode submitAction = node.getInheritedAction(SUBMIT_FORM);
+            if (submitAction != null) {
+                submitAction.fireEvent(user, this);
+            }
+        });
+        
+        addAll(ee, submit);
+    }
+
+    @Override
+    public void update() {
+        
+    }
+
+    @Override
+    public void commit() {
+        
+    }
+
+    @Override
+    public Node getViewNode() {
+        return node;
+    }
+}
+
+----
+
+Again, in such a small example, it may look like we're not gaining much by this abstraction, but when the application grows to real-world proportions, being able to encapsulate all of the input forms inside a declarative UI structure like this will make the code much easier to read and maintain.
+
+=== Summary
+
+This chapter was meant only to scratch the surface of what it is like to develop and app with CodeRAD. Some key points that we covered include:
+
+1. Use an `ApplicationController` subclass as the entry point for your application.
+2. Each form of your application should have an associated controller which is a subclass of `FormViewController`.  
+3. All controllers, except for the ApplicationController should have a parent controller so that the application has a "controller hierarchy".
+4. The "controller hierarchy" helps to structure the application by allowing events to propagate up through the hierarchy from children to parents.  This results in looser coupling between the forms of an application, and it provides a built-in navigation stack.  The "Back" button always goes to the "parent" controller's form, for example.
+5. By using CodeRAD's `Entity` class as a base class for your application's "model" classes, you get property binding, and loose-coupling between your models and views.  
+7. The `AbstractEntityView` class can be used instead of "Container" to build "live", rich, loosely-coupled UI components that bind to your models.
+8. The `EntityEditor` class is a "live" UI component that will allow you to edit one or more properties of a model/entity.  It takes a `FormNode` as a parameter, which declaratively defines how the form should be rendered - e.g. fields, sections, widget types, actions, etc..  This chapter only showed a tiny glimpse of its capabilities.  As you'll learn later on in this book, the EntityEditor can be customized to a great extent to provide nearly all of your model editing needs.  It supports many different widget types, and allows you to arrange your forms into sections with different layouts for each section; inject actions which manifest themselves as menus and buttons in strategic places in the form; and is completely plugable to add your own widget types and rendering strategies.
+
+=== Where to go from here
+
+This chapter only offered a small glimpse of how CodeRAD applications are structured, but it didn't go into very much detail of the fundamentals.  The fundamental concepts of CodeRAD are:
+
+1. **Controllers** - After the examples in this chapter, you should have enough knowledge to start writing your own controllers, but I recommend reading the "Controllers" chapter to gain a better understand of how they work, so that you can squeeze as much benefit possible out of them.  You should also check out the https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/controllers/package-summary.html[JavaDocs for the `com.codename1.rad.controllers` package] to get a better handle on the API.
+2. **Nodes and Attributes** - One of the big innovations of CodeRAD is its use of Nodes and Attributes to declaratively describe its views.  CodeRAD views generally take 2 parameters in their constructors - an entity which serves as the view model, and a Node which serves as its UI descriptor.  In other words, "what" to render and "how" to render it.  The CodeRAD core library defines a comprehensive set of Nodes and attributes for all occasions.  See the "Nodes and Attributes" chapter for a deep-dive into these useful tools, and check of the javadocs for https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/attributes/package-summary.html[attributes] and https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/nodes/package-summary.html[nodes] to see what nodes and attributes are available.
+3. **Entities, EntityTypes, and Properties** - You should have a rough idea of how entities work, but this chapter only showed very simple useage scenarios (an entity with only a single property).  I recommend reading the "Entities" chapter to obtain a more complete picture of what they can offer.  Also, read the https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/package-summary.html[javadocs for the com.codename1.rad.models package] to peruse the API and see what is possible.
+4. **Loose Binding: Schemas and Tags** - Another key innovation of CodeRAD is its loose-binding which is enabled by the "schemas" and "tags".  Views can be bound to properties directly (tight binding) which makes it difficult to reuse them in different projects.  Views can also be bound to properties indirectly using "tags" (loose binding), which makes it much easier to reuse both the views and the models across projects.  This is the key feature that will allow us to develop reusable libraries of rich UI components.  Some examples of this are the https://github.com/shannah/RADChatRoom[Chat App UI Kit], which provides a fully-functional and customizable chat room UI component, and the https://github.com/shannah/TweetAppUIKit[Tweet App UI Kit] which provides a set of UI components inspired by Twitter.
+5. **Actions** - Actions are heavy-hitters in CodeRAD, and a solid understanding of them will allow you to get the most out of CodeRAD views.  This chapter offered the briefest glimpse of actions (we used an ActionNode for the "submit" action in our "AskUserNameView", but I recommend you read the entire chapter on actions to see their full potential.  Most customization of CodeRAD views is done through actions.  Views will advertise (in their documentation) which action categories they support, and registering an action in those categories will result in the insertion of a menu item, or a button, in the view's prescribed location.  Additionally, actions can be used to receive events back from the view.  In addition to the "Actions" chapter, you should check out the https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/nodes/ActionNode.html[ActionNode javadocs] for more examples and a more comprehensive look at the API.
+6. **Views** - CodeRAD views are the pay-off of the foundation provided by Entities, Tags, Actions, Nodes, Attributes, and Controllers. Views that fully exploit CodeRAD's loose-binding will be reusable to an unprecedented level.  This chapter introduced the `AbstractEntityView` class, which is a base class for views that can bind to a model, and the `EntityEditor` class, which is a rich view which generates an "edit" form for an entity.  These are just two of the available reusable views offered by CodeRAD.  This book includes a few different chapters on views, but at a minimum, I recommend reading the "Survey of CodeRAD Views" chapter, and the "Creating Custom Views" chapter as these will give you a tour of views from both sides: how to "use" them, and how to "make" them.
+
+
+==== Some other Resources 
+
+. The https://shannah.github.io/RADChatRoom/getting-started-tutorial.html[Chat App UI Kit tutorial], provides an alternative "entry" point to this chapter.  Instead of making a "Hello World" app, it shows you how to create a messaging application.
+. Check out the https://www.codenameone.com[Codename One website] for more information about Codename One.
+. Check out the https://github.com/shannah/CodeRAD[CodeRAD Github page] for more information about CodeRAD.
+. For help, you can ask questions on http://stackoverflow.com/tags/codenameone[Stack Overflow] (tag questions as `codenameone`), or on the https://www.codenameone.com/discussion-forum.html[Codename One message forum].
+
+

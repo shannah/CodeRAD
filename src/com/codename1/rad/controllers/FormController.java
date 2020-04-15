@@ -198,7 +198,7 @@ public class FormController extends ViewController {
                    }
 
                }
-           };
+            };
             f.getToolbar().hideToolbar();
             Container titleBar = new Container(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
             titleBar.setSafeArea(true);
@@ -230,6 +230,7 @@ public class FormController extends ViewController {
             }
             f.add(BorderLayout.NORTH, titleBar);
             f.add(BorderLayout.CENTER, cmp);
+            f.revalidateWithAnimationSafety();
             setView(f);
         }
     }
@@ -255,6 +256,14 @@ public class FormController extends ViewController {
                 fc.getView().showBack();
             }
         }
+    }
+    
+    public void show() {
+        getView().show();
+    }
+    
+    public void showBack() {
+        getView().showBack();
     }
     
     public boolean hasBackCommand() {
