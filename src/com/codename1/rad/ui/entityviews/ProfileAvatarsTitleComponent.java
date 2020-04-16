@@ -142,6 +142,10 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
      * on bind so that some events will propagate up to the top.
      */
     private final ViewController avatarWrapperViewController = new ViewController(null) {
+
+        public ViewNode getViewNode() {
+            return ProfileAvatarsTitleComponent.this.node;
+        }
         
         private void handleClick(ControllerEvent evt) {
             handleEvent(evt, interceptAvatarClicked, PROFILE_AVATAR_TITLE_COMPONENT_CLICKED, PROFILE_AVATAR_TITLE_COMPONENT_CLICKED_MENU, PROFILE_AVATAR_CLICKED, PROFILE_AVATAR_CLICKED_MENU);
@@ -212,6 +216,7 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
                    // Let's find out if it is worth displaying the menu at all.  Need to check if any of the
                    // avatars have click actions or click menus registered.
                    EntityList filteredProfiles = new EntityList();
+                   ViewNode viewNode = ProfileAvatarsTitleComponent.this.node;
                    Actions clickMenu = getViewNode().getInheritedActions(avatarMenuCatetory);
                    ActionNode clickAction = getViewNode().getInheritedAction(avatarActionCategory);
                    for (Entity profile : getEntity()) {

@@ -40,7 +40,11 @@ public class Actions implements Iterable<ActionNode> {
             this.actions.add(n);
         }
     }
-    
+    /**
+     * Get only the enabled actions from this actions list.
+     * @param entity
+     * @return 
+     */
     public Actions getEnabled(Entity entity) {
         Actions out = new Actions();
         for (ActionNode action : this) {
