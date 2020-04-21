@@ -80,6 +80,8 @@
         <zip basedir="build/lib" compress="true" destfile="dist/${application.title}.cn1lib" />
         <copy file="dist/${application.title}.cn1lib" todir="../../tests/HelloCodeRAD/lib"/>
         <ant dir="../../tests/HelloCodeRAD" useNativeBaseDir="true" target="refresh-libs-impl"/>
+        <copy file="dist/${application.title}.cn1lib" todir="CodeRADTests/lib"/>
+        <ant dir="CodeRADTests" useNativeBaseDir="true" target="refresh-libs-impl"/>
     </target>
 
     <target name="buildNativeRIM">

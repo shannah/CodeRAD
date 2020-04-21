@@ -424,7 +424,7 @@ public class EntityType implements Iterable<Property> {
     }
     
     public Date getDate(Entity entity, Tag... tags) {
-        return (Date)getPropertyValue(entity, ContentType.DateType);
+        return (Date)getPropertyValue(entity, ContentType.DateType, tags);
     }
     
     public void setDate(Property prop, Entity entity, Date date) {
