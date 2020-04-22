@@ -5,4 +5,4 @@ then
 	bash setup.sh
 fi
 
-ant -Dplatforms.JDK_1.8.home=$JAVA_HOME -Dlib/CodenameOne.jar "$@"
+ant -Dplatforms.JDK_1.8.home=$JAVA_HOME -Dreference.CodenameOne.jar=lib/CodenameOne.jar "$@"
