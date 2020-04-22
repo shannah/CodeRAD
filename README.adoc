@@ -49,9 +49,10 @@ sure.
 1. Open your terminal
 2. Make sure that JAVA_HOME is set to a valid JDK8
 
-~~~~
+[source,bash]
+----
 git clone https://github.com/shannah/CodeRAD
 cd CodeRAD
 bash setup.sh
 ./antw jar
-~~~~
+----
