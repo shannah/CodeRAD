@@ -48,6 +48,7 @@ sure.
 
 1. Open your terminal
 2. Make sure that JAVA_HOME is set to a valid JDK8
+3. Make sure `ant` is in your PATH
 
 [source,bash]
 ----
