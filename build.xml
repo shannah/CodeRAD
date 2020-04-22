@@ -62,6 +62,7 @@
 
     <target name="jar" depends="compile,Stubs">
         <mkdir dir="build/lib" />
+        <mkdir dir="build/stubs"/>
         <zip basedir="${build.classes.dir}" compress="false" destfile="build/lib/main.zip" />
         <zip basedir="${build.classes.dir}" compress="false" destfile="dist/${application.title}.jar" />
         <zip basedir="build/stubs" compress="false" destfile="build/lib/stubs.zip" />
@@ -78,13 +79,16 @@
         <antcall target="buildCSS" />        
         <mkdir dir="dist" />
         <zip basedir="build/lib" compress="true" destfile="dist/${application.title}.cn1lib" />
+        <!--
         <copy file="dist/${application.title}.cn1lib" todir="../../tests/HelloCodeRAD/lib"/>
         <ant dir="../../tests/HelloCodeRAD" useNativeBaseDir="true" target="refresh-libs-impl"/>
+        -->
         <copy file="dist/${application.title}.cn1lib" todir="CodeRADTests/lib"/>
         <ant dir="CodeRADTests" useNativeBaseDir="true" target="refresh-libs-impl"/>
     </target>
 
     <target name="buildNativeRIM">
+    	<mkdir dir="native/rim"/>
         <path id="rimNativeDir">
             <fileset dir="native/rim"/>
         </path> 
@@ -98,11 +102,13 @@
     
     <target name="createRimZip"
         unless="doesntHaveRimFiles">
+        <mkdir dir="native/rim"/>
         <echo>Zipping rim native code</echo>
         <zip basedir="native/rim" compress="false" destfile="build/lib/nativerim.zip" />
     </target>
 
     <target name="buildNativeAND">
+    	<mkdir dir="native/android"/>
         <path id="andNativeDir">
             <fileset dir="native/android"/>
         </path> 
@@ -144,6 +150,7 @@
     </target>
 
     <target name="buildNativeWIN">
+    	<mkdir dir="native/win"/>
         <path id="winNativeDir">
             <fileset dir="native/win"/>
         </path> 
@@ -162,6 +169,7 @@
     </target>
 
     <target name="buildNativeIOS">
+    	<mkdir dir="native/ios"/>
         <path id="iosNativeDir">
             <fileset dir="native/ios"/>
         </path> 
@@ -180,6 +188,7 @@
     </target>
 
     <target name="buildNativeME">
+    	<mkdir dir="native/j2me"/>
         <path id="meNativeDir">
             <fileset dir="native/j2me"/>
         </path> 
@@ -199,6 +208,7 @@
 
     
     <target name="buildNativeJS">
+    	<mkdir dir="native/javascript"/>
         <path id="jsNativeDir">
             <fileset dir="native/javascript"/>
         </path> 

@@ -41,4 +41,17 @@ image::https://shannah.github.io/RADChatRoom/images/Image-210220-020916.612.png[
 +
 image::https://shannah.github.io/RADChatRoom/images/Image-220220-084136.625.png[ProfileListView,320]
 
+== Building from Source
 
+The following instructions are for Mac and Linux.  May work on windows using Git Bash, but not
+sure.
+
+1. Open your terminal
+2. Make sure that JAVA_HOME is set to a valid JDK8
+
+~~~~
+git clone https://github.com/shannah/CodeRAD
+cd CodeRAD
+bash setup.sh
+./antw jar
+~~~~
