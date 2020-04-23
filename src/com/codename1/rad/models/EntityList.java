@@ -104,6 +104,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         int len = entities.size();
         entities.add(link);
         fireEntityAdded(link, len);
+        setChanged();
     }
     
     protected T beforeAdd(T link) {
@@ -120,6 +121,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             int index = entities.indexOf(link);
             if (entities.remove(link)) {
                 fireEntityRemoved(link, index);
+                setChanged();
                 return true;
             }
         }
