@@ -57,3 +57,5 @@ cd CodeRAD
 bash setup.sh
 ./antw jar
 ----
+
+NOTE: the `bash setup.sh` call is only necessary the first time.  It downloads missing dependencies.
