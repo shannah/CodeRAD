@@ -117,7 +117,7 @@ public class ViewController extends Controller {
                 ((ActionSource)this.view).addActionListener(viewListener);
             }
             this.view.putClientProperty(KEY, this);
-            System.out.println("Dispatching did set view event");
+            //System.out.println("Dispatching did set view event");
             dispatchEvent(new DidSetViewEvent(this, this.view));
         }
     }

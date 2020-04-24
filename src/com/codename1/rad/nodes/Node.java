@@ -326,7 +326,7 @@ public abstract class Node<T> extends Attribute<T> {
                 }
                 NodeDecoratorAttribute nodeDecorator = (NodeDecoratorAttribute)n.findAttribute(NodeDecoratorAttribute.class);
                 if (nodeDecorator != null) {
-                    System.out.println("Decorating node "+n+" with "+nodeDecorator.getValue());
+                    //System.out.println("Decorating node "+n+" with "+nodeDecorator.getValue());
                     nodeDecorator.getValue().decorate(n);
                 }
                 this.childNodes.add(n);

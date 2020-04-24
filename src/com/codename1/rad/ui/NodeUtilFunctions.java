@@ -78,10 +78,10 @@ class NodeUtilFunctions {
             Container cnt = new Container(BoxLayout.x());
             $(cnt).setAlignment(RIGHT);
             for (ActionNode action : right) {
-                System.out.println("right node "+action);
+                //System.out.println("right node "+action);
                 cnt.add(action.getViewFactory().createActionView(entity, action));
             }
-            System.out.println("Adding to right "+cnt);
+            //System.out.println("Adding to right "+cnt);
             actionsBarRight.add(BorderLayout.CENTER, cnt);
         }
         

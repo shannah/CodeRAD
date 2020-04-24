@@ -111,7 +111,7 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
             }
         }
         iconProp = prop(ICON, iconDefault);
-        System.out.println("Icon prop is "+iconProp+" default is "+iconDefault);
+        //System.out.println("Icon prop is "+iconProp+" default is "+iconDefault);
         
         if (iconProp == null) {
             AsyncImage iconVal = value(ICON, iconDefault);

@@ -85,7 +85,7 @@ public class DefaultEntityListCellRenderer implements EntityListCellRenderer {
             return new WrapperEntityView(swipeWrapper, entity, node);
             
         } else {
-            System.out.println("Swipe actions not present");
+            //System.out.println("Swipe actions not present");
         }
         
         return (EntityView)view;

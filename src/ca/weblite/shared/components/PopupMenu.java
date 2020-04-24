@@ -73,7 +73,7 @@ public class PopupMenu extends InteractionDialog {
     
     public void setCommandsLayout(Layout layout) {
         commandsCnt.setLayout(layout);
-        System.out.println("Setting commands layout to "+layout);
+        //System.out.println("Setting commands layout to "+layout);
     }
     
     public Command getCommand() {

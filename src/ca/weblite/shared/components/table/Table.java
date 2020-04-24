@@ -234,7 +234,7 @@ public class Table<T> extends Container {
     public void stopEditing(Runnable onFinish) {
         
         if (editorComp != null) {
-            System.out.println("Stopping");
+            //System.out.println("Stopping");
             int row = editingRow;
             int col = editingColumn;
             Component editor = editorComp;
@@ -242,7 +242,7 @@ public class Table<T> extends Container {
             editingRow = -1;
             editingColumn = -1;
             editor.stopEditing(()->{
-                System.out.println("Stopped");
+                //System.out.println("Stopped");
                 update(row, row, col);
                 if (onFinish != null) {
                     onFinish.run();
@@ -331,7 +331,7 @@ public class Table<T> extends Container {
     
     
     private ActionListener formKeyListener = evt -> {
-        System.out.println("Key event received "+evt.getKeyEvent());
+        //System.out.println("Key event received "+evt.getKeyEvent());
         if (model.getColumnCount() < 1 || model.getRowCount() < 1) {
             return;
         }
