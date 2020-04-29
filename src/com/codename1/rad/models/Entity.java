@@ -333,7 +333,7 @@ public class Entity extends Observable  {
         return entityType;
     }
     
-    public EntityList getEntityList(Tag tag) {
+    public EntityList getEntityList(Tag... tag) {
         Property prop = getEntityType().findProperty(tag);
         if (prop == null) {
             return null;
@@ -494,6 +494,41 @@ public class Entity extends Observable  {
         return getEntityType().setText(this, text, tags);
     }
     
+    public void setDouble(Property prop, double val) {
+        getEntityType().setDouble(prop, this, val);
+    }
+    
+    public boolean setDouble(Tag tag, double val) {
+        return getEntityType().setDouble(tag, this, val);
+    }
+    
+    public boolean setDouble(double val, Tag... tags) {
+        return getEntityType().setDouble(this, val, tags);
+    }
+    
+    public void setFloat(Property prop, float val) {
+        getEntityType().setFloat(prop, this, val);
+    }
+    
+    public boolean setFloat(Tag tag, float val) {
+        return getEntityType().setFloat(tag, this, val);
+    }
+    
+    public boolean setFloat(float val, Tag... tags) {
+        return getEntityType().setFloat(this, val, tags);
+    }
+    
+    public void setInt(Property prop, int val) {
+        getEntityType().setInt(prop, this, val);
+    }
+    
+    public boolean setInt(Tag tag, int val) {
+        return getEntityType().setInt(tag, this, val);
+    }
+    
+    public boolean setInt(int val, Tag... tags) {
+        return getEntityType().setInt(this, val, tags);
+    }
     public void setBoolean(Property prop, boolean val) {
         getEntityType().setBoolean(prop, this, val);
     }

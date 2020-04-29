@@ -219,6 +219,18 @@ public abstract class Node<T> extends Attribute<T> {
         return param.getValue();
     }
     
+    public <V> V getViewParameterValue(ViewProperty<V> prop, V defaultValue) {
+        ViewPropertyParameter<V> param = getViewParameter(prop);
+        if (param == null) {
+            return defaultValue;
+        }
+        return param.getValue();
+    }
+    
+    public boolean hasViewParameter(ViewProperty<?> prop) {
+        return getViewParameter(prop) != null;
+    }
+    
     /**
      * Gets a view parameter for this node.  This will walk up the tree until it finds 
      * a parameter for the given view property.  View properties are defined generally inside
