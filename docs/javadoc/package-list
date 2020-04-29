@@ -5,6 +5,7 @@ com.codename1.ext.ui
 com.codename1.rad.attributes
 com.codename1.rad.controllers
 com.codename1.rad.events
+com.codename1.rad.io
 com.codename1.rad.layouts
 com.codename1.rad.models
 com.codename1.rad.nodes
