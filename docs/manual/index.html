@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.8.dev">
+<meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="Steve Hannah">
 <title>Developing Native Mobile Apps with CodeRAD</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
@@ -241,7 +241,7 @@ table.linenotable td.linenos{border-right:1px solid currentColor;opacity:.35;pad
 pre.pygments .lineno{border-right:1px solid currentColor;opacity:.35;display:inline-block;margin-right:.75em}
 pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock{margin:0 1em 1.25em 1.5em;display:table}
-.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
 .quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
 .quoteblock blockquote{margin:0;padding:0;border:0}
 .quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
@@ -258,7 +258,8 @@ pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
 .quoteblock.abstract{margin:0 1em 1.25em;display:block}
 .quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
-.quoteblock.excerpt,.quoteblock .quoteblock{margin:0 0 1.25em;padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
 .quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
 .quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
 table.tableblock{max-width:100%;border-collapse:separate}
@@ -435,7 +436,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
@@ -446,50 +446,50 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#truepreface">Preface</a></li>
-<li><a href="#trueintroduction">1. Introduction</a>
+<li><a href="#_preface">Preface</a></li>
+<li><a href="#_introduction">1. Introduction</a>
 <ul class="sectlevel2">
-<li><a href="#truewhat-is-codename-one">1.1. What is Codename One?</a></li>
-<li><a href="#trueadvancing-from-hello-world-to-real-world">1.2. Advancing from "Hello World" to "Real World"</a></li>
-<li><a href="#truewhat-is-coderad">1.3. What is CodeRAD?</a></li>
-<li><a href="#truegoals-of-coderad">1.4. Goals of CodeRAD</a></li>
-<li><a href="#truefirst-order-ui-components-vs-second-order-ui-components">1.5. First-Order UI Components vs Second-Order UI Components</a></li>
-<li><a href="#truethird-order-ui-components-app-in-a-box">1.6. Third-Order UI Components: App-in-a-Box</a></li>
-<li><a href="#truefundamental-concepts">1.7. Fundamental Concepts</a></li>
-<li><a href="#trueentities-properties-schemas-and-tags">1.8. Entities, Properties, Schemas and Tags</a></li>
-<li><a href="#trueviews">1.9. Views</a></li>
-<li><a href="#truecontrollers-and-actions">1.10. Controllers and Actions</a></li>
-<li><a href="#trueui-descriptors-nodes-and-attributes">1.11. UI Descriptors (Nodes and Attributes)</a></li>
+<li><a href="#_what_is_codename_one">1.1. What is Codename One?</a></li>
+<li><a href="#_advancing_from_hello_world_to_real_world">1.2. Advancing from "Hello World" to "Real World"</a></li>
+<li><a href="#_what_is_coderad">1.3. What is CodeRAD?</a></li>
+<li><a href="#_goals_of_coderad">1.4. Goals of CodeRAD</a></li>
+<li><a href="#_first_order_ui_components_vs_second_order_ui_components">1.5. First-Order UI Components vs Second-Order UI Components</a></li>
+<li><a href="#_third_order_ui_components_app_in_a_box">1.6. Third-Order UI Components: App-in-a-Box</a></li>
+<li><a href="#_fundamental_concepts">1.7. Fundamental Concepts</a></li>
+<li><a href="#_entities_properties_schemas_and_tags">1.8. Entities, Properties, Schemas and Tags</a></li>
+<li><a href="#_views">1.9. Views</a></li>
+<li><a href="#_controllers_and_actions">1.10. Controllers and Actions</a></li>
+<li><a href="#_ui_descriptors_nodes_and_attributes">1.11. UI Descriptors (Nodes and Attributes)</a></li>
 </ul>
 </li>
-<li><a href="#trueinstallation">2. Installation</a>
+<li><a href="#_installation">2. Installation</a>
 <ul class="sectlevel2">
-<li><a href="#trueactivating-css">2.1. Activating CSS</a></li>
-<li><a href="#trueinstalling-the-coderad-cn1lib">2.2. Installing the CodeRAD cn1lib</a></li>
+<li><a href="#_activating_css">2.1. Activating CSS</a></li>
+<li><a href="#_installing_the_coderad_cn1lib">2.2. Installing the CodeRAD cn1lib</a></li>
 </ul>
 </li>
-<li><a href="#truegetting-started">3. Getting Started</a>
+<li><a href="#_getting_started">3. Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#truestep-1-create-a-new-project">3.1. Step 1: Create a New Project</a></li>
-<li><a href="#truestep-2-create-an-application-controller">3.2. Step 2: Create an Application Controller</a></li>
-<li><a href="#truestep-3-create-a-formcontroller">3.3. Step 3: Create a FormController</a></li>
-<li><a href="#trueadding-another-form">3.4. Adding another Form</a></li>
-<li><a href="#trueadding-a-view-model-asking-the-users-name">3.5. Adding a View Model: Asking the User&#8217;s Name</a></li>
-<li><a href="#truerefactoring-creating-views">3.6. Refactoring: Creating Views</a></li>
-<li><a href="#trueproperty-view-binding">3.7. Property View Binding</a></li>
-<li><a href="#truesummary">3.8. Summary</a></li>
-<li><a href="#truewhere-to-go-from-here">3.9. Where to go from here</a></li>
+<li><a href="#_step_1_create_a_new_project">3.1. Step 1: Create a New Project</a></li>
+<li><a href="#_step_2_create_an_application_controller">3.2. Step 2: Create an Application Controller</a></li>
+<li><a href="#_step_3_create_a_formcontroller">3.3. Step 3: Create a FormController</a></li>
+<li><a href="#_adding_another_form">3.4. Adding another Form</a></li>
+<li><a href="#_adding_a_view_model_asking_the_users_name">3.5. Adding a View Model: Asking the User&#8217;s Name</a></li>
+<li><a href="#_refactoring_creating_views">3.6. Refactoring: Creating Views</a></li>
+<li><a href="#_property_view_binding">3.7. Property View Binding</a></li>
+<li><a href="#_summary">3.8. Summary</a></li>
+<li><a href="#_where_to_go_from_here">3.9. Where to go from here</a></li>
 </ul>
 </li>
-<li><a href="#truecontrollers">4. Controllers</a>
+<li><a href="#_controllers">4. Controllers</a>
 <ul class="sectlevel2">
-<li><a href="#trueapplication-structure-and-form-navigation-pre-coderad">4.1. Application Structure and Form Navigation Pre-CodeRAD</a></li>
-<li><a href="#trueapp-structure-as-a-tree">4.2. App Structure as a Tree</a></li>
-<li><a href="#truecoderad-core-controllers">4.3. CodeRAD Core Controllers</a></li>
-<li><a href="#trueevent-propagation-2">4.4. Event Propagation</a></li>
-<li><a href="#truecode-sharing-lookups">4.5. Code-sharing / Lookups</a></li>
-<li><a href="#trueexample-controllers">4.6. Example Controllers</a></li>
-<li><a href="#trueform-navigation">4.7. Form Navigation</a></li>
+<li><a href="#_application_structure_and_form_navigation_pre_coderad">4.1. Application Structure and Form Navigation Pre-CodeRAD</a></li>
+<li><a href="#_app_structure_as_a_tree">4.2. App Structure as a Tree</a></li>
+<li><a href="#_coderad_core_controllers">4.3. CodeRAD Core Controllers</a></li>
+<li><a href="#_event_propagation_2">4.4. Event Propagation</a></li>
+<li><a href="#_code_sharing_lookups">4.5. Code-sharing / Lookups</a></li>
+<li><a href="#_example_controllers">4.6. Example Controllers</a></li>
+<li><a href="#_form_navigation">4.7. Form Navigation</a></li>
 </ul>
 </li>
 </ul>
@@ -497,16 +497,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="truepreface"><a class="anchor" href="#truepreface"></a>Preface</h2>
+<h2 id="_preface">Preface</h2>
 <div class="sectionbody">
 
 </div>
 </div>
 <div class="sect1">
-<h2 id="trueintroduction"><a class="anchor" href="#trueintroduction"></a>1. Introduction</h2>
+<h2 id="_introduction">1. Introduction</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="truewhat-is-codename-one"><a class="anchor" href="#truewhat-is-codename-one"></a>1.1. What is Codename One?</h3>
+<h3 id="_what_is_codename_one">1.1. What is Codename One?</h3>
 <div class="paragraph">
 <p>Codename One is a toolkit for building cross-platform native mobile apps in Java and Kotlin.  It includes plugins for the three major Java IDEs: IntelliJ IDEA, NetBeans, and Eclipse, as well as a cross-platform class library to support all of your application&#8217;s needs.</p>
 </div>
@@ -523,7 +523,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
+<div class="title">Tip</div>
 </td>
 <td class="content">
 <div class="paragraph">
@@ -551,7 +551,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueadvancing-from-hello-world-to-real-world"><a class="anchor" href="#trueadvancing-from-hello-world-to-real-world"></a>1.2. Advancing from "Hello World" to "Real World"</h3>
+<h3 id="_advancing_from_hello_world_to_real_world">1.2. Advancing from "Hello World" to "Real World"</h3>
 <div class="paragraph">
 <p>Once you&#8217;ve finished your whistle-stop tour of tutorials, however, and you&#8217;re ready build your "real-world" app, you&#8217;ll quickly be pushing up against the classical software engineering challenges of old.  When your app only has a single form with a map and a few buttons, you don&#8217;t need to spend much time wrestling with architecture.  But what about when your app has dozens of forms, and menus, complex flows?  How do you organize your code so that it is maintainable.</p>
 </div>
@@ -563,7 +563,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="truewhat-is-coderad"><a class="anchor" href="#truewhat-is-coderad"></a>1.3. What is CodeRAD?</h3>
+<h3 id="_what_is_coderad">1.3. What is CodeRAD?</h3>
 <div class="paragraph">
 <p>CodeRAD is a library for Codename One that facilitates rapid development of Codename One apps by One classic design pattern that is tried and true for GUI applications is MVC (Model-View-Controller).  It includes foundation classes for developing models, views, and controllers, which dramatically increases code re-use and reduces application complexity.</p>
 </div>
@@ -571,7 +571,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<div class="title">Note</div>
 </td>
 <td class="content">
 <div class="paragraph">
@@ -589,7 +589,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="truegoals-of-coderad"><a class="anchor" href="#truegoals-of-coderad"></a>1.4. Goals of CodeRAD</h3>
+<h3 id="_goals_of_coderad">1.4. Goals of CodeRAD</h3>
 <div class="paragraph">
 <p>CodeRAD aims to increase developer productivity in building mobile applications by:</p>
 </div>
@@ -605,7 +605,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="truefirst-order-ui-components-vs-second-order-ui-components"><a class="anchor" href="#truefirst-order-ui-components-vs-second-order-ui-components"></a>1.5. First-Order UI Components vs Second-Order UI Components</h3>
+<h3 id="_first_order_ui_components_vs_second_order_ui_components">1.5. First-Order UI Components vs Second-Order UI Components</h3>
 <div class="paragraph">
 <p>A first-order UI component is a basic UI component, like a label, button, or text field, that is completely application-agnostic.  These form the fundamental building blocks of a GUI application, they need to be stitched together by the developer to form a coherent user interface for the user.</p>
 </div>
@@ -626,13 +626,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="truethird-order-ui-components-app-in-a-box"><a class="anchor" href="#truethird-order-ui-components-app-in-a-box"></a>1.6. Third-Order UI Components: App-in-a-Box</h3>
+<h3 id="_third_order_ui_components_app_in_a_box">1.6. Third-Order UI Components: App-in-a-Box</h3>
 <div class="paragraph">
 <p>A third-order component is a reusable UI component that provides full-application functionality out of the box.  The same principles used by CodeRAD to build second-order components could theoretically be used to produce fully-functional, yet reusable and customizable applications as turn-key components.  This is beyond the initial scope of CodeRAD&#8217;s aims, but after we&#8217;ve tamed enough of the second-order frontier, we may broaden our horizons and begin targetting entirely reusable apps.  Stay tuned&#8230;&#8203;</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="truefundamental-concepts"><a class="anchor" href="#truefundamental-concepts"></a>1.7. Fundamental Concepts</h3>
+<h3 id="_fundamental_concepts">1.7. Fundamental Concepts</h3>
 <div class="paragraph">
 <p>There are just a few fundamental concepts required to start using CodeRAD to accelerate your development.</p>
 </div>
@@ -671,20 +671,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueentities-properties-schemas-and-tags"><a class="anchor" href="#trueentities-properties-schemas-and-tags"></a>1.8. Entities, Properties, Schemas and Tags</h3>
+<h3 id="_entities_properties_schemas_and_tags">1.8. Entities, Properties, Schemas and Tags</h3>
 <div class="paragraph">
-<p>The <strong>Entity</strong> sits at the core of CodeRAD.  The {@link com.codename1.rad.models.Entity} class is the base class of all model classes in CodeRAD.  Each {@link com.codename1.rad.models.Entity} has an {@link com.codename1.rad.models.EntityType} which defines the properties that are available in an entity.  Properties, in turn, may be "tagged" with zero or more {@link com.codename1.rad.models.Tag}s.  These tags can be used to lookup properties on an entity in a more generic way than referring to the property itself.</p>
+<p>The <strong>Entity</strong> sits at the core of CodeRAD.  The <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html">Entity</a> class is the base class of all model classes in CodeRAD.  Each <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html">Entity</a> has an <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/EntityType.html">EntityType</a> which defines the properties that are available in an entity.  Properties, in turn, may be "tagged" with zero or more <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Tag.html">Tag</a>s.  These tags can be used to lookup properties on an entity in a more generic way than referring to the property itself.</p>
 </div>
 <div class="paragraph">
-<p>We provide a set of existing tags in the {@link com.codename1.rad.schemas} package that can be used as a common foundation by both models and views.  These tags were adapted from the schema definitions at <a href="https://schema.org" class="bare">https://schema.org</a>.</p>
+<p>We provide a set of existing tags in the <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/schemas/package-frame.html">schemas</a> package that can be used as a common foundation by both models and views.  These tags were adapted from the schema definitions at <a href="https://schema.org" class="bare">https://schema.org</a>.</p>
 </div>
 <div class="exampleblock">
 <div class="content">
 <div class="paragraph">
-<p><a href="https://schema.org" class="bare">https://schema.org</a> provides a large set of schemas for common data types that one might need in an application.  It provides a base schema, <a href="https://schema.org/Thing">Thing</a> that includes properties that may be common to any type of "thing", such as <code>name</code>, <code>description</code>, <code>identifier</code>, <code>image</code> etc..  This schema has been ported into Java as the {@link com.codename1.rad.schemas.Thing} interface.</p>
+<p><a href="https://schema.org" class="bare">https://schema.org</a> provides a large set of schemas for common data types that one might need in an application.  It provides a base schema, <a href="https://schema.org/Thing">Thing</a> that includes properties that may be common to any type of "thing", such as <code>name</code>, <code>description</code>, <code>identifier</code>, <code>image</code> etc..  This schema has been ported into Java as the <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/schemas/Thing.html">Thing</a> interface.</p>
 </div>
 <div class="paragraph">
-<p>Each property has a corresponding {@link com.codename1.rad.models.Tag} defined.</p>
+<p>Each property has a corresponding <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Tag.html">Tag</a> defined.</p>
 </div>
 </div>
 </div>
@@ -693,7 +693,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock java">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">String telephone = model.getText(Person.telephone);</code></pre>
+<pre class="highlight"><code>String telephone = model.getText(Person.telephone);</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -704,7 +704,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">Property telephoneProp = model.getEntityType().findProperty(Person.telephone);</code></pre>
+<pre class="highlight"><code class="language-java" data-lang="java">Property telephoneProp = model.getEntityType().findProperty(Person.telephone);</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -723,56 +723,52 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="title">Figure 1. Tags are used to bind views to the appropriate properties of their view model using loose coupling.  Action categories are used to bind views to their controllers using loose coupling.</div>
 </div>
 <div class="sect3">
-<h4 id="trueexample-entity-class"><a class="anchor" href="#trueexample-entity-class"></a>1.8.1. Example Entity Class</h4>
+<h4 id="_example_entity_class">1.8.1. Example Entity Class</h4>
 <div class="paragraph">
 <p>The following figure shows the definition of a very simple entity class:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">public class UserProfile extends Entity {
-    public static StringProperty name, description; <i class="conum" data-value="1"></i><b>(1)</b>
-    public static final EntityType TYPE = new EntityType(){{ <i class="conum" data-value="2"></i><b>(2)</b>
-        name = string(); <i class="conum" data-value="3"></i><b>(3)</b>
+<pre class="highlight"><code class="language-java" data-lang="java">public class UserProfile extends Entity {
+    public static StringProperty name, description; <b class="conum">(1)</b>
+    public static final EntityType TYPE = new EntityType(){{ <b class="conum">(2)</b>
+        name = string(); <b class="conum">(3)</b>
         description = string();
     }};
     {
-        setEntityType(TYPE); <i class="conum" data-value="4"></i><b>(4)</b>
+        setEntityType(TYPE); <b class="conum">(4)</b>
     }
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We define 2 properties of type {@link com.codename1.rad.models.StringProperty} on the class.  A <code>StringProperty</code> is simply a property that contains a {@link java.lang.String}.  These are defined <code>public static</code> so that we can access them conveniently from anywhere.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>We define an {@link com.codename1.rad.models.EntityType} for the class.  This is also <code>public static</code> because it is class-level (all objects of this class should share the same entity type).</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>We create <code>name</code> and <code>description</code> properties on this entity type.  Notice that this code runs in the <strong>instance intializer</strong> of the EntityType (the <code>{{</code> and <code>}}</code> braces are not a typo).  Running this code inside the instance initializer will ensure that the properties are added to the `EntityType&#8217;s property index.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Inside the <code>UserProfile</code> instance initializer, we set the entity type to the entity type that we created above.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We define 2 properties of type <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/StringProperty.html">StringProperty</a> on the class.  A <code>StringProperty</code> is simply a property that contains a <code>String</code>.  These are defined <code>public static</code> so that we can access them conveniently from anywhere.</p>
+</li>
+<li>
+<p>We define an <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/EntityType.html">EntityType</a> for the class.  This is also <code>public static</code> because it is class-level (all objects of this class should share the same entity type).</p>
+</li>
+<li>
+<p>We create <code>name</code> and <code>description</code> properties on this entity type.  Notice that this code runs in the <strong>instance intializer</strong> of the EntityType (the <code>{{</code> and <code>}}</code> braces are not a typo).  Running this code inside the instance initializer will ensure that the properties are added to the `EntityType&#8217;s property index.</p>
+</li>
+<li>
+<p>Inside the <code>UserProfile</code> instance initializer, we set the entity type to the entity type that we created above.</p>
+</li>
+</ol>
 </div>
 <div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<div class="title">Note</div>
 </td>
 <td class="content">
 <div class="paragraph">
 <p><strong>Why can&#8217;t we just use POJOs for our models?</strong></p>
 </div>
 <div class="paragraph">
-<p>The {@link com.codename1.rad.models.Entity} class provides a lot of useful plumbing that is necessary for building reusable components that can bind to each other.  This includes property lookup, property binding, change events, and data conversion.</p>
+<p>The <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html">Entity</a> class provides a lot of useful plumbing that is necessary for building reusable components that can bind to each other.  This includes property lookup, property binding, change events, and data conversion.</p>
 </div>
 </td>
 </tr>
@@ -780,13 +776,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect3">
-<h4 id="trueadding-tags-to-properties"><a class="anchor" href="#trueadding-tags-to-properties"></a>1.8.2. Adding Tags to Properties</h4>
+<h4 id="_adding_tags_to_properties">1.8.2. Adding Tags to Properties</h4>
 <div class="paragraph">
-<p>In the above entity class, we haven&#8217;t "tagged" any of the properties so it can&#8217;t be used as a view model for any view, unless that view has been specifically designed for this class, which would limit its reusability.  This is simple to remedy, though. Let&#8217;s tag the <code>name</code> property with {@link com.codename1.rad.schemas.Thing#name}, and <code>description</code> with {@link com.codename1.rad.schemas.Thing#description}:</p>
+<p>In the above entity class, we haven&#8217;t "tagged" any of the properties so it can&#8217;t be used as a view model for any view, unless that view has been specifically designed for this class, which would limit its reusability.  This is simple to remedy, though. Let&#8217;s tag the <code>name</code> property with <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/schemas/Thing.html#name">Thing.name</a>, and <code>description</code> with <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/schemas/Thing.html#description">Thing.description</a>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">name = string(tags(Thing.name));
+<pre class="highlight"><code class="language-java" data-lang="java">name = string(tags(Thing.name));
 description = string(tags(Thing.description));</code></pre>
 </div>
 </div>
@@ -794,7 +790,7 @@ description = string(tags(Thing.description));</code></pre>
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
+<div class="title">Tip</div>
 </td>
 <td class="content">
 <div class="paragraph">
@@ -802,7 +798,7 @@ description = string(tags(Thing.description));</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">name = string(tags(Thing.name, Thing.identifier));</code></pre>
+<pre class="highlight"><code class="language-java" data-lang="java">name = string(tags(Thing.name, Thing.identifier));</code></pre>
 </div>
 </div>
 </td>
@@ -811,13 +807,13 @@ description = string(tags(Thing.description));</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trueaccessing-property-values"><a class="anchor" href="#trueaccessing-property-values"></a>1.8.3. Accessing Property Values</h4>
+<h4 id="_accessing_property_values">1.8.3. Accessing Property Values</h4>
 <div class="paragraph">
 <p>We can access a property value using its property directly.  E.g.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">String name = model.get(UserProfile.name);</code></pre>
+<pre class="highlight"><code class="language-java" data-lang="java">String name = model.get(UserProfile.name);</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -828,21 +824,21 @@ description = string(tags(Thing.description));</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">String name = (String)model.get(Thing.name);</code></pre>
+<pre class="highlight"><code class="language-java" data-lang="java">String name = (String)model.get(Thing.name);</code></pre>
 </div>
 </div>
 <div class="admonitionblock warning">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
+<div class="title">Warning</div>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>When using tags to access properties, it is best to use one of the <code>getXXX(Tag)</code> variants that explicitly converts the content type.  E.g. {@link com.codename1.rad.models.Entity#getText(com.codename1.rad.models.Tag)}.  This is because there is no guarantee that a given entity is storing its <code>Thing.name</code> property as a String.  It could use any type of property.  Using <code>getText()</code> or <code>getBoolean()</code> will automatically handle data-conversion if possible.</p>
+<p>When using tags to access properties, it is best to use one of the <code>getXXX(Tag)</code> variants that explicitly converts the content type.  E.g. <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html#getText-com.codename1.rad.models.Property-">Entity.getText(Tag)</a>.  This is because there is no guarantee that a given entity is storing its <code>Thing.name</code> property as a String.  It could use any type of property.  Using <code>getText()</code> or <code>getBoolean()</code> will automatically handle data-conversion if possible.</p>
 </div>
 <div class="paragraph">
-<p>See {@link com.codename1.rad.models.ContentType} for more information about data conversion in properties.</p>
+<p>See <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/ContentType.html">ContentType</a> for more information about data conversion in properties.</p>
 </div>
 </td>
 </tr>
@@ -853,7 +849,7 @@ description = string(tags(Thing.description));</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">model.setText(Thing.name, "Steve");
+<pre class="highlight"><code class="language-java" data-lang="java">model.setText(Thing.name, "Steve");
 String name = model.getText(Thing.name); // "Steve"</code></pre>
 </div>
 </div>
@@ -861,7 +857,7 @@ String name = model.getText(Thing.name); // "Steve"</code></pre>
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
+<div class="title">Tip</div>
 </td>
 <td class="content">
 <div class="paragraph">
@@ -870,7 +866,7 @@ String name = model.getText(Thing.name); // "Steve"</code></pre>
 <div class="listingblock">
 <div class="title">An entity type that doesn&#8217;t retain explicit references to its properties.  The properties can still be accessed via their assigned tags.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">public class UserProfile extends Entity {
+<pre class="highlight"><code class="language-java" data-lang="java">public class UserProfile extends Entity {
     public static final EntityType TYPE = new EntityType(){{
         string(tags(Thing.name));
         string(tags(Thing.description));
@@ -888,15 +884,15 @@ String name = model.getText(Thing.name); // "Steve"</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueviews"><a class="anchor" href="#trueviews"></a>1.9. Views</h3>
+<h3 id="_views">1.9. Views</h3>
 <div class="paragraph">
-<p>The "View" is the piece of the MVC pie that we are most interested in sharing and reusing.  A View is simply a {@link com.codename1.ui.Component} that includes support to "bind" to a view model (an {@link com.codename1.rad.models.Entity}), such that when properties on the view model are changed, the "View" updates to reflect the change.  The {@link com.codename1.rad.ui.entityviews} package includes a set of read-developed view classes.  The best current example of a CodeRAD view is the <a href="https://github.com/shannah/RADChatRoom" target="_top">RADChatRoom</a>'s <code>ChatRoomView</code> component.</p>
+<p>The "View" is the piece of the MVC pie that we are most interested in sharing and reusing.  A View is simply a <a href="https://www.codenameone.com/javadoc/com/codename1/ui/Component.html">Component</a> that includes support to "bind" to a view model (an <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html">Entity</a>), such that when properties on the view model are changed, the "View" updates to reflect the change.  The <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/package-frame.html">entityviews</a> package includes a set of read-developed view classes.  The best current example of a CodeRAD view is the <a href="https://github.com/shannah/RADChatRoom" target="_top">RADChatRoom</a>'s <code>ChatRoomView</code> component.</p>
 </div>
 <div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<div class="title">Note</div>
 </td>
 <td class="content">
 Creating view classes is more complex than creating models or controllers because they require a deeper understanding of both Codeame One concepts, and CodeRAD concepts.  The goal of this project is to provide a comprehensive set of quality views that can be reused so that developers don&#8217;t need to create their own views very often.  They can focus on their application&#8217;s control flow and business logic (i.e. models and controllers).
@@ -910,10 +906,10 @@ Creating view classes is more complex than creating models or controllers becaus
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>The view model</strong> - an {@link com.codename1.rad.models.Entity} object that is used for the view&#8217;s contents.</p>
+<p><strong>The view model</strong> - an <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html">Entity</a> object that is used for the view&#8217;s contents.</p>
 </li>
 <li>
-<p><strong>A view node</strong> - a {@link com.codename1.rad.ui.Node} object, which is part of a view descriptor hierarchy, and can provide additional settings for the view, such as actions to be rendered in the view as buttons or menus, factories to be used for generating parts of the view, simple properties, and virtually any other customizations the view wants to respond to.  You can think of the view node as a sort of "Schema" for the view.</p>
+<p><strong>A view node</strong> - a <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/nodes/Node.html">Node</a> object, which is part of a view descriptor hierarchy, and can provide additional settings for the view, such as actions to be rendered in the view as buttons or menus, factories to be used for generating parts of the view, simple properties, and virtually any other customizations the view wants to respond to.  You can think of the view node as a sort of "Schema" for the view.</p>
 </li>
 </ol>
 </div>
@@ -923,18 +919,18 @@ Creating view classes is more complex than creating models or controllers becaus
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>{@link com.codename1.rad.ui.AbstractEntityView}</strong> - Provides a minimal framework for binding to property change events on an {@link com.codename1.rad.models.Entity}.  Extend this class when your view model is a scalar entity.</p>
+<p><strong><a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/AbstractEntityView.html">AbstractEntityView</a></strong> - Provides a minimal framework for binding to property change events on an <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html">Entity</a>.  Extend this class when your view model is a scalar entity.</p>
 </li>
 <li>
-<p><strong>{@link com.codename1.rad.ui.entityviews.EntityListView}</strong> - Provides a minimal framework for list entities.  The view model is expected to be a {@link com.codename1.rad.models.EntityList} or subclass thereof.  It will bind to the lists add and remove events to automatically add or remove rows from the view when corresponding elements are added or removed from the model.  It will accept a <code>listRenderer</code> attribute, which allows you to provide a  {@link com.codename1.rad.ui.EntityListCellRenderer} for rendering the list&#8217;s rows.  This makes the <code>EntityListView</code> class quite versatile, as it can be made to behave completely differently by simply providing a different row renderer.  The <code>ChatRoomView</code> class uses this class internall to render the chat bubbles.</p>
+<p><strong><a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/EntityListView.html">EntityListView</a></strong> - Provides a minimal framework for list entities.  The view model is expected to be a <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/EntityEditor.html">EntityEditor</a> or subclass thereof.  It will bind to the lists add and remove events to automatically add or remove rows from the view when corresponding elements are added or removed from the model.  It will accept a <code>listRenderer</code> attribute, which allows you to provide a  <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/EntityListCellRenderer.html">EntityListCellRenderer</a> for rendering the list&#8217;s rows.  This makes the <code>EntityListView</code> class quite versatile, as it can be made to behave completely differently by simply providing a different row renderer.  The <code>ChatRoomView</code> class uses this class internall to render the chat bubbles.</p>
 </li>
 <li>
-<p><strong>{@link com.codename1.rad.ui.EntityEditor}</strong> - Used to render custom forms (e.g. with input fields) for editing data on an entity.  Usually this isn&#8217;t subclassed, it is used directly and customized using a UI descriptor (e.g. a View node).</p>
+<p><strong><a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/EntityEditor.html">EntityEditor</a></strong> - Used to render custom forms (e.g. with input fields) for editing data on an entity.  Usually this isn&#8217;t subclassed, it is used directly and customized using a UI descriptor (e.g. a View node).</p>
 </li>
 </ol>
 </div>
 <div class="sect3">
-<h4 id="trueno-application-or-business-logic-allowed"><a class="anchor" href="#trueno-application-or-business-logic-allowed"></a>1.9.1. NO Application or Business Logic Allowed</h4>
+<h4 id="_no_application_or_business_logic_allowed">1.9.1. NO Application or Business Logic Allowed</h4>
 <div class="paragraph">
 <p>In order to get the benefits of MVC, you shouldn&#8217;t put any program login inside the view, outside of logic required to make the view function as a view.  If you&#8217;re used to calling <code>addActionListener()</code> directly on your buttons inside your view, thing may take some getting used to.  It requires some discipline.</p>
 </div>
@@ -947,7 +943,7 @@ Creating view classes is more complex than creating models or controllers becaus
 <div class="listingblock">
 <div class="title">Action definition in the controller</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">public static final ActionNode send = action(
+<pre class="highlight"><code class="language-java" data-lang="java">public static final ActionNode send = action(
     icon(FontImage.MATERIAL_SEND),
     // ... The rest of the action definition
 );</code></pre>
@@ -956,7 +952,7 @@ Creating view classes is more complex than creating models or controllers becaus
 <div class="listingblock">
 <div class="title">Assign <code>send</code> action to the <code>SEND_ACTION</code> category and pass it to the view&#8217;s constructor in its View node.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">ViewNode viewNode = new ViewNode(
+<pre class="highlight"><code class="language-java" data-lang="java">ViewNode viewNode = new ViewNode(
     actions(ChatRoomView.SEND_ACTION, send),
     //.. rest of ViewNode definition
 );
@@ -966,7 +962,7 @@ ChatRoomView view = new ChatRoomView(createViewModel(), viewNode, theForm);</cod
 <div class="listingblock">
 <div class="title">Inside the View, when an event occurs (like user presses "send" button), it retrieves the <code>send</code> action that was passed to it by the controller.  If found, it fires the action&#8217;s event with the provided context.  This event will propagate up the view hierarchy, and the controller hierarchy so that the controller will be able to process the event.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">ActionNode send = node.getAction(SEND_ACTION);
+<pre class="highlight"><code class="language-java" data-lang="java">ActionNode send = node.getAction(SEND_ACTION);
 if (send != null) {
     send.fireEvent(entity, this);
 }</code></pre>
@@ -976,7 +972,7 @@ if (send != null) {
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
+<div class="title">Tip</div>
 </td>
 <td class="content">
 <div class="paragraph">
@@ -984,7 +980,7 @@ if (send != null) {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">if (send != null) {
+<pre class="highlight"><code class="language-java" data-lang="java">if (send != null) {
     addComponent(send.createView(getEntity());
 }</code></pre>
 </div>
@@ -999,7 +995,7 @@ if (send != null) {
 <div class="listingblock">
 <div class="title">In the controller, we add an action listener for the "send" action to process these events</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">addActionListener(send, evt-&gt;{
+<pre class="highlight"><code class="language-java" data-lang="java">addActionListener(send, evt-&gt;{
     evt.consume();
     // .. process the event
 
@@ -1009,7 +1005,7 @@ if (send != null) {
 </div>
 </div>
 <div class="sect2">
-<h3 id="truecontrollers-and-actions"><a class="anchor" href="#truecontrollers-and-actions"></a>1.10. Controllers and Actions</h3>
+<h3 id="_controllers_and_actions">1.10. Controllers and Actions</h3>
 <div class="paragraph">
 <p>We touched on controllers and actions in the previous section on views, but they merit their own section since they are core concepts in CodeRAD.  Controllers serve two functions in CodeRAD:</p>
 </div>
@@ -1024,7 +1020,7 @@ if (send != null) {
 </ol>
 </div>
 <div class="sect3">
-<h4 id="truethe-navigation-hierarchy"><a class="anchor" href="#truethe-navigation-hierarchy"></a>1.10.1. The "Navigation Hierarchy"</h4>
+<h4 id="_the_navigation_hierarchy">1.10.1. The "Navigation Hierarchy"</h4>
 <div class="paragraph">
 <p>It is useful to think of your app&#8217;s controllers through the lense of a "navigation hierarchy".  The "root" node of this navigation hierarchy is the <code>ApplicationController</code>.  To show the first form in our app, we create a <code>FormController</code>, which can be views as a "Child controller" of the application controller.  If the user clicks a button that takes them to a new form, we create a new <code>FormController</code>, which is a child of the previous form controller.</p>
 </div>
@@ -1037,15 +1033,15 @@ if (send != null) {
 <div class="listingblock">
 <div class="title">Typical code to create and show a FormController. This code is assumed to be in another FormController, so <code>this</code> refers to the current controller, passing it as the first parameter sets it as the `detailsController&#8217;s parent.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">DetailsFormController detailsController = new DetailsFormController(this, model);
+<pre class="highlight"><code class="language-java" data-lang="java">DetailsFormController detailsController = new DetailsFormController(this, model);
 detailsController.getView().show();</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="trueevent-propagation"><a class="anchor" href="#trueevent-propagation"></a>1.10.2. Event Propagation</h4>
+<h4 id="_event_propagation">1.10.2. Event Propagation</h4>
 <div class="paragraph">
-<p>The hierarchical view of controllers is also useful for understanding event dispatch.  When a <code>ControllerEvent</code> is fired on a UI component, it will propagate up the UI hierarchy (i.e. {@link com.codename1.ui.Component} &#8594; parent ..parent&#8230;&#8203;) until it finds a component with a <code>ViewController</code>.  The event will then be dispatched up the controller hierarchy until it is consumed.</p>
+<p>The hierarchical view of controllers is also useful for understanding event dispatch.  When a <code>ControllerEvent</code> is fired on a UI component, it will propagate up the UI hierarchy (i.e. <a href="https://www.codenameone.com/javadoc/com/codename1/ui/Component.html">Component</a> &#8594; parent ..parent&#8230;&#8203;) until it finds a component with a <code>ViewController</code>.  The event will then be dispatched up the controller hierarchy until it is consumed.</p>
 </div>
 <div class="paragraph">
 <p>For example, suppose, in our application, we have the following controller hierarchy:</p>
@@ -1088,7 +1084,7 @@ detailsController.getView().show();</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="truea-simple-example-controller-hierarchy"><a class="anchor" href="#truea-simple-example-controller-hierarchy"></a>1.10.3. A Simple Example Controller Hierarchy</h4>
+<h4 id="_a_simple_example_controller_hierarchy">1.10.3. A Simple Example Controller Hierarchy</h4>
 <div class="paragraph">
 <p>When I&#8217;m developing a CodeRAD application, I generally replace the contents of the main application class with a sublass of <code>ApplicationController</code>.  E.g. When you create a new CodenameOne project, it will create a main app class that has your lifecycle methods <code>init()</code>, <code>start()</code>, <code>stop()</code>, and <code>destroy()</code>.  <code>ApplicationController</code> implements these methods and converts them into events for cleaner code.</p>
 </div>
@@ -1098,7 +1094,7 @@ detailsController.getView().show();</code></pre>
 <div class="listingblock">
 <div class="title">ApplicationController for the CN1Chat app.  It overrides <code>actionPerformed()</code> to handle the <code>StartEvent</code> (which is fired when the app starts up).  It simply creates a new <code>FormController</code>, and shows its view.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.cn1chat;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.cn1chat;
 
 
 import com.codename1.rad.controllers.ApplicationController;
@@ -1122,9 +1118,9 @@ public class CN1Chat extends ApplicationController {
 <div class="listingblock">
 <div class="title">Excerpts from <code>ChatFormController</code>.  Defines a single action <code>send</code>, and adds it to the view.  Also handles the events when the <code>send</code> action is "fired".   See <a href="https://shannah.github.io/RADChatRoom/getting-started-tutorial.html">this tutorial</a> for a more comprehensive treatment of this material.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">public class ChatFormController extends FormController {
+<pre class="highlight"><code class="language-java" data-lang="java">public class ChatFormController extends FormController {
     // Define the "SEND" action for the chat room
-    public static final ActionNode send = action( <i class="conum" data-value="1"></i><b>(1)</b>
+    public static final ActionNode send = action( <b class="conum">(1)</b>
         enabledCondition(entity-&gt; {
             return !entity.isEmpty(ChatRoom.inputBuffer);
         }),
@@ -1134,23 +1130,23 @@ public class CN1Chat extends ApplicationController {
     //... More action definitions
 
     public ChatFormController(Controller parent) {
-        super(parent); <i class="conum" data-value="2"></i><b>(2)</b>
+        super(parent); <b class="conum">(2)</b>
         Form f = new Form("My First Chat Room", new BorderLayout());
 
         // Create a "view node" as a UI descriptor for the chat room.
         // This allows us to customize and extend the chat room.
         ViewNode viewNode = new ViewNode(
-            actions(ChatRoomView.SEND_ACTION, send), <i class="conum" data-value="3"></i><b>(3)</b>
+            actions(ChatRoomView.SEND_ACTION, send), <b class="conum">(3)</b>
             // ... more action definitions
         );
 
         // Add the viewNode as the 2nd parameter
-        ChatRoomView view = new ChatRoomView(createViewModel(), viewNode, f); <i class="conum" data-value="4"></i><b>(4)</b>
+        ChatRoomView view = new ChatRoomView(createViewModel(), viewNode, f); <b class="conum">(4)</b>
         f.add(CENTER, view);
         setView(f);
 
         // Handle the send action
-        addActionListener(send, evt-&gt;{ <i class="conum" data-value="5"></i><b>(5)</b>
+        addActionListener(send, evt-&gt;{ <b class="conum">(5)</b>
             evt.consume();
             //.. code to handle the send action.
 
@@ -1160,33 +1156,28 @@ public class CN1Chat extends ApplicationController {
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Define an action.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Call <code>super(parent)</code> to register the given controller as its parent controller, so that unhandled events will propagate to it.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Assign <code>send</code> action to the <code>SEND_ACTION</code> category (requirement of the <code>ChatRoomView</code> component). The <code>ChatRoomView</code> will check this category for the presense of an action.  If none is found, it simply won&#8217;t include a send button in the UI, nor will it fire "send" events.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Create a new <code>ChatRoomView</code>, passing it a dummy view model, and the <code>viewNode</code> that includes our action.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Register a handler for the "send" action.  Notice that we could have registered this handler in the parent controller instead (i.e. the ApplicationController) because unhandled events would propagate up.  In this case, it makes more sense as a part of the ChatFormController though.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>Define an action.</p>
+</li>
+<li>
+<p>Call <code>super(parent)</code> to register the given controller as its parent controller, so that unhandled events will propagate to it.</p>
+</li>
+<li>
+<p>Assign <code>send</code> action to the <code>SEND_ACTION</code> category (requirement of the <code>ChatRoomView</code> component). The <code>ChatRoomView</code> will check this category for the presense of an action.  If none is found, it simply won&#8217;t include a send button in the UI, nor will it fire "send" events.</p>
+</li>
+<li>
+<p>Create a new <code>ChatRoomView</code>, passing it a dummy view model, and the <code>viewNode</code> that includes our action.</p>
+</li>
+<li>
+<p>Register a handler for the "send" action.  Notice that we could have registered this handler in the parent controller instead (i.e. the ApplicationController) because unhandled events would propagate up.  In this case, it makes more sense as a part of the ChatFormController though.</p>
+</li>
+</ol>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueui-descriptors-nodes-and-attributes"><a class="anchor" href="#trueui-descriptors-nodes-and-attributes"></a>1.11. UI Descriptors (Nodes and Attributes)</h3>
+<h3 id="_ui_descriptors_nodes_and_attributes">1.11. UI Descriptors (Nodes and Attributes)</h3>
 <div class="paragraph">
 <p>A UI descriptor is a Tree structure consisting of Nodes and Attributes that describes a user interface in a way that is useful for building views.  The main advancement provided by UI descriptors is the ability to define user interfaces declaratively, <strong>in java</strong>.   The primary use-case for UI descriptors is for building editable forms.  The <code>EntityEditor</code> class is a View that renders complex forms for editing the properties of an entity.  It uses UI descriptors to specify which properties to include in the form, what widgets to use, how the form should be laid out, etc&#8230;&#8203;</p>
 </div>
@@ -1196,7 +1187,7 @@ public class CN1Chat extends ApplicationController {
 <div class="listingblock">
 <div class="title">A UI descriptor for a form to edit a "Person" entity</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.demos.ddddemo;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.demos.ddddemo;
 
 import com.codename1.rad.ui.UI;
 import com.codename1.rad.nodes.ActionNode;
@@ -1233,9 +1224,9 @@ public class PersonEditor extends UI {
 
         // Define the root form.
         form(
-            actions(OVERFLOW_MENU, deleteAction, printAction),  <i class="conum" data-value="1"></i><b>(1)</b>
-            actions(TOP_LEFT_MENU, deleteAction, printAction, showContactsAction), <i class="conum" data-value="2"></i><b>(2)</b>
-            actions(BOTTOM_RIGHT_MENU, deleteAction, printAction), <i class="conum" data-value="3"></i><b>(3)</b>
+            actions(OVERFLOW_MENU, deleteAction, printAction),  <b class="conum">(1)</b>
+            actions(TOP_LEFT_MENU, deleteAction, printAction, showContactsAction), <b class="conum">(2)</b>
+            actions(BOTTOM_RIGHT_MENU, deleteAction, printAction), <b class="conum">(3)</b>
             editable(true),
             description("Please edit the person's information in the fields below"),
             label("Person Details"),
@@ -1274,27 +1265,24 @@ public class PersonEditor extends UI {
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We add an overflow menu to the form.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>Add some actions to the top-left menu.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Add some actions to the bottom-right menu.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We add an overflow menu to the form.</p>
+</li>
+<li>
+<p>Add some actions to the top-left menu.</p>
+</li>
+<li>
+<p>Add some actions to the bottom-right menu.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>Notice how succinct, yet readable this code is.  We can convert this into an actual view with the following:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">new EntityEditor(entity, new PersonEditor());</code></pre>
+<pre class="highlight"><code class="language-java" data-lang="java">new EntityEditor(entity, new PersonEditor());</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1310,7 +1298,7 @@ public class PersonEditor extends UI {
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
+<div class="title">Warning</div>
 </td>
 <td class="content">
 <div class="paragraph">
@@ -1324,13 +1312,13 @@ public class PersonEditor extends UI {
 </div>
 </div>
 <div class="sect1">
-<h2 id="trueinstallation"><a class="anchor" href="#trueinstallation"></a>2. Installation</h2>
+<h2 id="_installation">2. Installation</h2>
 <div class="sectionbody">
 <div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<div class="title">Note</div>
 </td>
 <td class="content">
 As a prerequisite for everything in this manual, you&#8217;ll need to have one the major 3 Java IDEs (IntelliJ IDEA, NetBeans, or Eclipse) with the Codename One plugin installed.  For instructions on installing Codename One, see <a href="https://www.codenameone.com/download.html" class="bare">https://www.codenameone.com/download.html</a>
@@ -1348,7 +1336,7 @@ As a prerequisite for everything in this manual, you&#8217;ll need to have one t
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<div class="title">Note</div>
 </td>
 <td class="content">
 <div class="paragraph">
@@ -1372,13 +1360,13 @@ As a prerequisite for everything in this manual, you&#8217;ll need to have one t
 </table>
 </div>
 <div class="sect2">
-<h3 id="trueactivating-css"><a class="anchor" href="#trueactivating-css"></a>2.1. Activating CSS</h3>
+<h3 id="_activating_css">2.1. Activating CSS</h3>
 <div class="paragraph">
 <p>CodeRAD uses CSS to provide styling for its components.  If you haven&#8217;t already activated CSS in your project, you&#8217;ll need to do that before installing the CodeRAD cn1lib.  See <a href="https://www.codenameone.com/blog/live-css-update.html">this tutorial</a> for instructions on activating CSS.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueinstalling-the-coderad-cn1lib"><a class="anchor" href="#trueinstalling-the-coderad-cn1lib"></a>2.2. Installing the CodeRAD cn1lib</h3>
+<h3 id="_installing_the_coderad_cn1lib">2.2. Installing the CodeRAD cn1lib</h3>
 <div class="paragraph">
 <p>For instructions on installing cn1libs, see <a href="https://www.codenameone.com/blog/automatically-install-update-distribute-cn1libs-extensions.html">this tutorial</a>.</p>
 </div>
@@ -1386,13 +1374,13 @@ As a prerequisite for everything in this manual, you&#8217;ll need to have one t
 </div>
 </div>
 <div class="sect1">
-<h2 id="truegetting-started"><a class="anchor" href="#truegetting-started"></a>3. Getting Started</h2>
+<h2 id="_getting_started">3. Getting Started</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The time has come to start writing some <strong>actual</strong> code - the "hello world" application.  We could just use the "Hello world bare-bones" project template for our project and be done with it (and we will use that template), be we want to do it the "CodeRAD" way, using MVC.</p>
 </div>
 <div class="sect2">
-<h3 id="truestep-1-create-a-new-project"><a class="anchor" href="#truestep-1-create-a-new-project"></a>3.1. Step 1: Create a New Project</h3>
+<h3 id="_step_1_create_a_new_project">3.1. Step 1: Create a New Project</h3>
 <div class="paragraph">
 <p>To begin, let&#8217;s create a new project, named "Hello World", using the "Hello world bare-bones" project template, activate CSS, and install the CodeRAD cn1lib.  See <a href="#installation">Installation</a> for instructions on these housekeeping tasks.</p>
 </div>
@@ -1400,7 +1388,7 @@ As a prerequisite for everything in this manual, you&#8217;ll need to have one t
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<div class="title">Note</div>
 </td>
 <td class="content">
 I&#8217;m going to use the project name "HelloCodeRAD", project package "com.codename1.rad.hello", and "HelloCodeRAD" for my main class name in this tutorial.
@@ -1410,13 +1398,13 @@ I&#8217;m going to use the project name "HelloCodeRAD", project package "com.cod
 </div>
 </div>
 <div class="sect2">
-<h3 id="truestep-2-create-an-application-controller"><a class="anchor" href="#truestep-2-create-an-application-controller"></a>3.2. Step 2: Create an Application Controller</h3>
+<h3 id="_step_2_create_an_application_controller">3.2. Step 2: Create an Application Controller</h3>
 <div class="paragraph">
 <p>After you&#8217;ve created a new project, open up the main class, and replace the enter class contents with the following:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.ApplicationController;
 import com.codename1.ui.Form;
@@ -1444,7 +1432,7 @@ public class HelloCodeRAD extends ApplicationController {
 </div>
 </div>
 <div class="sect2">
-<h3 id="truestep-3-create-a-formcontroller"><a class="anchor" href="#truestep-3-create-a-formcontroller"></a>3.3. Step 3: Create a FormController</h3>
+<h3 id="_step_3_create_a_formcontroller">3.3. Step 3: Create a FormController</h3>
 <div class="paragraph">
 <p>Currently our app just contains a single ApplicationController that shows a form directly.  It is good practice, however, to create a FormController for each form.  The promotes more modularity, and will be easier to manage in the long run.  So let&#8217;s create a form controller for our form.</p>
 </div>
@@ -1453,7 +1441,7 @@ public class HelloCodeRAD extends ApplicationController {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.Controller;
 import com.codename1.rad.controllers.FormController;
@@ -1464,33 +1452,31 @@ import com.codename1.ui.layouts.BoxLayout;
 public class HelloFormController extends FormController {
 
     public HelloFormController(Controller parent) {
-        super(parent); <i class="conum" data-value="1"></i><b>(1)</b>
+        super(parent); <b class="conum">(1)</b>
         Form f = new Form("Hello", BoxLayout.y());
         f.add(new Label("Hello World"));
-        setView(f); <i class="conum" data-value="2"></i><b>(2)</b>
+        setView(f); <b class="conum">(2)</b>
     }
 
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Controllers always take a "parent" controller as a parameter.  This assists in event propagation (unhandled controller events are automatically propagated up to the parent for handling), and navigation (Form "back" functionality is handled automatically, with the "back" command always navigating back to the parent form controller.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>A <code>FormController</code> constructor should always call <code>setView(Form)</code> or <code>setView(Component)</code> with its view.  This registers the controller with the view so that events are properly propagated from the view to the controller, and it makes the Form available via <code>getView()</code> to be shown.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>Controllers always take a "parent" controller as a parameter.  This assists in event propagation (unhandled controller events are automatically propagated up to the parent for handling), and navigation (Form "back" functionality is handled automatically, with the "back" command always navigating back to the parent form controller.</p>
+</li>
+<li>
+<p>A <code>FormController</code> constructor should always call <code>setView(Form)</code> or <code>setView(Component)</code> with its view.  This registers the controller with the view so that events are properly propagated from the view to the controller, and it makes the Form available via <code>getView()</code> to be shown.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>And change the code in our application controller to use our <code>HelloFormController</code> instead of creating a Form directly:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.ApplicationController;
 
@@ -1498,31 +1484,30 @@ public class HelloCodeRAD extends ApplicationController {
     @Override
     public void start() {
         super.start();
-        new HelloFormController(this).getView().show(); <i class="conum" data-value="1"></i><b>(1)</b>
+        new HelloFormController(this).getView().show(); <b class="conum">(1)</b>
     }
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We removed our previous code the created and showed a form directly, and instead, we instantiate a form controller, and show its view.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We removed our previous code the created and showed a form directly, and instead, we instantiate a form controller, and show its view.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>Now, if we run our project in the simulator, it should be unchanged from the first run, since all we&#8217;ve done is refactored our code to use controllers.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueadding-another-form"><a class="anchor" href="#trueadding-another-form"></a>3.4. Adding another Form</h3>
+<h3 id="_adding_another_form">3.4. Adding another Form</h3>
 <div class="paragraph">
 <p>In order to demonstrate some of the advantages of using controllers, let&#8217;s go ahead and add another form to our project.  Create a new class in the same page named "MoreInfoFormController", with the following contents:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.Controller;
 import com.codename1.rad.controllers.FormController;
@@ -1531,39 +1516,37 @@ import com.codename1.ui.Label;
 public class MoreInfoFormController extends FormController {
     public MoreInfoFormController(Controller parent) {
         super(parent);
-        setTitle("More Info"); <i class="conum" data-value="1"></i><b>(1)</b>
+        setTitle("More Info"); <b class="conum">(1)</b>
         setView(new Label("Hello Again!"));
     }
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We call <code>setTitle()</code> in the controller because we aren&#8217;t creating the form manually here.  We&#8217;re passing a <code>Label</code> to <code>setView()</code>, so it will be wrapped in <code>Form</code> automatically.  By calling <code>setTitle()</code> we&#8217;re providing a title for the form when created.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We call <code>setTitle()</code> in the controller because we aren&#8217;t creating the form manually here.  We&#8217;re passing a <code>Label</code> to <code>setView()</code>, so it will be wrapped in <code>Form</code> automatically.  By calling <code>setTitle()</code> we&#8217;re providing a title for the form when created.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>And add a button to our first form to navigate to this new form.  E.g, in the <code>HelloFormController</code>, add the following inside the constructor when building the form:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">Button moreInfo = new Button("More Info...");
+<pre class="highlight"><code class="language-java" data-lang="java">Button moreInfo = new Button("More Info...");
 moreInfo.addActionListener(evt-&gt;{
-    new MoreInfoFormController(this).getView().show(); <i class="conum" data-value="1"></i><b>(1)</b>
+    new MoreInfoFormController(this).getView().show(); <b class="conum">(1)</b>
 });
 f.add(moreInfo);</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We pass the <code>HelloFormController</code> instance as the parent controller of <code>MoreInfoFormController</code> so that the "back" button will return the user to this form.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We pass the <code>HelloFormController</code> instance as the parent controller of <code>MoreInfoFormController</code> so that the "back" button will return the user to this form.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>Running the app inside the simulator now shows a "More Info&#8230;&#8203;" button on the first form:</p>
@@ -1586,7 +1569,7 @@ f.add(moreInfo);</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueadding-a-view-model-asking-the-users-name"><a class="anchor" href="#trueadding-a-view-model-asking-the-users-name"></a>3.5. Adding a View Model: Asking the User&#8217;s Name</h3>
+<h3 id="_adding_a_view_model_asking_the_users_name">3.5. Adding a View Model: Asking the User&#8217;s Name</h3>
 <div class="paragraph">
 <p>We&#8217;ve successfully jumped the first hurdle.  We have a working hello world.  Let&#8217;s make the app a little bit more personalized now, by prompting the user to enter their name, and then saying "Hello &lt;Name&gt;" instead of "Hello World".  To do this we&#8217;re going to create a view model for our application, called "UserProfile".</p>
 </div>
@@ -1596,50 +1579,46 @@ f.add(moreInfo);</code></pre>
 <div class="listingblock">
 <div class="title">Boilerplate for a model class with a single property.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello.models;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello.models;
 
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityType;
 import com.codename1.rad.schemas.Person;
 
-public class UserProfile extends Entity { <i class="conum" data-value="1"></i><b>(1)</b>
-    public static final EntityType TYPE = new EntityType() {{ <i class="conum" data-value="2"></i><b>(2)</b>
-        string(Person.name); <i class="conum" data-value="3"></i><b>(3)</b>
+public class UserProfile extends Entity { <b class="conum">(1)</b>
+    public static final EntityType TYPE = new EntityType() {{ <b class="conum">(2)</b>
+        string(Person.name); <b class="conum">(3)</b>
     }};
     {
-        setEntityType(TYPE); <i class="conum" data-value="4"></i><b>(4)</b>
+        setEntityType(TYPE); <b class="conum">(4)</b>
     }
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Model classes always extends <code>Entity</code>.  This provides all of the functionality required for binding, reflection, change events, and loose-coupling.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>We define an <code>EntityType</code> for this class, as a <code>static final</code> which defines the properties that are included in this entity.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>We define the properties of the EntityType inside its initializer. (The double braces <code>{{</code> and <code>}}</code> is not a typo.). In this case we are defining a string field, and we are tagging it with the <code>Person.name</code> tag.  This allows for loose-coupling as any view can bind to this property without explicit knowledge that this field exists.  The View simply specifies that it binds to the <code>Person.name</code> tag, and it the <code>UserProfile</code> entity will know what to do to bind it.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>In the initializer for <code>UserProfile</code> we set the entity type.  <strong>This is very important</strong>, otherwise instances of the <code>UserProfile</code> class won&#8217;t know what entity type they are.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>Model classes always extends <code>Entity</code>.  This provides all of the functionality required for binding, reflection, change events, and loose-coupling.</p>
+</li>
+<li>
+<p>We define an <code>EntityType</code> for this class, as a <code>static final</code> which defines the properties that are included in this entity.</p>
+</li>
+<li>
+<p>We define the properties of the EntityType inside its initializer. (The double braces <code>{{</code> and <code>}}</code> is not a typo.). In this case we are defining a string field, and we are tagging it with the <code>Person.name</code> tag.  This allows for loose-coupling as any view can bind to this property without explicit knowledge that this field exists.  The View simply specifies that it binds to the <code>Person.name</code> tag, and it the <code>UserProfile</code> entity will know what to do to bind it.</p>
+</li>
+<li>
+<p>In the initializer for <code>UserProfile</code> we set the entity type.  <strong>This is very important</strong>, otherwise instances of the <code>UserProfile</code> class won&#8217;t know what entity type they are.</p>
+</li>
+</ol>
 </div>
 <div class="sect3">
-<h4 id="truepersonalizing-helloformcontroller"><a class="anchor" href="#truepersonalizing-helloformcontroller"></a>3.5.1. Personalizing HelloFormController</h4>
+<h4 id="_personalizing_helloformcontroller">3.5.1. Personalizing HelloFormController</h4>
 <div class="paragraph">
 <p>Let&#8217;s modify our HelloFormController to take a UserProfile as an argument, and display the user&#8217;s name instead.  Let&#8217;s modify it as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.Controller;
 import com.codename1.rad.controllers.FormController;
@@ -1651,10 +1630,10 @@ import com.codename1.ui.layouts.BoxLayout;
 
 public class HelloFormController extends FormController {
 
-    public HelloFormController(Controller parent, UserProfile user) { <i class="conum" data-value="1"></i><b>(1)</b>
+    public HelloFormController(Controller parent, UserProfile user) { <b class="conum">(1)</b>
         super(parent);
         Form f = new Form("Hello", BoxLayout.y());
-        f.add(new Label("Hello " + user.getText(Person.name))); <i class="conum" data-value="2"></i><b>(2)</b>
+        f.add(new Label("Hello " + user.getText(Person.name))); <b class="conum">(2)</b>
         setView(f);
     }
 
@@ -1662,22 +1641,20 @@ public class HelloFormController extends FormController {
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We added the <code>user</code> parameter to set the user to say "hello" to.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>We used the <code>user.getText(Person.name)</code> to get the value of the <code>Person.name</code> property as text.  This is loosely coupled as there are no specific references to the the "name" field in UserProfile.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We added the <code>user</code> parameter to set the user to say "hello" to.</p>
+</li>
+<li>
+<p>We used the <code>user.getText(Person.name)</code> to get the value of the <code>Person.name</code> property as text.  This is loosely coupled as there are no specific references to the the "name" field in UserProfile.</p>
+</li>
+</ol>
 </div>
 <div class="admonitionblock tip">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
+<div class="title">Tip</div>
 </td>
 <td class="content">
 We declared the argument type as <code>UserProfile</code>, but we could have simply left it generic as <code>Entity</code> and it would work fine since we aren&#8217;t dependent on any thing specific about our UserProfile.  Declaring it a <code>UserProfile</code> might just be helpful for development since it allows you to more easily see which properties you expect to find on this entity.
@@ -1690,13 +1667,13 @@ We declared the argument type as <code>UserProfile</code>, but we could have sim
 </div>
 </div>
 <div class="sect3">
-<h4 id="truecreating-the-askusernameformcontroller"><a class="anchor" href="#truecreating-the-askusernameformcontroller"></a>3.5.2. Creating the AskUserNameFormController</h4>
+<h4 id="_creating_the_askusernameformcontroller">3.5.2. Creating the AskUserNameFormController</h4>
 <div class="paragraph">
 <p>Create a new class in the main project package (the same package as our other controllers) named "AskUserNameFormController", with the following contents:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.Controller;
 import com.codename1.rad.controllers.FormController;
@@ -1712,50 +1689,46 @@ import com.codename1.ui.layouts.BoxLayout;
 public class AskUserNameFormController extends FormController {
     public AskUserNameFormController(Controller parent) {
         super(parent);
-        UserProfile user = new UserProfile(); <i class="conum" data-value="1"></i><b>(1)</b>
+        UserProfile user = new UserProfile(); <b class="conum">(1)</b>
         Form f = new Form("Enter Name", BoxLayout.y());
         TextField nameField = new TextField();
         Button submit = new Button("Submit");
         submit.addActionListener(evt-&gt;{
-            user.setText(Person.name, nameField.getText()); <i class="conum" data-value="2"></i><b>(2)</b>
-            new HelloFormController(this, user).getView().show(); <i class="conum" data-value="3"></i><b>(3)</b>
+            user.setText(Person.name, nameField.getText()); <b class="conum">(2)</b>
+            new HelloFormController(this, user).getView().show(); <b class="conum">(3)</b>
         });
         f.addAll(new Label("Please enter your name:"), nameField, submit);
-        setView(f); <i class="conum" data-value="4"></i><b>(4)</b>
+        setView(f); <b class="conum">(4)</b>
 
     }
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We create a new "model" object to store the user&#8217;s information.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>When the user presses the "Submit" button, it sets the user name in the model.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>After setting the user name in the model, it will display the HelloWorldFormController, and pass the user model to it.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td><strong>Don&#8217;t forget to call <code>setView()</code> with our form.</strong></td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We create a new "model" object to store the user&#8217;s information.</p>
+</li>
+<li>
+<p>When the user presses the "Submit" button, it sets the user name in the model.</p>
+</li>
+<li>
+<p>After setting the user name in the model, it will display the HelloWorldFormController, and pass the user model to it.</p>
+</li>
+<li>
+<p><strong>Don&#8217;t forget to call <code>setView()</code> with our form.</strong></p>
+</li>
+</ol>
 </div>
 </div>
 <div class="sect3">
-<h4 id="truechanging-start-form"><a class="anchor" href="#truechanging-start-form"></a>3.5.3. Changing Start Form</h4>
+<h4 id="_changing_start_form">3.5.3. Changing Start Form</h4>
 <div class="paragraph">
 <p>Finally, we need to modify our application controller to show the <code>AskUserNameForm</code> on start rather than the <code>HelloForm</code> directly:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.ApplicationController;
 
@@ -1787,7 +1760,7 @@ public class HelloCodeRAD extends ApplicationController {
 </div>
 </div>
 <div class="sect2">
-<h3 id="truerefactoring-creating-views"><a class="anchor" href="#truerefactoring-creating-views"></a>3.6. Refactoring: Creating Views</h3>
+<h3 id="_refactoring_creating_views">3.6. Refactoring: Creating Views</h3>
 <div class="paragraph">
 <p>Up until now, we&#8217;ve been building our views directly inside the controller because they have been trivial.  This strategy won&#8217;t scale well, however.  For best results in real-world apps  we should adopt MVC in its entirety, and not just "MC" as we&#8217;ve done to this point.</p>
 </div>
@@ -1797,7 +1770,7 @@ public class HelloCodeRAD extends ApplicationController {
 <div class="listingblock java">
 <div class="title">HelloView.java - Component extends a plain <code>Container</code> because it doesn&#8217;t require two-way binding.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">package com.codename1.rad.hello.views;
+<pre class="highlight"><code>package com.codename1.rad.hello.views;
 
 import com.codename1.rad.hello.models.UserProfile;
 import com.codename1.rad.schemas.Person;
@@ -1817,7 +1790,7 @@ public class HelloView extends Container {
 <div class="listingblock">
 <div class="title">AskUserNameView.java - Component extends <code>AbstractEntityView</code> because it needs to be able to fire events which can be caught by ViewController</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello.views;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello.views;
 
 import com.codename1.rad.hello.models.UserProfile;
 import com.codename1.rad.nodes.ActionNode;
@@ -1831,19 +1804,19 @@ import com.codename1.ui.Label;
 import com.codename1.ui.TextField;
 
 
-public class AskUserNameView extends AbstractEntityView { <i class="conum" data-value="1"></i><b>(1)</b>
-    public static final Category SUBMIT_FORM = new Category(); <i class="conum" data-value="2"></i><b>(2)</b>
+public class AskUserNameView extends AbstractEntityView { <b class="conum">(1)</b>
+    public static final Category SUBMIT_FORM = new Category(); <b class="conum">(2)</b>
     private ViewNode node;
-    public AskUserNameView(UserProfile user, ViewNode node) { <i class="conum" data-value="3"></i><b>(3)</b>
+    public AskUserNameView(UserProfile user, ViewNode node) { <b class="conum">(3)</b>
         super(user);
         this.node = node;
         TextField nameField = new TextField();
         Button submit = new Button("Submit");
         submit.addActionListener(evt-&gt;{
             user.setText(Person.name, nameField.getText());
-            ActionNode submitAction = node.getInheritedAction(SUBMIT_FORM); <i class="conum" data-value="4"></i><b>(4)</b>
+            ActionNode submitAction = node.getInheritedAction(SUBMIT_FORM); <b class="conum">(4)</b>
             if (submitAction != null) {
-                submitAction.fireEvent(user, this); <i class="conum" data-value="5"></i><b>(5)</b>
+                submitAction.fireEvent(user, this); <b class="conum">(5)</b>
             }
         });
         addAll(new Label("Please enter your name:"), nameField, submit);
@@ -1851,55 +1824,48 @@ public class AskUserNameView extends AbstractEntityView { <i class="conum" data-
 
     @Override
     public void update() {
-        <i class="conum" data-value="6"></i><b>(6)</b>
+        <b class="conum">(6)</b>
     }
 
     @Override
     public void commit() {
-        <i class="conum" data-value="7"></i><b>(7)</b>
+        <b class="conum">(7)</b>
     }
 
     @Override
     public Node getViewNode() {
-        return node; <i class="conum" data-value="8"></i><b>(8)</b>
+        return node; <b class="conum">(8)</b>
     }
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Since the <code>AskUserNameView</code> is more complex than the <code>HelloView</code> we will derive from <code>AbstractEntityView</code> instead of <code>Container</code> because it includes some handy features for property binding and event dispatching.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>We define a <code>Category</code> so that controllers that instantiate this view can register actions in this category to receive events when the user presses "Submit".  We&#8217;ll refer to this later from our controller.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>The constructor takes a model (<code>Entity</code>) and a <code>ViewNode</code> as a parameter.  We&#8217;ll learn more about <code>ViewNode</code> in a moment. A view node is kind of like a "schema" for the view.  It allows you to pass attributes to the view that will affect how the view behaves.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>We check to see if the controller has registered an action to be notified when the user presses "Submit".  You&#8217;ll see later how this action is registered from the controller.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>We fire an event to the registered action.  We pass the current model, <code>user</code>, and the originating component of the event <code>this</code>.  This event will be dispatched to the controller, and will propagate up the controller hierarchy until it is consumed, or until it reaches the top of the hierarchy.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
-<td>The <code>update()</code> method will be run any time any of the properties in the model (i.e. <code>user</code>) are changed.  This can be used to help keep the view in sync with its model.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="7"></i><b>7</b></td>
-<td>The <code>commit()</code> method is a placeholder that is meant to be called when the view makes changes that should update the model.  In this case it doesn&#8217;t do anything because our view hasn&#8217;t bound any listeners to the view.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>Since the <code>AskUserNameView</code> is more complex than the <code>HelloView</code> we will derive from <code>AbstractEntityView</code> instead of <code>Container</code> because it includes some handy features for property binding and event dispatching.</p>
+</li>
+<li>
+<p>We define a <code>Category</code> so that controllers that instantiate this view can register actions in this category to receive events when the user presses "Submit".  We&#8217;ll refer to this later from our controller.</p>
+</li>
+<li>
+<p>The constructor takes a model (<code>Entity</code>) and a <code>ViewNode</code> as a parameter.  We&#8217;ll learn more about <code>ViewNode</code> in a moment. A view node is kind of like a "schema" for the view.  It allows you to pass attributes to the view that will affect how the view behaves.</p>
+</li>
+<li>
+<p>We check to see if the controller has registered an action to be notified when the user presses "Submit".  You&#8217;ll see later how this action is registered from the controller.</p>
+</li>
+<li>
+<p>We fire an event to the registered action.  We pass the current model, <code>user</code>, and the originating component of the event <code>this</code>.  This event will be dispatched to the controller, and will propagate up the controller hierarchy until it is consumed, or until it reaches the top of the hierarchy.</p>
+</li>
+<li>
+<p>The <code>update()</code> method will be run any time any of the properties in the model (i.e. <code>user</code>) are changed.  This can be used to help keep the view in sync with its model.</p>
+</li>
+<li>
+<p>The <code>commit()</code> method is a placeholder that is meant to be called when the view makes changes that should update the model.  In this case it doesn&#8217;t do anything because our view hasn&#8217;t bound any listeners to the view.</p>
+</li>
+</ol>
 </div>
 <div class="sect3">
-<h4 id="truechanging-controllers-to-use-views"><a class="anchor" href="#truechanging-controllers-to-use-views"></a>3.6.1. Changing Controllers to use Views</h4>
+<h4 id="_changing_controllers_to_use_views">3.6.1. Changing Controllers to use Views</h4>
 <div class="paragraph">
 <p>Now that we have our views, let&#8217;s modify our two form controllers to use these views instead of building the UI directly in the controller.</p>
 </div>
@@ -1909,7 +1875,7 @@ public class AskUserNameView extends AbstractEntityView { <i class="conum" data-
 <div class="listingblock">
 <div class="title">HelloFormController.java</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.Controller;
 import com.codename1.rad.controllers.FormController;
@@ -1921,19 +1887,18 @@ public class HelloFormController extends FormController {
     public HelloFormController(Controller parent, UserProfile user) {
         super(parent);
         setTitle("Hello");
-        setView(new HelloView(user)); <i class="conum" data-value="1"></i><b>(1)</b>
+        setView(new HelloView(user)); <b class="conum">(1)</b>
     }
 
 }</code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>In this example we set the view using the <code>HelloView</code> directly because it will be wrapped in a Form automatically.  We could have still created a form manually, and added the <code>HelloView</code> instance to it.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>In this example we set the view using the <code>HelloView</code> directly because it will be wrapped in a Form automatically.  We could have still created a form manually, and added the <code>HelloView</code> instance to it.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>The <code>AskUserNameFormController</code> requires a few more changes since we need to register an action to be notified when the user presses "Submit".</p>
@@ -1941,7 +1906,7 @@ public class HelloFormController extends FormController {
 <div class="listingblock">
 <div class="title">AskUserNameFormController.java</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello;
 
 import com.codename1.rad.controllers.Controller;
 import com.codename1.rad.controllers.FormController;
@@ -1955,18 +1920,18 @@ import com.codename1.ui.layouts.BorderLayout;
 
 
 public class AskUserNameFormController extends FormController {
-    public static final ActionNode submit = new ActionNode(); <i class="conum" data-value="1"></i><b>(1)</b>
+    public static final ActionNode submit = new ActionNode(); <b class="conum">(1)</b>
 
     public AskUserNameFormController(Controller parent) {
         super(parent);
         UserProfile user = new UserProfile();
         Form f = new Form("Enter Name", new BorderLayout());
         f.add(BorderLayout.CENTER, new AskUserNameView(user, new ViewNode(
-                actions(AskUserNameView.SUBMIT_FORM, submit) <i class="conum" data-value="2"></i><b>(2)</b>
+                actions(AskUserNameView.SUBMIT_FORM, submit) <b class="conum">(2)</b>
         )));
         setView(f);
 
-        addActionListener(submit, evt-&gt; { <i class="conum" data-value="3"></i><b>(3)</b>
+        addActionListener(submit, evt-&gt; { <b class="conum">(3)</b>
             evt.consume();
             new HelloFormController(this, user).getView().show();
         });
@@ -1977,20 +1942,17 @@ public class AskUserNameFormController extends FormController {
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We define a <code>submit</code> action that we will pass to the <code>AskUserNameView</code> in order to be notified when the user presses the <code>submit</code> button.  This is a bare minimal action that solely designed to register to receive events, but you&#8217;ll find out later that Actions are incredibly powerful as a tool for customizing Views to suit your application&#8217;s needs.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>We pass the <code>submit</code> action to the view here, registering it with the <code>SUBMIT_FORM</code> category, so that the view knows to notify us when the user presses submit.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>We add an action listener for the <code>submit</code> action to actually handle the event that the view dispatches to us.  Notice that we consume the event as this signals to the view that the action was processed, lest it try to perform some fall-back behaviour.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We define a <code>submit</code> action that we will pass to the <code>AskUserNameView</code> in order to be notified when the user presses the <code>submit</code> button.  This is a bare minimal action that solely designed to register to receive events, but you&#8217;ll find out later that Actions are incredibly powerful as a tool for customizing Views to suit your application&#8217;s needs.</p>
+</li>
+<li>
+<p>We pass the <code>submit</code> action to the view here, registering it with the <code>SUBMIT_FORM</code> category, so that the view knows to notify us when the user presses submit.</p>
+</li>
+<li>
+<p>We add an action listener for the <code>submit</code> action to actually handle the event that the view dispatches to us.  Notice that we consume the event as this signals to the view that the action was processed, lest it try to perform some fall-back behaviour.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>At first, this refactoring may make the application appear more complicated.  It is more lines of code, and we&#8217;ve had to introduce some new concepts - <strong>Categories</strong>, <strong>Actions</strong>, <strong>ViewNodes</strong>.  What have we gained here to justify the added complexity?  Quite a lot, actually.</p>
@@ -2001,13 +1963,13 @@ public class AskUserNameFormController extends FormController {
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueproperty-view-binding"><a class="anchor" href="#trueproperty-view-binding"></a>3.7. Property View Binding</h3>
+<h3 id="_property_view_binding">3.7. Property View Binding</h3>
 <div class="paragraph">
 <p>Our current <code>AskUserNameView</code> doesn&#8217;t yet exploit CodeRAD&#8217;s property binding features. We are manually setting the "name" property on the model when the user presses "Submit".  Instead of this, let&#8217;s use a <code>PropertyView</code> to use a view that automatically binds to the "name" property so that the text field is always kept in sync with the property value.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello.views;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello.views;
 
 import com.codename1.rad.hello.models.UserProfile;
 import static com.codename1.rad.ui.UI.*;
@@ -2029,11 +1991,11 @@ public class AskUserNameView extends AbstractEntityView {
     public AskUserNameView(UserProfile user, ViewNode node) {
         super(user);
         this.node = node;
-        TextFieldPropertyView nameField = new TextFieldPropertyView( <i class="conum" data-value="1"></i><b>(1)</b>
-                new TextField(), <i class="conum" data-value="2"></i><b>(2)</b>
-                user, <i class="conum" data-value="3"></i><b>(3)</b>
-                textField( <i class="conum" data-value="4"></i><b>(4)</b>
-                        tags(Thing.name) <i class="conum" data-value="5"></i><b>(5)</b>
+        TextFieldPropertyView nameField = new TextFieldPropertyView( <b class="conum">(1)</b>
+                new TextField(), <b class="conum">(2)</b>
+                user, <b class="conum">(3)</b>
+                textField( <b class="conum">(4)</b>
+                        tags(Thing.name) <b class="conum">(5)</b>
                 )
         );
         Button submit = new Button("Submit");
@@ -2064,28 +2026,23 @@ public class AskUserNameView extends AbstractEntityView {
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>Rather than create a <code>TextField</code> for the user to enter their name, we create a <code>TextFieldPropertyView</code>.  The difference is that the <code>TextFieldPropertyView</code> has 2-way binding with the "name" property so that it is always up to date.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>We create the actual text field that will be used in this view, and pass it as the first parameter.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>2nd parameter is the entity to which the view is bound.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>3rd parameter is a <code>FieldNode</code> with with settings for the view, including which property is bound. <code>textField()</code> is a static method of the <code>UI</code> class that creates a <code>FieldNode</code> with widget type TEXT.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Binds to the <code>Thing.name</code> property.  Note that this is loose-binding, since it doesn&#8217;t depend directly on the properties of <code>UserProfile</code>.</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>Rather than create a <code>TextField</code> for the user to enter their name, we create a <code>TextFieldPropertyView</code>.  The difference is that the <code>TextFieldPropertyView</code> has 2-way binding with the "name" property so that it is always up to date.</p>
+</li>
+<li>
+<p>We create the actual text field that will be used in this view, and pass it as the first parameter.</p>
+</li>
+<li>
+<p>2nd parameter is the entity to which the view is bound.</p>
+</li>
+<li>
+<p>3rd parameter is a <code>FieldNode</code> with with settings for the view, including which property is bound. <code>textField()</code> is a static method of the <code>UI</code> class that creates a <code>FieldNode</code> with widget type TEXT.</p>
+</li>
+<li>
+<p>Binds to the <code>Thing.name</code> property.  Note that this is loose-binding, since it doesn&#8217;t depend directly on the properties of <code>UserProfile</code>.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>Once again, this may look like we&#8217;ve added complexity, since there are more lines of code. However, we have made the solution more elegant.  Notice that we removed the line in the action listener that sets the "name" property.  This is no longer necessary because the text field is bound to the "name" property, so it is always in sync.</p>
@@ -2094,7 +2051,7 @@ public class AskUserNameView extends AbstractEntityView {
 <p>If you run the project in the simulator, it should be exactly the same as before the refactor.</p>
 </div>
 <div class="sect3">
-<h4 id="trueusing-entityeditor-for-the-input-form"><a class="anchor" href="#trueusing-entityeditor-for-the-input-form"></a>3.7.1. Using <code>EntityEditor</code> for the Input Form</h4>
+<h4 id="_using_entityeditor_for_the_input_form">3.7.1. Using <code>EntityEditor</code> for the Input Form</h4>
 <div class="paragraph">
 <p>The last couple of refactors actually increased the amount of code.  I did them to incrementally demonstrate some core features of CodeRAD.  In the next step, I&#8217;d like to demonstrate the <code>EntityEditor</code> class to show you, perhaps, an easier way to add input forms to your apps.  The EntityEditor takes an entity and a UI description to render an input form.</p>
 </div>
@@ -2104,54 +2061,48 @@ public class AskUserNameView extends AbstractEntityView {
 <div class="listingblock">
 <div class="title">Creating an EntityEditor to edit a single property.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">import static com.codename1.rad.ui.UI.*;
+<pre class="highlight"><code class="language-java" data-lang="java">import static com.codename1.rad.ui.UI.*;
 
 ...
 
-FormNode formNode = new FormNode( <i class="conum" data-value="1"></i><b>(1)</b>
-    editable(true), <i class="conum" data-value="2"></i><b>(2)</b>
-    textField( <i class="conum" data-value="3"></i><b>(3)</b>
-        label("Please enter your name:"), <i class="conum" data-value="4"></i><b>(4)</b>
-        tags(Thing.name) <i class="conum" data-value="5"></i><b>(5)</b>
+FormNode formNode = new FormNode( <b class="conum">(1)</b>
+    editable(true), <b class="conum">(2)</b>
+    textField( <b class="conum">(3)</b>
+        label("Please enter your name:"), <b class="conum">(4)</b>
+        tags(Thing.name) <b class="conum">(5)</b>
     )
 );
-EntityEditor ee = new EntityEditor(user, formNode); <i class="conum" data-value="6"></i><b>(6)</b></code></pre>
+EntityEditor ee = new EntityEditor(user, formNode); <b class="conum">(6)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
-<table>
-<tr>
-<td><i class="conum" data-value="1"></i><b>1</b></td>
-<td>We create a <code>FormNode</code> as a UI descriptor for our input form.  This allows us to describe the UI declaratively.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="2"></i><b>2</b></td>
-<td>The <code>editable(true)</code> call makes the form editable.  If we don&#8217;t include this, then the form would be read-only.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>The <code>textField()</code> method is a static method defined in the <code>UI</code> class, which returns a <code>FieldNode</code> with the <code>TEXT</code> widget type.  This is like a command that tells the EntityEditor to render a text field.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>The <code>label()</code> method sets the field label for the form.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="5"></i><b>5</b></td>
-<td><code>tags(Thing.name)</code> will bind the text field to the "name" property of the entity that will be edited.</td>
-</tr>
-<tr>
-<td><i class="conum" data-value="6"></i><b>6</b></td>
-<td>Finally we create the <code>EntityEditor</code>, which is a subclass of <code>Container</code>, so it can be added directly to your form.  It takes two parameters: the "user", which serves as the "view model", or "what to edit", and the "formNode" which serves as the ui descriptor, or "how to edit".</td>
-</tr>
-</table>
+<ol>
+<li>
+<p>We create a <code>FormNode</code> as a UI descriptor for our input form.  This allows us to describe the UI declaratively.</p>
+</li>
+<li>
+<p>The <code>editable(true)</code> call makes the form editable.  If we don&#8217;t include this, then the form would be read-only.</p>
+</li>
+<li>
+<p>The <code>textField()</code> method is a static method defined in the <code>UI</code> class, which returns a <code>FieldNode</code> with the <code>TEXT</code> widget type.  This is like a command that tells the EntityEditor to render a text field.</p>
+</li>
+<li>
+<p>The <code>label()</code> method sets the field label for the form.</p>
+</li>
+<li>
+<p><code>tags(Thing.name)</code> will bind the text field to the "name" property of the entity that will be edited.</p>
+</li>
+<li>
+<p>Finally we create the <code>EntityEditor</code>, which is a subclass of <code>Container</code>, so it can be added directly to your form.  It takes two parameters: the "user", which serves as the "view model", or "what to edit", and the "formNode" which serves as the ui descriptor, or "how to edit".</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>After replacing our text field with this entity editor in our <code>AskUserNameView</code>, the source becomes:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">package com.codename1.rad.hello.views;
+<pre class="highlight"><code class="language-java" data-lang="java">package com.codename1.rad.hello.views;
 
 import com.codename1.rad.hello.models.UserProfile;
 import com.codename1.rad.nodes.ActionNode;
@@ -2214,7 +2165,7 @@ public class AskUserNameView extends AbstractEntityView {
 </div>
 </div>
 <div class="sect2">
-<h3 id="truesummary"><a class="anchor" href="#truesummary"></a>3.8. Summary</h3>
+<h3 id="_summary">3.8. Summary</h3>
 <div class="paragraph">
 <p>This chapter was meant only to scratch the surface of what it is like to develop and app with CodeRAD. Some key points that we covered include:</p>
 </div>
@@ -2245,7 +2196,7 @@ public class AskUserNameView extends AbstractEntityView {
 </div>
 </div>
 <div class="sect2">
-<h3 id="truewhere-to-go-from-here"><a class="anchor" href="#truewhere-to-go-from-here"></a>3.9. Where to go from here</h3>
+<h3 id="_where_to_go_from_here">3.9. Where to go from here</h3>
 <div class="paragraph">
 <p>This chapter only offered a small glimpse of how CodeRAD applications are structured, but it didn&#8217;t go into very much detail of the fundamentals.  The fundamental concepts of CodeRAD are:</p>
 </div>
@@ -2272,7 +2223,7 @@ public class AskUserNameView extends AbstractEntityView {
 </ol>
 </div>
 <div class="sect3">
-<h4 id="truesome-other-resources"><a class="anchor" href="#truesome-other-resources"></a>3.9.1. Some other Resources</h4>
+<h4 id="_some_other_resources">3.9.1. Some other Resources</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -2294,10 +2245,10 @@ public class AskUserNameView extends AbstractEntityView {
 </div>
 </div>
 <div class="sect1">
-<h2 id="truecontrollers"><a class="anchor" href="#truecontrollers"></a>4. Controllers</h2>
+<h2 id="_controllers">4. Controllers</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="trueapplication-structure-and-form-navigation-pre-coderad"><a class="anchor" href="#trueapplication-structure-and-form-navigation-pre-coderad"></a>4.1. Application Structure and Form Navigation Pre-CodeRAD</h3>
+<h3 id="_application_structure_and_form_navigation_pre_coderad">4.1. Application Structure and Form Navigation Pre-CodeRAD</h3>
 <div class="paragraph">
 <p>How do you structure your Codename One apps?  How do you share data between different forms?  How do you maintain state between forms?  How do you manage navigation between forms?  E.g. When the user presses "Back", how do you decide what to do?</p>
 </div>
@@ -2316,7 +2267,7 @@ public class AskUserNameView extends AbstractEntityView {
 <div class="listingblock">
 <div class="title">Sample code using the "current" form for the back command on a new form.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">Form f2 = new Form("Result", new BorderLayout());
+<pre class="highlight"><code class="language-java" data-lang="java">Form f2 = new Form("Result", new BorderLayout());
 Form f = CN.getCurrentForm();
 if (f != null) {
     f2.setBackCommand("Back", null, evt-&gt;{
@@ -2335,7 +2286,7 @@ f2.show();</code></pre>
 <div class="listingblock">
 <div class="title">A very simple abstraction for "Back" functionality on forms.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">public class MyFormController {
+<pre class="highlight"><code class="language-java" data-lang="java">public class MyFormController {
     private Form form;
 
     public MyFormController(Form form) {
@@ -2366,7 +2317,7 @@ f2.show();</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueapp-structure-as-a-tree"><a class="anchor" href="#trueapp-structure-as-a-tree"></a>4.2. App Structure as a Tree</h3>
+<h3 id="_app_structure_as_a_tree">4.2. App Structure as a Tree</h3>
 <div class="paragraph">
 <p>Once you start walking down the path extracting navigation logic into a "controller" class, you can start to think about your application&#8217;s structure more clearly. For example, we naturally think of UI component hierarchy as a tree-like structure, where the <code>Form</code> is the root, and the containers and components are the nodes.  Thinking in these terms makes it easy to visualize the structure of a form:</p>
 </div>
@@ -2440,7 +2391,7 @@ f2.show();</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="truecoderad-core-controllers"><a class="anchor" href="#truecoderad-core-controllers"></a>4.3. CodeRAD Core Controllers</h3>
+<h3 id="_coderad_core_controllers">4.3. CodeRAD Core Controllers</h3>
 <div class="imageblock">
 <div class="content">
 <img src="images/Image-300320-015455.241.png" alt="Image 300320 015455.241">
@@ -2468,7 +2419,7 @@ f2.show();</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueevent-propagation-2"><a class="anchor" href="#trueevent-propagation-2"></a>4.4. Event Propagation</h3>
+<h3 id="_event_propagation_2">4.4. Event Propagation</h3>
 <div class="paragraph">
 <p>Mapping our app structure onto a controller tree brings other benefits as well.  Just as we can propagate events up a UI component hierarchy for handling.  We can propagate events up a controller hierarchy as well.  In GUI applications, events are a very effective way of passing information between different parts of the application without introducing coupling.</p>
 </div>
@@ -2480,7 +2431,7 @@ f2.show();</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="truecode-sharing-lookups"><a class="anchor" href="#truecode-sharing-lookups"></a>4.5. Code-sharing / Lookups</h3>
+<h3 id="_code_sharing_lookups">4.5. Code-sharing / Lookups</h3>
 <div class="paragraph">
 <p>CodeRAD controllers also exploit their tree structure to facilitate sharing of data from a "parent" controller to its children via the "lookup" mechanism.  For example, perhaps you need to keep track of the current logged-in user for your app.  One way to do it is to use static globals (this includes using a Singleton).  But a more elegant approach is to use lookups in your ApplicationController, which are available to be "looked up" from all of its children.</p>
 </div>
@@ -2489,7 +2440,7 @@ f2.show();</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">//.. somewhere in the application controller
+<pre class="highlight"><code class="language-java" data-lang="java">//.. somewhere in the application controller
 UserProfile loggedInUser = getLoggedInUser();
 addLookup(loggedInUser);
 
@@ -2507,12 +2458,12 @@ UserProfile loggedInUser = lookup(UserProfile.class);</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueexample-controllers"><a class="anchor" href="#trueexample-controllers"></a>4.6. Example Controllers</h3>
+<h3 id="_example_controllers">4.6. Example Controllers</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<div class="title">Note</div>
 </td>
 <td class="content">
 The following examples all use an ApplicationController as the root of the controller hierarchy, but it is also possible to use a controller in isolation.  You just won&#8217;t receive the full benefits of an application-wide controller hierarchy.
@@ -2526,7 +2477,7 @@ The following examples all use an ApplicationController as the root of the contr
 <div class="listingblock">
 <div class="title">MyApplication.java - A minimal application controller.   This controller overrides the <code>start()</code> method and instantiates a <code>FormController</code>, then shows it.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">public class MyApplication extends ApplicationController {
+<pre class="highlight"><code class="language-java" data-lang="java">public class MyApplication extends ApplicationController {
     @Override
     public void start() {
         super.start();
@@ -2538,7 +2489,7 @@ The following examples all use an ApplicationController as the root of the contr
 <div class="listingblock">
 <div class="title">MainFormController.java - A minimal FormController.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">public class MainFormController extends FormController {
+<pre class="highlight"><code class="language-java" data-lang="java">public class MainFormController extends FormController {
     public MainFormController(Controller parent) {
         super(parent);
         Form f = new Form("Hello");
@@ -2550,7 +2501,7 @@ The following examples all use an ApplicationController as the root of the contr
 </div>
 </div>
 <div class="sect2">
-<h3 id="trueform-navigation"><a class="anchor" href="#trueform-navigation"></a>4.7. Form Navigation</h3>
+<h3 id="_form_navigation">4.7. Form Navigation</h3>
 <div class="paragraph">
 <p>As we&#8217;ve already seen, "back" functionality is handled automatically by the <code>FormController</code>.  If there is a "parent" FormController of the form, then it will add a "back" button to the toolbar and set a "back" command to go to that toolbar.  However, you can also explicitly trigger a "back" event by firing a <code>FormBackEvent</code> (an internal class in <code>FormController</code>).</p>
 </div>
@@ -2560,7 +2511,7 @@ The following examples all use an ApplicationController as the root of the contr
 <div class="listingblock">
 <div class="title">View that fires a <code>FormBackEvent</code>.  This view can be added anywhere in the UI, and clicking it cause the app to navigate back to the "parent" (previous) form.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">class BackButton extends Button {
+<pre class="highlight"><code class="language-java" data-lang="java">class BackButton extends Button {
     public BackButton() {
         super("Go Back");
         addActionListener(evt-&gt;{
@@ -2586,11 +2537,8 @@ The following examples all use an ApplicationController as the root of the contr
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-30 14:39:07 -0700
+Last updated 2020-03-30 11:23:22 -0700
 </div>
 </div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
-<script>hljs.initHighlighting()</script>
 </body>
 </html>

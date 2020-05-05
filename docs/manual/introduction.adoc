@@ -86,15 +86,15 @@ image::https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/MVC-Process.svg
 
 === Entities, Properties, Schemas and Tags
 
-The **Entity** sits at the core of CodeRAD.  The {@link com.codename1.rad.models.Entity} class is the base class of all model classes in CodeRAD.  Each {@link com.codename1.rad.models.Entity} has an {@link com.codename1.rad.models.EntityType} which defines the properties that are available in an entity.  Properties, in turn, may be "tagged" with zero or more {@link com.codename1.rad.models.Tag}s.  These tags can be used to lookup properties on an entity in a more generic way than referring to the property itself.  
+The **Entity** sits at the core of CodeRAD.  The https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html[Entity] class is the base class of all model classes in CodeRAD.  Each https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html[Entity] has an https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/EntityType.html[EntityType] which defines the properties that are available in an entity.  Properties, in turn, may be "tagged" with zero or more https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Tag.html[Tag]s.  These tags can be used to lookup properties on an entity in a more generic way than referring to the property itself.  
 
-We provide a set of existing tags in the {@link com.codename1.rad.schemas} package that can be used as a common foundation by both models and views.  These tags were adapted from the schema definitions at https://schema.org.
+We provide a set of existing tags in the https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/schemas/package-frame.html[schemas] package that can be used as a common foundation by both models and views.  These tags were adapted from the schema definitions at https://schema.org.
 
 [INFO]
 ====
-https://schema.org provides a large set of schemas for common data types that one might need in an application.  It provides a base schema, https://schema.org/Thing[Thing] that includes properties that may be common to any type of "thing", such as `name`, `description`, `identifier`, `image` etc..  This schema has been ported into Java as the {@link com.codename1.rad.schemas.Thing} interface.  
+https://schema.org provides a large set of schemas for common data types that one might need in an application.  It provides a base schema, https://schema.org/Thing[Thing] that includes properties that may be common to any type of "thing", such as `name`, `description`, `identifier`, `image` etc..  This schema has been ported into Java as the https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/schemas/Thing.html[Thing] interface.  
 
-Each property has a corresponding {@link com.codename1.rad.models.Tag} defined.
+Each property has a corresponding https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Tag.html[Tag] defined.
 ====
 
 The concept of tags is a simple one, but they have powerful effect.  If a view needs to render its model's "phone number" (e.g. a contact list view), then it doesn't need to know anything about the properties in the model.  It is able to look up the phone number of the model by the `Person.telephone` tag:
@@ -139,8 +139,8 @@ public class UserProfile extends Entity {
     }
 }
 ----
-<1> We define 2 properties of type {@link com.codename1.rad.models.StringProperty} on the class.  A `StringProperty` is simply a property that contains a {@link java.lang.String}.  These are defined `public static` so that we can access them conveniently from anywhere.
-<2> We define an {@link com.codename1.rad.models.EntityType} for the class.  This is also `public static` because it is class-level (all objects of this class should share the same entity type).
+<1> We define 2 properties of type https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/StringProperty.html[StringProperty] on the class.  A `StringProperty` is simply a property that contains a `String`.  These are defined `public static` so that we can access them conveniently from anywhere.
+<2> We define an https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/EntityType.html[EntityType] for the class.  This is also `public static` because it is class-level (all objects of this class should share the same entity type).
 <3> We create `name` and `description` properties on this entity type.  Notice that this code runs in the *instance intializer* of the EntityType (the `{{` and `}}` braces are not a typo).  Running this code inside the instance initializer will ensure that the properties are added to the `EntityType`'s property index.
 <4> Inside the `UserProfile` instance initializer, we set the entity type to the entity type that we created above.
 
@@ -148,12 +148,12 @@ public class UserProfile extends Entity {
 ====
 *Why can't we just use POJOs for our models?*
 
-The {@link com.codename1.rad.models.Entity} class provides a lot of useful plumbing that is necessary for building reusable components that can bind to each other.  This includes property lookup, property binding, change events, and data conversion.
+The https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html[Entity] class provides a lot of useful plumbing that is necessary for building reusable components that can bind to each other.  This includes property lookup, property binding, change events, and data conversion.
 ====
 
 ==== Adding Tags to Properties
 
-In the above entity class, we haven't "tagged" any of the properties so it can't be used as a view model for any view, unless that view has been specifically designed for this class, which would limit its reusability.  This is simple to remedy, though. Let's tag the `name` property with {@link com.codename1.rad.schemas.Thing#name}, and `description` with {@link com.codename1.rad.schemas.Thing#description}:
+In the above entity class, we haven't "tagged" any of the properties so it can't be used as a view model for any view, unless that view has been specifically designed for this class, which would limit its reusability.  This is simple to remedy, though. Let's tag the `name` property with https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/schemas/Thing.html#name[Thing.name], and `description` with https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/schemas/Thing.html#description[Thing.description]:
 
 [source,java]
 ----
@@ -191,9 +191,9 @@ String name = (String)model.get(Thing.name);
 
 [WARNING]
 ====
-When using tags to access properties, it is best to use one of the `getXXX(Tag)` variants that explicitly converts the content type.  E.g. {@link com.codename1.rad.models.Entity#getText(com.codename1.rad.models.Tag)}.  This is because there is no guarantee that a given entity is storing its `Thing.name` property as a String.  It could use any type of property.  Using `getText()` or `getBoolean()` will automatically handle data-conversion if possible.
+When using tags to access properties, it is best to use one of the `getXXX(Tag)` variants that explicitly converts the content type.  E.g. https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html#getText-com.codename1.rad.models.Property-[Entity.getText(Tag)].  This is because there is no guarantee that a given entity is storing its `Thing.name` property as a String.  It could use any type of property.  Using `getText()` or `getBoolean()` will automatically handle data-conversion if possible.
 
-See {@link com.codename1.rad.models.ContentType} for more information about data conversion in properties.
+See https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/ContentType.html[ContentType] for more information about data conversion in properties.
 ====
 
 Using the convenience wrapper `getText()` and `setText()` we can then set the values on the `name` property in a generic way:
@@ -225,7 +225,7 @@ public class UserProfile extends Entity {
 
 === Views
 
-The "View" is the piece of the MVC pie that we are most interested in sharing and reusing.  A View is simply a {@link com.codename1.ui.Component} that includes support to "bind" to a view model (an {@link com.codename1.rad.models.Entity}), such that when properties on the view model are changed, the "View" updates to reflect the change.  The {@link com.codename1.rad.ui.entityviews} package includes a set of read-developed view classes.  The best current example of a CodeRAD view is the https://github.com/shannah/RADChatRoom[RADChatRoom, window=_top]'s `ChatRoomView` component.
+The "View" is the piece of the MVC pie that we are most interested in sharing and reusing.  A View is simply a https://www.codenameone.com/javadoc/com/codename1/ui/Component.html[Component] that includes support to "bind" to a view model (an https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html[Entity]), such that when properties on the view model are changed, the "View" updates to reflect the change.  The https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/package-frame.html[entityviews] package includes a set of read-developed view classes.  The best current example of a CodeRAD view is the https://github.com/shannah/RADChatRoom[RADChatRoom, window=_top]'s `ChatRoomView` component.
 
 NOTE: Creating view classes is more complex than creating models or controllers because they require a deeper understanding of both Codeame One concepts, and CodeRAD concepts.  The goal of this project is to provide a comprehensive set of quality views that can be reused so that developers don't need to create their own views very often.  They can focus on their application's control flow and business logic (i.e. models and controllers).
 
@@ -233,14 +233,14 @@ NOTE: Creating view classes is more complex than creating models or controllers 
 
 View constructors will typically take two parameters:
 
-. *The view model* - an {@link com.codename1.rad.models.Entity} object that is used for the view's contents.
-. *A view node* - a {@link com.codename1.rad.ui.Node} object, which is part of a view descriptor hierarchy, and can provide additional settings for the view, such as actions to be rendered in the view as buttons or menus, factories to be used for generating parts of the view, simple properties, and virtually any other customizations the view wants to respond to.  You can think of the view node as a sort of "Schema" for the view.
+. *The view model* - an https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html[Entity] object that is used for the view's contents.
+. *A view node* - a https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/nodes/Node.html[Node] object, which is part of a view descriptor hierarchy, and can provide additional settings for the view, such as actions to be rendered in the view as buttons or menus, factories to be used for generating parts of the view, simple properties, and virtually any other customizations the view wants to respond to.  You can think of the view node as a sort of "Schema" for the view.
 
 Most views will extend from one of the following base classes:
 
-. *{@link com.codename1.rad.ui.AbstractEntityView}* - Provides a minimal framework for binding to property change events on an {@link com.codename1.rad.models.Entity}.  Extend this class when your view model is a scalar entity.
-. *{@link com.codename1.rad.ui.entityviews.EntityListView}* - Provides a minimal framework for list entities.  The view model is expected to be a {@link com.codename1.rad.models.EntityList} or subclass thereof.  It will bind to the lists add and remove events to automatically add or remove rows from the view when corresponding elements are added or removed from the model.  It will accept a `listRenderer` attribute, which allows you to provide a  {@link com.codename1.rad.ui.EntityListCellRenderer} for rendering the list's rows.  This makes the `EntityListView` class quite versatile, as it can be made to behave completely differently by simply providing a different row renderer.  The `ChatRoomView` class uses this class internall to render the chat bubbles.
-. *{@link com.codename1.rad.ui.EntityEditor}* - Used to render custom forms (e.g. with input fields) for editing data on an entity.  Usually this isn't subclassed, it is used directly and customized using a UI descriptor (e.g. a View node). 
+. *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/AbstractEntityView.html[AbstractEntityView]* - Provides a minimal framework for binding to property change events on an https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html[Entity].  Extend this class when your view model is a scalar entity.
+. *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/EntityListView.html[EntityListView]* - Provides a minimal framework for list entities.  The view model is expected to be a https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/EntityEditor.html[EntityEditor] or subclass thereof.  It will bind to the lists add and remove events to automatically add or remove rows from the view when corresponding elements are added or removed from the model.  It will accept a `listRenderer` attribute, which allows you to provide a  https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/EntityListCellRenderer.html[EntityListCellRenderer] for rendering the list's rows.  This makes the `EntityListView` class quite versatile, as it can be made to behave completely differently by simply providing a different row renderer.  The `ChatRoomView` class uses this class internall to render the chat bubbles.
+. *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/EntityEditor.html[EntityEditor]* - Used to render custom forms (e.g. with input fields) for editing data on an entity.  Usually this isn't subclassed, it is used directly and customized using a UI descriptor (e.g. a View node). 
 
 ==== NO Application or Business Logic Allowed
 
@@ -328,7 +328,7 @@ detailsController.getView().show();
 
 ==== Event Propagation
 
-The hierarchical view of controllers is also useful for understanding event dispatch.  When a `ControllerEvent` is fired on a UI component, it will propagate up the UI hierarchy (i.e. {@link com.codename1.ui.Component} -> parent ..parent...) until it finds a component with a `ViewController`.  The event will then be dispatched up the controller hierarchy until it is consumed.
+The hierarchical view of controllers is also useful for understanding event dispatch.  When a `ControllerEvent` is fired on a UI component, it will propagate up the UI hierarchy (i.e. https://www.codenameone.com/javadoc/com/codename1/ui/Component.html[Component] -> parent ..parent...) until it finds a component with a `ViewController`.  The event will then be dispatched up the controller hierarchy until it is consumed.
 
 For example, suppose, in our application, we have the following controller hierarchy:
 
