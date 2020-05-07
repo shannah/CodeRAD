@@ -142,6 +142,9 @@ public class FormController extends ViewController {
     
     public void setTitle(String title) {
         this.title = title;
+        if (getView() != null) {
+            getView().setTitle(title);
+        }
         
     }
     
@@ -150,6 +153,7 @@ public class FormController extends ViewController {
     }
     
     
+    Label titleLbl;
     
     /**
      * Overrides parent setView().  Delegates to {@link #setView(com.codename1.ui.Form} if cmp is 
@@ -160,9 +164,24 @@ public class FormController extends ViewController {
         if (cmp instanceof Form) {
             setView((Form)cmp);
         } else {
+            
             Form f = new Form(new BorderLayout()) {
+                
                 @Override
-               public void layoutContainer() {
+                public void setTitle(String title) {
+                    super.setTitle(title);
+                    if (titleLbl != null) {
+                        titleLbl.setText(title);
+                        revalidateWithAnimationSafety();
+                    }
+                    
+                    
+                }
+                
+                
+               
+                @Override
+                public void layoutContainer() {
                    super.layoutContainer();
                    
                    int maxLeftX = 0;
@@ -225,9 +244,12 @@ public class FormController extends ViewController {
                 titleBar.add(BorderLayout.EAST, done);
             }
 
+            titleLbl = new Label();
+            titleLbl.setUIID("Title");
             if (title != null) {
-                titleBar.add(BorderLayout.CENTER, new Label(title, "Title"));
+                titleLbl.setText(title);
             }
+            titleBar.add(BorderLayout.CENTER, titleLbl);
             f.add(BorderLayout.NORTH, titleBar);
             f.add(BorderLayout.CENTER, cmp);
             f.revalidateWithAnimationSafety();
