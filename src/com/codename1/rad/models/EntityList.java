@@ -100,10 +100,15 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         this(null, maxLen);
 
     }
-    
     public EntityList(EntityType rowType, int maxLen) {
+        this(rowType, maxLen, (List<T>)null);
+    }
+    public EntityList(EntityType rowType, int maxLen, List<T> internalList) {
         this.rowType = rowType;
         this.maxLen = maxLen;
+        if (internalList != null) {
+            entities = internalList;
+        }
     }
     
     public EntityList() {
