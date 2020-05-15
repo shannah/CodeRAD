@@ -22,6 +22,8 @@ import com.codename1.rad.ui.PropertyViewFactory;
 import com.codename1.rad.ui.UI;
 import com.codename1.rad.attributes.PropertySelectorAttribute;
 import com.codename1.rad.attributes.PropertyImageRendererAttribute;
+import com.codename1.rad.models.PropertySelectorProvider;
+import com.codename1.rad.models.Tag;
 import com.codename1.rad.ui.EntityEditor.DescriptionStyle;
 import com.codename1.rad.ui.EntityEditor.DescriptionStyleAttribute;
 import com.codename1.rad.ui.EntityEditor.LabelStyle;
@@ -379,6 +381,18 @@ public class FieldNode extends Node implements Proxyable {
             return null;
         }
         return att.getValue();
+    }
+    
+    public static FieldNode createWithPropertySelector(PropertySelector selector) {
+        return new FieldNode(UI.property(selector));
+    }
+    
+    public static FieldNode createWithTags(Tag... tags) {
+        return new FieldNode(UI.tags(tags));
+    }
+    
+    public static FieldNode createdWithProperty(Property prop) {
+        return new FieldNode(UI.property(prop));
     }
     
 }

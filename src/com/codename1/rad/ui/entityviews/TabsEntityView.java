@@ -38,14 +38,14 @@ import com.codename1.ui.layouts.BorderLayout;
  * An Tabs component that is backed by a view model.  You can specify the tabs in this
  * view using the UI descriptor.
  * 
+ * .Example subclass of TabsEntityView  defining two tabs.
+ * image::https://shannah.github.io/CodeRAD/manual/images/TabsEntityView.png[]
+ * 
  * === View Model
  * 
  * The view model does not need to conform necessarily to any particular schema, as the UI descriptor
  * is fully responsible for the contents of the tabs.  The UI descriptor may refer to elements of the 
  * view model for defining its contents though.
- * 
- * .Example subclass of TabsEntityView  defining two tabs.
- * image::https://shannah.github.io/CodeRAD/manual/images/TabsEntityView.png[]
  * 
  * === UI Descriptor
  * 

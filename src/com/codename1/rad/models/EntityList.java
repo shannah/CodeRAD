@@ -34,14 +34,35 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     }
     private EventDispatcher listeners;
     private EntityType rowType;
-    private List<T> entities = new ArrayList<>();
+    private List<T> entities;
     private int maxLen = -1;
     
     
     public class EntityListEvent extends ActionEvent {
         public EntityListEvent() {
             super(EntityList.this);
+            
         }
+    }
+    
+    /**
+     * Can be overridden by subclasses to create an alternate collection type
+     * for the entity list.  Default implementation uses an ArrayList.
+     * @return 
+     */
+    protected List<T> createInternalList() {
+        return new ArrayList<>();
+    }
+    
+    /**
+     * Lazily creates internal entity list and returns it.
+     * @return 
+     */
+    private List<T> entities() {
+        if (entities == null) {
+            entities = createInternalList();
+        }
+        return entities;
     }
     
     public class EntityEvent extends EntityListEvent {
@@ -77,6 +98,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     
     public EntityList(int maxLen) {
         this(null, maxLen);
+
     }
     
     public EntityList(EntityType rowType, int maxLen) {
@@ -90,21 +112,23 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     
     @Override
     public Iterator<T> iterator() {
-        return entities.iterator();
+        return entities().iterator();
     }
     
     public void add(T link) {
-        if (maxLen > 0 && entities.size() >= maxLen) {
+        if (maxLen > 0 && entities().size() >= maxLen) {
             throw new IllegalStateException("Nary composition has max length "+maxLen+".  Cannot add another.");
         }
         if (getRowType() == null) {
             setRowType(link.getEntityType());
         }
         link = beforeAdd(link);
-        int len = entities.size();
-        entities.add(link);
-        fireEntityAdded(link, len);
-        setChanged();
+        //int len = entities().size();
+        boolean success = entities().add(link);
+        if (success) {
+            fireEntityAdded(link, entities().indexOf(link));
+            setChanged();
+        }
     }
     
     protected T beforeAdd(T link) {
@@ -116,10 +140,10 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     }
 
     public boolean remove(T link) {
-        if (entities.contains(link)) {
+        if (entities().contains(link)) {
             link = beforeRemove(link);
-            int index = entities.indexOf(link);
-            if (entities.remove(link)) {
+            int index = entities().indexOf(link);
+            if (entities().remove(link)) {
                 fireEntityRemoved(link, index);
                 setChanged();
                 return true;
@@ -139,11 +163,11 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     }
 
     public int size() {
-        return entities.size();
+        return entities().size();
     }
     
     public T get(int index) {
-        return entities.get(index);
+        return entities().get(index);
     }
 
     protected void fireEntityAdded(Entity e, int index) {

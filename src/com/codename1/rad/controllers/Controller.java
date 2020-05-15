@@ -122,6 +122,11 @@ public class Controller implements ActionListener<ControllerEvent> {
         return null;
     }
     
+    /**
+     * Adds a listener to respond to events fired by a given action.
+     * @param action The action to subscribe to.
+     * @param l The listener.
+     */
     public void addActionListener(ActionNode action, ActionListener<ActionNodeEvent> l) {
         ActionHandler h = new ActionHandler();
         h.action = (ActionNode)action.getCanonicalNode();
@@ -229,14 +234,34 @@ public class Controller implements ActionListener<ControllerEvent> {
         return null;
     }
     
+    /**
+     * Sets the parent controller for this controller.
+     * @param parent 
+     */
     public void setParent(Controller parent) {
         this.parent = parent;
     }
     
+    /**
+     * Creates the view node that should be used as the node for the controller's view. This method should 
+     * be overridden by subclasses to define the default view node, but this method shouldn't be called directly.  Rather
+     * the {@link #getViewNode()} method should be called so that the view node is only created once.  {@link #getViewNode() }
+     * will also set the parent node to the view node of the parent controller to more easily benefit from inherited attributes
+     * in the UI descriptor hierarchy.
+     * @return A ViewNode
+     */
     protected ViewNode createViewNode() {
         return new ViewNode();
     }
     
+    /**
+     * Gets the {@link ViewNode} that should be used as the view model for views of this controller. Subclasses should override {@link #createViewNode() }
+     * to define the view node for the controller.  This method will defer to that for the initial view node creation, and then just return
+     * that view node on subsequeuent calls.
+     * 
+     * NOTE: This will automatically set the parent node of the view node to the view node of the parent controller.
+     * @return 
+     */
     public ViewNode getViewNode() {
         if (node == null) {
             node = createViewNode();
@@ -249,6 +274,17 @@ public class Controller implements ActionListener<ControllerEvent> {
         return node;
     }
     
+    /**
+     * Obtains an object of the given type that has been previously registered by this controller (or a parent controller) via the {@link #addLookup(java.lang.Object) }
+     * method.  This facilitates the creation of shared objects that can be accessed by controllers and all of their descendants. For example, 
+     * the ApplicationController might register a webservice client via addLookup() so that all controllers in the application can obtain
+     * a reference to this client via a simple lookup.
+     * 
+     * 
+     * @param <T> The type object to look up.
+     * @param type The type of object to look up.
+     * @return The object, or null if none was registered.
+     */
     public <T> T lookup(Class<T> type) {
         if (lookups != null) {
             T out = (T)lookups.get(type);
@@ -262,6 +298,10 @@ public class Controller implements ActionListener<ControllerEvent> {
         return null;
     }
     
+    /**
+     * Registers an object so that it can be retrieved using {@link #lookup(java.lang.Class) }.
+     * @param obj The object to add to the lookups.
+     */
     public void addLookup(Object obj) {
         if (lookups == null) {
             lookups = new HashMap<>();
