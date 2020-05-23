@@ -22,9 +22,9 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface NewsArticle extends Article {
-    public static final Tag dateline = new Tag(),
-            printColumn = new Tag(),
-            printEdition = new Tag(),
-            printPage = new Tag(),
-            printSection = new Tag();
+    public static final Tag dateline = new Tag("dateLine"),
+            printColumn = new Tag("printColumn"),
+            printEdition = new Tag("printEdition"),
+            printPage = new Tag("printPage"),
+            printSection = new Tag("printSection");
 }

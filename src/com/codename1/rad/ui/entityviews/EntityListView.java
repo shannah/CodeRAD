@@ -50,6 +50,8 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     
     public static final ViewProperty<Boolean> SCROLLABLE_Y = ViewProperty.booleanProperty();
     public static final ViewProperty<Boolean> SCROLLABLE_X = ViewProperty.booleanProperty();
+    public static final ViewProperty<Boolean> ANIMATE_INSERTIONS = ViewProperty.booleanProperty();
+    public static final ViewProperty<Boolean> ANIMATE_REMOVALS = ViewProperty.booleanProperty();
     
     private ListNode node;
     private EntityListCellRenderer renderer;
@@ -67,6 +69,25 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         
     };
     boolean firstUpdate = true;
+    private boolean animateInsertions=true;
+    private boolean animateRemovals=true;
+    
+    public void setAnimateInsertions(boolean anim) {
+        animateInsertions = anim;
+    }
+    
+    public boolean isAnimateInsertions() {
+        return animateInsertions;
+    }
+    
+    public void setAnimateRemovals(boolean anim) {
+        animateRemovals = anim;
+    }
+    
+    public boolean isAnimateRemovals() {
+        return animateRemovals;
+    }
+    
     private ActionListener<EntityListEvent> listListener = evt-> {
         if (evt instanceof EntityList.EntityAddedEvent) {
             if (firstUpdate) {
@@ -80,16 +101,20 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
             
             wrapper.add(cmp);
             if (getComponentForm() != null) {
-                cmp.setX(0);
-                cmp.setY(wrapper.getHeight() + wrapper.getScrollY());
-                cmp.setWidth(getWidth());
-                cmp.setHeight(cmp.getPreferredH());
-                
-                ComponentAnimation anim = wrapper.createAnimateHierarchy(300);
-                anim.addOnCompleteCall(()->{
-                    wrapper.scrollComponentToVisible(cmp);
-                });
-                getComponentForm().getAnimationManager().addAnimation(anim);
+                if (animateInsertions) {
+                    cmp.setX(0);
+                    cmp.setY(wrapper.getHeight() + wrapper.getScrollY());
+                    cmp.setWidth(getWidth());
+                    cmp.setHeight(cmp.getPreferredH());
+
+                    ComponentAnimation anim = wrapper.createAnimateHierarchy(300);
+                    anim.addOnCompleteCall(()->{
+                        wrapper.scrollComponentToVisible(cmp);
+                    });
+                    getComponentForm().getAnimationManager().addAnimation(anim);
+                } else {
+                    getComponentForm().revalidateWithAnimationSafety();
+                }
                 
                 
             }
@@ -113,7 +138,11 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
             if (toRemove != null) {
                 wrapper.removeComponent(toRemove);
                 if (getComponentForm() != null) {
-                    wrapper.animateHierarchy(300);
+                    if (animateRemovals) {
+                        wrapper.animateHierarchy(300);
+                    } else {
+                        wrapper.revalidateWithAnimationSafety();
+                    }
                 }
             }
  
@@ -131,7 +160,14 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         if (renderer == null) {
             renderer = UI.getDefaultListCellRenderer();
         }
-        
+        Boolean animateInsertionsBool = (Boolean)node.getViewParameter(ANIMATE_INSERTIONS, ViewPropertyParameter.createValueParam(ANIMATE_INSERTIONS, true)).getValue(list);
+        if (animateInsertionsBool != null) {
+            animateInsertions = animateInsertionsBool.booleanValue();
+        }
+        Boolean animateRemovalsBool = (Boolean)node.getViewParameter(ANIMATE_REMOVALS, ViewPropertyParameter.createValueParam(ANIMATE_REMOVALS, true)).getValue(list);
+        if (animateRemovalsBool != null) {
+            animateRemovals= animateRemovalsBool.booleanValue();
+        }
         Boolean scrollableY = (Boolean)node.getViewParameter(SCROLLABLE_Y, ViewPropertyParameter.createValueParam(SCROLLABLE_Y, false)).getValue(list);
         if (scrollableY != null) {
             wrapper.setScrollableY(scrollableY);

@@ -22,12 +22,12 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface Article extends CreativeWork {
-    public static final Tag articleBody = new Tag(),
-            articleSection = new Tag(),
-            backstory = new Tag(),
-            pageEnd = new Tag(),
-            pageStart = new Tag(),
-            pagination = new Tag(),
-            speakable = new Tag(),
-            wordCount = new Tag();
+    public static final Tag articleBody = new Tag("articleBody"),
+            articleSection = new Tag("articleSection"),
+            backstory = new Tag("backstory"),
+            pageEnd = new Tag("pageEnd"),
+            pageStart = new Tag("pageStart"),
+            pagination = new Tag("pagination"),
+            speakable = new Tag("speakable"),
+            wordCount = new Tag("wordCount");
 }

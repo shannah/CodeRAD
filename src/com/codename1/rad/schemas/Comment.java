@@ -12,8 +12,8 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface Comment extends CreativeWork {
-    public static final Tag downvoteCount = new Tag(),
-            parentItem = new Tag(),
-            upvoteCount = new Tag();
+    public static final Tag downvoteCount = new Tag("downvoteCount"),
+            parentItem = new Tag("parentItem"),
+            upvoteCount = new Tag("upvoteCount");
             
 }

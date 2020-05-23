@@ -13,9 +13,9 @@ import com.codename1.rad.models.Tag;
  */
 public interface ChatMessage extends Comment {
     
-    public static final Tag isOwnMessage = new Tag();
-    public static final Tag isFavorite = new Tag();
-    public static final Tag typingInProgress = new Tag();
-    public static final Tag attachment = new Tag();
-    public static final Tag attachmentPlaceholderImage = new Tag();
+    public static final Tag isOwnMessage = new Tag("isOwnMessage");
+    public static final Tag isFavorite = new Tag("isFavorite");
+    public static final Tag typingInProgress = new Tag("typingInProgress");
+    public static final Tag attachment = new Tag("attachment");
+    public static final Tag attachmentPlaceholderImage = new Tag("attachmentPlaceholderImage");
 }

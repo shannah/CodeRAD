@@ -323,7 +323,10 @@ public class Entity extends Observable  {
     
     public void setEntityType(EntityType entityType) {
         entityType.freeze();
+        entityType.initContentType(this);
         this.entityType = entityType;
+        
+        
     }
     
     public EntityType getEntityType() {
@@ -418,8 +421,8 @@ public class Entity extends Observable  {
         }
         if (key instanceof Property) {
             ((Property)key).setValue(this, value);
-        }
-        if (key instanceof Tag) {
+            return;
+        } else if (key instanceof Tag) {
             Property prop = findProperty((Tag)key);
             set(prop, value);
             return;
@@ -567,11 +570,11 @@ public class Entity extends Observable  {
     }
     
     public boolean setEntity(Tag tag, Entity e) {
-        return set(tag, ContentType.EntityType, e);
+        return set(tag, e == null ? ContentType.EntityType : e.getEntityType().getContentType(), e);
     }
     
     public boolean setEntity(Entity e, Tag... tags) {
-        return set(ContentType.EntityType, e, tags);
+        return set(e == null ? ContentType.EntityType : e.getEntityType().getContentType(), e, tags);
     }
     
     public boolean isEntity(Property prop) {
@@ -644,5 +647,7 @@ public class Entity extends Observable  {
         }
         
     }
+    
+    
     
 }

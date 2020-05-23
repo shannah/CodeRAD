@@ -5,12 +5,14 @@
  */
 package com.codename1.rad.propertyviews;
 
+import com.codename1.l10n.ParseException;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
+import com.codename1.rad.models.TextFormatterAttribute;
 import com.codename1.ui.TextField;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
@@ -59,6 +61,10 @@ public class TextFieldPropertyView extends PropertyView<TextField> {
                 getProperty().getValue(getEntity()),
                 ContentType.Text
         );
+        TextFormatterAttribute formatter = (TextFormatterAttribute)getField().findAttribute(TextFormatterAttribute.class);
+        if (formatter != null) {
+            newVal = formatter.getValue().format(newVal);
+        }
         if (!Objects.equals(oldVal, newVal)) {
             getComponent().setText(newVal);
         }
@@ -68,11 +74,23 @@ public class TextFieldPropertyView extends PropertyView<TextField> {
     public void commit() {
         Entity leafEntity = getPropertySelector().getLeafEntity();
         Property leafProperty = getPropertySelector().getLeafProperty();
+        String text = getComponent().getText();
+        TextFormatterAttribute formatter = (TextFormatterAttribute)getField().findAttribute(TextFormatterAttribute.class);
+        if (formatter != null) {
+            if (!formatter.getValue().supportsParse()) {
+                throw new RuntimeException("Formatter does not support parse committing text '"+text+"'.");
+            }
+            try {
+                text = formatter.getValue().parse(text);
+            } catch (ParseException ex) {
+                throw new RuntimeException("Failed to parse text '"+text+"' for property.");
+            }
+        }
         leafProperty.setValue(
                 leafEntity, 
                 ContentType.convert(
                         ContentType.Text, 
-                        getComponent().getText(), 
+                        text, 
                         getProperty().getContentType()
                 )
         );

@@ -22,5 +22,5 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface SearchAction extends Action {
-    public static final Tag query = new Tag();
+    public static final Tag query = new Tag("query");
 }

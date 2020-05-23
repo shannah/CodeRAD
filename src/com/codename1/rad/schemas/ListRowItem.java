@@ -12,7 +12,7 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface ListRowItem extends Thing {
-    public static final Tag line1 = new Tag();
-    public static final Tag line2 = new Tag();
-    public static final Tag icon = new Tag();
+    public static final Tag line1 = new Tag("line1");
+    public static final Tag line2 = new Tag("line2");
+    public static final Tag icon = new Tag("icon");
 }

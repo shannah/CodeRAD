@@ -14,6 +14,8 @@ import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.models.PropertySelector;
+import com.codename1.rad.models.Tag;
+import com.codename1.rad.models.TextFormatterAttribute;
 import com.codename1.rad.ui.UI;
 import com.codename1.rad.ui.image.PropertyImageRenderer;
 import com.codename1.rad.ui.image.RoundImageRenderer;
@@ -53,6 +55,14 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
         this.iconField = iconField;
         update();
     }
+    
+    public LabelPropertyView(com.codename1.ui.Label component, Entity entity, Tag... tags) {
+        this(component, entity, new FieldNode(UI.tags(tags)));
+    }
+    
+    public LabelPropertyView(com.codename1.ui.Label component, Entity entity, Property prop) {
+        this(component, entity, new FieldNode(UI.property(prop)));
+    }
 
     @Override
     public void bind() {
@@ -76,7 +86,7 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
     
     private String lastIcon;
     
-    protected String getText() {
+    private String _getText() {
         Property prop = getPropertySelector().getLeafProperty();
         if (prop == null) {
             return "";
@@ -94,6 +104,15 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
                 
         
         return getPropertySelector().getText("");
+    }
+    
+    protected String getText() {
+        String out = _getText();
+        TextFormatterAttribute formatter = (TextFormatterAttribute)getField().findAttribute(TextFormatterAttribute.class);
+        if (formatter != null) {
+            return formatter.getValue().format(out);
+        }
+        return out;
     }
     
     @Override

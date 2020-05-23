@@ -22,21 +22,21 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface MediaObject extends CreativeWork {
-    public static final Tag associatedArticle = new Tag(),
-            bitrate = new Tag(),
-            contentSize = new Tag(),
-            contentUrl = new Tag(),
-            duration = new Tag(),
-            embedUrl = new Tag(),
-            encodesCreativeWork = new Tag(),
-            encodingFormat = new Tag(),
-            endTime = new Tag(),
-            height = new Tag(),
-            playerType = new Tag(),
-            productionCompany = new Tag(),
-            regionsAllowed = new Tag(),
-            requiresSubscription = new Tag(),
-            startTime = new Tag(),
-            uploadDate = new Tag(),
-            width = new Tag();
+    public static final Tag associatedArticle = new Tag("associatedArticle"),
+            bitrate = new Tag("bitrate"),
+            contentSize = new Tag("contentSize"),
+            contentUrl = new Tag("contentUrl"),
+            duration = new Tag("duration"),
+            embedUrl = new Tag("embedUrl"),
+            encodesCreativeWork = new Tag("encodesCreativeWork"),
+            encodingFormat = new Tag("encodingFormat"),
+            endTime = new Tag("endTime"),
+            height = new Tag("height"),
+            playerType = new Tag("playerType"),
+            productionCompany = new Tag("productionCompany"),
+            regionsAllowed = new Tag("regionsAllowed"),
+            requiresSubscription = new Tag("requiresSubscription"),
+            startTime = new Tag("startTime"),
+            uploadDate = new Tag("uploadDate"),
+            width = new Tag("width");
 }

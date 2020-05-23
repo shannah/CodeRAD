@@ -65,4 +65,8 @@ public class Tag extends Attribute<Name> {
     }
     
     
+    public String getName() {
+        return getValue().getValue();
+    }
+    
 }

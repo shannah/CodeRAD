@@ -25,5 +25,5 @@ public interface SocialMediaPosting extends Article {
     /**
      * A CreativeWork such as an image, video, or audio clip shared as part of this posting.
      */
-    public static final Tag sharedContent = new Tag();
+    public static final Tag sharedContent = new Tag("sharedContent");
 }

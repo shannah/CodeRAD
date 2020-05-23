@@ -73,6 +73,7 @@ public class UserProfile extends Entity {
  */
 public class EntityType implements Iterable<Property> {
     private EntityType superType;
+    private ContentType contentType;
     //private Map<String,Property> properties = new HashMap<>();
     private final Set<Property> propertiesSet = new LinkedHashSet<>();
     private static Map<Class<? extends EntityType>, EntityType> types = new HashMap<>();
@@ -88,6 +89,19 @@ public class EntityType implements Iterable<Property> {
             }
         }
         return t;
+    }
+    
+    public ContentType getContentType() {
+        if (contentType == null) {
+            return ContentType.EntityType;
+        }
+        return contentType;
+    }
+    
+    void initContentType(Entity e) {
+        if (contentType == null) {
+            contentType = ContentType.createObjectType(e.getClass());
+        }
     }
     
     public void addProperty(Property property) {
@@ -186,6 +200,7 @@ public class EntityType implements Iterable<Property> {
     }
     
     
+    
     public static Label label(String label) {
         return new Label(label);
     }
@@ -278,6 +293,7 @@ public class EntityType implements Iterable<Property> {
         if (prop == null) {
             return false;
         }
+        
         setPropertyValue(prop, entity, inputType, val);
         return true;
         
@@ -306,7 +322,7 @@ public class EntityType implements Iterable<Property> {
         return false;
     }
     
-     public Object getPropertyValue(Tag tag, Entity entity, ContentType outputType, Object defaultVal) {
+    public Object getPropertyValue(Tag tag, Entity entity, ContentType outputType, Object defaultVal) {
         Property prop = findProperty(tag);
         if (prop == null) {
             return defaultVal;
@@ -450,4 +466,6 @@ public class EntityType implements Iterable<Property> {
             p.freeze();
         }
     }
+    
+    
 }

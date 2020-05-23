@@ -16,6 +16,25 @@ package com.codename1.rad.models;
 public class AbstractProperty<T> implements Property<T>  {
     private final AttributeSet attributes = new AttributeSet();
     private final ContentType<T> contentType;
+    private final Getter<T> defaultGetter = (entity, unused)->{
+        return (T) PropertyUtil.getRawProperty(entity, this);
+    };
+    private final Setter<T> defaultSetter = (entity, value, unused) ->{
+        PropertyUtil.setRawProperty(entity, this, value);
+    };
+    
+    private Getter<T> getter;
+    private Setter<T> setter;
+    
+    public AbstractProperty<T> getter(Getter<T> getter) {
+        this.getter = getter;
+        return this;
+    }
+    
+    public AbstractProperty<T> setter(Setter<T> setter) {
+        this.setter = setter;
+        return this;
+    }
     
     public AbstractProperty(ContentType<T> contentType) {
         this.contentType = contentType;
@@ -36,12 +55,20 @@ public class AbstractProperty<T> implements Property<T>  {
 
     @Override
     public T getValue(Entity entity) {
-        return (T) PropertyUtil.getRawProperty(entity, this);
+        if (getter != null) {
+            return getter.getValue(entity, defaultGetter);
+        } else {
+            return defaultGetter.getValue(entity, null);
+        }
     }
 
     @Override
     public void setValue(Entity entity, T value) {
-        PropertyUtil.setRawProperty(entity, this, value);
+        if (setter != null) {
+            setter.setValue(entity, value, defaultSetter);
+        } else {
+            defaultSetter.setValue(entity, value, null);
+        }
     }
     
     public Label getLabel() {
@@ -91,6 +118,5 @@ public class AbstractProperty<T> implements Property<T>  {
         }
         return out;
     }
-    
     
 }

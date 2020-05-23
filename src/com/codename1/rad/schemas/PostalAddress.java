@@ -22,11 +22,11 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface PostalAddress extends ContactPoint {
-    public static final Tag addressCountry = new Tag(),
-            addressLocality = new Tag(),
-            addressRegion = new Tag(),
-            postOfficeBoxNumber = new Tag(),
-            postalCode = new Tag(),
-            streetAddress = new Tag();
+    public static final Tag addressCountry = new Tag("addressCountry"),
+            addressLocality = new Tag("addressLocality"),
+            addressRegion = new Tag("addressRegion"),
+            postOfficeBoxNumber = new Tag("postOfficeBoxNumber"),
+            postalCode = new Tag("postalCode"),
+            streetAddress = new Tag("streetAddress");
             
 }

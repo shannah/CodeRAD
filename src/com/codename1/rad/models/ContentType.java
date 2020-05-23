@@ -164,15 +164,27 @@ public class ContentType<T> {
             Class cls = otherType.getRepresentationClass();
             
             if (cls == Integer.class) {
+                if (data == null || data.length() == 0) {
+                    return (V)(Integer)0;
+                }
                 return (V)(Integer)Integer.parseInt(data);
             }
             if (cls == Double.class) {
+                if (data == null || data.length() == 0) {
+                    return (V)(Double)0.0;
+                }
                 return (V)(Double)Double.parseDouble(data);
             }
             if (cls == Float.class) {
+                if (data == null || data.length() == 0) {
+                    return (V)(Float)0f;
+                }
                 return (V)(Float)Float.parseFloat(data);
             }
             if (cls == Boolean.class) {
+                if (data == null || data.length() == 0) {
+                    return (V)(Boolean)false;
+                }
                 return (V)(Boolean)Boolean.parseBoolean(data);
             }
             
@@ -241,6 +253,12 @@ public class ContentType<T> {
             return otherType.isEntity();
             
         }
+
+        @Override
+        public boolean isEntity() {
+            return true;
+        }
+        
         
         
 
@@ -272,6 +290,13 @@ public class ContentType<T> {
         public boolean canConvertFrom(ContentType otherType) {
             return otherType.isEntityList();
         }
+
+        @Override
+        public boolean isEntityList() {
+            return true;
+        }
+        
+        
 
          @Override
         public <V> V to(ContentType<V> otherType, EntityList data) {
@@ -306,11 +331,34 @@ public class ContentType<T> {
             return (ContentType<V>)EntityListType;
         }
         return new ContentType<V>(new Name(representationClass.getName()), representationClass) {
+            
+            private boolean isEntity;
+            private boolean isEntityList;
+            
+            {
+                isEntity = Entity.class.isAssignableFrom(representationClass);
+                isEntityList =  EntityList.class.isAssignableFrom(representationClass);;
+            }
+            
             @Override
             public boolean equals(Object obj) {
                 return obj.getClass() == this.getClass() && ((ContentType)obj).getRepresentationClass() == representationClass;
                 
             }
+
+            @Override
+            public boolean isEntity() {
+                return isEntity;
+            }
+
+            @Override
+            public boolean isEntityList() {
+                return isEntityList;
+            }
+            
+            
+            
+            
 
             @Override
             public int hashCode() {

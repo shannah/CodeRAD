@@ -20,6 +20,7 @@ public class PropertyUtil {
      * @return 
      */
     public static Object getRawProperty(Entity entity, Property prop) {
+        
         if (entity.properties != null) {
             return entity.properties.get(prop);
         }

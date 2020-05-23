@@ -12,18 +12,18 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface Thing {
-    public static final Tag additionalType = new Tag(),
-            alternateName = new Tag(),
-            description = new Tag(),
+    public static final Tag additionalType = new Tag("additionalType"),
+            alternateName = new Tag("alternateName"),
+            description = new Tag("description"),
             disambiguatingDescription = new Tag(),
-            identifier = new Tag(),
-            image = new Tag(),
+            identifier = new Tag("identifier"),
+            image = new Tag("image"),
             mainEntityOfPage = new Tag(),
-            name = new Tag(),
-            potentialAction = new Tag(),
-            sameAs = new Tag(),
-            subjectOf = new Tag(),
-            url = new Tag(),
-            thumbnailUrl = new Tag();
+            name = new Tag("name"),
+            potentialAction = new Tag("potentialAction"),
+            sameAs = new Tag("sameAs"),
+            subjectOf = new Tag("subjectOf"),
+            url = new Tag("url"),
+            thumbnailUrl = new Tag("thumbnailUrl");
             
 }

@@ -22,13 +22,13 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface ContactPoint {
-    public static final Tag areaServed = new Tag(),
-            availableLanguage = new Tag(),
-            contactOption = new Tag(),
-            contactType = new Tag(),
+    public static final Tag areaServed = new Tag("areaServed"),
+            availableLanguage = new Tag("availableLanguage"),
+            contactOption = new Tag("contactOption"),
+            contactType = new Tag("contactType"),
             email = Person.email,
             faxNumber = Person.faxNumber,
-            hoursAvailable = new Tag(),
-            productSupported = new Tag(),
+            hoursAvailable = new Tag("hoursAvailable"),
+            productSupported = new Tag("productSupported"),
             telephone = Person.telephone;
 }

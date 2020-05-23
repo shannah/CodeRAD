@@ -23,6 +23,7 @@ import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.NumberFormatterAttribute;
 import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.models.Tags;
+import com.codename1.rad.models.TextFormatterAttribute;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -529,6 +530,10 @@ public abstract class Node<T> extends Attribute<T> {
     public DateFormatterAttribute getDateFormatter() {
         return findInheritedAttribute(DateFormatterAttribute.class);
         
+    }
+    
+    public TextFormatterAttribute getTextFormatter() {
+        return findInheritedAttribute(TextFormatterAttribute.class);
     }
     
     public NumberFormatterAttribute getNumberFormatter() {

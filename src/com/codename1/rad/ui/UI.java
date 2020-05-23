@@ -59,6 +59,7 @@ import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.models.PropertySelectorProvider;
 import com.codename1.rad.models.StringProvider;
 import com.codename1.rad.models.Tag;
+import com.codename1.rad.models.TextFormatterAttribute;
 import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.nodes.ActionNode.EnabledCondition;
 import com.codename1.rad.nodes.ActionViewFactoryNode;
@@ -68,6 +69,7 @@ import com.codename1.rad.propertyviews.ButtonListPropertyView.ButtonListLayout;
 import com.codename1.rad.text.CurrencyFormatter;
 import com.codename1.rad.text.DateFormatter;
 import com.codename1.rad.text.DecimalNumberFormatter;
+import com.codename1.rad.text.DefaultTextFormatter;
 import com.codename1.rad.text.IntegerFormatter;
 import com.codename1.rad.text.LocalDateLongStyleFormatter;
 import com.codename1.rad.text.LocalDateShortStyleFormatter;
@@ -75,6 +77,7 @@ import com.codename1.rad.text.LocalDateTimeFormatter;
 import com.codename1.rad.text.LocalDateTimeMediumStyleFormatter;
 import com.codename1.rad.text.LocalDateTimeShortStyleFormatter;
 import com.codename1.rad.text.NumberFormatter;
+import com.codename1.rad.text.TextFormatter;
 import com.codename1.rad.text.TimeAgoDateFormatter;
 import com.codename1.rad.ui.image.PropertyImageRenderer;
 import com.codename1.ui.Image;
@@ -299,6 +302,12 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         return fieldNode;
     }
     
+    public static FieldNode htmlComponent(Attribute... atts) {
+        FieldNode fieldNode = new FieldNode(atts);
+        fieldNode.setAttributes(HTML_COMPONENT);
+        return fieldNode;
+    }
+    
     public static ButtonListPropertyView.ButtonListLayoutAttribute buttonListLayout(ButtonListPropertyView.ButtonListLayout layout) {
         return new ButtonListPropertyView.ButtonListLayoutAttribute(layout);
     }
@@ -482,6 +491,18 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     
     public static ImageIcon icon(Image icon) {
         return new ImageIcon(icon);
+    }
+    
+    public static TextFormatterAttribute textFormat(TextFormatter fmt) {
+        return new TextFormatterAttribute(fmt);
+    }
+    
+    public static TextFormatterAttribute textFormat(DefaultTextFormatter.FormatCallback fmt) {
+        return new TextFormatterAttribute(new DefaultTextFormatter(fmt));
+    }
+    
+    public static TextFormatterAttribute textFormat(DefaultTextFormatter.FormatCallback fmt, DefaultTextFormatter.ParseCallback parse) {
+        return new TextFormatterAttribute(new DefaultTextFormatter(fmt, parse));
     }
     
     public static DateFormatterAttribute dateFormat(DateFormatter fmt) {

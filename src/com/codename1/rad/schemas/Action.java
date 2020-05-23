@@ -22,15 +22,15 @@ import com.codename1.rad.models.Tag;
  * @author shannah
  */
 public interface Action extends Thing {
-    public static final Tag actionStatus = new Tag(),
-            agent = new Tag(),
-            endTime = new Tag(),
-            error = new Tag(),
-            instrument = new Tag(),
-            location = new Tag(),
-            object = new Tag(),
-            participant = new Tag(),
-            result = new Tag(),
-            startTime = new Tag(),
-            target = new Tag();
+    public static final Tag actionStatus = new Tag("actionStatus"),
+            agent = new Tag("agent"),
+            endTime = new Tag("endTime"),
+            error = new Tag("error"),
+            instrument = new Tag("instrument"),
+            location = new Tag("location"),
+            object = new Tag("object"),
+            participant = new Tag("participant"),
+            result = new Tag("result"),
+            startTime = new Tag("startTime"),
+            target = new Tag("target");
 }

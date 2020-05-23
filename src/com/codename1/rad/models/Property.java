@@ -130,4 +130,12 @@ public interface Property<T> {
     public Tags getTags();
     
     
+    public static interface Setter<T> {
+        public void setValue(Entity entity, T value, Setter<T> defaultSetter);
+    }
+    
+    public static interface Getter<T> {
+        public T getValue(Entity entity, Getter<T> defaultGetter);
+    }
+    
 }

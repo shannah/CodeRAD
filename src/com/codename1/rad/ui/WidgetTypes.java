@@ -23,6 +23,7 @@ public interface WidgetTypes {
     public static final WidgetType SWITCH = new WidgetType(new Property.Name("switch"));
     public static final WidgetType RADIO = new WidgetType(new Property.Name("radio"));
     public static final WidgetType CHECKBOX = new WidgetType(new Property.Name("checkbox"));
+    public static final WidgetType HTML_COMPONENT = new WidgetType(new Property.Name("html-component"));
     
     
 }
