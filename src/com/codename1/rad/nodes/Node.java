@@ -212,6 +212,12 @@ public abstract class Node<T> extends Attribute<T> {
         return getViewParameter(true, prop, null);
     }
     
+    /**
+     * Gets the value of a view parameter.
+     * @param <V>
+     * @param prop
+     * @return 
+     */
     public <V> V getViewParameterValue(ViewProperty<V> prop) {
         ViewPropertyParameter<V> param = getViewParameter(prop);
         if (param == null) {
@@ -220,6 +226,13 @@ public abstract class Node<T> extends Attribute<T> {
         return param.getValue();
     }
     
+    /**
+     * Gets the value of a view parameter
+     * @param <V> The ViewProperty type.
+     * @param prop The view property
+     * @param defaultValue The default value returned in the case where no such view property is found on this node.
+     * @return The view parameter value.
+     */
     public <V> V getViewParameterValue(ViewProperty<V> prop, V defaultValue) {
         ViewPropertyParameter<V> param = getViewParameter(prop);
         if (param == null) {
@@ -228,6 +241,11 @@ public abstract class Node<T> extends Attribute<T> {
         return param.getValue();
     }
     
+    /**
+     * Checks if this node has the given view parameter.
+     * @param prop
+     * @return 
+     */
     public boolean hasViewParameter(ViewProperty<?> prop) {
         return getViewParameter(prop) != null;
     }
@@ -361,6 +379,11 @@ public abstract class Node<T> extends Attribute<T> {
         this.attributes.setAttributes(atts);
     }
     
+    /**
+     * Gets the child nodes of this node.  If this is a proxying node, this will include both the 
+     * actual child nodes, and the nodes of the node that this is proxying for.
+     * @return 
+     */
     public NodeList getChildNodes() {
         NodeList out = new NodeList();
         out.add(this.childNodes);
@@ -370,6 +393,11 @@ public abstract class Node<T> extends Attribute<T> {
         return out;
     }
     
+    /**
+     * Gets the child nodes of this node that are FieldNode instances.
+     * @param tags
+     * @return 
+     */
     public NodeList getChildFieldNodes(Tags tags) {
         NodeList out = new NodeList();
         NodeList fieldNodes = getChildNodes(FieldNode.class);
@@ -382,6 +410,11 @@ public abstract class Node<T> extends Attribute<T> {
         return out;
     }
     
+    /**
+     * Gets the child nodes of this node of the given type.
+     * @param type
+     * @return 
+     */
     public NodeList getChildNodes(Class type) {
         NodeList out = new NodeList();
         for (Node n : childNodes) {
@@ -395,10 +428,39 @@ public abstract class Node<T> extends Attribute<T> {
         return out;
     }
     
+    /**
+     * Gets a child node of this node of the given type.
+     * @param <V>
+     * @param type
+     * @return 
+     */
+    public <V> V getChildNode(Class<V> type) {
+        NodeList n = getChildNodes(type);
+        if (n.isEmpty()) {
+            return null;
+        }
+        return (V)n.iterator().next();
+    }
+    
+    
+    /**
+     * Gets actions on this node in the given category.  This will not include 
+     * actions defined in parent nodes.  See {@link #getInheritedActions(com.codename1.rad.nodes.ActionNode.Category) }
+     * if you want to also include actions defined in parents.
+     * @param category
+     * @return 
+     */
     public Actions getActions(Category category) {
         return getActions(false, new Actions(), category);
     }
     
+    /**
+     * Gets an action defined on this node that matches the given category.  This will
+     * not check parent nodes for matching actions.  See {@link #getInheritedAction(com.codename1.rad.nodes.ActionNode.Category) }
+     * if you want to also check parent nodes for matching actions.
+     * @param category
+     * @return 
+     */
     public ActionNode getAction(Category category) {
         Actions actions = getActions(category);
         if (actions.isEmpty()) {
@@ -407,11 +469,21 @@ public abstract class Node<T> extends Attribute<T> {
         return actions.iterator().next();
     }
     
-    
+    /**
+     * Gets actions on this node, and parent node(s) in the given category.
+     * @param category 
+     * @return 
+     */
     public Actions getInheritedActions(Category category) {
         return getActions(true, new Actions(), category);
     }
     
+    /**
+     * Gets action matching the given category in this node.  If none is found
+     * in the current node, it will check the parent node for matches.
+     * @param category
+     * @return 
+     */
     public ActionNode getInheritedAction(Category category) {
         Actions actions = getInheritedActions(category);
         if (actions.isEmpty()) {
@@ -438,6 +510,11 @@ public abstract class Node<T> extends Attribute<T> {
         return out;
     }
     
+    /**
+     * Flattens attributes in provided arrays into a single Attribute[] array.
+     * @param arrs
+     * @return 
+     */
     protected final static Attribute[] merge(Attribute[]... arrs) {
         
         int outerLen = arrs.length;
@@ -499,6 +576,11 @@ public abstract class Node<T> extends Attribute<T> {
         }
     }
     
+    /**
+     * Gets the value of the {@link UIID} attribute on this node.  This will not check the parent node.
+     * @param defaultVal Default returned if the node does not contain a UIID attribute.
+     * @return 
+     */
     public String getUIID(String defaultVal) {
         UIID out = getUIID();
         if (out == null) {
@@ -507,10 +589,19 @@ public abstract class Node<T> extends Attribute<T> {
         return out.getValue();
     }
     
+    /**
+     * Gets {@link UIID} attribute of this node.  This will not check the parent node.
+     * @return 
+     */
     public UIID getUIID() {
         return (UIID)findAttribute(UIID.class);
     }
     
+    /**
+     * Gets {@link UIIDPrefix} value of this node.  This will not check the parent node.
+     * @param defaultVal
+     * @return 
+     */
     public String getUIIDPrefix(String defaultVal) {
         UIIDPrefix out = getUIIDPrefix();
         if (out == null) {
@@ -519,28 +610,56 @@ public abstract class Node<T> extends Attribute<T> {
         return out.getValue();
     }
     
+    /**
+     * Gets {@link UIIDPrefix} attribute of this node.  This will crawl up the parent hierarchy
+     * until it finds a UIIDPrefix setting.
+     * @return 
+     */
     public UIIDPrefix getUIIDPrefix() {
         return (UIIDPrefix)findInheritedAttribute(UIIDPrefix.class);
     }
     
+    /**
+     * Gets {@link IconUIID} attribute of this node.  This will NOT check the parent node.
+     * @return 
+     */
     public IconUIID getIconUIID() {
         return (IconUIID)findAttribute(IconUIID.class);
     }
     
+    /**
+     * Gets {@link DataFormatterAttribute} of this node.  This will crawl up the parent hierarchy
+     * until it finds a date formatter.
+     * @return 
+     */
     public DateFormatterAttribute getDateFormatter() {
         return findInheritedAttribute(DateFormatterAttribute.class);
         
     }
     
+    /**
+     * Gets {@link TextFormatterAttribute} of this node.  THis will crawl up the parent hierarchy
+     * until it finds a text formatter.
+     * @return 
+     */
     public TextFormatterAttribute getTextFormatter() {
         return findInheritedAttribute(TextFormatterAttribute.class);
     }
     
+    /**
+     * Gets {@link NumberFormatterAttribute} of this node.
+     * @return 
+     */
     public NumberFormatterAttribute getNumberFormatter() {
         return findInheritedAttribute(NumberFormatterAttribute.class);
     }
     
-    
+    /**
+     * Convenience method that casts a node to the given type.
+     * @param <V>
+     * @param type
+     * @return 
+     */
     public <V extends Node> V as(Class<V> type) {
         if (type.isAssignableFrom(this.getClass())) {
             return (V)this;
@@ -548,6 +667,16 @@ public abstract class Node<T> extends Attribute<T> {
         return null;
     }
     
+    /**
+     * Creates a property selector on the given entity using (in order of decreasing precedence):
+     * 
+     * 1. A {@link PropertyNode} attribute on the node.
+     * 2. A {@link Tags} attribute on the node.
+     * 3. A {@link PropertySelectorAttribute} on the node.
+     * 
+     * @param entity The entity on which the property selector should be created.
+     * @return The property selector.
+     */
     public PropertySelector createPropertySelector(Entity entity) {
         PropertyNode prop = findAttribute(PropertyNode.class);
         if (prop != null) {

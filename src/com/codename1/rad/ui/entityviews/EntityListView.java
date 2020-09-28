@@ -33,6 +33,8 @@ import com.codename1.ui.layouts.Layout;
 import com.codename1.ui.plaf.Border;
 import java.util.ArrayList;
 import java.util.List;
+import com.codename1.rad.models.ContentType;
+import com.codename1.ui.layouts.GridLayout;
 
 /**
  * A view that renders an {@link EntityList} visually.  This will bind to the list's events so that rows will animate in and 
@@ -45,13 +47,57 @@ import java.util.List;
  */
 public class EntityListView<T extends EntityList> extends AbstractEntityView<T> implements ScrollableContainer {
     
+    /**
+     * An enum to specify the layout used for the rows.
+     */
+    public static enum RowLayout {
+        /**
+         * Layout the list in a BoxLayout.Y layout (i.e. vertical rows)
+         */
+        Y,
+        
+        /**
+         * Layout the list in a grid.  Use the {@link #COLUMNS} and {@link #LANDSCAPE_COLUMNS} view properties
+         * to configure the number of columns in the grid.
+         */
+        Grid
+    }
     
-    
-    
+    /**
+     * View property to configure whether the list is scrollable vertically.
+     */
     public static final ViewProperty<Boolean> SCROLLABLE_Y = ViewProperty.booleanProperty();
+    
+    /**
+     * View property to configure whether the list is scrollable horizontally.
+     */
     public static final ViewProperty<Boolean> SCROLLABLE_X = ViewProperty.booleanProperty();
+    
+    /**
+     * View property to configure whether inserting new rows should be animated.
+     */
     public static final ViewProperty<Boolean> ANIMATE_INSERTIONS = ViewProperty.booleanProperty();
+    
+    /**
+     * View property to configure whether removing rows should be animated.
+     */
     public static final ViewProperty<Boolean> ANIMATE_REMOVALS = ViewProperty.booleanProperty();
+    
+    /**
+     * View property to specify the layout of the list.  See {@link RowLayout}.
+     */
+    public static final ViewProperty<RowLayout> LAYOUT = new ViewProperty<RowLayout>(ContentType.createObjectType(RowLayout.class));
+    
+    /**
+     * View property to specify the number of columns to use for the {@link RowLayout#Grid} layout.
+     */
+    public static final ViewProperty<Integer> COLUMNS = ViewProperty.intProperty();
+    
+    /**
+     * View property to specify the number of columns to use in landscape mode for {@link RowLayout#Grid}
+     */
+    public static final ViewProperty<Integer> LANDSCAPE_COLUMNS = ViewProperty.intProperty();
+    
     
     private ListNode node;
     private EntityListCellRenderer renderer;
@@ -72,18 +118,34 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     private boolean animateInsertions=true;
     private boolean animateRemovals=true;
     
+    /**
+     * Sets whether to animate insertions into the list.  This can also be configured using the {@link #ANIMATE_INSERTIONS}
+     * view property.
+     * @param anim 
+     */
     public void setAnimateInsertions(boolean anim) {
         animateInsertions = anim;
     }
     
+    /**
+     * Checks if animation of row insertions is enabled.
+     * @return 
+     */
     public boolean isAnimateInsertions() {
         return animateInsertions;
     }
     
+    /**
+     * Sets whether to animate removes from the list.  This can also be configured using the {@link #ANIMATE_REMOVALS} view property.
+     */
     public void setAnimateRemovals(boolean anim) {
         animateRemovals = anim;
     }
     
+    /**
+     * Checks if animate removals is enabled.
+     * @return 
+     */
     public boolean isAnimateRemovals() {
         return animateRemovals;
     }
@@ -150,6 +212,11 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     };
     
 
+    /**
+     * Creates a list view for the given Entity list
+     * @param list The view model to render.
+     * @param node Node providing configuration and actions for the view.
+     */
     public EntityListView(T list, ListNode node) {
         super(list);
         setUIID("EntityListView");
@@ -172,6 +239,23 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         if (scrollableY != null) {
             wrapper.setScrollableY(scrollableY);
             wrapper.setGrabsPointerEvents(true);
+        }
+        
+        RowLayout rowLayout = (RowLayout)node.getViewParameterValue(LAYOUT);
+        if (rowLayout != null && rowLayout == RowLayout.Grid) {
+            Integer columns = (Integer)node.getViewParameterValue(COLUMNS);
+            GridLayout gridLayout;
+            if (columns == null) {
+               gridLayout = GridLayout.autoFit();
+            } else {
+                Integer landscapeColumns = (Integer)node.getViewParameterValue(LANDSCAPE_COLUMNS);
+                if (landscapeColumns == null) {
+                    gridLayout = new GridLayout(columns);
+                } else {
+                    gridLayout = new GridLayout(1, columns, 1, landscapeColumns);
+                }
+            }
+            wrapper.setLayout(gridLayout);
         }
         setLayout(new BorderLayout());
         //add(BorderLayout.CENTER, wrapper);
@@ -285,19 +369,39 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         return node;
     }
     
+    /**
+     * Gets the container that is scrollable, for scrolling through rows.
+     * @return 
+     */
     public Container getScrollWrapper() {
         return wrapper;
     }
 
+    /**
+     * A wrapper for {@link #getScrollWrapper() } to conform to the {@link ScrollableContainer} interface.
+     * @return 
+     */
     @Override
     public Container getVerticalScroller() {
         return getScrollWrapper();
     }
     
     
-    
+    /**
+     * Sets the layout used to render rows of the list.
+     * @param l The layout used to render the list.
+     */
     public void setListLayout(Layout l) {
         wrapper.setLayout(l);
     }
+    
+    /**
+     * Gets the layout used to render the rows of the list.
+     * @return 
+     */
+    public Layout getListLayout() {
+        return wrapper.getLayout();
+    }
+
     
 }

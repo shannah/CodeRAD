@@ -12,7 +12,7 @@ package com.codename1.rad.models;
  * @see EntityType#entity(java.lang.Class) 
  */
 public  class EntityProperty<T extends Entity> extends AbstractProperty<T> {
-    
+    private Class<T> representationClass;
     private static <V> ContentType<V> toContentType(Class<V> cls) {
         if (cls == Entity.class) {
             return (ContentType<V>)ContentType.EntityType;
@@ -25,6 +25,15 @@ public  class EntityProperty<T extends Entity> extends AbstractProperty<T> {
     
     public EntityProperty(Class<T> cls) {
         super(toContentType(cls));
+        this.representationClass = cls;
+    }
+    
+    /**
+     * Gets the representation class for this entity.
+     * @return 
+     */
+    public Class<T> getRepresentationClass() {
+        return representationClass;
     }
     
     

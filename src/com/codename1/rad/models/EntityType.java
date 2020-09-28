@@ -72,12 +72,18 @@ public class UserProfile extends Entity {
  * @author shannah
  */
 public class EntityType implements Iterable<Property> {
+    private Class entityClass;
     private EntityType superType;
     private ContentType contentType;
     //private Map<String,Property> properties = new HashMap<>();
     private final Set<Property> propertiesSet = new LinkedHashSet<>();
     private static Map<Class<? extends EntityType>, EntityType> types = new HashMap<>();
     
+    /**
+     * Gets the singleton EntityType instance for the given EntityType class.
+     * @param type The EntityType class.
+     * @return The singleton EntityType instance for the given EntityType class.
+     */
     public static EntityType getEntityType(Class<? extends EntityType> type) {
         EntityType t = types.get(type);
         if (t == null) {
@@ -91,6 +97,10 @@ public class EntityType implements Iterable<Property> {
         return t;
     }
     
+    /**
+     * Gets the ContentType of this EntityType.  Default is {@link ContentType#EntityType}.
+     * @return The ContentType of this entity type.
+     */
     public ContentType getContentType() {
         if (contentType == null) {
             return ContentType.EntityType;
@@ -98,22 +108,66 @@ public class EntityType implements Iterable<Property> {
         return contentType;
     }
     
+    /**
+     * Creates a new instance of this entity type.
+     * @return 
+     */
+    public Entity newInstance() {
+        if (entityClass == null) {
+            Entity out = new Entity();
+            out.setEntityType(this);
+            return out;
+        }
+        try {
+            Entity out = (Entity)entityClass.newInstance();
+            out.setEntityType(this);
+            return out;
+        } catch (Throwable t) {
+            Entity out = new Entity();
+            out.setEntityType(this);
+            return out;
+        }
+    }
+    
+    /**
+     * Initializes content type of an entity.
+     * @param e 
+     */
     void initContentType(Entity e) {
         if (contentType == null) {
             contentType = ContentType.createObjectType(e.getClass());
         }
+        if (entityClass == null) {
+            if (e.getClass() != Entity.class) {
+                setEntityClass(e.getClass());
+            }
+        }
     }
     
+    /**
+     * Adds a property to this EntityType.  
+     * @param property The property to add.
+     */
     public void addProperty(Property property) {
         propertiesSet.add(property);
     }
     
+    /**
+     * Adds a set of properties to this EntityType.
+     * @param properties The properties to add.
+     */
     public void addAllProperties(Property... properties) {
         for (Property p : properties) {
             addProperty(p);
         }
     }
     
+    
+    /**
+     * Removes a property from this EntityType.
+     * @param property The property to remove.
+     * @return True if the property was removed.   False if no changes were made (i.e. it didn't have this property).
+     */
     public boolean removeProperty(Property property) {
         if (propertiesSet.contains(property)) {
             propertiesSet.remove(property);
@@ -127,16 +181,33 @@ public class EntityType implements Iterable<Property> {
         return propertiesSet.iterator();
     }
 
+    /**
+     * Flag indicating whether this is a dynamic entity type.  Dynamic entity types are types that
+     * have no specified schema (you can add any properties, to entities of this type, without being 
+     * constrained by the properties defined in the EntityType.
+     * 
+     * Entities that don't have a type specified with {@link Entity#setEntityType(com.codename1.rad.models.EntityType) }
+     * will, by default have a dynamic entity type.
+     * @return 
+     */
     public boolean isDynamic() {
         return false;
     }
     
-    
+    /**
+     * Checks if this entity type contains the given property.
+     * @param property
+     * @return 
+     */
     public boolean contains(Property property) {
         return propertiesSet.contains(property);
     }
     
-    
+    /**
+     * Creates a new string property on this entity type, and adds it to the property set.
+     * @param atts The attributes of this property.
+     * @return The resulting property.
+     */
     public StringProperty string(Attribute... atts) {
         StringProperty out = new StringProperty();
         out.setAttributes(atts);
@@ -144,6 +215,13 @@ public class EntityType implements Iterable<Property> {
         return out;
     }
     
+    /**
+     * Creates a new property containing a specific Object type, and adds it to the property set.
+     * @param <T> The type of object
+     * @param type The Type of object.
+     * @param atts Attributes for the property
+     * @return The property.
+     */
     public <T> SimpleProperty<T> object(Class<T> type, Attribute... atts) {
         SimpleProperty<T> out = new SimpleProperty<T>(type);
         out.setAttributes(atts);
@@ -151,6 +229,11 @@ public class EntityType implements Iterable<Property> {
         return out;
     }
     
+    /**
+     * Creates a new date property, and adds it to the property set.
+     * @param atts Attributes of the property
+     * @return The property.
+     */
     public DateProperty date(Attribute... atts) {
         DateProperty out = new DateProperty();
         out.setAttributes(atts);
@@ -158,6 +241,11 @@ public class EntityType implements Iterable<Property> {
         return out;
     }
     
+    /**
+     * Creates a new Integer property, and adds it to the property set.
+     * @param atts Attributes of the property
+     * @return The property.
+     */
     public IntProperty Integer(Attribute... atts) {
         IntProperty p = new IntProperty();
         p.setAttributes(atts);
@@ -167,6 +255,11 @@ public class EntityType implements Iterable<Property> {
      
     }
     
+    /**
+     * Creates a new Double property, and adds it to the property set.
+     * @param atts Attributes of the property
+     * @return The property.
+     */
     public DoubleProperty Double(Attribute... atts) {
         DoubleProperty d = new DoubleProperty();
         d.setAttributes(atts);
@@ -174,6 +267,11 @@ public class EntityType implements Iterable<Property> {
         return d;
     }
     
+    /**
+     * Creates a new Boolean property, and adds it to the property set.
+     * @param atts Attributes of the property
+     * @return The property.
+     */
     public BooleanProperty Boolean(Attribute... atts) {
         BooleanProperty b = new BooleanProperty();
         b.setAttributes(atts);
@@ -181,6 +279,13 @@ public class EntityType implements Iterable<Property> {
         return b;
     }
     
+    /**
+     * Creates a new ListProperty (i.e. a property containing an EntityList and adds it to the property set.
+     * @param <T> The property type.  Subclass of EntityList.
+     * @param type The property type.  Subclass of EntityList
+     * @param atts THe attributes of the property
+     * @return The property.
+     */
     public <T extends EntityList> ListProperty<T> compose(Class<T> type, Attribute... atts) {
         ListProperty p = new ListProperty(type);
         p.setAttributes(atts);
@@ -188,10 +293,24 @@ public class EntityType implements Iterable<Property> {
         return p;
     }
     
+    /**
+     * Alias of {@link #compose(java.lang.Class, com.codename1.rad.models.Attribute...) }.
+     * @param <T> The property type.  Subclass of EntityList
+     * @param type The property type.  Subclass of EntityList
+     * @param atts The attributes of the property
+     * @return The property.
+     */
     public <T extends EntityList> ListProperty<T> list(Class<T> type, Attribute... atts) {
         return compose(type, atts);
     }
     
+    /**
+     * Creates a new EntityProperty (i.e. a property containing an Entity and adds it to the property set.
+     * @param <T> The property type.  Subclass of Entity.
+     * @param type The property type.  Subclass of Entity
+     * @param atts THe attributes of the property
+     * @return The property.
+     */
     public <T extends Entity> EntityProperty<T> entity(Class<T> type, Attribute... atts) {
         EntityProperty<T> p =  new EntityProperty(type);
         p.setAttributes(atts);
@@ -200,25 +319,49 @@ public class EntityType implements Iterable<Property> {
     }
     
     
-    
+    /**
+     * Creates a label attribute.
+     * @param label
+     * @return The label attribute.
+     */
     public static Label label(String label) {
         return new Label(label);
     }
     
+    /**
+     * Creates a description attribute.
+     * @param description
+     * @return The description attribute.
+     */
     public static Description description(String description) {
         return new Description(description);
     }
     
+    /**
+     * Creates a widget attribute
+     * @param atts
+     * @return The widget attribute.
+     */
     public static Widget widget(Attribute... atts) {
         WidgetDescriptor desc = new WidgetDescriptor();
         desc.setAttributes(atts);
         return new Widget(desc);
     }
     
+    /**
+     * Creates a Tags attribute.
+     * @param atts
+     * @return 
+     */
     public static Tags tags(Tag... atts) {
         return new Tags(atts);
     }
     
+    /**
+     * Finds a property in the entity type matching the given tags.  The first tag resolving to a property is used.
+     * @param tags The tags to look for.
+     * @return The matching property, or null, if none found.
+     */
     public Property findProperty(Tag... tags) {
         for (Tag tag : tags) {
             for (Property prop : propertiesSet) {
@@ -230,24 +373,55 @@ public class EntityType implements Iterable<Property> {
         return null;
     }
     
+    /**
+     * Gets a property value of an Entity.
+     * @param prop The property
+     * @param entity The entity.
+     * @param outputType The output type to coerce the value to.
+     * @return 
+     */
     public Object getPropertyValue(Property prop, Entity entity, ContentType outputType) {
         return ContentType.convert(prop.getContentType(), prop.getValue(entity), outputType);
     }
     
+    /**
+     * Sets a property value of an entity
+     * @param prop The property
+     * @param entity The entity.
+     * @param inputType The input type from which to coerce the value.
+     * @param data The value to set.s
+     */
     public void setPropertyValue(Property prop, Entity entity, ContentType inputType, Object data) {
         prop.setValue(entity, ContentType.convert(inputType, data, prop.getContentType()));
     }
     
     
-    
+    /**
+     * Gets property value of an entity as a string.
+     * @param prop The property
+     * @param entity The entity
+     * @return The string value.
+     */
     public String getText(Property prop, Entity entity) {
         return (String)getPropertyValue(prop, entity, ContentType.Text);
     }
     
+    /**
+     * Sets the property value of an entity as a string.
+     * @param prop The property
+     * @param entity The entity
+     * @param text The text to set.
+     */
     public void setText(Property prop, Entity entity, String text) {
         setPropertyValue(prop, entity, ContentType.Text, text);
     }
     
+    /**
+     * Gets property value of an entity as an int.
+     * @param prop The property
+     * @param entity The entity
+     * @return The int value.
+     */
     public Integer getInt(Property prop, Entity entity) {
         return (Integer)getPropertyValue(prop, entity, ContentType.IntegerType);
     }
@@ -256,6 +430,12 @@ public class EntityType implements Iterable<Property> {
         setPropertyValue(prop, entity, ContentType.IntegerType, value);
     }
     
+    /**
+     * Gets property value of an entity as a Double.
+     * @param prop The property
+     * @param entity The entity
+     * @return The double value.
+     */
     public Double getDouble(Property prop, Entity entity) {
         return (Double)getPropertyValue(prop, entity, ContentType.DoubleType);
     }
@@ -263,7 +443,27 @@ public class EntityType implements Iterable<Property> {
     public void setDouble(Property prop, Entity entity, double val) {
         setPropertyValue(prop, entity, ContentType.DoubleType, val);
     }
+
+    public void setLong(Property prop, Entity entity, long val) {
+        setPropertyValue(prop, entity, ContentType.LongType, val);
+    }
     
+    /**
+     * Gets property value of an entity as a long.
+     * @param prop The property
+     * @param entity The entity
+     * @return The long value.
+     */
+    public Long getLong(Property prop, Entity entity) {
+        return (Long)getPropertyValue(prop, entity, ContentType.LongType);
+    }
+    
+    /**
+     * Gets property value of an entity as a float.
+     * @param prop The property
+     * @param entity The entity
+     * @return The float value.
+     */
     public Float getFloat(Property prop, Entity entity) {
         return (Float)getPropertyValue(prop, entity, ContentType.FloatType);
     }
@@ -272,6 +472,12 @@ public class EntityType implements Iterable<Property> {
         setPropertyValue(prop, entity, ContentType.FloatType, val);
     }
     
+    /**
+     * Gets property value of an entity as a boolean.
+     * @param prop The property
+     * @param entity The entity
+     * @return The boolean value.
+     */
     public Boolean getBoolean(Property prop, Entity entity) {
         return (Boolean)getPropertyValue(prop, entity, ContentType.BooleanType);
     }
@@ -279,6 +485,7 @@ public class EntityType implements Iterable<Property> {
     public void setBoolean(Property prop, Entity entity, boolean val) {
         setPropertyValue(prop, entity, ContentType.BooleanType, val);
     }
+    
     
     public Object getPropertyValue(Tag tag, Entity entity, ContentType outputType) {
         Property prop = findProperty(tag);
@@ -378,6 +585,22 @@ public class EntityType implements Iterable<Property> {
         return setPropertyValue(prop, entity, ContentType.DoubleType, val);
     }
     
+    public Long getLong(Entity entity, Tag... tags) {
+        return (Long)getPropertyValue(entity, ContentType.LongType, tags);
+    }
+    
+    public boolean setLong(Entity entity, long val, Tag... tags) {
+        return setPropertyValue(entity, ContentType.LongType, val, tags);
+    }
+    
+    public Long getLong(Tag prop, Entity entity) {
+        return (Long)getPropertyValue(prop, entity, ContentType.LongType);
+    }
+    
+    public boolean setLong(Tag prop, Entity entity, long val) {
+        return setPropertyValue(prop, entity, ContentType.LongType, val);
+    }
+    
     public Float getFloat(Tag prop, Entity entity) {
         return (Float)getPropertyValue(prop, entity, ContentType.FloatType);
     }
@@ -457,6 +680,11 @@ public class EntityType implements Iterable<Property> {
     
 
     private boolean frozen;
+    
+    /**
+     * Freezes the entity type.  After the entity type has been frozen, it can no longer have properties added to it
+     * and properties in the entity type can no longer be modified.
+     */
     void freeze() {
         if (frozen) {
             return;
@@ -467,5 +695,31 @@ public class EntityType implements Iterable<Property> {
         }
     }
     
+    /**
+     * Creates an entity type.
+     */
+    public EntityType() {
+        
+    }
+    
+    /**
+     * Creates an entity type with the given properties.
+     * @param properties 
+     */
+    public EntityType(Property... properties) {
+        for (Property prop : properties) {
+            propertiesSet.add(prop);
+        }
+    }
+    
+    /**
+     * Sets the entity class for this entity type.
+     * @param cls 
+     */
+    void setEntityClass(Class cls) {
+        if (cls != Entity.class) {
+            entityClass = cls;
+        }
+    }
     
 }

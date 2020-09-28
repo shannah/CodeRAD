@@ -52,21 +52,45 @@ image::../../../../doc-files/Entity-Property-Tag-MVC.png[]
  */
 public class Tag extends Attribute<Name> {
     
+    /**
+     * Creates a new Tag with given name.
+     * @param value A name for the tag.  Used for debugging mainly.
+     */
     public Tag(Name value) {
         super(value);
     }
     
+    /**
+     * Creates a new Tag with given name.
+     * @param str The name of the tag.  Used for debugging mainly.
+     */
     public Tag(String str) {
         this(new Name(str));
     }
     
+    /**
+     * Creates a new Tag.
+     */
     public Tag() {
         this(new Name(""));
     }
     
-    
+    /**
+     * Gets the name of the tag.
+     * @return 
+     */
     public String getName() {
         return getValue().getValue();
     }
+
+    @Override
+    public String toString() {
+        if (getName() != null) {
+            return "Tag ("+getName()+")";
+        }
+        return super.toString();
+    }
+    
+    
     
 }
