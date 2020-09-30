@@ -619,4 +619,9 @@
         <property value="JavaSE.jar:lib/CLDC11.jar:lib/lib/impl/cls" name="javac.classpath"/>        
     </target>
     <target depends="pre-javadoc,init,-javadoc-build,-javadoc-browse" description="Build Javadoc." name="javadoc"/>
+    
+    <target name="update-dev-libs" description="Update Development Libs">
+        <copy file="/Users/shannah/cn1_files/cn1/Ports/JavaSE/dist/JavaSE.jar" tofile="JavaSE.jar"/>
+        <copy file="/Users/shannah/cn1_files/cn1/CodenameOne/dist/CodenameOne.jar" tofile="lib/CodenameOne.jar"/>
+    </target>
 </project>
