@@ -25,7 +25,6 @@ import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityProperty;
 import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.Property;
-import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.models.Tag;
 import com.codename1.xml.Element;
 import java.io.IOException;
@@ -36,7 +35,104 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * A class that can parse XML or JSON data structures into Entity objects.
+ * 
+ * === Example 1:
+ * 
+ * [source,java]
+ * ----
+ * 
+ *   public static final Tag publications = new Tag("Publications");
+        
+        public static EntityType personType = new EntityTypeBuilder()
+            .string(Person.name)
+            .string(Person.email)
+            .Date(Person.birthDate)
+            .list(People.class, Person.children)
+            .list(Publications.class, publications)
+            .build();
+        
+        public static EntityType publicationType = new EntityTypeBuilder()
+                .string(Thing.name)
+                .string(Thing.description)
+                .build();
+        
+        
+        public static class PersonModel extends Entity {
+            
+            {
+                setEntityType(personType);
+            }
+        }
+        
+        
+        public static class People extends EntityList<PersonModel> {
+            {
+                setRowType(personType);
+            }
+        }
+        
+        public static class PublicationModel extends Entity {
+            {
+                setEntityType(publicationType);
+            }
+        }
+        
+        public static class Publications extends EntityList<PublicationModel> {
+            {
+                setRowType(publicationType);
+            }
+        }
+        
+        static {
+            new PersonModel();
+            new PublicationModel();
+        }
+        ...
+        * 
+ *  private void nestedXMLAttsTest() throws Exception {
+        
+        assertTrue(personType.newInstance() instanceof PersonModel, "persontype should create a Person, but created "+personType.newInstance());
+        
+        ResultParser parser = new ResultParser(personType)
+                .property("@name", Person.name)
+                .property("@email", Person.email)
+                .property("@dob", Person.birthDate, new SimpleDateFormat("MMM d, yyyy"))
+                .property("./children/person", Person.children)
+                .property("./publication", publications)
+                ;
+        
+        ResultParser publicationParser = new ResultParser(publicationType)
+                .property("@name", Thing.name)
+                .property(".", Thing.description);
+        parser.add(publicationParser);
+        
+        String json = "<person name=\"Paul\" email=\"paul@example.com\" dob=\"December 27, 1978\">"
+                + "<children><person name=\"Jim\" email=\"jim@example.com\" dob=\"January 10, 1979\"/>"
+                + "<person name=\"Jill\" email=\"jill@example.com\" dob=\"January 11, 1979\"/></children><publication name=\"Time Magazine\">Political and current event stories</publication>"
+                + "<publication name=\"Vancouver Sun\"/></person>";
+        XMLParser xparser = new XMLParser();
+        Element root = xparser.parse(new StringReader("<?xml version='1.0'?>\n"+json));
+        Entity person = parser.parseRow(Result.fromContent(root), personType.newInstance());
+        assertEqual("Paul", person.getText(Person.name));
+        assertEqual("paul@example.com", person.getText(Person.email));
+        
+        People children = (People)person.get(Person.children);
+        assertEqual(2, children.size());
+        assertEqual("Jim", children.get(0).get(Person.name));
+        assertEqual("jim@example.com", children.get(0).get(Person.email));
+        assertEqual("Jill", children.get(1).get(Person.name));
+        assertEqual("jill@example.com", children.get(1).get(Person.email));
+        
+        Publications pubs = (Publications)person.get(publications);
+        assertEqual(2, pubs.size());
+        assertEqual("Time Magazine", pubs.get(0).get(Thing.name));
+        assertEqual("Vancouver Sun", pubs.get(1).get(Thing.name));
+        assertEqual("Political and current event stories", pubs.get(0).get(Thing.description));
+        
+    }
+    ----
+ * 
  * @author shannah
  */
 public class ResultParser {
@@ -46,12 +142,26 @@ public class ResultParser {
     private final EntityType entityType;
     private Map<EntityType,ResultParser> parserMap;
     
-    
+    /**
+     * Creates a new ResultParser for the given entity type.
+     * @param type The entity type that this parser can parse to.
+     */
     public ResultParser(EntityType type) {
         this.entityType = type;
         
     }
    
+    /**
+     * Gets the root parser of this parser group.  Multiple parsers can be grouped togther so that XML or JSON structures
+     * which include more than one type of entity can all be parsed with one parser group.  Parsers are grouped together using the 
+     * {@link #add(com.codename1.rad.io.ResultParser...) } method, but the "first" parser in a group is always considered to 
+     * be the root parser.
+     * 
+     * If you call {@link #add(com.codename1.rad.io.ResultParser...) } on a child parser of the group, it will actually add the
+     * parser to the root parser, so that the parser group forms a single level tree with a root and a number of leaves.
+     * 
+     * @return The root result parser in the group.
+     */
     public ResultParser getRootParser() {
         if (parent == null) {
             return this;
@@ -59,6 +169,12 @@ public class ResultParser {
         return parent.getRootParser();
     }
     
+    /**
+     * Adds parsers to the parser group  Parsers can be grouped together so that XML/JSON documents that contain more than
+     * one type of entity can be parsed correctly.
+     * @param parsers The The parsers to add.
+     * @return Self for chaining.
+     */
     public ResultParser add(ResultParser... parsers) {
         ResultParser root = getRootParser();
         if (root.parserMap == null) {
@@ -74,6 +190,12 @@ public class ResultParser {
         return this;
     }
     
+    /**
+     * Gets the parser that is registered for the given entity type.  Each parser can only be registered for a single entity type, but
+     * parsers can be grouped together using {@link #add(com.codename1.rad.io.ResultParser...) }.  
+     * @param type The entity type to retrieve a parser for.
+     * @return The corresponding parser, or null if none could be found.
+     */
     public ResultParser getParserFor(EntityType type) {
         ResultParser root = getRootParser();
         if (root.entityType == type) {
@@ -86,11 +208,18 @@ public class ResultParser {
         
     }
     
-    
+    /**
+     * Interface to get a property for a provided selector.
+     */
     private interface Getter {
         Object get(Result res, String selector);
     }
     
+    /**
+     * Creates a getter for a given property.
+     * @param property
+     * @return 
+     */
     private static Getter createGetter(Property property) {
         Getter getter = null;
         ContentType propType = property.getContentType();
@@ -138,6 +267,9 @@ public class ResultParser {
         return getter;
     }
     
+    /**
+     * A class that knows how to parse a particular property.
+     */
     private static class PropertyParser {
         private String resultPropertySelector;
         private Property property;
@@ -164,50 +296,130 @@ public class ResultParser {
         
     }
     
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param getter The getter to use for "Getting" the property.
+     * @param property The property to bind to.
+     * @param parserCallback A callback to use for parsing the property.
+     * @return Self for chaining.
+     */
     public ResultParser property(String resultPropertySelector, Getter getter, Property property, PropertyParserCallback parserCallback) {
         propertyParsers.add(new PropertyParser(resultPropertySelector, getter, property, parserCallback));
         return this;
     }
+    
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param property The property to bind to.
+     * @param parserCallback A callback to use for parsing the property.
+     * @return Self for chaining.
+     */
     public ResultParser property(String resultPropertySelector, Property property, PropertyParserCallback parserCallback) {
         propertyParsers.add(new PropertyParser(resultPropertySelector, null, property, parserCallback));
         return this;
     }
     
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param getter The getter to use for "Getting" the property.
+     * @param property The property to bind to.
+     * @return Self for chaining.
+     */
     public ResultParser property(String resultPropertySelector, Getter getter, Property property) {
         return property(resultPropertySelector, getter, property, null);
     }
     
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param property The property to bind to.
+     * @return Self for chaining.
+     */
     public ResultParser property(String resultPropertySelector, Property property) {
         return property(resultPropertySelector, null, property, null);
     }
     
-    public ResultParser property(String resultPropertySelector, Getter getter, PropertyParserCallback parserCallback, Tag... tags) {
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param getter The getter to use for "Getting" the property.
+     * @param parserCallback A callback to use for parsing the property.
+     * @param tags Tags for resolving the property to bind to.
+     * @return Self for chaining.
+     */
+    private ResultParser property(String resultPropertySelector, Getter getter, PropertyParserCallback parserCallback, Tag... tags) {
         propertyParsers.add(new PropertyParser(resultPropertySelector, getter, parserCallback, tags));
         return this;
     }
     
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param parserCallback A callback to use for parsing the property.
+     * @param tags Tags for resolving the property to bind to.
+     * @return Self for chaining.
+     */
     public ResultParser property(String resultPropertySelector, PropertyParserCallback parserCallback, Tag... tags) {
         propertyParsers.add(new PropertyParser(resultPropertySelector, null, parserCallback, tags));
         return this;
     }
     
-    public ResultParser property(String resultPropertySelector, Getter getter, Tag... tags) {
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param getter The getter to use for "Getting" the property.
+     * @param tags Tags for resolving the property to bind to.
+     * @return Self for chaining.
+     */
+    private ResultParser property(String resultPropertySelector, Getter getter, Tag... tags) {
         return property(resultPropertySelector, getter, null, tags);
     }
     
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tags Tags for resolving the property to bind to.
+     * @return Self for chaining.
+     */
     public ResultParser property(String resultPropertySelector, Tag... tags) {
         return property(resultPropertySelector, null, null, tags);
     }
     
-    public ResultParser property(String resultPropertySelector, Getter getter, Tag tag, PropertyParserCallback parserCallback) {
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param getter The getter to use for "Getting" the property.
+     * @param parserCallback A callback to use for parsing the property.
+     * @param tag Tag for resolving the property to bind to.
+     * @return Self for chaining.
+     */
+    private ResultParser property(String resultPropertySelector, Getter getter, Tag tag, PropertyParserCallback parserCallback) {
         return property(resultPropertySelector, getter, parserCallback, tag);
     }
     
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param parserCallback A callback to use for parsing the property.
+     * @param tag Tag for resolving the property to bind to.
+     * @return Self for chaining.
+     */
     public ResultParser property(String resultPropertySelector, Tag tag, PropertyParserCallback parserCallback) {
         return property(resultPropertySelector, null, parserCallback, tag);
     }
     
-    public ResultParser property(String resultPropertySelector, Getter getter, Tag tag, final SimpleDateFormat dateFormat) {
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param getter The getter to use for "Getting" the property.
+     * @param parserCallback A callback to use for parsing the property.
+     * @param tag Tag for resolving the property to bind to.
+     * @return Self for chaining.
+     */
+    private ResultParser property(String resultPropertySelector, Getter getter, Tag tag, final SimpleDateFormat dateFormat) {
         return property(resultPropertySelector, getter, tag, dateStr -> {
             if (!(dateStr instanceof String)) {
                 return null;
@@ -226,6 +438,13 @@ public class ResultParser {
         });
     }
     
+    /**
+     * Add support for parsing a particular property.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag Tag for resolving the property to bind to.
+     * @param dateFormat Date format for formatting date data in  property.
+     * @return Self for chaining.
+     */
     public ResultParser property(String resultPropertySelector, Tag tag, final SimpleDateFormat dateFormat) {
         return property(resultPropertySelector, null, tag, dateStr -> {
             if (!(dateStr instanceof String)) {
@@ -246,7 +465,13 @@ public class ResultParser {
     }
     
     // String properties----------------------------------------------------------
-    
+    /**
+     * Adds a string property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag to map to in the entity.
+     * @param dateFormat DateFormat for parsing dates.
+     * @return 
+     */
     public ResultParser string(String resultPropertySelector, Tag tag, final SimpleDateFormat dateFormat) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsString(sel);}, 
@@ -256,6 +481,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a string property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag to map to in the entity.
+     * @param callback A custom parser to use for parsing the content.
+     * @return Self for chaining.
+     */
     public ResultParser string(String resultPropertySelector, Tag tag, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsString(sel);}, 
@@ -265,6 +497,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a string property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tags The tags to map to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser string(String resultPropertySelector, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsString(sel);}, 
@@ -272,6 +510,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a string property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param callback Custom parser to use for parsing the property value.
+     * @param tags The tags to map to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser string(String resultPropertySelector, PropertyParserCallback callback, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsString(sel);},
@@ -280,6 +525,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a string property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop The property to bind to.
+     * @return Self for chaining.
+     */
     public ResultParser string(String resultPropertySelector, Property prop) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsString(sel);}, 
@@ -287,6 +538,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a string property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop The property to bind to.
+     * @param callback Custom parser to use for parsing the property value.
+     * @return Self for chaining.
+     */
     public ResultParser string(String resultPropertySelector, Property prop, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsString(sel);}, 
@@ -299,6 +557,13 @@ public class ResultParser {
     
     // Integer properties----------------------------------------------------------
     
+    /**
+     * Adds an integer property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag for the property to bind to in the entity.
+     * @param dateFormat Date format for parsing dates.
+     * @return Self for chaining.
+     */
     public ResultParser Integer(String resultPropertySelector, Tag tag, final SimpleDateFormat dateFormat) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsInteger(sel);}, 
@@ -308,6 +573,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an integer property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag for the property to bind to in the entity.
+     * @param callback Custom parser to use for parsing the property value.
+     * @return Self for chaining.
+     */
     public ResultParser Integer(String resultPropertySelector, Tag tag, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsInteger(sel);}, 
@@ -317,6 +589,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an integer property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tags The tags for the property to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Integer(String resultPropertySelector, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsInteger(sel);}, 
@@ -324,6 +602,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an integer property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tags The tags for the property to bind to in the entity.
+     * @param callback Custom parser to use for parsing the property value.
+     * @return Self for chaining.
+     */
     public ResultParser Integer(String resultPropertySelector, PropertyParserCallback callback, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsInteger(sel);},
@@ -332,6 +617,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an integer property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop The property to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Integer(String resultPropertySelector, Property prop) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsInteger(sel);}, 
@@ -339,6 +630,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an integer property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop The property to bind to in the entity.
+     * @param callback Custom parser to use for parsing the property value.
+     * @return Self for chaining.
+     */
     public ResultParser Integer(String resultPropertySelector, Property prop, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsInteger(sel);}, 
@@ -351,6 +649,13 @@ public class ResultParser {
     
     // Double properties----------------------------------------------------------
     
+    /**
+     * Adds an double property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag for the property to bind to in the entity.
+     * @param dateFormat Date format for parsing dates.
+     * @return Self for chaining.
+     */
     public ResultParser Double(String resultPropertySelector, Tag tag, final SimpleDateFormat dateFormat) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsDouble(sel);}, 
@@ -360,6 +665,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an double property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag for the property to bind to in the entity.
+     * @param callback Custom parser to use for parsing the property value.
+     * @return Self for chaining.
+     */
     public ResultParser Double(String resultPropertySelector, Tag tag, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsDouble(sel);}, 
@@ -369,6 +681,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an double property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tags The tags for the property to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Double(String resultPropertySelector, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsDouble(sel);}, 
@@ -376,6 +694,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an double property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param callback The custom parser to use for parsing the property value.
+     * @param tags The tags for the property to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Double(String resultPropertySelector, PropertyParserCallback callback, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsDouble(sel);},
@@ -384,6 +709,13 @@ public class ResultParser {
         );
     }
     
+
+    /**
+     * Adds an double property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop The property to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Double(String resultPropertySelector, Property prop) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsDouble(sel);}, 
@@ -391,6 +723,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds an double property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop The property to bind to in the entity.
+     * @param callback Custom parser to parse the property value.
+     * @return Self for chaining.
+     */
     public ResultParser Double(String resultPropertySelector, Property prop, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsDouble(sel);}, 
@@ -403,6 +742,13 @@ public class ResultParser {
     
     // Boolean properties----------------------------------------------------------
     
+    /**
+     * Adds a boolean property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag to bind to in the entity.
+     * @param dateFormat Date format for parsing dates.
+     * @return Self for chaining.
+     */
     public ResultParser Boolean(String resultPropertySelector, Tag tag, final SimpleDateFormat dateFormat) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsBoolean(sel);}, 
@@ -412,6 +758,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a boolean property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag to bind to in the entity.
+     * @param callback Custom parser to parse the property.
+     * @return Self for chaining.
+     */
     public ResultParser Boolean(String resultPropertySelector, Tag tag, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsBoolean(sel);}, 
@@ -421,6 +774,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a boolean property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tags The tags to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Boolean(String resultPropertySelector, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsBoolean(sel);}, 
@@ -428,6 +787,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a boolean property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param callback Custom parser for parsing the property.
+     * @param tags The tags to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Boolean(String resultPropertySelector, PropertyParserCallback callback, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsBoolean(sel);},
@@ -436,6 +802,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a boolean property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop Property to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Boolean(String resultPropertySelector, Property prop) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsBoolean(sel);}, 
@@ -443,6 +815,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a boolean property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop Property to bind to in the entity.
+     * @param callback Custom parser for parsing the property.
+     * @return Self for chaining.
+     */
     public ResultParser Boolean(String resultPropertySelector, Property prop, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsBoolean(sel);}, 
@@ -454,6 +833,14 @@ public class ResultParser {
     
     // Long properties----------------------------------------------------------
     
+    
+    /**
+     * Adds a long property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag to bind to in the entity.
+     * @param dateFormat Date format for parsing dates.
+     * @return Self for chaining.
+     */
     public ResultParser Long(String resultPropertySelector, Tag tag, final SimpleDateFormat dateFormat) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsLong(sel);}, 
@@ -463,6 +850,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a long property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tag The tag to bind to in the entity.
+     * @param callback Custom parser to parse the property.
+     * @return Self for chaining.
+     */
     public ResultParser Long(String resultPropertySelector, Tag tag, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsLong(sel);}, 
@@ -472,6 +866,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a long property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param tags The tags to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Long(String resultPropertySelector, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsLong(sel);}, 
@@ -479,6 +879,13 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a long property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param callback Custom parser for parsing the property.
+     * @param tags The tags to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Long(String resultPropertySelector, PropertyParserCallback callback, Tag... tags) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsLong(sel);},
@@ -487,6 +894,12 @@ public class ResultParser {
         );
     }
     
+    /**
+     * Adds a long property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop Property to bind to in the entity.
+     * @return Self for chaining.
+     */
     public ResultParser Long(String resultPropertySelector, Property prop) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsLong(sel);}, 
@@ -494,6 +907,14 @@ public class ResultParser {
         );
     }
     
+    
+    /**
+     * Adds a long property parser.
+     * @param resultPropertySelector The selector (in the {@link Result} expression language for retrieving the property from a Result.
+     * @param prop Property to bind to in the entity.
+     * @param callback Custom parser for parsing the property.
+     * @return Self for chaining.
+     */
     public ResultParser Long(String resultPropertySelector, Property prop, PropertyParserCallback callback) {
         return property(resultPropertySelector, 
                 (res,sel)->{return res.getAsLong(sel);}, 
@@ -518,13 +939,22 @@ public class ResultParser {
     }
   
     
-    
+    /**
+     * Interface that can be implemented and passed to any of the property methods to provide
+     * custom parsing of values retrieved from JSON/XML content.
+     */
     public static interface PropertyParserCallback {
         public Object parse(Object val);
     }   
     
     
-    
+    /**
+     * Parses a list of Maps or Elements into an EntityList.
+     * @param rows The rows to parse.
+     * @param out The entity list to append to.
+     * @return The resulting entity list (same as input parameter).
+     * @throws IOException If parsing failed.
+     */
     public EntityList parse(List rows, EntityList out) throws IOException {
         
         for (Object row : rows) {
@@ -547,14 +977,26 @@ public class ResultParser {
         return out;
     }
     
-    
+    /**
+     * Parses a result into the provided EntityList.
+     * @param result The result to parse. This should be rooted with a list/array.
+     * @param out The entitylist to add results to.
+     * @return
+     * @throws IOException 
+     */
     public EntityList parse(Result result, EntityList out) throws IOException {
         List rows = (List)result.getAsArray(rowsSelector);
         return parse(rows, out);
     }
     
     
-    
+    /**
+     * Parse a single row of a result into the given row entity.
+     * @param rowResult The rowResult.
+     * @param rowEntity The row entity.
+     * @return The resulting entity.  Same as input rowEntity.
+     * @throws IOException if parsing fails.
+     */
     public Entity parseRow(Result rowResult, Entity rowEntity) throws IOException {
         if (rowEntity.getEntityType() != entityType) {
             ResultParser matchingParser = getParserFor(rowEntity.getEntityType());
