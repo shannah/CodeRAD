@@ -55,6 +55,7 @@ public class CodeRADTests {
         TestRunnerComponent runner = new TestRunnerComponent();
         runner.add(new ResultParserTest());
         runner.add(new ElementSelectorTest());
+        
         runner.showForm();
     }
 
