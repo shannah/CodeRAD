@@ -95,6 +95,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                         if (!Objects.equals(newText, btn.getText())) {
                             btn.setText(newText);
                         }
+                        
                     }
                 }
             }

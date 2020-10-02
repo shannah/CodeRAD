@@ -16,3 +16,5 @@ include::installation.adoc[]
 include::getting-started.adoc[]
 
 include::controllers.adoc[]
+
+include::xml-json-serialization.adoc[]

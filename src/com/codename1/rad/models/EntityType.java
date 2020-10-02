@@ -6,6 +6,7 @@
 package com.codename1.rad.models;
 
 
+import com.codename1.io.Log;
 import com.codename1.rad.models.Property.Description;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Property.Widget;
@@ -71,30 +72,158 @@ public class UserProfile extends Entity {
 * 
  * @author shannah
  */
-public class EntityType implements Iterable<Property> {
+public class EntityType implements Iterable<Property>, EntityFactory {
     private Class entityClass;
     private EntityType superType;
     private ContentType contentType;
+    private EntityFactory factory;
     //private Map<String,Property> properties = new HashMap<>();
     private final Set<Property> propertiesSet = new LinkedHashSet<>();
-    private static Map<Class<? extends EntityType>, EntityType> types = new HashMap<>();
+    private static Map<Class<?>, EntityType> types = new HashMap<>();
+    
+    private Class listType, rowType;
+    
+    public EntityType getRowEntityType() {
+        if (rowType == null) {
+            return null;
+        }
+        if (types.containsKey(rowType)) {
+            return types.get(rowType);
+        }
+        return null;
+    }
+    
+    public EntityType getListEntityType() {
+        if (listType == null) {
+            return null;
+        }
+        if (types.containsKey(listType)) {
+            return types.get(listType);
+        }
+        return null;
+    }
+   
+    public EntityFactory getRowFactory() {
+        if (rowType == null) {
+            throw new IllegalStateException("Cannot get row factory for entity type "+this+" because no row type is defined");
+        }
+        EntityType rowInfo = types.get(rowType);
+        if (rowInfo == null) {
+            throw new IllegalStateException("Cannot get row factory for entity type "+this+" because no row factory is registered for row type "+rowType);
+        }
+        return rowInfo.getFactory(rowType);
+    }
+        
+    public EntityFactory getListFactory() {
+        if (listType == null) {
+            throw new IllegalStateException("Cannot get list factory for entity type "+this+" because not list type is defined");
+
+        }
+        EntityType listInfo = types.get(listType);
+        if (listInfo == null) {
+            throw new IllegalStateException("Cannot get list factory for entity type "+this+" because no list factory is registered for list type "+listType);
+        }
+        return listInfo.getFactory(listType);
+    }
+    
+    
+    public static EntityFactory getFactory(Class type) {
+        EntityType info = types.get(type);
+        if (info == null) {
+            throw new IllegalStateException("Cannot get factory for type "+type+" because "+type+" is not a registered entity type");
+        }
+        return info.getFactory();
+    }
+    
+    public static EntityFactory getRowFactory(Class type) {
+        EntityType info = types.get(type);
+        if (info == null) {
+            throw new IllegalStateException("Cannot get row factory for type "+type+" because "+type+" is not a registered entity type");
+        }
+        return info.getRowFactory();
+    }
+    
+    public static EntityFactory getListFactory(Class type) {
+        EntityType info = types.get(type);
+        if (info == null) {
+            throw new IllegalStateException("Cannot get list factory for type "+type+" because "+type+" is not a registered entity type");
+        }
+        return info.getListFactory();
+    }
+    
+    /**
+     * Creates an entity for the given class.
+     * @param type A class to create the entity for.  This can be either an EntityType class or an EntityClass
+     * @return A new entity of the given type.
+     * @throws IllegalArgumentException if either the entity type isn't registered or it fails to create an instance of it.
+     */
+    public static Entity createEntityForClass(Class type) {
+        EntityFactory factory = getFactory(type);
+        if (factory != null) {
+            Entity out = factory.createEntity(type);
+            if (out != null) {
+                return out;
+            }
+        }
+        Throwable ex = null;
+        if (Entity.class.isAssignableFrom(type)) {
+            try {
+                return (Entity)type.newInstance();
+            } catch (Throwable t){
+                ex = t;
+            }
+        }
+        if (EntityType.class.isAssignableFrom(type)) {
+            
+            EntityType et = (EntityType)types.get(type);
+            if (et != null) {
+                
+                
+                return et.newInstance();
+            }
+            throw new IllegalArgumentException("EntityType not found for class "+type);
+        }
+        if (ex != null) {
+            throw new IllegalStateException("Tried to instantiate entity with its constructor but failed.  Likely this entity class is either an internal class, a private class, has a private constructor, or has no no-arg constructor.   You can fix most of these issues by registering a factory for this entity type: "+type+".  Caused by error: "+ex.getMessage());
+        }
+        throw new IllegalArgumentException("createEntityForClass() expects either an Entity or EntityType subclass as a parameter, but received "+type);
+    }
+    
+   
     
     /**
      * Gets the singleton EntityType instance for the given EntityType class.
-     * @param type The EntityType class.
+     * @param type The EntityType or Entity class.
      * @return The singleton EntityType instance for the given EntityType class.
      */
-    public static EntityType getEntityType(Class<? extends EntityType> type) {
+    public static EntityType getEntityType(Class<?> type) {
         EntityType t = types.get(type);
+
         if (t == null) {
             try {
-                t = (EntityType)type.newInstance();
+                if (EntityType.class.isAssignableFrom(type)) {
+                    t = (EntityType)type.newInstance();
+                } else if (Entity.class.isAssignableFrom(type)) {
+                    Entity e = createEntityForClass(type);
+                    t = e.getEntityType();
+                }
+                
                 types.put(type, t);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
         return t;
+        
+    }
+    
+    
+    public Class getEntityClass() {
+        return entityClass;
+    }
+    
+    public static boolean isRegisteredEntityType(Class type) {
+        return types.containsKey(type);
     }
     
     /**
@@ -113,20 +242,139 @@ public class EntityType implements Iterable<Property> {
      * @return 
      */
     public Entity newInstance() {
+        return createEntity(entityClass);
+    }
+    
+    public static void deregister(Class... classes) {
+        for (Class type : classes) {
+            Entity e = (Entity)createEntityForClass(type);
+            EntityType et = e.getEntityType();
+            
+            types.remove(et.getClass());
+            types.remove(type);
+        }
+    }
+    
+    public static <T extends EntityList> void registerList(Class<T> listClass, Class rowType, EntityFactory factory) {
+        register(listClass, factory);
+        EntityType rowEntityType = EntityType.getEntityType(rowType);
+        if (rowEntityType == null) {
+            throw new IllegalStateException("Row type "+rowType+" must be registered before using it as a row type for registering "+listClass);
+        }
+        rowEntityType.setListType(listClass);
+    }
+    
+    public static void register(Class... classes) {
+        for (Class type : classes) {
+            register(type, (EntityType)null, (EntityFactory)null);
+        }
+    }
+    
+    public  static  <T extends Entity> void register(Class<T> cls, EntityFactory factory) {
+        register(cls, (EntityType)null, factory);
+    }
+    
+    public void setRowType(Class type) {
         if (entityClass == null) {
-            Entity out = new Entity();
-            out.setEntityType(this);
-            return out;
+            throw new IllegalStateException("Cannot set row type on entity type that has no representation class specified");
         }
-        try {
-            Entity out = (Entity)entityClass.newInstance();
-            out.setEntityType(this);
-            return out;
-        } catch (Throwable t) {
-            Entity out = new Entity();
-            out.setEntityType(this);
-            return out;
+        if (EntityList.class.isAssignableFrom(entityClass)) {
+            throw new IllegalStateException("setRowType() only applicable to list entity types.  "+this.getClass()+" is not a list entity type");
         }
+        EntityType info = types.get(getClass());
+        if (info == null) {
+            info = this;
+            types.put(getClass(), info);
+        }
+        
+        EntityType rowTypeInfo = types.get(type);
+        if (rowTypeInfo == null) {
+            throw new IllegalStateException("The type "+type+" is not registered.  setRowType() requires a registered entity class as an argument");
+        }
+        
+        if (rowTypeInfo.listType == null) {
+            rowTypeInfo.listType = entityClass;
+        }
+        info.rowType = type;
+    }
+    
+    public void setListType(Class type) {
+        if (entityClass == null) {
+            throw new IllegalStateException("Cannot set list type on entity type that has no representation class specified");
+        }
+        if (!EntityList.class.isAssignableFrom(type)) {
+            throw new IllegalArgumentException("setListType() requires a list entity type as argument.  "+type+" is not a list entity type");
+        }
+        EntityType info = types.get(getClass());
+        if (info == null) {
+            info = this;
+            types.put(getClass(), info);
+        }
+        
+        EntityType listTypeInfo = types.get(type);
+        if (listTypeInfo == null) {
+           throw new IllegalStateException(type+" is not a registered entity type.  setListType() requires a registered entity type as an argument");
+        }
+        
+        if (listTypeInfo.rowType == null) {
+            listTypeInfo.rowType = entityClass;
+        }
+        info.listType = type;
+    }
+    
+    /**
+     * Register an entity class and its optional factory.  This should be called before 
+     * using an Entity class.
+     * @param <T> 
+     * @param cls The entity class to register.
+     * @param factory The optional factory to create instances of this class. 
+     * If the class is public and has a no-arg constructor, then a factory isn't 
+     * necessary.  But if it is private or doesn't have a public no-arg constructor
+     *  you should provide a factory.
+     */
+    public  static  <T extends Entity> void register(Class<T> cls, EntityType et, EntityFactory factory) {
+        if (cls == Entity.class || cls == EntityList.class) {
+            throw new IllegalArgumentException("Cannot register Entity or EntityList directly.  Must register a subclass");
+        }
+        Entity e = null;
+        if (factory != null) {
+            e = factory.createEntity(cls);
+        } else {
+            try {
+                e = (Entity)cls.newInstance();
+                
+            } catch (Throwable t) {
+                throw new IllegalStateException("Failed to register entity type "+cls+" because calling its no-arg constructor failed.  Ensure that either this is a public class with a no-arg constructor, or provide a factory to be able to instantiate this class.  Caused by: "+t.getMessage());
+            }
+        }
+       
+        if (et == null) {
+            et = e.getEntityType();
+        }
+        if (et == null) {
+            et = new EntityTypeBuilder()
+                    .build();
+            
+            
+            
+        }
+        if (et.entityClass == null) {
+            et.entityClass = cls;
+        }
+        types.put(cls, et);
+        
+        et.factory(factory);
+        
+    }
+    
+    public EntityType factory(EntityFactory factory) {
+        this.factory = factory;
+        
+        return this;
+    }
+    
+    public EntityFactory getFactory() {
+        return this.factory;
     }
     
     /**
@@ -141,6 +389,9 @@ public class EntityType implements Iterable<Property> {
             if (e.getClass() != Entity.class) {
                 setEntityClass(e.getClass());
             }
+        }
+        if (entityClass != null && !types.containsKey(entityClass)) {
+            types.put(e.getClass(), this);
         }
     }
     
@@ -719,6 +970,33 @@ public class EntityType implements Iterable<Property> {
     void setEntityClass(Class cls) {
         if (cls != Entity.class) {
             entityClass = cls;
+        }
+    }
+
+    @Override
+    public Entity createEntity(Class type) {
+        if (type == null) {
+            type = entityClass;
+        }
+        if (factory != null) {
+            Entity out = factory.createEntity(type);
+            if (out != null) {
+                return out;
+            }
+        }
+        if (entityClass == null) {
+            Entity out = new Entity();
+            out.setEntityType(this);
+            return (Entity)out;
+        }
+        try {
+            Entity out = (Entity)entityClass.newInstance();
+            out.setEntityType(this);
+            return (Entity)out;
+        } catch (Throwable t) {
+            Entity out = new Entity();
+            out.setEntityType(this);
+            return (Entity)out;
         }
     }
     

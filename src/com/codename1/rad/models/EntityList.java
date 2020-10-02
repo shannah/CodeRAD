@@ -9,8 +9,10 @@ import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Encapsulates a list of entities. This list is observable, as it will fire {@link EntityListEvent} events when items are added 
@@ -41,6 +43,10 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     public class EntityListEvent extends ActionEvent {
         public EntityListEvent() {
             super(EntityList.this);
+            EntityType et = getEntityType();
+            if (et != null) {
+                setRowType(et.getRowEntityType());        
+            }
             
         }
     }
@@ -104,11 +110,18 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         this(rowType, maxLen, (List<T>)null);
     }
     public EntityList(EntityType rowType, int maxLen, List<T> internalList) {
+        if (rowType == null) {
+            EntityType et = getEntityType();
+            if (et != null) {
+                rowType = et.getRowEntityType();
+            }
+        }
         this.rowType = rowType;
         this.maxLen = maxLen;
         if (internalList != null) {
             entities = internalList;
         }
+        
     }
     
     public EntityList() {

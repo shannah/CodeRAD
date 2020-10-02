@@ -53,8 +53,10 @@ public class CodeRADTests {
             return;
         }
         TestRunnerComponent runner = new TestRunnerComponent();
+        runner.add(new EntityTypeTests());
         runner.add(new ResultParserTest());
         runner.add(new ElementSelectorTest());
+        
         
         runner.showForm();
     }

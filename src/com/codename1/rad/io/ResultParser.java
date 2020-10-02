@@ -21,6 +21,7 @@ import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.rad.processing.Result;
 import com.codename1.rad.models.ContentType;
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.EntityFactory;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityProperty;
 import com.codename1.rad.models.EntityType;
@@ -135,7 +136,7 @@ import java.util.Map;
  * 
  * @author shannah
  */
-public class ResultParser {
+public class ResultParser implements EntityFactory {
     private String rowsSelector="root";
     private ArrayList<PropertyParser> propertyParsers = new ArrayList<>();
     private ResultParser parent;
@@ -207,6 +208,13 @@ public class ResultParser {
         return null;
         
     }
+
+    @Override
+    public Entity createEntity(Class type) {
+        return EntityType.createEntityForClass(type);
+        
+    }
+    
     
     /**
      * Interface to get a property for a provided selector.
@@ -958,7 +966,11 @@ public class ResultParser {
     public EntityList parse(List rows, EntityList out) throws IOException {
         
         for (Object row : rows) {
-            Entity rowEntity = out.getRowType().newInstance();
+            Entity rowEntity = null;
+            rowEntity = EntityType.createEntityForClass(out.getRowType().getEntityClass());
+            if (rowEntity == null) {
+                rowEntity = out.getRowType().newInstance();
+            }
             Result rowResult;
             if (row instanceof Element) {
                 
@@ -989,6 +1001,14 @@ public class ResultParser {
         return parse(rows, out);
     }
     
+    
+    public Entity parseXML(String xml, Entity dest) throws IOException {
+        return parseRow(Result.fromContent(xml, Result.XML), dest);
+    }
+    
+    public Entity parseJSON(String json, Entity dest) throws IOException {
+        return parseRow(Result.fromContent(json, Result.JSON), dest);
+    }
     
     /**
      * Parse a single row of a result into the given row entity.
@@ -1050,6 +1070,7 @@ public class ResultParser {
                 rowEntity.setDate(prop, (Date)val);
             } else if (val instanceof List) {
                 if (prop.getContentType().isEntityList()) {
+                    
                     parse((List)val, rowEntity.getEntityListNonNull(prop));
                 } else {
                     throw new IOException("Property type mismatch.  Value "+val+" for property selector "+rs+" is a list, but the property "+prop+" is not an entity list type.");
@@ -1060,7 +1081,7 @@ public class ResultParser {
                     Class cls = eProp.getRepresentationClass();
                     Entity e;
                     try {
-                        e = (Entity)cls.newInstance();
+                        e = (Entity)createEntity(cls);
                     } catch (Throwable t) {
                         throw new IOException("Failed to create new entity instance for property "+prop+" of type "+cls);
                     }
@@ -1075,7 +1096,7 @@ public class ResultParser {
                     Class cls = eProp.getRepresentationClass();
                     Entity e;
                     try {
-                        e = (Entity)cls.newInstance();
+                        e = (Entity)createEntity(cls);
                     } catch (Throwable t) {
                         throw new IOException("Failed to create new entity instance for property "+prop+" of type "+cls);
                     }
@@ -1094,5 +1115,7 @@ public class ResultParser {
         }
         return rowEntity;
     }
+    
+   
     
 }

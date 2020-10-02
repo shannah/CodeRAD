@@ -38,6 +38,8 @@ import java.util.ArrayList;
  */
 public class EntityTypeBuilder {
     ArrayList<Property> properties = new ArrayList();
+    private Class listType, rowType;
+    
     private Class entityClass = Entity.class;
     
     public EntityTypeBuilder entityClass(Class<? extends Entity> cls) {
@@ -94,9 +96,34 @@ public class EntityTypeBuilder {
         return this;
     }
     
+    public EntityTypeBuilder object(Class cls, Attribute... atts) {
+        SimpleProperty prop = new SimpleProperty(cls);
+        prop.setAttributes(atts);
+        properties.add(prop);
+        return this;
+        
+    }
+    
+    public EntityTypeBuilder listType(Class<? extends EntityList> listType) {
+        this.listType = listType;
+        return this;
+    }
+    
+    public EntityTypeBuilder rowType(Class<?extends Entity> rowType) {
+        this.rowType = rowType;
+        return this;
+    }
+    
     public EntityType build() {
         EntityType out = new EntityType(properties.toArray(new Property[properties.size()]));
         out.setEntityClass(entityClass);
+        if (listType != null) {
+            out.setListType(listType);
+        }
+        if (rowType != null) {
+            out.setRowType(rowType);
+        }
         return out;
     }
+    
 }

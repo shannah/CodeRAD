@@ -6,6 +6,7 @@
 package com.codename1.rad.controllers;
 
 import com.codename1.io.Log;
+import com.codename1.ui.CN;
 import static com.codename1.ui.CN.addNetworkErrorListener;
 import static com.codename1.ui.CN.getCurrentForm;
 import static com.codename1.ui.CN.updateNetworkThreadCount;
@@ -61,7 +62,7 @@ public class ApplicationController extends Controller {
     
     public void init(Object context) {
         // use two network threads instead of one
-        
+        CN.setProperty("Component.revalidateOnStyleChange", "false");
         updateNetworkThreadCount(2);
 
         theme = UIManager.initFirstTheme("/theme");

@@ -140,6 +140,13 @@ public class Entity extends Observable  {
     private Map<Property,Set<ActionListener>> propertyChangeListenersMap;
     private EventDispatcher propertyChangeListeners;
     
+    
+    public Entity() {
+        if (EntityType.isRegisteredEntityType(getClass())) {
+            setEntityType(EntityType.getEntityType(getClass()));
+        }
+    }
+    
     /**
      * Adds a listener to be notified of changes to the given property.
      * @param property The property to listen on.
@@ -526,7 +533,11 @@ public class Entity extends Observable  {
      */
     public EntityType getEntityType() {
         if (entityType == null) {
-            entityType = new DynamicEntityType();
+            if (EntityType.isRegisteredEntityType(getClass())) {
+                entityType = EntityType.getEntityType(getClass());
+            } else {
+                entityType = new DynamicEntityType();
+            }
         }
         return entityType;
     }
@@ -1263,6 +1274,8 @@ public class Entity extends Observable  {
         }
     }
     
+    
+    
     /**
      * Gets property as an EntityList.  If the property is currently null, then this will attempt to create a 
      * new EntityList at this property, and return that.
@@ -1277,11 +1290,15 @@ public class Entity extends Observable  {
         EntityList l = getEntityList(prop);
         if (l == null) {
             EntityListProperty eprop = (EntityListProperty)prop;
+            
             Class cls = eprop.getRepresentationClass();
+            
             try {
-                l = (EntityList)cls.newInstance();
+                l = (EntityList)EntityType.createEntityForClass(cls);
+                
+                
             } catch (Throwable t) {
-                throw new IllegalStateException("Cannot add value to property "+prop+" because there is no list currently instantiated at that property.  Attempt to create a new list of type "+cls+" failed with "+t.getMessage());
+                throw new IllegalStateException("Cannot add value to property "+prop+" because there is no list currently instantiated at that property.  Attempt to create a new list of type "+cls+" failed with message '"+t.getMessage()+"'");
             }
             set(prop, l);
         }
@@ -1303,6 +1320,7 @@ public class Entity extends Observable  {
         if (l == null) {
             EntityProperty eprop = (EntityProperty)prop;
             Class cls = eprop.getRepresentationClass();
+
             try {
                 l = (EntityList)cls.newInstance();
             } catch (Throwable t) {
