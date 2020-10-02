@@ -255,7 +255,11 @@ public class EntityType implements Iterable<Property>, EntityFactory {
         }
     }
     
-    public static <T extends EntityList> void registerList(Class<T> listClass, Class rowType, EntityFactory factory) {
+    public static <T extends EntityList, V extends Entity> void registerList(Class<T> listClass, Class<V> rowType){
+        registerList(listClass, rowType, (EntityFactory)null);
+    }
+    
+    public static <T extends EntityList, V extends Entity> void registerList(Class<T> listClass, Class<V> rowType, EntityFactory factory) {
         register(listClass, factory);
         EntityType rowEntityType = EntityType.getEntityType(rowType);
         if (rowEntityType == null) {
@@ -271,7 +275,11 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     }
     
     public  static  <T extends Entity> void register(Class<T> cls, EntityFactory factory) {
-        register(cls, (EntityType)null, factory);
+        if (factory instanceof EntityType) {
+            register(cls, (EntityType)factory, (EntityFactory)null);
+        } else {
+            register(cls, (EntityType)null, factory);
+        }
     }
     
     public void setRowType(Class type) {
@@ -281,10 +289,10 @@ public class EntityType implements Iterable<Property>, EntityFactory {
         if (EntityList.class.isAssignableFrom(entityClass)) {
             throw new IllegalStateException("setRowType() only applicable to list entity types.  "+this.getClass()+" is not a list entity type");
         }
-        EntityType info = types.get(getClass());
+        EntityType info = types.get(entityClass);
         if (info == null) {
             info = this;
-            types.put(getClass(), info);
+            types.put(entityClass, info);
         }
         
         EntityType rowTypeInfo = types.get(type);
@@ -299,16 +307,17 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     }
     
     public void setListType(Class type) {
+
         if (entityClass == null) {
             throw new IllegalStateException("Cannot set list type on entity type that has no representation class specified");
         }
         if (!EntityList.class.isAssignableFrom(type)) {
             throw new IllegalArgumentException("setListType() requires a list entity type as argument.  "+type+" is not a list entity type");
         }
-        EntityType info = types.get(getClass());
+        EntityType info = types.get(entityClass);
         if (info == null) {
             info = this;
-            types.put(getClass(), info);
+            types.put(entityClass, info);
         }
         
         EntityType listTypeInfo = types.get(type);
@@ -368,6 +377,9 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     }
     
     public EntityType factory(EntityFactory factory) {
+        if (factory == this) {
+            throw new IllegalArgumentException("Cannot set EntityType as its own factory.");
+        }
         this.factory = factory;
         
         return this;

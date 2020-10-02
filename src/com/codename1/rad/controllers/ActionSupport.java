@@ -79,6 +79,9 @@ public class ActionSupport<T extends ActionEvent> {
                     controller.dispatchEvent((ControllerEvent)evt);
                 }
 
+            } else if (source instanceof Controller) {
+                Controller ctrl = (Controller)source;
+                ctrl.dispatchEvent((ControllerEvent)evt);
             }
         }
     }

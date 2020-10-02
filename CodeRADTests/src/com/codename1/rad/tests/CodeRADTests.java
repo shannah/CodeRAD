@@ -56,7 +56,9 @@ public class CodeRADTests {
         runner.add(new EntityTypeTests());
         runner.add(new ResultParserTest());
         runner.add(new ElementSelectorTest());
-        
+        runner.add(new EntityTests());
+        runner.add(new EntityListTest());
+        runner.add(new ControllerTest());
         
         runner.showForm();
     }
@@ -72,4 +74,6 @@ public class CodeRADTests {
     public void destroy() {
     }
 
+    
+    
 }
