@@ -24,6 +24,7 @@ import com.codename1.ui.util.EventDispatcher;
 import com.codename1.util.Base64;
 import com.codename1.util.StringUtil;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * A class for retrieving properties from an entity hierarchy in a dynamic way.  E.g.
@@ -37,11 +38,106 @@ public class PropertySelector {
     
     private EventDispatcher listeners;
     
+    /**
+     * The listChangeListener which is added to parent selectors to listen for any changes to lists in those selectors
+     * that would invalidate this selector's event listeners.  If such a change is received, this will revalidate
+     * the listeners with the new leaf entity/property.
+     * 
+     */
+    private ActionListener<EntityList.EntityListEvent> listChangeListener;
+    private ActionListener<EntityList.EntityListEvent> listChangeListener() {
+        if (listChangeListener == null) {
+            listChangeListener = evt -> {
+                if (evt instanceof EntityList.VetoableEntityEvent) {
+                    // Because this is a veto event, it has occurred before the list was mutated.
+                    if (parent != null && vpcl != null) {
+                        parent.removeVetoablePropertyChangeListener(vpcl);
+                    }
+                    if (parent != null) {
+                        parent.removeListChangeListener(listChangeListener);
+                    }
+                    Entity oldLeafEntity = getLeafEntity();
+                    Property oldLeafProperty = getLeafProperty();
+                    Object oldValue;
+                    if (oldLeafEntity != null && oldLeafProperty != null) {
+                        oldLeafEntity.removePropertyChangeListener(oldLeafProperty, pcl);
+                        oldValue = oldLeafEntity.get(oldLeafProperty);
+                    } else {
+                        oldValue = null;
+                    }
+                    
+                    EntityList source = (EntityList)evt.getSource();
+                    ActionListener<EntityList.EntityListEvent> afterChangeListener = new ActionListener<EntityList.EntityListEvent>() {
+                        public void actionPerformed(EntityList.EntityListEvent afterChangeEvent) {
+                            source.removeActionListener(this);
+                            Entity newLeafEntity = getLeafEntity();
+                            Property newLeafProperty = getLeafProperty();
+                            Object newValue;
+                            if (newLeafEntity != null && newLeafProperty != null) {
+                                newLeafEntity.addPropertyChangeListener(newLeafProperty, pcl);
+                                newValue = newLeafEntity.get(newLeafProperty);
+                            } else {
+                                newValue = null;
+                            }
+                            if (parent != null && vpcl != null) {
+                                parent.addVetoablePropertyChangeListener(vpcl);
+                            }
+                            if (parent != null) {
+                                parent.addListChangeListener(listChangeListener);
+                            }
+                            if (!Objects.equals(oldValue, newValue)) {
+                                 listeners.fireActionEvent(new PropertyChangeEvent(newLeafEntity, newLeafProperty, oldValue, newValue));
+                            }
+                            
+                        }
+                    };
+                    source.addActionListener(afterChangeListener);
+                    
+                }
+            };
+        }
+        return listChangeListener;
+    }
     
+    /**
+     * Removes listener from list change listeners.  This propagates all the way up to the root selector.
+     * @param l 
+     */
+    private void removeListChangeListener(ActionListener<EntityList.EntityListEvent> l) {
+        if (isIndexSelector() && getLeafEntity() instanceof EntityList) {
+            EntityList el = (EntityList)getLeafEntity();
+            el.removeActionListener(l);
+        }
+        if (parent != null) {
+            parent.removeListChangeListener(l);
+        }
+    }
+    
+    
+    /**
+     * For internal use.  Adds a listener to be notified if items are added/removed from 
+     * a list (used for Index property selectors).  This propagates all the way up
+     * to the root.
+     * @param l 
+     */
+    private void addListChangeListener(ActionListener<EntityList.EntityListEvent> l) {
+        if (isIndexSelector() && getLeafEntity() instanceof EntityList) {
+            EntityList el = (EntityList)getLeafEntity();
+            el.addActionListener(l);
+        }
+        if (parent != null) {
+            parent.addListChangeListener(l);
+        }
+    }
+    
+    /**
+     * The property change listener that is added to the the leaf entity/property
+     */
     private ActionListener<PropertyChangeEvent> pcl;
     private ActionListener<PropertyChangeEvent> pcl() {
         if (pcl == null) {
             pcl = evt -> {
+                
                 if (listeners != null && listeners.hasListeners() && !evt.isConsumed()) {
                     listeners.fireActionEvent(evt);
                 }
@@ -50,6 +146,159 @@ public class PropertySelector {
         return pcl;
     }
     
+    /**
+     * For internal use.  Removes a vetoable change listener from this selector. This 
+     * propagates all the way up to the root selector.
+     * @param l 
+     */
+    private void removeVetoablePropertyChangeListener(ActionListener<VetoablePropertyChangeEvent> l) {
+        if (root != null) {
+            Property prop = property;
+            if (prop == null && tags != null) {
+                prop = root.findProperty(tags);
+            }
+            if (prop != null) {
+                root.addVetoablePropertyChangeListener(prop, l);
+            }
+        } else {
+            Entity leafEntity = getLeafEntity();
+            Property leafProperty = getLeafProperty();
+            if (leafEntity != null && leafProperty != null) {
+                leafEntity.addVetoablePropertyChangeListener(leafProperty, l);
+            }
+            parent.addVetoablePropertyChangeListener(l);
+        }
+    }
+    
+    /**
+     * For internal use.  Adds a vetoable change listener to this selector.  This is used
+     * to be notified if a change is made in a parent selector that invalidates our selector's event
+     * listeners.
+     * 
+     * This propagates all the way up to the root selector.
+     * @param l 
+     */
+    private void addVetoablePropertyChangeListener(ActionListener<VetoablePropertyChangeEvent> l) {
+        if (root != null) {
+            Property prop = property;
+            if (prop == null && tags != null) {
+                prop = root.findProperty(tags);
+            }
+            if (prop != null) {
+                root.addVetoablePropertyChangeListener(prop, l);
+            }
+        } else {
+            Entity leafEntity = getLeafEntity();
+            Property leafProperty = getLeafProperty();
+            if (leafEntity != null && leafProperty != null) {
+                leafEntity.addVetoablePropertyChangeListener(leafProperty, l);
+            }
+            parent.addVetoablePropertyChangeListener(l);
+        }
+        
+    }
+    
+   
+    /**
+     * The VetoablePropertyChangeListener is attached all to every entity in the "up-line"
+     * of this property selector, up to the root.  This is attachment is done lazily when/if
+     * a property change listener is added to this property selector.  Its job is to 
+     * listen for changes to any "parent" entities that might cause the value of this
+     * property to change *other than* the property being changed directly.
+     * 
+     * I.e. If this property selector is a sub-selector, but its leaf entity is removed
+     * from its parent, then that would effectively change the property value, even
+     * though the current leaf property was not changed.  Such a change would mean that 
+     * we need to remove the property change listener that we previously added to the leaf entity
+     * on the leaf property.  Additionally, we need to remove the vetoable property change listener
+     * that was added to the up-line.  These must be re-added when the change is complete (e.g.
+     * attaching a property change listener to the new leaf entity/property.
+     * 
+     * We use VetoablePropertyChangeEvent because these are fired *before* the value is changed.  This 
+     * listener will add a one-off PropertyChangeEvent listener to run after the change is complete
+     * to attach listeners to the new leaf entity/property.
+     */
+    private ActionListener<VetoablePropertyChangeEvent> vpcl;
+    private ActionListener<VetoablePropertyChangeEvent> vpcl() {
+        if (vpcl == null) {
+            vpcl = evt -> {
+                
+                if (parent == null) {
+                    throw new IllegalStateException("VetoablePropertyChangeEvent should only be added for sub-property selectors, here we have received an event in a root selector");
+                }
+                
+                // A relevant property was changed in one of our parent selectors
+                // so this will invalidate our selector.
+                // We need to remove all of the listeners.
+                
+                // Remove vetoable change listener from the parent selector
+                // This propagates up to the root
+                parent.removeVetoablePropertyChangeListener(vpcl);
+                if (listChangeListener != null) {
+                    // Remove list change listener from the parent selector
+                    // This propagates up to the root.
+                    parent.removeListChangeListener(listChangeListener);
+                }
+                
+                
+                // Get the value of this selector *before* the change
+                // so that we can compare it to the *after* value and
+                // fire a property change event if necessary.
+                Entity leafEntity = getLeafEntity();
+                Property leafProperty = getLeafProperty();
+                Object oldValue;
+                if (leafEntity != null && leafProperty != null && pcl != null) {
+                    leafEntity.removePropertyChangeListener(leafProperty, pcl);
+                    oldValue = leafEntity.get(leafProperty);
+                } else {
+                    oldValue = null;
+                }
+                
+                // Attach a PropertyChangeListener to the source of this event 
+                // which should receive a notification after the change is complete
+                Entity source = (Entity)evt.getSource();
+                Property prop = evt.getProperty();
+                ActionListener<PropertyChangeEvent>  afterChangeListener = new ActionListener<PropertyChangeEvent>() {
+                    public void actionPerformed(PropertyChangeEvent afterEvent) {
+                        
+                        // Remove this one-off listener
+                        source.removePropertyChangeListener(prop, this);
+                        
+                        // Re-add vetoable change and list change listeners to the parent
+                        parent.addVetoablePropertyChangeListener(vpcl);
+                        parent.addListChangeListener(listChangeListener());
+
+                        // Get the new  value
+                        Entity newLeafEntity = getLeafEntity();
+                        Property newLeafProperty = getLeafProperty();
+
+                        Object newValue;
+                        if (newLeafEntity != null && newLeafProperty != null) {
+                            
+                            // Re-add the property change listener to the leaf entity
+                            newLeafEntity.addPropertyChangeListener(newLeafProperty, pcl);
+                            newValue = newLeafEntity.get(newLeafProperty);
+                            
+                        } else {
+                            newValue = null;
+                        }
+                        if (!Objects.equals(oldValue, newValue)) {
+                            // We need to explicitly fire the property change event
+                            // if the new value has changed, because otherwise we won't receive the event.
+                            listeners.fireActionEvent(new PropertyChangeEvent(newLeafEntity, newLeafProperty, oldValue, newValue));
+                        }
+                        
+
+
+                    }
+                };
+                // Add the one-off listener to fire after the change is complete.
+                source.addPropertyChangeListener(prop, afterChangeListener);
+                
+            };
+        }
+        return vpcl;
+    }
     
     /**
      * Adds a change listener on property.
@@ -58,14 +307,20 @@ public class PropertySelector {
     public void addPropertyChangeListener(ActionListener<PropertyChangeEvent> l) {
         if (root != null) {
             Property prop = property;
-            if (prop == null) {
+            if (prop == null && tags != null) {
                 prop = root.findProperty(tags);
             }
             if (prop != null) {
                 root.addPropertyChangeListener(prop, pcl());
             }
         } else {
-            parent.addPropertyChangeListener(pcl());
+            Entity leafEntity = getLeafEntity();
+            Property leafProperty = getLeafProperty();
+            if (leafEntity != null && leafProperty != null) {
+                leafEntity.addPropertyChangeListener(leafProperty, pcl());
+            }
+            parent.addVetoablePropertyChangeListener(vpcl());
+            parent.addListChangeListener(listChangeListener());
         }
         if (listeners == null) {
             listeners = new EventDispatcher();
@@ -87,14 +342,20 @@ public class PropertySelector {
             if (pcl != null) {
                 if (root != null) {
                     Property prop = property;
-                    if (prop == null) {
+                    if (prop == null && tags != null) {
                         prop = root.findProperty(tags);
                     }
                     if (prop != null) {
                         root.removePropertyChangeListener(prop, pcl);
                     }
                 } else {
-                    parent.removePropertyChangeListener(pcl);
+                    Entity leafEntity = getLeafEntity();
+                    Property leafProperty = getLeafProperty();
+                    if (leafEntity != null && leafProperty != null) {
+                        leafEntity.removePropertyChangeListener(leafProperty, pcl());
+                    }
+                    parent.removeVetoablePropertyChangeListener(vpcl());
+                    parent.removeListChangeListener(listChangeListener());
                 }
             }
         }
@@ -104,8 +365,47 @@ public class PropertySelector {
     
     private Entity root;
     private Tag[] tags;
+    private IndexSelector index;
+    
     private Property property;
     private PropertySelector parent;
+    
+    public <T> boolean set(ContentType<T> type, T value) {
+        Entity e = null;
+        if (parent != null) {
+            e = parent.get(ContentType.EntityType, null);
+        } else if (root != null) {
+            e = root;
+        }
+        if (e != null) {
+            if (isIndexSelector()) {
+                if (!(e instanceof EntityList)) {
+                    return false;
+                }
+                if (!type.isEntity()) {
+                    return false;
+                }
+                EntityList el = (EntityList)e;
+                return index.set(el, (Entity)value);
+                
+            }
+            Property prop = property;
+            if (prop == null) {
+                prop = e.getEntityType().findProperty(tags);
+            }
+            if (prop != null) {
+                //if (type == ContentType.EntityType && !e.isEntity(prop)) {
+                //    return defaultValue;
+                //}
+                if (!prop.getContentType().canConvertTo(type) && !type.canConvertFrom(prop.getContentType())) {
+                    return false;
+                }
+                e.set(prop, type, value);
+                return true;
+            }
+        }
+        return false;
+    }
     
     /**
      * Gets the property value as the given type.
@@ -122,6 +422,17 @@ public class PropertySelector {
             e = root;
         }
         if (e != null) {
+            if (isIndexSelector()) {
+                if (!(e instanceof EntityList)) {
+                    return null;
+                }
+                if (!type.isEntity()) {
+                    return null;
+                }
+                EntityList el = (EntityList)e;
+                return (T)index.get(el);
+                
+            }
             Property prop = property;
             if (prop == null) {
                 prop = e.getEntityType().findProperty(tags);
@@ -184,6 +495,11 @@ public class PropertySelector {
         this.property = property;
     }
     
+    private PropertySelector(PropertySelector parent, int index) {
+        this.parent = parent;
+        this.index = new IndexSelector(index);
+    }
+    
     /**
      * Creates a child selector on this property selector.
      * @param property The property to select on.
@@ -202,6 +518,16 @@ public class PropertySelector {
         return new PropertySelector(this, tags);
     }
     
+    public PropertySelector createChildSelector(int index, Property property) {
+        PropertySelector p1 = new PropertySelector(this, index);
+        return new PropertySelector(p1, property);
+    }
+    
+    public PropertySelector createChildSelector(int index, Tag... tags) {
+        PropertySelector p1 = new PropertySelector(this, index);
+        return new PropertySelector(p1, tags);
+    }
+    
     /**
      * Alias of {@link #createChildSelector(com.codename1.rad.models.Property) }
      * @param prop
@@ -209,6 +535,10 @@ public class PropertySelector {
      */
     public PropertySelector child(Property prop) {
         return createChildSelector(prop);
+    }
+    
+    public PropertySelector child(int index, Property prop) {
+        return createChildSelector(index, prop);
     }
     
     /**
@@ -220,6 +550,10 @@ public class PropertySelector {
         return createChildSelector(tags);
     }
     
+    public PropertySelector child(int index, Tag... tags) {
+        return createChildSelector(index, tags);
+    }
+    
     /**
      * Gets the selected property value as text.
      * @param defaultValue The value to return if the property value was null
@@ -229,6 +563,12 @@ public class PropertySelector {
         return get(ContentType.Text, defaultValue);
     }
     
+    public boolean setText(String value) {
+        return set(ContentType.Text, value);
+    }
+    
+    
+    
     /**
      * Gets the selected property as boolean
      * @param defaultVal The value to return if the property value was null.
@@ -236,6 +576,10 @@ public class PropertySelector {
      */
     public Boolean getBoolean(boolean defaultVal) {
         return get(ContentType.BooleanType, defaultVal);
+    }
+    
+    public boolean setBoolean(boolean val) {
+        return set(ContentType.BooleanType, val);
     }
     
     /**
@@ -247,6 +591,10 @@ public class PropertySelector {
         return get(ContentType.DateType, defaultVal);
     }
     
+    public boolean setDate(Date val) {
+        return set(ContentType.DateType, val);
+    }
+    
     /**
      * Gets the selected property value as Entity.
      * @param defaultVal The value to return if the property value was null
@@ -254,6 +602,10 @@ public class PropertySelector {
      */
     public Entity getEntity(Entity defaultVal) {
         return get(ContentType.EntityType, defaultVal);
+    }
+    
+    public boolean setEntity(Entity val) {
+        return set(ContentType.EntityType, val);
     }
     
     /**
@@ -265,6 +617,10 @@ public class PropertySelector {
         return get(ContentType.EntityListType, defaultVal);
     }
     
+    public boolean setEntityList(EntityList val) {
+        return set(ContentType.EntityListType, val);
+    }
+    
     /**
      * Gets the selected property value as float.
      * @param defaultVal The value to return if the property value was null
@@ -272,6 +628,10 @@ public class PropertySelector {
      */
     public Float getFloat(float defaultVal) {
         return get(ContentType.FloatType, defaultVal);
+    }
+    
+    public boolean setFloat(float val) {
+        return set(ContentType.FloatType, val);
     }
     
     /**
@@ -283,6 +643,10 @@ public class PropertySelector {
         return get(ContentType.DoubleType, defaultVal);
     }
     
+    public boolean setDouble(double val) {
+        return set(ContentType.DoubleType, val);
+    }
+    
     /**
      * Gets the selected property value as int.
      * @param defaultVal The value to return if the property value was null
@@ -290,6 +654,10 @@ public class PropertySelector {
      */
     public Integer getInt(int defaultVal) {
         return get(ContentType.IntegerType, defaultVal);
+    }
+    
+    public boolean setInt(int val) {
+        return set(ContentType.IntegerType, val);
     }
     
     /**
@@ -305,6 +673,14 @@ public class PropertySelector {
         }
         
         if (e != null) {
+            if (isIndexSelector()) {
+                if (!(e instanceof EntityList)) {
+                    return true;
+                }
+                EntityList el = (EntityList)e;
+                return index.isEmpty(el);
+                
+            }
             Property prop = property;
             if (prop == null) {
                 prop = e.getEntityType().findProperty(tags);
@@ -329,6 +705,16 @@ public class PropertySelector {
         }
         
         if (e != null) {
+            
+            if (isIndexSelector()) {
+                if (!(e instanceof EntityList)) {
+                    return true;
+                }
+                EntityList el = (EntityList)e;
+                return index.isFalsey(el);
+                
+            }
+            
             Property prop = property;
             if (prop == null) {
                 prop = e.getEntityType().findProperty(tags);
@@ -482,6 +868,9 @@ public class PropertySelector {
         if (e == null) {
             return null;
         }
+        if (isIndexSelector()) {
+            return null;
+        }
         Property prop = property;
         if (prop == null) {
             prop = e.getEntityType().findProperty(tags);
@@ -537,6 +926,11 @@ public class PropertySelector {
         if (e == null) {
             return false;
         }
+        
+        if (isIndexSelector()) {
+            return e instanceof EntityList;
+        }
+        
         if (e.getEntityType().isDynamic()) {
             return true;
         }
@@ -547,4 +941,51 @@ public class PropertySelector {
         return prop != null;
     }
     
+    private boolean isIndexSelector() {
+        return index != null;
+    }
+    
+    private class IndexSelector {
+        private int index=-1;
+        //private String expression;
+        
+        private IndexSelector(int index){
+            this.index = index;
+        }
+        
+        //private IndexSelector(String expression) {
+        //    this.expression = expression;
+        //}
+        
+        private boolean isFalsey(EntityList el) {
+            return !(index >= 0 && index < el.size());
+        }
+        
+        private boolean isEmpty(EntityList el) {
+            return !(index >= 0 && index < el.size());
+        }
+        
+        private Entity get(EntityList el) {
+            if (el != null && index >= 0 && index < el.size()) {
+                return el.get(index);
+            }
+            return null;
+            
+        }
+        
+        private boolean set(EntityList list, Entity value) {
+            return false;
+        }
+        
+        
+        
+    }
+    
+    public static PropertySelector propertySelector(Entity root, Property prop) {
+        return new PropertySelector(root, prop);
+    }
+
+    public static PropertySelector propertySelector(Entity root, Tag... tags) {
+        return new PropertySelector(root, tags);
+    }
 }

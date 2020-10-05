@@ -9,6 +9,7 @@ com.codename1.rad.io
 com.codename1.rad.layouts
 com.codename1.rad.models
 com.codename1.rad.nodes
+com.codename1.rad.processing
 com.codename1.rad.propertyviews
 com.codename1.rad.schemas
 com.codename1.rad.text

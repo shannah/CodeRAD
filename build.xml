@@ -228,11 +228,12 @@
     
     <target  description="Build Javadoc." name="javadoc" depends="init">
         
+        <echo message="${java.home}"/>
 
         <javadoc destdir="docs/javadoc"
         linkoffline="https://www.codenameone.com/javadoc/ javadoc-dependencies/com.codename1"
         classpath="lib/CodenameOne.jar:lib/CLDC11.jar"
-         executable="/Library/Java/JavaVirtualMachines/zulu8.40.0.25-ca-fx-jdk8.0.222-macosx_x64/bin/javadoc"
+         executable="${platforms.JDK_1.8}/bin/javadoc"
          sourcepath="src"
          overview="src/overview.adoc">
         <doclet name="org.asciidoctor.Asciidoclet" path="lib/asciidoclet-1.5.7-SNAPSHOT-shaded.jar">

@@ -82,7 +82,7 @@ public class EntityListTableModel<T extends Entity> implements TableModel {
     };
     
     
-    private ActionListener<EntityList<T>.EntityListEvent> entityListener = evt -> {
+    private ActionListener<EntityList.EntityListEvent> entityListener = evt -> {
         if (evt instanceof EntityAddedEvent) {
             EntityAddedEvent eae = (EntityAddedEvent)evt;
             if (eae.getIndex() == entities.size()-1) {

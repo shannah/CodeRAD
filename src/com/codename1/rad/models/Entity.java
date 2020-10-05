@@ -138,7 +138,9 @@ public class Entity extends Observable  {
     Map<Object,Object> properties;
     private EntityType entityType;
     private Map<Property,Set<ActionListener>> propertyChangeListenersMap;
+    private Map<Property,Set<ActionListener>> vetoablePropertyChangeListenersMap;
     private EventDispatcher propertyChangeListeners;
+    private EventDispatcher vetoablePropertyChangeListeners;
     
     
     public Entity() {
@@ -162,6 +164,34 @@ public class Entity extends Observable  {
             propertyChangeListenersMap.put(property, propertyListenerSet);
         }
         propertyListenerSet.add(l);
+    }
+    
+    public boolean hasPropertyChangeListeners(Property prop) {
+        if (propertyChangeListenersMap != null) {
+            Set<ActionListener> listeners = propertyChangeListenersMap.get(prop);
+            if (listeners != null && !listeners.isEmpty()) {
+                return true;
+            }
+        }
+        if (propertyChangeListeners != null && propertyChangeListeners.hasListeners()) {
+            return true;
+        }
+        return false;
+        
+    }
+    
+    public boolean hasVetoablePropertyChangeListeners(Property prop) {
+        if (vetoablePropertyChangeListenersMap != null) {
+            Set<ActionListener> listeners = vetoablePropertyChangeListenersMap.get(prop);
+            if (listeners != null && !listeners.isEmpty()) {
+                return true;
+            }
+        }
+        if (vetoablePropertyChangeListeners != null && vetoablePropertyChangeListeners.hasListeners()) {
+            return true;
+        }
+        return false;
+        
     }
     
     /**
@@ -230,6 +260,91 @@ public class Entity extends Observable  {
             propertyChangeListeners.fireActionEvent(pce);
         }
     }
+    
+    /**
+     * Adds a listener to be notified of changes to the given property.
+     * @param property The property to listen on.
+     * @param l The listener.
+     */
+    public void addVetoablePropertyChangeListener(Property property, ActionListener<VetoablePropertyChangeEvent>  l)  {
+        if (vetoablePropertyChangeListenersMap == null) {
+            vetoablePropertyChangeListenersMap = new HashMap<>();
+        }
+        Set<ActionListener> propertyListenerSet = vetoablePropertyChangeListenersMap.get(property);
+        if (propertyListenerSet == null) {
+            propertyListenerSet = new LinkedHashSet<>();
+            vetoablePropertyChangeListenersMap.put(property, propertyListenerSet);
+        }
+        propertyListenerSet.add(l);
+    }
+    
+    /**
+     * Removes a property change listener.
+     * @param property The property to listen to.
+     * @param l The listener.
+     */
+    public void removeVetoablePropertyChangeListener(Property property, ActionListener<VetoablePropertyChangeEvent> l) {
+        if (vetoablePropertyChangeListenersMap == null) {
+            return;
+        }
+        Set<ActionListener> propertyListenerSet = vetoablePropertyChangeListenersMap.get(property);
+        if (propertyListenerSet == null) {
+            return;
+        }
+        propertyListenerSet.remove(l);
+    }
+    
+    /**
+     * Adds a listener to listen to all property changes on all properties.
+     * @param l The listener.
+     */
+    public void addVetoablePropertyChangeListener(ActionListener<VetoablePropertyChangeEvent> l) {
+        if (vetoablePropertyChangeListeners == null) {
+            vetoablePropertyChangeListeners = new EventDispatcher();
+        }
+        vetoablePropertyChangeListeners.addListener(l);
+    }
+    
+    /**
+     * Removes property change listener.
+     * @param l The listener.
+     */
+    public void removeVetoablePropertyChangeListener(ActionListener<VetoablePropertyChangeEvent> l) {
+        if (vetoablePropertyChangeListeners == null) {
+            return;
+        }
+        vetoablePropertyChangeListeners.removeListener(l);
+    }
+    
+    /**
+     * Fires a property change event to registered listeners.
+     * @param pce The event.
+     */
+    protected void fireVetoablePropertyChangeEvent(VetoablePropertyChangeEvent pce) {
+        if (!CN.isEdt()) {
+            if (Display.isInitialized()) {
+                CN.callSerially(()->fireVetoablePropertyChangeEvent(pce));
+                
+                return;
+            }
+        }
+        if (vetoablePropertyChangeListenersMap != null) {
+            Set<ActionListener> listeners = vetoablePropertyChangeListenersMap.get(pce.getProperty());
+            if (listeners != null) {
+                ArrayList<ActionListener> toSend = new ArrayList<>(listeners);
+                for (ActionListener l : toSend) {
+                    l.actionPerformed(pce);
+                    if (pce.isConsumed()) {
+                        return;
+                    }
+                }
+            }
+        }
+        if (vetoablePropertyChangeListeners != null) {
+            vetoablePropertyChangeListeners.fireActionEvent(pce);
+        }
+    }
+   
    
     /**
      * Initializes property map.

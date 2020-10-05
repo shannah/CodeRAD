@@ -34,18 +34,18 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     public void setRowType(EntityType rowType) {
         this.rowType = rowType;
     }
-    private EventDispatcher listeners;
+    private EventDispatcher listeners, vetoableListeners;
     private EntityType rowType;
     private List<T> entities;
     private int maxLen = -1;
     
     
-    public class EntityListEvent extends ActionEvent {
-        public EntityListEvent() {
-            super(EntityList.this);
-            EntityType et = getEntityType();
+    public static class EntityListEvent extends ActionEvent {
+        public EntityListEvent(EntityList source) {
+            super(source);
+            EntityType et = source.getEntityType();
             if (et != null) {
-                setRowType(et.getRowEntityType());        
+                source.setRowType(et.getRowEntityType());        
             }
             
         }
@@ -71,11 +71,12 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         return entities;
     }
     
-    public class EntityEvent extends EntityListEvent {
+    public static class EntityEvent extends EntityListEvent {
         private Entity entity;
         private int index;
         
-        public EntityEvent(Entity entity, int index) {
+        public EntityEvent(EntityList source, Entity entity, int index) {
+            super(source);
             this.index = index;
             this.entity = entity;
         }
@@ -89,18 +90,64 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         }
     }
     
-    
-    public class EntityAddedEvent extends EntityEvent {
-        public EntityAddedEvent(Entity entity, int index) {
-            super(entity, index);
+    public static class VetoableEntityEvent extends EntityEvent {
+        private boolean vetoed;
+        private String reason;
+         public VetoableEntityEvent(EntityList source, Entity entity, int index) {
+            super(source, entity, index);
+        }
+         
+        public void veto(String reason) {
+            vetoed = true;
+        }
+        
+        public boolean isVetoed() {
+            return vetoed;
+        }
+        
+        public String getReason() {
+            return reason;
+        }
+    }
+    public static class VetoableEntityAddedEvent extends VetoableEntityEvent {
+        
+        public VetoableEntityAddedEvent(EntityList source, Entity entity, int index) {
+            super(source, entity, index);
         }
     }
     
-    public class EntityRemovedEvent extends EntityEvent {
-        public EntityRemovedEvent(Entity entity, int index) {
-            super(entity, index);
+    public static class VetoableEntityRemovedEvent extends VetoableEntityEvent {
+        public VetoableEntityRemovedEvent(EntityList source, Entity entity, int index) {
+            super(source, entity, index);
         }
     }
+    
+    public static class EntityAddedEvent extends EntityEvent {
+        public EntityAddedEvent(EntityList source, Entity entity, int index) {
+            super(source, entity, index);
+        }
+    }
+    
+    public static class EntityRemovedEvent extends EntityEvent {
+        public EntityRemovedEvent(EntityList source, Entity entity, int index) {
+            super(source, entity, index);
+        }
+    }
+    
+    public static class VetoException extends RuntimeException {
+        private VetoableEntityEvent vetoableEntityEvent;
+        
+        public VetoException(VetoableEntityEvent evt) {
+            super(evt.getReason());
+            vetoableEntityEvent = evt;
+        }
+        
+        public VetoableEntityEvent getVetoableEntityEvent() {
+            return vetoableEntityEvent;
+        }
+    }
+    
+    
     
     public EntityList(int maxLen) {
         this(null, maxLen);
@@ -142,6 +189,13 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         }
         link = beforeAdd(link);
         //int len = entities().size();
+        if (listeners != null && listeners.hasListeners()) {
+            VetoableEntityAddedEvent vevt = new VetoableEntityAddedEvent(this, link, entities().size());
+            listeners.fireActionEvent(vevt);
+            if (vevt.isVetoed()) {
+                throw new VetoException(vevt);
+            }
+        }
         boolean success = entities().add(link);
         if (success) {
             fireEntityAdded(link, entities().indexOf(link));
@@ -160,7 +214,15 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     public boolean remove(T link) {
         if (entities().contains(link)) {
             link = beforeRemove(link);
+            
             int index = entities().indexOf(link);
+            if (listeners != null && listeners.hasListeners()) {
+                VetoableEntityRemovedEvent vevt = new VetoableEntityRemovedEvent(this, link, index);
+                listeners.fireActionEvent(vevt);
+                if (vevt.isVetoed()) {
+                    throw new VetoException(vevt);
+                }
+            }
             if (entities().remove(link)) {
                 fireEntityRemoved(link, index);
                 setChanged();
@@ -190,15 +252,16 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
 
     protected void fireEntityAdded(Entity e, int index) {
         if (listeners != null && listeners.hasListeners()) {
-            listeners.fireActionEvent(new EntityAddedEvent(e, index));
+            listeners.fireActionEvent(new EntityAddedEvent(this, e, index));
         }
     }
     
     protected void fireEntityRemoved(Entity e, int index) {
         if (listeners != null && listeners.hasListeners()) {
-            listeners.fireActionEvent(new EntityRemovedEvent(e, index));
+            listeners.fireActionEvent(new EntityRemovedEvent(this, e, index));
         }
     }
+   
     
     public void addActionListener(ActionListener<EntityListEvent> l) {
         if (listeners == null) {

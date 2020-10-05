@@ -56,9 +56,19 @@ public class PropertyUtil {
         }
         Object existing = entity.properties.get(prop);
         if (!Objects.equals(existing, value)) {
+            if (entity.hasVetoablePropertyChangeListeners(prop)) {
+                VetoablePropertyChangeEvent vevt = new VetoablePropertyChangeEvent(entity, prop, existing, value);
+                entity.fireVetoablePropertyChangeEvent(vevt);
+                if (vevt.isVetoed()) {
+                    throw new PropertyVetoException(vevt.getReason(), vevt);
+                }
+            }
             entity.properties.put(prop, value);
             entity.setChangedInternal();
-            entity.firePropertyChangeEvent(new PropertyChangeEvent(entity, prop, existing, value));
+            if (entity.hasPropertyChangeListeners(prop)) {
+                entity.firePropertyChangeEvent(new PropertyChangeEvent(entity, prop, existing, value));
+            }
+            
         }
         
         
