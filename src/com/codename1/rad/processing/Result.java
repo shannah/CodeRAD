@@ -73,28 +73,24 @@ import java.util.Iterator;
  *
  * Some sample expressions:
  *
- * <pre>{@code 
- *  Simple expression, get the title of the first photo element.
+ * 
+ *  Simple expression, get the title of the first photo element::
+ *  `/photos/photo[1]/title`
  *
- *  /photos/photo[1]/title
+ *  Globally find the first name of a person with a last name of 'Coolman'::
+ *  `//person[lastname='Coolman']/firstName`
  *
- *  Globally find the first name of a person with a last name of 'Coolman'.
+ *  Get the latitude value of the second last result element::
+ *  `/results[last()-1]/geometry/bounds/northeast/lat`
  *
- *  //person[lastname='Coolman']/firstName
+ *  Get the names of players from Germany::
+ *  `/tournament/player[@nationality='Germany']/name`
  *
- *  Get the latitude value of the second last result element.
- *
- *  /results[last()-1]/geometry/bounds/northeast/lat
- *
- *  Get the names of players from Germany
- *
- *  /tournament/player[@nationality='Germany']/name
- *
- *  Get the purchase order numbers of any order with a lineitem worth over $5
- *
- *  //order/lineitem[price > 5]/../@ponum
+ *  Get the purchase order numbers of any order with a lineitem worth over $5::
+ *  `//order/lineitem[price > 5]/../@ponum`
+ * 
  * etc
- * }</pre>
+ * 
  *
  * @author Eric Coolman (2012-03 - derivative work from original Sun source).
  *
@@ -197,7 +193,8 @@ public class Result {
      * etc) input stream. Normally you would use this method within a content
      * request implementation, for example:
      *
-     * <pre>
+     * [source,java]
+     * ----
      * ConnectionRequest request = new ConnectionRequest() {
      * 	protected void readResponse(InputStream input) throws IOException {
      * 		Result evaluator = Result.fromContent(input, Result.JSON);
@@ -205,7 +202,8 @@ public class Result {
      * 	}
      * 	// ... etc
      * };
-     * </pre>
+     * ----
+     *
      *
      *
      *
@@ -243,7 +241,8 @@ public class Result {
      * etc) input stream. Normally you would use this method within a content
      * request implementation, for example:
      *
-     * <pre>
+     * [source,java]
+     * ----
      * ConnectionRequest request = new ConnectionRequest() {
      * 	protected void readResponse(InputStream input) throws IOException {
      * 		Result evaluator = Result.fromContent(input, Result.JSON);
@@ -251,7 +250,7 @@ public class Result {
      * 	}
      * 	// ... etc
      * };
-     * </pre>
+     * ----
      *
      *
      *
@@ -348,22 +347,24 @@ public class Result {
     /**
      * Get a boolean value from the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**
      *
-     * <pre>
+     * [source,json]
+     * ----
      * {
      * "settings" : [
      * {
      *     "toggle" : "true",
      *     ... etc
      * }
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression**
      *
-     * <pre>
-     * boolean value = result.getAsBoolean(&quot;/settings[0]/toggle&quot;);
-     * </pre>
+     * [source,java]
+     * ----
+     * boolean value = result.getAsBoolean("/settings[0]/toggle");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -387,9 +388,10 @@ public class Result {
     /**
      * Get an integer value from the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**
      *
-     * <pre>
+     * [source,json]
+     * ----
      * {
      * "settings"
      * {
@@ -399,13 +401,14 @@ public class Result {
      *          ... etc
      *     }
      * }
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression**
      *
-     * <pre>
-     * int value = result.getAsInteger(&quot;//connection/max_retries&quot;);
-     * </pre>
+     * [source,java]
+     * ----
+     * int value = result.getAsInteger("//connection/max_retries");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -427,9 +430,10 @@ public class Result {
     /**
      * Get a long value from the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**
      *
-     * <pre>
+     * [source,java]
+     * ----
      * {
      * "settings"
      * {
@@ -439,13 +443,14 @@ public class Result {
      *          ... etc
      *     }
      * }
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression**
      *
-     * <pre>
-     * long value = result.getAsLong(&quot;/settings/connection/timeout_milliseconds&quot;);
-     * </pre>
+     * [source,java]
+     * ----
+     * long value = result.getAsLong("/settings/connection/timeout_milliseconds");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -463,9 +468,10 @@ public class Result {
     /**
      * Get a double value from the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**:
      *
-     * <pre>
+     * [source,json]
+     * ----
      * {
      *  "geometry" : {
      *    "bounds" : {
@@ -494,18 +500,19 @@ public class Result {
      *      }
      *   }
      *   // etc
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression:**
+     * 
+     * [source,java]
+     * ----
+     * double neBoundsLat = result.getAsDouble("//bounds/northeast/lat");
+     * double neBoundsLong = result.getAsDouble("//bounds/northeast/lng");
+     * double swBoundsLat = result.getAsDouble("//bounds/southwest/lat");
+     * double swBoundsLong = result.getAsDouble("//bounds/southwest/lng");
      *
-     * <pre>
-     * double neBoundsLat = result.getAsDouble(&quot;//bounds/northeast/lat&quot;);
-     * double neBoundsLong = result.getAsDouble(&quot;//bounds/northeast/lng&quot;);
-     * double swBoundsLat = result.getAsDouble(&quot;//bounds/southwest/lat&quot;);
-     * double swBoundsLong = result.getAsDouble(&quot;//bounds/southwest/lng&quot;);
-     *
-     * double memberDiscount = result.getAsDouble(&quot;pricing.members.members&quot;);
-     * </pre>
+     * double memberDiscount = result.getAsDouble("pricing.members.members");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -524,9 +531,10 @@ public class Result {
     /**
      * Get a string value from the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**
      *
-     * <pre>
+     * [source,json]
+     * ----
      * {
      * "profile"
      * {
@@ -538,15 +546,16 @@ public class Result {
      *          ... etc
      *     },
      * }
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression**
      *
-     * <pre>
-     * String city = result.getAsDouble(&quot;//city&quot;);
-     * String province = result.getAsDouble(&quot;//location//region&quot;);
-     * String country = result.getAsDouble(&quot;profile//location//country&quot;);
-     * </pre>
+     * [source,java]
+     * ----
+     * String city = result.getAsDouble("//city");
+     * String province = result.getAsDouble("//location//region");
+     * String country = result.getAsDouble("profile//location//country");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -598,9 +607,10 @@ public class Result {
     /**
      * Get the size of an array at the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**
      *
-     * <pre>
+     * [source,json]
+     * ----
      * {
      *    "results" : [
      *       {
@@ -623,15 +633,16 @@ public class Result {
      *           ... etc
      *       }
      *  }
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression**
      *
-     * <pre>
-     * int size = result.getSizeOfArray(&quot;/results[0]/address_components&quot;);
-     * int size2 = result.getSizeOfArray(&quot;results&quot;);
-     * int size3 = result.getSizeOfArray(&quot;/results[0]/address_components[2]/types&quot;);
-     * </pre>
+     * [source,java]
+     * ----
+     * int size = result.getSizeOfArray("/results[0]/address_components");
+     * int size2 = result.getSizeOfArray("results");
+     * int size3 = result.getSizeOfArray("/results[0]/address_components[2]/types");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -648,9 +659,10 @@ public class Result {
     /**
      * Get an array of string values from the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**
      *
-     * <pre>
+     * [source,json]
+     * ----
      * {
      *    "results" : [
      *       {
@@ -673,14 +685,15 @@ public class Result {
      *           ... etc
      *       }
      *  }
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression**
      *
-     * <pre>
+     * [source,java]
+     * ----
      * String types[] = result
-     * 		.getAsStringArray(&quot;/results[0]/address_components[2]/types&quot;);
-     * </pre>
+     * 		.getAsStringArray("/results[0]/address_components[2]/types");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -702,9 +715,10 @@ public class Result {
     /**
      * Get an array of values from the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**
      *
-     * <pre>
+     * [source,json]
+     * ----
      * {
      *    "results" : [
      *       {
@@ -727,14 +741,15 @@ public class Result {
      *           ... etc
      *       }
      *  }
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression**
      *
-     * <pre>
+     * [source,java]
+     * ----
      * String types[] = result
-     * 		.getAsStringArray(&quot;/results[0]/address_components[2]/types&quot;);
-     * </pre>
+     * 		.getAsStringArray("/results[0]/address_components[2]/types");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -758,10 +773,11 @@ public class Result {
 
     /**
      * Get an array of values from the requested path.
-     * <pre>
+     * [source,java]
+     * ----
      * String types[] = result
-     * 		.getAsStringArray(&quot;/results[0]/address_components[2]/types&quot;);
-     * </pre>
+     * 		.getAsStringArray("/results[0]/address_components[2]/types");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -785,10 +801,12 @@ public class Result {
 
     /**
      * Get an array of values from the requested path.
-     * <pre>
+     * 
+     * [source,java]
+     * ----
      * String types[] = result
-     * 		.getAsStringArray(&quot;/results[0]/address_components[2]/types&quot;);
-     * </pre>
+     * 		.getAsStringArray("/results[0]/address_components[2]/types");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -812,10 +830,12 @@ public class Result {
 
     /**
      * Get an array of values from the requested path.
-     * <pre>
+     * 
+     * [source,java]
+     * ----
      * String types[] = result
-     * 		.getAsStringArray(&quot;/results[0]/address_components[2]/types&quot;);
-     * </pre>
+     * 		.getAsStringArray("/results[0]/address_components[2]/types");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path
@@ -844,9 +864,9 @@ public class Result {
     /**
      * Get a List of values from the requested path.
      *
-     * For example: <b>JSON</b>
+     * For example: **JSON**
      *
-     * <pre>
+     * [source,json]
      * {
      *    "results" : [
      *       {
@@ -864,15 +884,16 @@ public class Result {
      *           ... etc
      *       }
      *  }
-     * </pre>
+     * ----
      *
-     * <b>Expression</b>
+     * **Expression**
      *
-     * <pre>
-     * List addressComponents = result.getAsList(&quot;/results[0]/address_components&quot;);
+     * [source,java]
+     * ----
+     * List addressComponents = result.getAsList("/results[0]/address_components");
      * result = Result.fromContent(addressComponents);
-     * String longName = result.getAsString(&quot;[1]/long_name&quot;);
-     * </pre>
+     * String longName = result.getAsString("[1]/long_name");
+     * ----
      *
      * @param path Path expression to evaluate
      * @return the value at the requested path

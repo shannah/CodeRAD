@@ -17,6 +17,8 @@ A utility for querying XML documents using syntax similar to CSS selectors.  Thi
 `com.codename1.rad.io.ResultParser`::
 A class that is able to parse XML and JSON documents into entity graphs.  This uses the `Result` class' expression language (similar to XPath syntax) for mapping properties of XML tags and JSON data structures, onto Entity properties.
 
+These classes complement the existing data parsing classes that already exist in the Codename One ecosystem, such as `XMLParser`, `JSONParser`, and the `CN1JSON` cn1lib.
+
 === Starting at the end... XML to Entity
 
 Before wading through the details XML, JSON, expression languages, and CSS selectors, let's take a peek at our end goal, which is to convert XML or JSON data into Entities.
@@ -284,11 +286,237 @@ Lest you think that the ResultParser is geared to XML data input exclusively, he
 ----
 
 
+.The `Color` entity which will encapsulate a "row" of data in the JSON.
+[source,java]
+----
+/**
+ * Class to encapsulate a color.
+ */
+class Color extends Entity {
+    
+    /**
+     * Define some tags which we'll use for properties 
+     * in our class.
+     */
+    public static final Tag type = new Tag("type"),
+        red = new Tag("red"), 
+        green = new Tag("green"), 
+        blue = new Tag("blue"), 
+        alpha = new Tag("alpha");
+    
+    /**
+     * Define the entity type.
+     */
+    public static final EntityType TYPE = entityTypeBuilder(Color.class)
+        .string(Thing.name)
+        .string(Product.category)
+        .string(type)
+        .Integer(red)
+        .Integer(green)
+        .Integer(blue)
+        .Integer(alpha)
+        .build();
+}
+----
+
+.The `Colors` entity, which encapsulates a list of colors.
+[source,java]
+----
+
+/**
+ * Encapsulates a list of colors.
+ */
+class Colors extends EntityList<Color>{
+    static {
+        // Register this EntityType
+        EntityType.registerList(
+            Colors.class, // Class used for list
+            Color.class  // Class of row type
+        );
+    }
+}
+----
+
+.The `ColorSet` entity which will encapsulate the "root" of the data.  This is largely created to make it easier to map the JSON data onto our entities.
+[source,java]
+----
+
+/**
+ * An entity type to model the root of the data set.  
+ */
+class ColorSet extends Entity {
+    public static final Tag colors = new Tag("colors");
+    public static final EntityType TYPE = entityTypeBuilder(ColorSet.class)
+        .list(Colors.class, colors)
+        .factory(cls -> {return new ColorSet();})
+        .build();
+
+}
+----
+
+With all of the entity definitions out of the way, let's finally parse the JSON into entities:
 
 [source,java]
 ----
-class Color extends Entity {
-    public static final TYPE = entityTypeBuilder(Color.class)
-        .string(Thing.name)
-        .string
+ResultParser parser = resultParser(ColorSet.class)
+        .property("colors", colors)
+        .entityType(Color.class)
+        .string("color", Thing.name)
+        .string("category", Product.category)
+        .string("type", type)
+        .Integer("code/rgba[0]", red)
+        .Integer("code/rgba[1]", green)
+        .Integer("code/rgba[2]", blue)
+        .Integer("code/rgba[3]", alpha)
+        ;
+
+ColorSet colorSet = (ColorSet)parser.parseJSON(jsonData, new ColorSet());
+----
+
+This looks very similar to the XML parsing example, but there are some notable differences.  One key difference is how "attributes" are addressed in JSON vs XML.  For XML, attributes are prefixed with "@" in the expression language, whereas they are not for JSON.  E.g. For the tag `<person name="Ted"/>` we would reference the name using "@name", whereas for the JSON object `{"name" : "Ted"}`, we would reference the name using "name".
+
+This example is intended to provide a glimpse of how you would use CodeRAD's XML and JSON parsing facilities in a real app.  I'll go over the details such as the expression language and APIs in subsequent sections.
+
+=== A Bird's-eye View
+
+Codename One's data parsing APIs can be grouped in the following three categories, listed in increasing order by level of abstraction:
+
+1. *Low-level parsers* - E.g. `XMLParser` and `JSONParser` which parse String data into generic data structures like `Element`, `Map`, `List`, etc..
+2. *Query and Selection* - E.g. `Result` and `ElementSelector` which provide a way to access data in an XML or JSON data set using simple expression languages resembling XPath and CSS selectors.
+3. *Entity Mapping* - E.g. `ResultParser` which provides a way to convert JSON and XML data directly into Entity objects.
+
+For low-level parsing, CodeRAD uses the core `XMLParser` and `JSONParser` classes.  
+
+For query and selection, CodeRAD provides its own APIs.  The `Result` class and its XPath-like expression language are used internally by the `ResultParser` class for mapping JSON/XML into entities, but you can also use it directly query XML and JSON data directly.
+
+The `ElementSelector` class provides an alternate syntax, resembling CSS selectors, for querying data in an XML data set.  It is currently XML-only, and it leverages XML-specific characteristics to provide a fluid experience.  This API is modeled after the `ComponentSelector` class, which, itself, is inspired by the popular *jQuery* javascript library.
+
+
+=== Parsing XML and JSON
+
+Low-level XML and JSON parsing can be performed using the core https://www.codenameone.com/javadoc/com/codename1/xml/XMLParser.html[XMLParser] and https://www.codenameone.com/javadoc/com/codename1/io/JSONParser.html[JSONParser] classes respectively.  For information on using these classes, refer to their javdoc pages.
+
+
+
+
+=== Querying XML and JSON Data Using `Result`
+
+The https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/processing/Result.html[Result] class provides a powerful expression language for accessing content from an XML document or JSON dataset. You can create a `Result` object to wrap a data set using the `Result.fromContent(...)` methods which accepts content either as XML/JSON strings, streams, or readers.  You will also accept pre-parsed data in the form of an `Element` object (for XML data), or `Map` object (for JSON data).
+
+The following is a simple usage example:
+
+.Sample code pulled from the CodeRAD unit tests demonstrating the use of Result to query XML data.
+[source,java]
+----
+String xml = "<?xml version='1.0'?>\n"
+                + "<person name=\"Paul\" email=\"paul@example.com\" dob=\"December 27, 1978\">"
+                + "  <children>\n"
+                + "    <person name=\"Jim\" email=\"jim@example.com\" dob=\"January 10, 1979\"/>\n"
+                + "    <person name=\"Jill\" email=\"jill@example.com\" dob=\"January 11, 1979\"/>\n"
+                + "  </children>\n"
+                + "</person>";
+                
+Result r = Result.fromContent(xml, Result.XML);
+
+r.get("/person/@name"); // "Paul"
+r.getAsString("./@name"); // "Paul"
+r.getAsString("@name"); // "Paul"
+r.get("/person[0]/@name"); // "Paul"
+r.get("./children/person[0]/@name"); // "Jim"
+r.getAsString("./children/person/@name"); // "Jim"
+r.getAsString("./children[0]/person/@name"); // "Jim"
+r.getAsStringArray("./children/person/@name").length; // 2
+r.get("/person/children/person[0]/@name"); // "Jim"
+r.getAsString("/person[0]/children/person/@name"); "Jim"
+r.getAsString("children[0]/person/@name"); // Jim
+r.getAsStringArray("children/person/@name").length; // 2
+----
+
+In the above example, we parse an XML string directly using `Result`. The various `get(...)`, `getAsString(...)`, and `getAsStringArray(...)` method give you a flavour for the expression language.  This example retrieved all data in `String` format, but the API includes methods for retrieving data for all of the types supported by JSON.  Specifically:
+
+. `getAsBoolean(expr)`
+. `getAsBooleanArray(expr)`
+. `getAsDouble(expr)`
+. `getAsDoubleArray(expr)`
+. `getAsInteger(expr)`
+. `getAsIntegerArray(expr)`
+. `getAsLong(expr)`
+. `getAsLongArray(expr)`
+
+Working with JSON is very similar, but there are some differences, which are related to the inherent differences between JSON data and XML data.
+
+Let's look at an equivalent example, this time using JSON as the source format:
+
+[source,java]
+----
+String json = "{\"name\":\"Paul\", \"email\":\"paul@example.com\", \"dob\":\"December 27, 1978\" "
+        + ", \"children\": [{\"name\":\"Jim\", \"email\":\"jim@example.com\", \"dob\":\"January 10, 1979\"},"
+        + "{\"name\"=\"Jill\", \"email\"=\"jill@example.com\", \"dob\":\"January 11, 1979\"}]}";
+
+
+Result r = Result.fromContent(json, Result.JSON);
+
+r.get("name"); // "Paul"
+r.getAsString("name"); // "Paul"
+r.get("name"); // "Paul"
+r.get("./children[0]/name"); // "Jim"
+r.get("children[0]/name"); // "Jim"
+r.get("./children/person[0]/name"); // null
+r.getAsString("./children/person/name"); // null
+r.getAsString("./children[0]/name"); // "Jim"
+r.getAsStringArray("./children/name").length; // 2
+r.getAsStringArray("./children/name"); // String[]{"Jim", "Jill"}
+r.get("./children/name"); // "Jim"
+r.getAsString("children/person/name");  // null
+r.getAsString("children[0]/person/name"); // null
+r.getAsStringArray("children/person/name").length; // 0
+        
+----
+
+Even though this JSON data is roughly equivalent to the XML data in the above example, we see that some of the expressions we use will differ.  In XML the XML tag is generally used as part of the expression language query.  In JSON there are no "tags", only Map properties and array indices.  Also, XML uses the "@" prefix for addressing attributes to distinguish them from child tags.
+
+E.g. Given the following XML tag:
+
+[source,xml]
+----
+<root name="John">
+    <name>Jack</name>
+</root>
+----
+
+We would have the following:
+
+[source,java]
+----
+Result r = Result.fromContent(xmlString, Result.XML);
+r.get("name"); // "Jack"
+r.get("@name"); // "John"
+----
+
+==== The Expression Language
+
+The expression language used by `Result` is very similar to XPath.  E.g.
+
+. `/` is a path separator.
+. `//` is a "glob" path separator.
+. `@attributeName` Refers to an attribute named "attributeName".
+. `[..]` Is used for array indices, and attribute filters.
+. `.` Refers to the current element
+. `..` Refers to the parent element
+
+See the https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/processing/Result.html[Result javadocs] for more details documentation on the expression language an API.
+
+=== `ResultParser` - From XML/JSON to Entities
+
+The https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/io/ResultParser.html[ResultParser] class uses the Result expression language to map XML and JSON data into Entities. 
+
+See the https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/io/ResultParser.html[ResultParser javadocs] for usage examples.
+
+=== Asynchronous Parsing
+
+In Codename One, most things are done on the EDT.  The main app lifecycle methods (`start()`, `stop()`, etc..) are run on the EDT, as are all event handlers.  Any code that mutates the UI hierarchy *must* be run on the EDT, so we often just stay on the EDT to make things simpler.  No thread race conditions, etc..  Some things, however, would be better done in a background thread so that they don't interfer with the app's UI performance.  Data parsing, especially when parsing large amounts of data, is one of those tasks that can potentially get in the way of a smooth user experience.  This is for two reasons:
+
+. Parsing large amounts of data is processor intensive and can get in the way of the app's ability to *"draw" itself at 60fps.*
+. Parsing large amounts of data may involve a the creation of lots of short-lived objects (usually strings), which **cause the garbage collector to churn**.  On iOS, in particular, and likely on other platforms, to varying extents, the garbage collector will only "stop the world", in extreme circumstances, where memory is at a critical level, but it *may* need to stop individual threads temporarily that are producing large amounts of "garbage" while it catches up with the backlog.  It is better for everyone involved if excess garbage related to data parsing happens on a thread *other than* the EDT, so that the garbage collector isn't faced with the sophie's choice of whether to "lock" the EDT, or risk running out of memory.
+
 
