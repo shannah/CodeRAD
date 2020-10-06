@@ -154,20 +154,25 @@ class MapContent implements StructuredContent {
             // for now prevent the critical cast exception.
             if (o instanceof Map) {
                 children.add(new MapContent((Map) o, this));
-            } else if (o instanceof String) {
+            } else if (isScalar(o)) {
                 children.add(new MapContent(o, this));
-            }
+            } 
         }
         return children;
     }
 
+    
+    private boolean isScalar(Object o) {
+        return !(o instanceof List) && !(o instanceof Map);
+    }
+    
     /*
      * (non-Javadoc)
      * 
      * @see com.codename1.processing.StructuredContent#getChildren(java.lang.String)
      */
     public List getChildren(String name) {
-        if (root instanceof String) {
+        if (isScalar(root)) {
             return new ArrayList();
         }
         // on arrays, auto select first element that contains 'name'.
@@ -338,15 +343,21 @@ class MapContent implements StructuredContent {
      * @see com.codename1.processing.StructuredContent#getText()
      */
     public String getText() {
-        if (root instanceof String) {
-            return (String) root;
+        if (root == null) {
+            return null;
+        }
+        if (isScalar(root)) {
+            return String.valueOf(root);
         }
         StructuredContent sc = getChild(0);
         if (sc == null) {
             return null;
         }
-        if (sc.getNativeRoot() instanceof String) {
-            return (String) sc.getNativeRoot();
+        if (isScalar(sc.getNativeRoot())) {
+            if (sc.getNativeRoot() == null) {
+                return null;
+            }
+            return String.valueOf(sc.getNativeRoot());
         }
         return sc.toString();
     }

@@ -10,17 +10,24 @@ import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.rad.processing.Result;
 import com.codename1.rad.io.ResultParser;
+import com.codename1.rad.io.ResultParser.PropertyParserCallback;
+import static com.codename1.rad.io.ResultParser.resultParser;
+import com.codename1.rad.io.ParsingService;
 import com.codename1.rad.models.Entity;
+import static com.codename1.rad.models.Entity.entityTypeBuilder;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.EntityTypeBuilder;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.schemas.Person;
+import com.codename1.rad.schemas.Product;
 import com.codename1.rad.schemas.Thing;
 import com.codename1.testing.AbstractTest;
 import com.codename1.xml.Element;
 import com.codename1.xml.XMLParser;
 import java.io.StringReader;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -55,6 +62,8 @@ public class ResultParserTest extends AbstractTest {
         dateFormatXMLAttsTest();
         nestedXMLAttsTest();
         manualExampleTest();
+        manualJSONTest();
+        parserServiceTest();
         return true;
     }
     
@@ -321,7 +330,71 @@ public class ResultParserTest extends AbstractTest {
         assertNull(r.getAsString("children[0]/person/name"));
         assertEqual(0, r.getAsStringArray("children/person/name").length);
         
+        json = "{\"numbers\" : [1, 2, 3, 4]}";
+        r = Result.fromContent(json, Result.JSON);
+        assertEqual(1, r.getAsInteger("numbers[0]"));
         
+        String jsonData = "{\n" +
+            "  \"colors\": [\n" +
+            "    {\n" +
+            "      \"color\": \"black\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,255,255,1],\n" +
+            "        \"hex\": \"#000\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"white\",\n" +
+            "      \"category\": \"value\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,0,0,1],\n" +
+            "        \"hex\": \"#FFF\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"red\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,0,0,1],\n" +
+            "        \"hex\": \"#FF0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"blue\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,0,255,1],\n" +
+            "        \"hex\": \"#00F\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"yellow\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,255,0,1],\n" +
+            "        \"hex\": \"#FF0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"green\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"secondary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,255,0,1],\n" +
+            "        \"hex\": \"#0F0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "  ]\n" +
+            "}";
+        
+        r = Result.fromContent(jsonData, Result.JSON);
+        assertEqual("black", r.getAsString("colors[0]/color"));
+        assertEqual(255, r.getAsInteger("colors[0]/code/rgba[0]"));
         
     }
     
@@ -550,6 +623,389 @@ public class ResultParserTest extends AbstractTest {
         
         
         
+    }
+    
+    
+    private void manualJSONTest() throws Exception {
+        
+        String jsonData = "{\n" +
+            "  \"colors\": [\n" +
+            "    {\n" +
+            "      \"color\": \"black\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,255,255,1],\n" +
+            "        \"hex\": \"#000\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"white\",\n" +
+            "      \"category\": \"value\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,0,0,1],\n" +
+            "        \"hex\": \"#FFF\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"red\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,0,0,1],\n" +
+            "        \"hex\": \"#FF0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"blue\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,0,255,1],\n" +
+            "        \"hex\": \"#00F\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"yellow\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,255,0,1],\n" +
+            "        \"hex\": \"#FF0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"green\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"secondary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,255,0,1],\n" +
+            "        \"hex\": \"#0F0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "  ]\n" +
+            "}";
+        
+        class Color extends Entity {}
+        Tag type = new Tag("type");
+        Tag red = new Tag("red"), green = new Tag("green"), blue = new Tag("blue"), alpha = new Tag("alpha");
+        EntityType colorType = entityTypeBuilder(Color.class)
+                .string(Thing.name)
+                .string(Product.category)
+                .string(type)
+                .Integer(red)
+                .Integer(green)
+                .Integer(blue)
+                .Integer(alpha)
+                .factory(cls -> {return new Color();})
+                .build();
+        class Colors extends EntityList<Color>{}
+        EntityType.registerList(Colors.class, Color.class, cls -> {return new Colors();});
+        
+        Tag colors = new Tag("colors");
+        class ColorSet extends Entity {}
+        EntityType colorsetType = entityTypeBuilder(ColorSet.class)
+                .list(Colors.class, colors)
+                .factory(cls -> {return new ColorSet();})
+                .build();
+        
+        
+        
+        ResultParser parser = resultParser(ColorSet.class)
+                .property("colors", colors)
+                .entityType(Color.class)
+                .string("color", Thing.name)
+                .string("category", Product.category)
+                .string("type", type)
+                .Integer("code/rgba[0]", red)
+                .Integer("code/rgba[1]", green)
+                .Integer("code/rgba[2]", blue)
+                .Integer("code/rgba[3]", alpha)
+                ;
+        
+        ColorSet colorSet = (ColorSet)parser.parseJSON(jsonData, new ColorSet());
+        Colors theColors = (Colors)colorSet.get(colors);
+        assertEqual(6, theColors.size());
+        assertEqual(6, colorSet.getEntityList(colors).size());
+        assertEqual("black", theColors.get(0).getText(Thing.name));
+        assertEqual("hue", theColors.get(0).getText(Product.category));
+        assertEqual("primary", theColors.get(0).getText(type));
+        assertEqual(255, (int)theColors.get(0).getInt(red));
+        assertEqual(255, (int)theColors.get(0).getInt(green));
+        assertEqual(255, (int)theColors.get(0).getInt(blue));
+        assertEqual(1, (int)theColors.get(0).getInt(alpha));
+        
+        assertEqual("green", theColors.get(5).getText(Thing.name));
+        assertEqual(0, (int)theColors.get(5).getInt(red));
+        assertEqual(255, (int)theColors.get(5).getInt(green));
+        assertEqual(0, (int)theColors.get(5).getInt(blue));
+        assertEqual(1, (int)theColors.get(5).getInt(alpha));
+        
+        
+        // Now test custom parser callback
+        
+        class CodeParser implements PropertyParserCallback {
+            private int index;
+            
+            CodeParser(int index) {
+                this.index = index;
+            }
+            @Override
+            public Object parse(Object codeMap) {
+                if (!(codeMap instanceof Map)) {
+                    return 0;
+                }
+                Map m = (Map)codeMap;
+                List rgba = (List)m.get("rgba");
+                if (rgba == null) {
+                    return 0;
+                }
+                if (index < 0 || index >= rgba.size()) {
+                    return 0;
+                }
+                return rgba.get(index);
+            }
+            
+        }
+        
+        parser = resultParser(ColorSet.class)
+                .property("colors", colors)
+                .entityType(Color.class)
+                .string("color", Thing.name)
+                .string("category", Product.category)
+                .string("type", type)
+                
+                // We use the 'property' method instead of 'Integer' since
+                // we will be processing the object using our custom parser callback
+                .property("code", red, new CodeParser(0))
+                .property("code", green, new CodeParser(1))
+                .property("code", blue, new CodeParser(2))
+                .property("code", alpha, new CodeParser(3))
+                ;
+                
+        colorSet = (ColorSet)parser.parseJSON(jsonData, new ColorSet());
+        theColors = (Colors)colorSet.get(colors);
+        assertEqual(6, theColors.size());
+        assertEqual(6, colorSet.getEntityList(colors).size());
+        assertEqual("black", theColors.get(0).getText(Thing.name));
+        assertEqual("hue", theColors.get(0).getText(Product.category));
+        assertEqual("primary", theColors.get(0).getText(type));
+        assertEqual(255, (int)theColors.get(0).getInt(red));
+        assertEqual(255, (int)theColors.get(0).getInt(green));
+        assertEqual(255, (int)theColors.get(0).getInt(blue));
+        assertEqual(1, (int)theColors.get(0).getInt(alpha));
+        
+        assertEqual("green", theColors.get(5).getText(Thing.name));
+        assertEqual(0, (int)theColors.get(5).getInt(red));
+        assertEqual(255, (int)theColors.get(5).getInt(green));
+        assertEqual(0, (int)theColors.get(5).getInt(blue));
+        assertEqual(1, (int)theColors.get(5).getInt(alpha));
+    }
+    
+    private void parserServiceTest() throws Exception {
+        
+        String jsonData = "{\n" +
+            "  \"colors\": [\n" +
+            "    {\n" +
+            "      \"color\": \"black\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,255,255,1],\n" +
+            "        \"hex\": \"#000\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"white\",\n" +
+            "      \"category\": \"value\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,0,0,1],\n" +
+            "        \"hex\": \"#FFF\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"red\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,0,0,1],\n" +
+            "        \"hex\": \"#FF0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"blue\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,0,255,1],\n" +
+            "        \"hex\": \"#00F\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"yellow\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"primary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [255,255,0,1],\n" +
+            "        \"hex\": \"#FF0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"color\": \"green\",\n" +
+            "      \"category\": \"hue\",\n" +
+            "      \"type\": \"secondary\",\n" +
+            "      \"code\": {\n" +
+            "        \"rgba\": [0,255,0,1],\n" +
+            "        \"hex\": \"#0F0\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "  ]\n" +
+            "}";
+        
+        class Color extends Entity {}
+        Tag type = new Tag("type");
+        Tag red = new Tag("red"), green = new Tag("green"), blue = new Tag("blue"), alpha = new Tag("alpha");
+        EntityType colorType = entityTypeBuilder(Color.class)
+                .string(Thing.name)
+                .string(Product.category)
+                .string(type)
+                .Integer(red)
+                .Integer(green)
+                .Integer(blue)
+                .Integer(alpha)
+                .factory(cls -> {return new Color();})
+                .build();
+        class Colors extends EntityList<Color>{}
+        EntityType.registerList(Colors.class, Color.class, cls -> {return new Colors();});
+        
+        Tag colors = new Tag("colors");
+        class ColorSet extends Entity {}
+        EntityType colorsetType = entityTypeBuilder(ColorSet.class)
+                .list(Colors.class, colors)
+                .factory(cls -> {return new ColorSet();})
+                .build();
+        
+        
+        
+        ResultParser parser = resultParser(ColorSet.class)
+                .property("colors", colors)
+                .entityType(Color.class)
+                .string("color", Thing.name)
+                .string("category", Product.category)
+                .string("type", type)
+                .Integer("code/rgba[0]", red)
+                .Integer("code/rgba[1]", green)
+                .Integer("code/rgba[2]", blue)
+                .Integer("code/rgba[3]", alpha)
+                ;
+        
+        ParsingService parserService = new ParsingService();
+        Throwable[] errors = new Throwable[1];
+        parserService.parseJSON(jsonData, parser, new ColorSet()).ready(colorSet -> {
+            Colors theColors = (Colors)colorSet.get(colors);
+            assertEqual(6, theColors.size());
+            assertEqual(6, colorSet.getEntityList(colors).size());
+            assertEqual("black", theColors.get(0).getText(Thing.name));
+            assertEqual("hue", theColors.get(0).getText(Product.category));
+            assertEqual("primary", theColors.get(0).getText(type));
+            assertEqual(255, (int)theColors.get(0).getInt(red));
+            assertEqual(255, (int)theColors.get(0).getInt(green));
+            assertEqual(255, (int)theColors.get(0).getInt(blue));
+            assertEqual(1, (int)theColors.get(0).getInt(alpha));
+
+            assertEqual("green", theColors.get(5).getText(Thing.name));
+            assertEqual(0, (int)theColors.get(5).getInt(red));
+            assertEqual(255, (int)theColors.get(5).getInt(green));
+            assertEqual(0, (int)theColors.get(5).getInt(blue));
+            assertEqual(1, (int)theColors.get(5).getInt(alpha));
+            System.out.println("Finished ready callback");
+        }).except(err -> {
+            errors[0] = err;
+        }).await();
+        System.out.println("Finished await");
+        
+        if (errors[0] != null) {
+            if (errors[0] instanceof RuntimeException) {
+                throw (RuntimeException)errors[0];
+            } else {
+                throw (Exception)errors[0];
+            }
+        }
+        
+        
+        // Now test custom parser callback
+        
+        class CodeParser implements PropertyParserCallback {
+            private int index;
+            
+            CodeParser(int index) {
+                this.index = index;
+            }
+            @Override
+            public Object parse(Object codeMap) {
+                if (!(codeMap instanceof Map)) {
+                    return 0;
+                }
+                Map m = (Map)codeMap;
+                List rgba = (List)m.get("rgba");
+                if (rgba == null) {
+                    return 0;
+                }
+                if (index < 0 || index >= rgba.size()) {
+                    return 0;
+                }
+                return rgba.get(index);
+            }
+            
+        }
+        
+        parser = resultParser(ColorSet.class)
+                .property("colors", colors)
+                .entityType(Color.class)
+                .string("color", Thing.name)
+                .string("category", Product.category)
+                .string("type", type)
+                
+                // We use the 'property' method instead of 'Integer' since
+                // we will be processing the object using our custom parser callback
+                .property("code", red, new CodeParser(0))
+                .property("code", green, new CodeParser(1))
+                .property("code", blue, new CodeParser(2))
+                .property("code", alpha, new CodeParser(3))
+                ;
+            
+        parserService.parseJSON(jsonData, parser, new ColorSet()).ready(colorSet -> {
+            Colors theColors = (Colors)colorSet.get(colors);
+            assertEqual(6, theColors.size());
+            assertEqual(6, colorSet.getEntityList(colors).size());
+            assertEqual("black", theColors.get(0).getText(Thing.name));
+            assertEqual("hue", theColors.get(0).getText(Product.category));
+            assertEqual("primary", theColors.get(0).getText(type));
+            assertEqual(255, (int)theColors.get(0).getInt(red));
+            assertEqual(255, (int)theColors.get(0).getInt(green));
+            assertEqual(255, (int)theColors.get(0).getInt(blue));
+            assertEqual(1, (int)theColors.get(0).getInt(alpha));
+
+            assertEqual("green", theColors.get(5).getText(Thing.name));
+            assertEqual(0, (int)theColors.get(5).getInt(red));
+            assertEqual(255, (int)theColors.get(5).getInt(green));
+            assertEqual(0, (int)theColors.get(5).getInt(blue));
+            assertEqual(1, (int)theColors.get(5).getInt(alpha));
+            System.out.println("Finished ready callback");
+        }).except(err -> {
+            errors[0] = err;
+        }).await();
+        System.out.println("Finished await");
+        
+        if (errors[0] != null) {
+            if (errors[0] instanceof RuntimeException) {
+                throw (RuntimeException)errors[0];
+            } else {
+                throw (Exception)errors[0];
+            }
+        }
+        
+        parserService.stop();
     }
 
 }

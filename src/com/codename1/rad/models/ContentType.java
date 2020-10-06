@@ -51,6 +51,8 @@ import java.util.Objects;
 public class ContentType<T> {
     
     private static List<DataTransformer> registeredTransformers = new ArrayList<>();
+    private boolean isNumber;
+    
 
     /**
      * @return the representationClass
@@ -87,6 +89,7 @@ public class ContentType<T> {
     public ContentType(Name name, Class<T> representationClass) {
         this.name = name;
         this.representationClass = representationClass;
+        this.isNumber = Number.class.isAssignableFrom(representationClass);
     }
 
     @Override
@@ -126,12 +129,71 @@ public class ContentType<T> {
         if (this.equals(otherType)) {
             return (T)data;
         }
+        if (data == null) {
+            return null;
+        }
+        if (otherType.isNumber) {
+            if (representationClass == Integer.class) {
+                return (T)(Integer)((Number)data).intValue();
+            }
+            if (representationClass == Double.class) {
+                return (T)(Double)((Number)data).doubleValue();
+            }
+            if (representationClass == Long.class) {
+                return (T)(Long)((Number)data).longValue();
+            }
+            if (representationClass == Float.class) {
+                return (T)(Float)((Number)data).floatValue();
+            }
+            if (representationClass == Byte.class) {
+                return (T)(Byte)(byte)((Number)data).intValue();
+            }
+            if (representationClass == Short.class) {
+                return (T)(Short)((Number)data).shortValue();
+            }
+            if (representationClass == Boolean.class) {
+                return (T)(Boolean)(((Number)data).intValue() != 0);
+            }
+        }
+        if (otherType.representationClass == Boolean.class) {
+            int out = ((boolean)(Boolean)data) ? 1 : 0;
+            if (representationClass == Integer.class) {
+                return (T)(Integer)(int)out;
+            }
+            if (representationClass == Double.class) {
+                return (T)(Double)(double)out;
+            }
+            if (representationClass == Long.class) {
+                return (T)(Long)(long)out;
+            }
+            if (representationClass == Float.class) {
+                return (T)(Float)(float)out;
+            }
+            if (representationClass == Byte.class) {
+                return (T)(Byte)(byte)out;
+            }
+            if (representationClass == Short.class) {
+                return (T)(Short)(short)out;
+            }
+            if (representationClass == Boolean.class) {
+                return (T)data;
+            }
+        }
+        
         throw new IllegalArgumentException("Cannot convert type "+this+" from type "+otherType);
     }
     
     public boolean canConvertFrom(ContentType otherType) {
         if (this.equals(otherType)) {
             return true;
+        }
+        if (otherType == null) {
+            return false;
+        }
+        if (otherType.isNumber || otherType.representationClass == Boolean.class) {
+            if (representationClass == Boolean.class || isNumber) {
+                return true;
+            }
         }
         return false;
     }
@@ -142,6 +204,7 @@ public class ContentType<T> {
         } else if (sourceType.canConvertTo(targetType)) {
             return sourceType.to(targetType, sourceData);
         } else {
+            
             for (DataTransformer dt : registeredTransformers) {
                 if (dt.supports(sourceType, targetType)) {
                     return (T)dt.transform(sourceType, targetType, sourceData);
@@ -230,6 +293,8 @@ public class ContentType<T> {
         
  
     };
+    
+    
     
     public static final ContentType<Boolean> BooleanType = new ContentType<Boolean>(new Name("Boolean"), Boolean.class) {
         

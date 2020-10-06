@@ -241,8 +241,8 @@
           <param name="--attribute" value="name=${ant.project.name}"/>
           <param name="--attribute" value="version=${version}"/>
           <param name="--attribute" value="title-link=http://example.com[${ant.project.name} ${version}]"/>
-        </doclet>
-      </javadoc>
+        </doclet> 
+     </javadoc>
     </target>
     
     <target name="buildCSS">

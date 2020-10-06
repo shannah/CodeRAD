@@ -24,6 +24,7 @@ Before wading through the details XML, JSON, expression languages, and CSS selec
 
 Consider the following sample XML file:
 
+.Some sample XML data that we will be parsing into entities using `ResultParser`.
 [source,xml]
 ----
 <?xml version="1.0"?>
@@ -150,6 +151,7 @@ Consider the following sample XML file:
 
 And suppose our application includes the following entities:
 
+.Minimal source code for a `Book` entity.
 [source,java]
 ----
 public class Book extends Entity {
@@ -164,14 +166,17 @@ public class Book extends Entity {
 }
 ----
 
+.Minimal source code for a `Books` entity. I find it helps for API clarity to create subclasses entity-specific collection types rather than just using generic EntityLists.  This makes it easier for things like the `ResultParser` to introspect the data model and produce better results.
 [source,java]
 ----
 public class Books extends EntityList<Book> {}
 ----
 
+.Minimal source code for a `Catalog` entity.
 [source,java]
 ----
 public class Catalog extends Entity {
+    public static final Tag BOOKS = new Tag("Books");
     public static final EntityType TYPE = new EntityTypeBuilder()
         .list(Books.class, BOOKS)
         .build();
@@ -184,18 +189,106 @@ public class Catalog extends Entity {
 
 We can convert this XML document into our entities using:
 
+.Using `ResultParser` to parse an XML document into Entities and EntityTypes.
 [source,java]
 ----
-ResultParser parser = new ResultParser(Catalog.TYPE)
-    .property("./book", BOOKS)
-    .entity(Book.TYPE)
-    .property("@id", Thing.identifier)
-    .property("title", Thing.name)
-    .property("description", Thing.description);
 
-Catalog catalog = (Catalog)parser.parseXML(xmlContent);
+ResultParser parser = new ResultParser(Catalog.TYPE) <1>
+    .property("./book", Catalog.BOOKS) <2>
+    .entity(Book.TYPE) <3>
+    .property("@id", Thing.identifier) <4>
+    .property("title", Thing.name) <5>
+    .property("description", Thing.description); <6>
 
+Catalog catalog = (Catalog)parser.parseXML(xmlContent); <7>
+for (Book book : (Books)catalog.get(Catalog.BOOKS)) {
+    System.out.println("Name: " + book.get(Thing.name));
+}
+
+----
+<1> Constructor takes the `Catalog.TYPE` entity type, which is the assigned entity type for the `Catalog` class, thus ensuring that this result parser will map the "root" tag of an XML document to a `Catalog` entity.
+<2> "./book" is an expression language selector matching `<book>` elements that are direct children of the "current" element.  `Catalog.BOOKS` indicates that the `<book>` elements should be mapped to the `Catalog.BOOKS` property of the `Catalog` entity.
+<3> `entity(Book.TYPE)`, create a new `ResultParser` for mapping the `Book` entity.   This `entity()` method creates the "sub" parser, registers it with the "root" Catalog parser, and returns itself so that subsequent chained method calls are actually performed on the "Book" parser.
+<4> Map the "id" attribute of the `<book>` tag to the `Thing.identifier` property of the `Book` entity.
+<5> Map the contents of the `<title>` child tag to the `Thing.name` property of the `Book` entity.
+<6> Map the contents of the `<description>` child tag to the `Thing.description` property of the `Book` entity.
+<7> `parser.parseXML(xmlContent)` parses the provided XML content as a `Catalog` object.
+
+
+This short example demonstrates how easy it is to parse arbitrary XML into Java entities without dictating any structural requirements on the XML data.  The `ResultParser` uses the Result expression language to specify how the XML data should be mapped to entities. This example, being chosen for clarity and small code-size primarily maps to entities that have the same structure as the XML data, but API is flexible enough to map different structures together.  It also includes advanced facilities for custom content parsing and formatting.  For example, you can provide a `DateFormatter` object to help format dates and time data.
+
+
+=== JSON to Entity
+
+Lest you think that the ResultParser is geared to XML data input exclusively, here is a motivating example the demonstrates the parsing of JSON data into entities.
+
+[source,json]
+----
+{
+  "colors": [
+    {
+      "color": "black",
+      "category": "hue",
+      "type": "primary",
+      "code": {
+        "rgba": [255,255,255,1],
+        "hex": "#000"
+      }
+    },
+    {
+      "color": "white",
+      "category": "value",
+      "code": {
+        "rgba": [0,0,0,1],
+        "hex": "#FFF"
+      }
+    },
+    {
+      "color": "red",
+      "category": "hue",
+      "type": "primary",
+      "code": {
+        "rgba": [255,0,0,1],
+        "hex": "#FF0"
+      }
+    },
+    {
+      "color": "blue",
+      "category": "hue",
+      "type": "primary",
+      "code": {
+        "rgba": [0,0,255,1],
+        "hex": "#00F"
+      }
+    },
+    {
+      "color": "yellow",
+      "category": "hue",
+      "type": "primary",
+      "code": {
+        "rgba": [255,255,0,1],
+        "hex": "#FF0"
+      }
+    },
+    {
+      "color": "green",
+      "category": "hue",
+      "type": "secondary",
+      "code": {
+        "rgba": [0,255,0,1],
+        "hex": "#0F0"
+      }
+    },
+  ]
+}
 ----
 
 
+
+[source,java]
+----
+class Color extends Entity {
+    public static final TYPE = entityTypeBuilder(Color.class)
+        .string(Thing.name)
+        .string
 

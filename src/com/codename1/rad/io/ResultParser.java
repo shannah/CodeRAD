@@ -29,6 +29,8 @@ import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Tag;
 import com.codename1.xml.Element;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -945,6 +947,12 @@ public class ResultParser implements EntityFactory {
         add(p);
         return p;
     }
+    
+    public ResultParser entityType(Class<? extends Entity> type) {
+        ResultParser p = new ResultParser(EntityType.getEntityType(type));
+        add(p);
+        return p;
+    }
   
     
     /**
@@ -1006,10 +1014,25 @@ public class ResultParser implements EntityFactory {
         return parseRow(Result.fromContent(xml, Result.XML), dest);
     }
     
+    public Entity parseXML(InputStream xml, Entity dest) throws IOException {
+        return parseRow(Result.fromContent(xml, Result.XML), dest);
+    }
+    
+    public Entity parseXML(Reader xml, Entity dest) throws IOException {
+        return parseRow(Result.fromContent(xml, Result.XML), dest);
+    }
+    
     public Entity parseJSON(String json, Entity dest) throws IOException {
         return parseRow(Result.fromContent(json, Result.JSON), dest);
     }
     
+    public Entity parseJSON(InputStream json, Entity dest) throws IOException {
+        return parseRow(Result.fromContent(json, Result.JSON), dest);
+    }
+    
+    public Entity parseJSON(Reader json, Entity dest) throws IOException {
+        return parseRow(Result.fromContent(json, Result.JSON), dest);
+    }
     /**
      * Parse a single row of a result into the given row entity.
      * @param rowResult The rowResult.
@@ -1039,7 +1062,7 @@ public class ResultParser implements EntityFactory {
             }
             // This is just a simple property selector
             Getter getter = propertyParser.getter;
-            if (getter == null) {
+            if (getter == null && propertyParser.parserCallback == null) {
                 getter = createGetter(prop);
             }
             Object val;
@@ -1116,6 +1139,14 @@ public class ResultParser implements EntityFactory {
         return rowEntity;
     }
     
+    
+    public static ResultParser resultParser(Class<? extends Entity> type) {
+        return new ResultParser(EntityType.getEntityType(type));
+    }
+    
+    public static ResultParser resultParser(EntityType type) {
+        return new ResultParser(type);
+    }
    
     
 }

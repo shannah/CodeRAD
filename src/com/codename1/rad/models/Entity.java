@@ -1445,4 +1445,8 @@ public class Entity extends Observable  {
         }
         return l;
     }
+    
+    public static EntityTypeBuilder entityTypeBuilder(Class<? extends Entity> cls) {
+        return EntityTypeBuilder.entityTypeBuilder(cls);
+    }
 }

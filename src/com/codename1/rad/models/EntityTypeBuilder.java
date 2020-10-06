@@ -39,6 +39,7 @@ import java.util.ArrayList;
 public class EntityTypeBuilder {
     ArrayList<Property> properties = new ArrayList();
     private Class listType, rowType;
+    private EntityFactory factory;
     
     private Class entityClass = Entity.class;
     
@@ -114,6 +115,11 @@ public class EntityTypeBuilder {
         return this;
     }
     
+    public EntityTypeBuilder factory(EntityFactory factory) {
+        this.factory = factory;
+        return this;
+    }
+    
     public EntityType build() {
         EntityType out = new EntityType(properties.toArray(new Property[properties.size()]));
         out.setEntityClass(entityClass);
@@ -123,7 +129,32 @@ public class EntityTypeBuilder {
         if (rowType != null) {
             out.setRowType(rowType);
         }
+        if (entityClass != null && entityClass != Entity.class && entityClass != EntityList.class) {
+            if (factory != null) {
+                if (rowType == null) {
+                    EntityType.register(entityClass, out, factory);
+                } else {
+                    EntityType.registerList(entityClass, rowType, factory);
+                }
+            } else {
+                if (rowType == null) {
+                    EntityType.register(entityClass, out);
+
+                } else {
+                    EntityType.registerList(listType, rowType);
+                }
+            }
+        }
+        
         return out;
     }
     
+    public static EntityTypeBuilder entityTypeBuilder() {
+        return new EntityTypeBuilder();
+    }
+    
+    public static EntityTypeBuilder entityTypeBuilder(Class<? extends Entity> cls) {
+        return new EntityTypeBuilder().entityClass(cls);
+    } 
+   
 }
