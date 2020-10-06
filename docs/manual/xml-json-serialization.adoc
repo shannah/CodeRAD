@@ -220,6 +220,7 @@ for (Book book : (Books)catalog.get(Catalog.BOOKS)) {
 This short example demonstrates how easy it is to parse arbitrary XML into Java entities without dictating any structural requirements on the XML data.  The `ResultParser` uses the Result expression language to specify how the XML data should be mapped to entities. This example, being chosen for clarity and small code-size primarily maps to entities that have the same structure as the XML data, but API is flexible enough to map different structures together.  It also includes advanced facilities for custom content parsing and formatting.  For example, you can provide a `DateFormatter` object to help format dates and time data.
 
 
+[#json-to-entity]
 === JSON to Entity
 
 Lest you think that the ResultParser is geared to XML data input exclusively, here is a motivating example the demonstrates the parsing of JSON data into entities.
@@ -519,4 +520,22 @@ In Codename One, most things are done on the EDT.  The main app lifecycle method
 . Parsing large amounts of data is processor intensive and can get in the way of the app's ability to *"draw" itself at 60fps.*
 . Parsing large amounts of data may involve a the creation of lots of short-lived objects (usually strings), which **cause the garbage collector to churn**.  On iOS, in particular, and likely on other platforms, to varying extents, the garbage collector will only "stop the world", in extreme circumstances, where memory is at a critical level, but it *may* need to stop individual threads temporarily that are producing large amounts of "garbage" while it catches up with the backlog.  It is better for everyone involved if excess garbage related to data parsing happens on a thread *other than* the EDT, so that the garbage collector isn't faced with the sophie's choice of whether to "lock" the EDT, or risk running out of memory.
 
+The https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/io/ParsingService.html[ParsingService] class makes it easier to parse data off the EDT.
+
+A simple example:
+
+.Adapting the example from <<json-to-entity>> to perform asynchronouze parsing off the EDT
+[source,java]
+----
+ParsingService parserService = new ParsingService();
+
+parserService.parseJSON(jsonData, parser, new ColorSet()).ready(colorSet -> {
+    // Callback passed the resulting colorSet object
+    // once parsing is complete
+});
+----
+
+IMPORTANT: Each `ParsingService` instance creates and wraps a Thread which is used to perform the parsing.  When you are finished using a particular `ParsingService` instance, you should call its `stop()` method to stop the thread.
+
+Refer to the https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/io/ParsingService.html[ParsingService javadocs] for more examples and details about the API.
 
