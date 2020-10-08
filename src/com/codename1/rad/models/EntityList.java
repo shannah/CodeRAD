@@ -180,7 +180,6 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     public static class TransactionEvent extends EntityListEvent implements Iterable<EntityEvent> {
         private List<EntityEvent> events = new ArrayList<EntityEvent>();
         private boolean complete;
-        private TransactionEvent parent;
         
         /**
          * Creates a new TransactionEvent with the given EntityList source.  Generally you don't call this
@@ -257,10 +256,6 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
          */
         public boolean isComplete() {
             return complete;
-        }
-        
-        public TransactionEvent getParent() {
-            return parent;
         }
         
         
