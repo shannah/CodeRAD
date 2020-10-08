@@ -38,6 +38,41 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     private EntityType rowType;
     private List<T> entities;
     private int maxLen = -1;
+    private TransactionEvent currentTransaction;
+    
+    
+    /**
+     * Starts a transaction to keep track of adds and removes so that listeners
+     * can be notified in bulk.
+     */
+    public void startTransaction() {
+        if (currentTransaction != null) {
+            throw new IllegalStateException("Transaction already in progress");
+        }
+        currentTransaction = new TransactionEvent(this);
+        fireTransactionEvent(currentTransaction);
+        
+    }
+    
+    /**
+     * Commits a transaction, and notifies listeners that the transaction is complete.
+     * 
+     */
+    public void commitTransaction() {
+        if (currentTransaction == null) {
+            throw new IllegalStateException("No transaction found.");
+        }
+        TransactionEvent evt = currentTransaction;
+        evt.complete();
+        currentTransaction = null;
+        fireTransactionEvent(evt);
+    }
+    
+    protected void fireTransactionEvent(TransactionEvent evt) {
+        if (listeners != null && listeners.hasListeners()) {
+            listeners.fireActionEvent(evt);
+        }
+    }
     
     
     public static class EntityListEvent extends ActionEvent {
@@ -49,7 +84,14 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             }
             
         }
+        
+        public TransactionEvent getTransaction() {
+            return null;
+        }
+        
     }
+    
+    
     
     /**
      * Can be overridden by subclasses to create an alternate collection type
@@ -71,9 +113,89 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         return entities;
     }
     
+    /**
+     * An event to encapsulate transactions on a list.  
+     * 
+     * A transaction can be used to 
+     * group together multiple add/remove events so that listeners can choose to handle
+     * them in bulk. The {@link #startTransaction() } method can be used to start a 
+     * transaction on a list.   It will fire the {@link TransactionEvent} to the listeners.  
+     * The {@link #commitTransaction() } method can be used to end a transaction.  It will again
+     * fire a {@link TransactionEvent} to the listeners.  Listeners can distinguish between
+     * the start and end of a transaction using the {@link #isComplete() } method, which 
+     * will return {@literal true} if the transaction has been completed.
+     * 
+     * Listeners can check to see if an "add" or "remove" event was part of a transaction
+     * using {@link EntityEvent#getTransaction() }.  If it finds that it is part of a transaction
+     * the view may decide to wait until it receives the TransactionEvent before it responds to
+     * the change.
+     * 
+     * 
+     * 
+     * 
+     */
+    public static class TransactionEvent extends EntityListEvent implements Iterable<EntityEvent> {
+        private List<EntityEvent> events = new ArrayList<EntityEvent>();
+        private boolean complete;
+        private TransactionEvent parent;
+        public TransactionEvent(EntityList source) {
+            super(source);
+        }
+        
+        public boolean isEmpty() {
+            return events.isEmpty();
+        }
+        
+        public int size() {
+            return events.size();
+        }
+        
+        public EntityEvent get(int index) {
+            return events.get(index);
+        }
+        
+        public void addEvent(EntityEvent evt) {
+            if (evt.getTransaction() != null) {
+                throw new IllegalArgumentException("Attempt to add EntityEvent to transaction that is already a part of another transaction.");
+            }
+            evt.setTransaction(this);
+            events.add(evt);
+        }
+        
+        public void removeEvent(EntityEvent evt) {
+            if (evt.getTransaction() != this) {
+                throw new IllegalArgumentException("Attempt to remove EntityEvent from transaction that it is not a part of.");
+            }
+            evt.setTransaction(null);
+            events.remove(evt);
+        }
+        
+        private void complete() {
+            this.complete = true;
+        }
+        
+        public boolean isComplete() {
+            return complete;
+        }
+        
+        public TransactionEvent getParent() {
+            return parent;
+        }
+        
+        public void setParent(TransactionEvent parent) {
+            this.parent = parent;
+        }
+
+        @Override
+        public Iterator<EntityEvent> iterator() {
+            return events.iterator();
+        }
+    }
+    
     public static class EntityEvent extends EntityListEvent {
         private Entity entity;
         private int index;
+        private TransactionEvent transaction;
         
         public EntityEvent(EntityList source, Entity entity, int index) {
             super(source);
@@ -87,6 +209,15 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         
         public int getIndex() {
             return index;
+        }
+        
+        public void setTransaction(TransactionEvent transaction) {
+            this.transaction = transaction;
+        }
+        
+        @Override
+        public TransactionEvent getTransaction() {
+            return transaction;
         }
     }
     
@@ -251,14 +382,30 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     }
 
     protected void fireEntityAdded(Entity e, int index) {
-        if (listeners != null && listeners.hasListeners()) {
-            listeners.fireActionEvent(new EntityAddedEvent(this, e, index));
+        boolean shouldFireEvent = listeners != null && listeners.hasListeners();
+        boolean shouldCreateEvent = shouldFireEvent || currentTransaction != null;
+        if (shouldFireEvent || shouldCreateEvent) {
+            EntityAddedEvent evt = new EntityAddedEvent(this, e, index);
+            if (currentTransaction != null) {
+                currentTransaction.addEvent(evt);
+            }
+            if (shouldFireEvent) {
+                listeners.fireActionEvent(evt);
+            }
         }
     }
     
     protected void fireEntityRemoved(Entity e, int index) {
-        if (listeners != null && listeners.hasListeners()) {
-            listeners.fireActionEvent(new EntityRemovedEvent(this, e, index));
+        boolean shouldFireEvent = listeners != null && listeners.hasListeners();
+        boolean shouldCreateEvent = shouldFireEvent || currentTransaction != null;
+        if (shouldFireEvent || shouldCreateEvent) {
+            EntityRemovedEvent evt = new EntityRemovedEvent(this, e, index);
+            if (currentTransaction != null) {
+                currentTransaction.addEvent(evt);
+            }
+            if (shouldFireEvent) {
+                listeners.fireActionEvent(evt);
+            }
         }
     }
    

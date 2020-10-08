@@ -54,7 +54,11 @@ import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.NumberFormatterAttribute;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Editable;
+import com.codename1.rad.models.Property.Getter;
+import com.codename1.rad.models.Property.GetterAttribute;
 import com.codename1.rad.models.Property.Label;
+import com.codename1.rad.models.Property.Setter;
+import com.codename1.rad.models.Property.SetterAttribute;
 import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.models.PropertySelectorProvider;
 import com.codename1.rad.models.StringProvider;
@@ -623,6 +627,12 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         imageProcessingThread.run(r);
     }
     
+    public static GetterAttribute getter(Getter g) {
+        return new GetterAttribute(g);
+    }
     
+    public static SetterAttribute setter(Setter s) {
+        return new SetterAttribute(s);
+    }
     
 }

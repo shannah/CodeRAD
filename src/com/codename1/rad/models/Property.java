@@ -138,4 +138,16 @@ public interface Property<T> {
         public T getValue(Entity entity, Getter<T> defaultGetter);
     }
     
+    public static class GetterAttribute extends Attribute<Getter> {
+        public GetterAttribute(Getter getter) {
+            super(getter);
+        }
+    }
+    
+    public static class SetterAttribute extends Attribute<Setter> {
+        public SetterAttribute(Setter setter) {
+            super(setter);
+        }
+    }
+    
 }

@@ -44,6 +44,10 @@ public class AbstractProperty<T> implements Property<T>  {
         for (Attribute att : atts) {
             if (att instanceof Tag) {
                 getTags().addTags((Tag)att);
+            } else if (att instanceof GetterAttribute) {
+                getter(((GetterAttribute)att).getValue());
+            } else if (att instanceof SetterAttribute) {
+                setter(((SetterAttribute)att).getValue());
             } else {
                 attributes.setAttributes(att);
             }

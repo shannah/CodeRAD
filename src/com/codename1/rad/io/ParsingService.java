@@ -63,7 +63,9 @@ public class ParsingService {
     private void start() {
         if (thread == null) {
             thread = EasyThread.start("ResultParserService");
-            thread.setPriority(priority);
+            if (priority != 0) {
+                thread.setPriority(priority);
+            }
         }
     }
     
