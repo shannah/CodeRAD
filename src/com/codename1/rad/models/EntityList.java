@@ -136,7 +136,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
      * ----
      * myEntityList.addActionListener(evt -> {
      *     EntityAddedEvent addedEvent = evt.as(EntityAddedEvent.class);
-     *     if (addedEvent != null && addedEvent.getTransaction() != null) {
+     *     if (addedEvent != null && addedEvent.getTransaction() == null) {
      *         // This was an add event and NOT inside a transaction.
      *         // Respond to this add directly.
      *         Entity addedEntity = addedEvent.getEntity();
@@ -144,7 +144,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
      *         return;
      *     }
      *     EntityRemovedEvent removedEvent = evt.as(EntityRemovedEvent.class);
-     *     if (removedEvent != null && removedEvent.getTransaction() != null) {
+     *     if (removedEvent != null && removedEvent.getTransaction() == null) {
      *         // This was an add event and NOT inside a transaction.
      *         // Respond to this add directly.
      *         Entity removedEntity = removedEvent.getEntity();
