@@ -9,10 +9,8 @@ import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Encapsulates a list of entities. This list is observable, as it will fire {@link EntityListEvent} events when items are added 
@@ -183,22 +181,47 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         private List<EntityEvent> events = new ArrayList<EntityEvent>();
         private boolean complete;
         private TransactionEvent parent;
+        
+        /**
+         * Creates a new TransactionEvent with the given EntityList source.  Generally you don't call this
+         * method directly.  Start a transaction with {@link #startTransaction() }.  The TransactionEvent will
+         * be delivered to listeners both on {@link #startTransaction() } and {@link #commitTransaction() }
+         * @param source 
+         */
         public TransactionEvent(EntityList source) {
             super(source);
         }
         
+        /**
+         * Checks if this transaction has no add/remove events.
+         * @return True if this transaction is empty.
+         */
         public boolean isEmpty() {
             return events.isEmpty();
         }
         
+        /**
+         * Gets the number of add/remove events in this transaction.
+         * @return 
+         */
         public int size() {
             return events.size();
         }
         
+        /**
+         * Gets the add or remove event at the given index.
+         * @param index The index of the add/remove event.
+         * @return The event at the given index.  Either a {@link EntityAddedEvent} or {@link EntityRemovedEvent}
+         */
         public EntityEvent get(int index) {
             return events.get(index);
         }
         
+        /**
+         * Adds an event to the transaction.  Generally don't call this method directly.  The 
+         * entity list will automatically add events to the current transaction as they happen.
+         * @param evt 
+         */
         public void addEvent(EntityEvent evt) {
             if (evt.getTransaction() != null) {
                 throw new IllegalArgumentException("Attempt to add EntityEvent to transaction that is already a part of another transaction.");
@@ -207,6 +230,10 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             events.add(evt);
         }
         
+        /**
+         * Removes an event from the transaction.  Generally don't call this method directly.
+         * @param evt 
+         */
         public void removeEvent(EntityEvent evt) {
             if (evt.getTransaction() != this) {
                 throw new IllegalArgumentException("Attempt to remove EntityEvent from transaction that it is not a part of.");
@@ -215,10 +242,19 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             events.remove(evt);
         }
         
+        /**
+         * Marks the transaction as complete.
+         */
         private void complete() {
             this.complete = true;
         }
         
+        /**
+         * Checks if the transaction is complete.  A TransactionEvent is fired twice: once on {@link #startTransaction() } and
+         * then again on {@link #commitTransaction() }.  {@link #isComplete() } will return {@literal false} in {@link #startTransaction() }
+         * and {@literal true} in {@link #commitTransaction() }.
+         * @return 
+         */
         public boolean isComplete() {
             return complete;
         }
@@ -227,10 +263,11 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             return parent;
         }
         
-        public void setParent(TransactionEvent parent) {
-            this.parent = parent;
-        }
-
+        
+        /**
+         * Iterator to iterate over the add/remove events within this transaction.
+         * @return 
+         */
         @Override
         public Iterator<EntityEvent> iterator() {
             return events.iterator();
@@ -256,35 +293,70 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             return index;
         }
         
+        /**
+         * Sets the transaction that this event is part of.  Generally don't call this method directly. Use
+         * {@link TransactionEvent#addEvent(com.codename1.rad.models.EntityList.EntityEvent) } instead.
+         * @param transaction 
+         */
         public void setTransaction(TransactionEvent transaction) {
             this.transaction = transaction;
         }
         
+        /**
+         * Gets the transaction that this event is part of, or {@literal null} if it is 
+         * not part of a transaction.
+         * @return 
+         */
         @Override
         public TransactionEvent getTransaction() {
             return transaction;
         }
     }
     
+    /**
+     * A type of entity event which is fired *before* the add/remove occurs, and allows
+     * the listener to veto/cancel the add/remove.
+     * 
+     * This event type can be handy if you need to be notified of a change before it is made, if, for
+     * example you need to know the state of the list before the change.  This is used by the {@link PropertySelector}
+     * to detect when sub-properties may have been invalidated because a parent entity has been removed from a list.
+     */
     public static class VetoableEntityEvent extends EntityEvent {
         private boolean vetoed;
         private String reason;
          public VetoableEntityEvent(EntityList source, Entity entity, int index) {
             super(source, entity, index);
         }
-         
+        
+        /**
+         * Veto the add/remove.
+         * @param reason The reason for the veto.
+         */
         public void veto(String reason) {
             vetoed = true;
         }
         
+        /**
+         * Checks if the add/remove has been vetoed.
+         */
         public boolean isVetoed() {
             return vetoed;
         }
         
+        /**
+         * Gets the reason for the veto, or null, if no veto was made.
+         * @return 
+         */
         public String getReason() {
             return reason;
         }
     }
+    
+    /**
+     * Event fired *before* an item is added to the list.
+     * 
+     * @see EntityAddedEvent
+     */
     public static class VetoableEntityAddedEvent extends VetoableEntityEvent {
         
         public VetoableEntityAddedEvent(EntityList source, Entity entity, int index) {
@@ -292,24 +364,42 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         }
     }
     
+    /**
+     * Event fired *before* an item is removed from the list.
+     * 
+     * @see EntityRemovedEvent
+     */
     public static class VetoableEntityRemovedEvent extends VetoableEntityEvent {
         public VetoableEntityRemovedEvent(EntityList source, Entity entity, int index) {
             super(source, entity, index);
         }
     }
     
+    /**
+     * Event fired *after* an item is added to the list.
+     * @see VetoableEntityAddedEvent
+     * @see TransactionEvent For handling bulk-add events.
+     */
     public static class EntityAddedEvent extends EntityEvent {
         public EntityAddedEvent(EntityList source, Entity entity, int index) {
             super(source, entity, index);
         }
     }
     
+    /**
+     * Event fired *after* an item is removed from the list.
+     * @see VetoableEntityRemovedEvent
+     * @see TransactionEvent For handling bulk-remove events.
+     */
     public static class EntityRemovedEvent extends EntityEvent {
         public EntityRemovedEvent(EntityList source, Entity entity, int index) {
             super(source, entity, index);
         }
     }
     
+    /**
+     * Exception thrown if a veto listener vetos and add/remove.
+     */
     public static class VetoException extends RuntimeException {
         private VetoableEntityEvent vetoableEntityEvent;
         
@@ -356,6 +446,11 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         return entities().iterator();
     }
     
+    /**
+     * Adds an item to the list.  This will trigger a {@link VetoableEntityAddedEvent} before the add, and a
+     * {@link EntityAddedEvent} after the add.
+     * @param link 
+     */
     public void add(T link) {
         if (maxLen > 0 && entities().size() >= maxLen) {
             throw new IllegalStateException("Nary composition has max length "+maxLen+".  Cannot add another.");
@@ -387,6 +482,13 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         return link;
     }
 
+    /**
+     * Removes an item from the list.  This will trigger a {@link VetoableEntityRemovedEvent} before the removal, 
+     * and a {@link EntityRemovedEvent} after the removal.
+     * 
+     * @param link The item to add
+     * @return True if the item was removed.  False if the item wasn't found or was not removed.
+     */
     public boolean remove(T link) {
         if (entities().contains(link)) {
             link = beforeRemove(link);
@@ -408,6 +510,10 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         return false;
     }
     
+    /**
+     * Removes all items from the list.  This will fire {@link VetoableEntityRemovedEvent} and {@link EntityRemovedEvent} events
+     * before/after each item is removed.
+     */
     public void clear() {
         List<T> toRemove = new ArrayList<>();
         for (T e : this) {
@@ -418,14 +524,28 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         }
     }
 
+    /**
+     * Returns the number of items in the list.
+     * @return 
+     */
     public int size() {
         return entities().size();
     }
     
+    /**
+     * Gets item at index.
+     * @param index The index of the item to get.
+     * @return 
+     */
     public T get(int index) {
         return entities().get(index);
     }
 
+    /**
+     * Fires {@link EntityAddedEvent} event to listeners.  
+     * @param e
+     * @param index 
+     */
     protected void fireEntityAdded(Entity e, int index) {
         boolean shouldFireEvent = listeners != null && listeners.hasListeners();
         boolean shouldCreateEvent = shouldFireEvent || currentTransaction != null;
@@ -440,6 +560,11 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         }
     }
     
+    /**
+     * Fires {@link EntityRemovedEvent} to listeners.
+     * @param e
+     * @param index 
+     */
     protected void fireEntityRemoved(Entity e, int index) {
         boolean shouldFireEvent = listeners != null && listeners.hasListeners();
         boolean shouldCreateEvent = shouldFireEvent || currentTransaction != null;
@@ -455,6 +580,19 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     }
    
     
+    /**
+     * Add listener to be notified of events on this list.  Listeners will be notified of
+     * the following event types:
+     * 
+     * . {@link EntityAddedEvent} - After an item is added.
+     * . {@link EntityRemovedEvent} - After an item is removed.
+     * . {@link VetoableEntityAddedEvent} - Before an item is added.
+     * . {@link VetoableEntityRemovedEvent} - Before an item is removed.
+     * . {@link TransactionEvent} - On {@link #startTransaction() } and {@link #commitTransaction() }.
+     * 
+     * @param l 
+     * @see #removeActionListener(com.codename1.ui.events.ActionListener) 
+     */
     public void addActionListener(ActionListener<EntityListEvent> l) {
         if (listeners == null) {
             listeners = new EventDispatcher();
@@ -462,6 +600,12 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         listeners.addListener(l);
     }
     
+    /**
+     * Removes listener.
+     * 
+     * @param l 
+     * @see #addActionListener(com.codename1.ui.events.ActionListener) 
+     */
     public void removeActionListener(ActionListener<EntityListEvent> l) {
         if (listeners != null) {
             listeners.removeListener(l);
