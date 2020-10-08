@@ -130,7 +130,52 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
      * the view may decide to wait until it receives the TransactionEvent before it responds to
      * the change.
      * 
+     * === Example
      * 
+     * [source,java]
+     * ----
+     * myEntityList.addActionListener(evt -> {
+     *     EntityAddedEvent addedEvent = evt.as(EntityAddedEvent.class);
+     *     if (addedEvent != null && addedEvent.getTransaction() != null) {
+     *         // This was an add event and NOT inside a transaction.
+     *         // Respond to this add directly.
+     *         Entity addedEntity = addedEvent.getEntity();
+     *         // .... etc...
+     *         return;
+     *     }
+     *     EntityRemovedEvent removedEvent = evt.as(EntityRemovedEvent.class);
+     *     if (removedEvent != null && removedEvent.getTransaction() != null) {
+     *         // This was an add event and NOT inside a transaction.
+     *         // Respond to this add directly.
+     *         Entity removedEntity = removedEvent.getEntity();
+     *         // .... etc...
+     *         return;
+     *     }
+     *     TransactionEvent transactionEvent = evt.as(TransactionEvent.class);
+     *     if (transactionEvent != null && transactionEvent.isComplete() && 
+     *             !transactionEvent.isEmpty()) {
+     *         // This event marked the end of a transaction.  Let's process
+     *         // all of the Add and Remove events in this transaction together
+     *         for (EntityEvent e : transactionEvent) {
+     *             addedEvent = e.as(EntityAddedEvent.class);
+     *             if (addedEvent != null) {
+     *                 // Process add event
+     *                 // ...
+     *                 continue;
+     *             }
+     *             removedEvent = e.as(EntityRemovedEvent.class);
+     *             if (removedEvent != null) {
+     *                 // Process remove event
+     *                 // ...
+     *                 continue;
+     *             }
+     *         }
+     *         return;
+     *     }
+     *             
+     *     
+     * });
+     * ----
      * 
      * 
      */

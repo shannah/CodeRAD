@@ -29,8 +29,17 @@ public class ControllerEvent extends ActionEvent {
         super(source);
     }
     
+    /**
+     * Returns this event as the given type - or null if it is not that type.
+     * @param <T>
+     * @param type The type of event to convert it to.
+     * @return This event casted to the given type - or null if it cannot be.
+     */
     public <T extends ControllerEvent> T as(Class<T> type) {
-        return (T)this;
+        if (type.isAssignableFrom(this.getClass())) {
+            return (T)this;
+        }
+        return null;
     }
     
 }
