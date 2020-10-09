@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.models;
 
+import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
@@ -73,7 +74,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     }
     
     
-    public static class EntityListEvent extends ActionEvent {
+    public static class EntityListEvent extends ControllerEvent {
         public EntityListEvent(EntityList source) {
             super(source);
             EntityType et = source.getEntityType();

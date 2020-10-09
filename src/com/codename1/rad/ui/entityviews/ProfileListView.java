@@ -72,12 +72,17 @@ public class ProfileListView extends EntityListView {
      */
     public static final Category ACCOUNT_LIST_ROW_SELECTED = new Category();
     
+    
+    public ProfileListView(EntityList list) {
+        this(list, null, 5);
+    }
+    
     public ProfileListView(EntityList list, ListNode node, float avatarSizeMM) {
         super(list, decorateNode(node, avatarSizeMM));
     }
     
     private static ListNode decorateNode(ListNode n, float avatarSizeMM) {
-        
+        if (n == null) n = new ListNode();
         n.setAttributes(UI.cellRenderer(new ProfileListRowCellRenderer(avatarSizeMM)));
         return n;
     }

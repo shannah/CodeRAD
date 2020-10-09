@@ -150,67 +150,151 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         return animateRemovals;
     }
     
-    private ActionListener<EntityListEvent> listListener = evt-> {
-        if (evt instanceof EntityList.EntityAddedEvent) {
-            if (firstUpdate) {
-                update();
-                return;
-            }
-            EntityList.EntityAddedEvent eae = (EntityList.EntityAddedEvent)evt;
-            Entity e = eae.getEntity();
-            EntityView rowView = renderer.getListCellRendererComponent(this, e, wrapper.getComponentCount(), selection.isSelected(wrapper.getComponentCount(), 0), false);
-            Component cmp = (Component)rowView;
-            
-            wrapper.add(cmp);
-            if (getComponentForm() != null) {
-                if (animateInsertions) {
-                    cmp.setX(0);
-                    cmp.setY(wrapper.getHeight() + wrapper.getScrollY());
-                    cmp.setWidth(getWidth());
-                    cmp.setHeight(cmp.getPreferredH());
+    /**
+     * Handles when entities are added
+     * @param evt The event
+     * @param commit Whether to animate/revalidate UI right now.
+     * @return 
+     */
+    private Component handleEntityAdded(EntityList.EntityAddedEvent evt, boolean commit) {
+        EntityList.EntityAddedEvent eae = (EntityList.EntityAddedEvent)evt;
+        Entity e = eae.getEntity();
+        EntityView rowView = renderer.getListCellRendererComponent(this, e, wrapper.getComponentCount(), selection.isSelected(wrapper.getComponentCount(), 0), false);
+        Component cmp = (Component)rowView;
 
+        wrapper.add(cmp);
+        if (getComponentForm() != null) {
+            if (animateInsertions) {
+                cmp.setX(0);
+                cmp.setY(wrapper.getHeight() + wrapper.getScrollY());
+                cmp.setWidth(getWidth());
+                cmp.setHeight(cmp.getPreferredH());
+                if (commit) {
                     ComponentAnimation anim = wrapper.createAnimateHierarchy(300);
                     anim.addOnCompleteCall(()->{
                         wrapper.scrollComponentToVisible(cmp);
                     });
                     getComponentForm().getAnimationManager().addAnimation(anim);
-                } else {
+                }
+            } else {
+                if (commit) {
                     getComponentForm().revalidateWithAnimationSafety();
                 }
-                
-                
             }
-            
-        } else if (evt instanceof EntityList.EntityRemovedEvent) {
-            if (firstUpdate) {
-                update();
-                return;
-            }
-            
-            EntityList.EntityRemovedEvent ere = (EntityList.EntityRemovedEvent)evt;
-            Component toRemove = null;
-            for (Component child : wrapper) {
-                if (child instanceof EntityView) {
-                    EntityView ev = (EntityView)child;
-                    if (ev.getEntity() == ere.getEntity()) {
-                        toRemove = child;
-                    }
+
+
+        }
+        return cmp;
+    }
+    
+    /**
+     * Handles EntityRemoveEvent - when an entity is removed from the list.
+     * @param ere The event
+     * @param commit Whether to animate/revalidate right now.
+     */
+    private void handleEntityRemoved(EntityList.EntityRemovedEvent ere, boolean commit) {
+        Component toRemove = null;
+        for (Component child : wrapper) {
+            if (child instanceof EntityView) {
+                EntityView ev = (EntityView)child;
+                if (ev.getEntity() == ere.getEntity()) {
+                    toRemove = child;
                 }
             }
-            if (toRemove != null) {
-                wrapper.removeComponent(toRemove);
-                if (getComponentForm() != null) {
-                    if (animateRemovals) {
+        }
+        if (toRemove != null) {
+            wrapper.removeComponent(toRemove);
+            if (getComponentForm() != null) {
+                if (animateRemovals) {
+                    if (commit) {
                         wrapper.animateHierarchy(300);
-                    } else {
+                    }
+                } else {
+                    if (commit) {
                         wrapper.revalidateWithAnimationSafety();
                     }
                 }
             }
- 
+        }
+    }
+    
+    /**
+     * Transaction events package up multiple adds and removes into
+     * a bulk change so we handle it differently - we defer revalidation
+     * and animation to the end of the transaction, rather than after
+     * each individual add/remove.
+     * @param te 
+     */
+    private void handleTransactionEvent(EntityList.TransactionEvent te) {
+        Component lastAdd = null;
+        boolean shouldAnimate = false;
+        for (EntityList.EntityEvent subEvent : te) {
+            if (subEvent instanceof EntityList.EntityAddedEvent) {
+                lastAdd = handleEntityAdded((EntityList.EntityAddedEvent)subEvent, false);
+                if (animateInsertions) {
+                    shouldAnimate = true;
+                }
+            } else if (subEvent instanceof EntityList.EntityRemovedEvent) {
+                handleEntityRemoved((EntityList.EntityRemovedEvent) subEvent, false);
+                if (animateRemovals) {
+                    shouldAnimate = true;
+                }
+            }
+        }
+        if (getComponentForm() != null) {
+            if (shouldAnimate) {
+                final Component fLastAdd = lastAdd;
+                ComponentAnimation anim = wrapper.createAnimateHierarchy(300);
+                anim.addOnCompleteCall(()->{
+                    if (fLastAdd != null && wrapper.contains(fLastAdd)) {
+                        wrapper.scrollComponentToVisible(fLastAdd);
+                    }
+                });
+                getComponentForm().getAnimationManager().addAnimation(anim);
+                
+            } else {
+                wrapper.revalidateWithAnimationSafety();
+            }
+        }
+        
+    }
+    
+    private ActionListener<EntityListEvent> listListener = evt-> {
+        EntityList.TransactionEvent te = evt.as(EntityList.TransactionEvent.class);
+        if (te == null && evt.getTransaction() == null) {
+            if (evt instanceof EntityList.EntityAddedEvent) {
+                if (firstUpdate) {
+                    update();
+                    return;
+                }
+                handleEntityAdded((EntityList.EntityAddedEvent)evt, true);
+
+            } else if (evt instanceof EntityList.EntityRemovedEvent) {
+                if (firstUpdate) {
+                    update();
+                    return;
+                }
+                handleEntityRemoved((EntityList.EntityRemovedEvent)evt, true);
+
+            }
+        } else {
+            if (te != null) {
+                if (!te.isComplete() || te.isEmpty()) {
+                    return;
+                }
+                if (firstUpdate) {
+                    update();
+                    return;
+                }
+                handleTransactionEvent((EntityList.TransactionEvent)evt);
+                
+            }
         }
     };
     
+    public EntityListView(T list) {
+        this(list, null);
+    }
 
     /**
      * Creates a list view for the given Entity list
@@ -219,6 +303,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
      */
     public EntityListView(T list, ListNode node) {
         super(list);
+        if (node == null) node = new ListNode();
         setUIID("EntityListView");
         setName("EntityListView");
         this.getStyle().stripMarginAndPadding();
@@ -403,5 +488,12 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         return wrapper.getLayout();
     }
 
+    @Override
+    public void setScrollableY(boolean scrollableY) {
+        wrapper.setScrollableY(scrollableY);
+        wrapper.setGrabsPointerEvents(scrollableY);
+    }
+
+    
     
 }
