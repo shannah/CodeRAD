@@ -246,6 +246,14 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
         return new UIID(uiid);
     }
     
+    public static UIID uiid(StringProvider provider) {
+        return new UIID("", provider);
+    }
+    
+    public static UIID uiid(String uiid, StringProvider provider) {
+        return new UIID(uiid, provider);
+    }
+    
     public static IconUIID iconUiid(String uiid) {
         return new IconUIID(uiid);
     }

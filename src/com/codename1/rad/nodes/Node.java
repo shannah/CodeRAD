@@ -589,6 +589,14 @@ public abstract class Node<T> extends Attribute<T> {
         return out.getValue();
     }
     
+    public String getUIID(Entity context, String defaultVal) {
+        UIID out = getUIID();
+        if (out == null) {
+            return defaultVal;
+        }
+        return out.getValue(context);
+    }
+    
     /**
      * Gets {@link UIID} attribute of this node.  This will not check the parent node.
      * @return 

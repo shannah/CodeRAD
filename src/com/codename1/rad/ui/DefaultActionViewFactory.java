@@ -75,6 +75,13 @@ public class DefaultActionViewFactory implements ActionViewFactory {
             repaint = true;
         }
        
+        String currUiid = btn.getUIID();
+        String newUiid = action.getUIID(entity, "Button");
+        if (!Objects.equals(currUiid, newUiid)) {
+            btn.setUIID(newUiid);
+            repaint = true;
+        }
+        
         
         if (btn instanceof CheckBox) {
             SelectedCondition selectedCond = action.getSelectedCondition();
@@ -132,7 +139,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         boolean includeIcon = action.isIconStyle();
         UIID uiid = action.getUIID();
         if (uiid != null) {
-            btn.setUIID(uiid.getValue());
+            btn.setUIID(uiid.getValue(entity));
         }
         IconUIID iconUiid = action.getIconUIID();
         if (iconUiid != null) {
