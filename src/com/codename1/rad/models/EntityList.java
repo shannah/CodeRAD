@@ -409,8 +409,14 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
      * them that the list has changed in ways that cannot be reconstructed by
      * the typical Add/Remove events, and that views should resynchronize their
      * state with the list.
+     * 
+     * This method should not be called inside a transaction.
+     * @throws IllegalStateException if called inside a transaction.
      */
     public void invalidate() {
+        if (currentTransaction != null) {
+            throw new IllegalStateException("invalidate() cannot be called inside a transaction");
+        }
         if (listeners != null && listeners.hasListeners()) {
             listeners.fireActionEvent(new EntityListInvalidatedEvent(this));
         }
