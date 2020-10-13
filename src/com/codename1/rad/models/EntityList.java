@@ -246,7 +246,34 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
          * Marks the transaction as complete.
          */
         private void complete() {
+            squash();
             this.complete = true;
+        }
+        
+        // We need to squash the events - which means to only share 
+        // events that are relevant to views, and to provide relevant indices
+        // for "Add" events.
+        private void squash() {
+            List<EntityEvent> adds = new ArrayList<EntityEvent>();
+            List<EntityEvent> removes = new ArrayList<EntityEvent>();
+            for (EntityEvent e : events) {
+                if (e instanceof EntityAddedEvent) {
+                    EntityList el = (EntityList)e.getSource();
+                    int index = el.indexOf(e.getEntity());
+                    if (index >= 0) {
+                        adds.add(new EntityAddedEvent(el, e.getEntity(), index));
+                    }
+                } else if (e instanceof EntityRemovedEvent) {
+                    EntityList el = (EntityList)e.getSource();
+                    int index = el.indexOf(el);
+                    if (index < 0) {
+                        removes.add(new EntityRemovedEvent(el, e.getEntity(), index));
+                    }
+                }
+            }
+            events.clear();
+            events.addAll(removes);
+            events.addAll(adds);
         }
         
         /**
@@ -420,6 +447,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         if (listeners != null && listeners.hasListeners()) {
             listeners.fireActionEvent(new EntityListInvalidatedEvent(this));
         }
+        setChanged();
     }
     
     /**
@@ -564,6 +592,13 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
      */
     public T get(int index) {
         return entities().get(index);
+    }
+    
+    /**
+     * Gets the current index of in the list of the given item.
+    */
+    public int indexOf(T item) {
+        return entities().indexOf(item);
     }
 
     /**

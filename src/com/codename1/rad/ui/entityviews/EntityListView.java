@@ -233,18 +233,26 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     private void handleTransactionEvent(EntityList.TransactionEvent te) {
         Component lastAdd = null;
         boolean shouldAnimate = false;
+        
+        // First handle removes
+        for (EntityList.EntityEvent subEvent : te) {
+            if (subEvent instanceof EntityList.EntityRemovedEvent) {
+                handleEntityRemoved((EntityList.EntityRemovedEvent) subEvent, false);
+                if (animateRemovals) {
+                    shouldAnimate = true;
+                }
+            }
+        }
+        
+        
+        // Now handle "Adds"
         for (EntityList.EntityEvent subEvent : te) {
             if (subEvent instanceof EntityList.EntityAddedEvent) {
                 lastAdd = handleEntityAdded((EntityList.EntityAddedEvent)subEvent, false);
                 if (animateInsertions) {
                     shouldAnimate = true;
                 }
-            } else if (subEvent instanceof EntityList.EntityRemovedEvent) {
-                handleEntityRemoved((EntityList.EntityRemovedEvent) subEvent, false);
-                if (animateRemovals) {
-                    shouldAnimate = true;
-                }
-            }
+            } 
         }
         if (getComponentForm() != null) {
             if (shouldAnimate) {
