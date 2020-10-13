@@ -11,6 +11,7 @@ import com.codename1.rad.ui.Selection.SelectionEvent;
 import ca.weblite.shared.components.table.TableModel.TableModelEvent;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.DELETE;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.INSERT;
+import static ca.weblite.shared.components.table.TableModel.TableModelEvent.INVALIDATE;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.UPDATE;
 import com.codename1.rad.ui.UI;
 import com.codename1.ui.CN;
@@ -301,11 +302,13 @@ public class Table<T> extends Container {
         switch (evt.getType()) {
             case INSERT:
             case DELETE:
+            case INVALIDATE:
                 build();
                 break;
             case UPDATE:
                 update(firstRow, lastRow, column);
                 break;
+                
                 
                 
         }

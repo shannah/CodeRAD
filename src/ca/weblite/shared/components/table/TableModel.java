@@ -120,6 +120,7 @@ public interface TableModel {
         public static final int INSERT=1;
         public static final int UPDATE=2;
         public static final int DELETE=3;
+        public static final int INVALIDATE=4;
         private int column;
         private int firstRow;
         private int lastRow;

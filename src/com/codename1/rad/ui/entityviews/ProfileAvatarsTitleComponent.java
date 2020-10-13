@@ -29,6 +29,7 @@ import static com.codename1.ui.CN.SOUTH;
 import com.codename1.ui.Component;
 import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Container;
+import com.codename1.ui.Form;
 import com.codename1.ui.Label;
 import com.codename1.ui.Sheet;
 import com.codename1.ui.events.ActionEvent;
@@ -287,6 +288,21 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
      * Listener to add/remove avatars when profiles are added or removed from the view model.
      */
     private final ActionListener<EntityListEvent> listListener = evt->{
+        if (evt instanceof EntityList.EntityListInvalidatedEvent) {
+            wrapper.removeAll();
+            int len = getEntity().size();
+            for (int i = len-1; i>=0; i--) {
+            //for (Entity child : getEntity()) {
+                Entity child = getEntity().get(i);
+                ProfileAvatarView v = createAvatar(child);
+                wrapper.add(v);
+            }
+            Form f = getComponentForm();
+            if (f != null) {
+                revalidateWithAnimationSafety();
+            }
+            return;
+        }
         if (evt instanceof EntityList.EntityAddedEvent) {
             ProfileAvatarView v = createAvatar((((EntityList.EntityAddedEvent)evt)).getEntity());
             wrapper.addComponent(0, v);

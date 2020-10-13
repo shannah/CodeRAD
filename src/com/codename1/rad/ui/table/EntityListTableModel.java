@@ -11,12 +11,14 @@ import com.codename1.rad.nodes.PropertyNode;
 import ca.weblite.shared.components.table.TableModel;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.DELETE;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.INSERT;
+import static ca.weblite.shared.components.table.TableModel.TableModelEvent.INVALIDATE;
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.UPDATE;
 import com.codename1.rad.models.ContentType;
 import static com.codename1.rad.models.ContentType.Text;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityList.EntityAddedEvent;
+import com.codename1.rad.models.EntityList.EntityListInvalidatedEvent;
 import com.codename1.rad.models.EntityList.EntityRemovedEvent;
 import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.Property;
@@ -83,6 +85,21 @@ public class EntityListTableModel<T extends Entity> implements TableModel {
     
     
     private ActionListener<EntityList.EntityListEvent> entityListener = evt -> {
+        if (evt instanceof EntityListInvalidatedEvent) {
+            rebuildIndexMap();
+            if (listeners != null && listeners.hasListeners()) {
+                listeners.fireActionEvent(
+                        new TableModelEvent(
+                                EntityListTableModel.this,
+                                -1,
+                                0,
+                                entities.size()-1,
+                                INVALIDATE 
+                        )
+                );
+            }
+            return;
+        }
         if (evt instanceof EntityAddedEvent) {
             EntityAddedEvent eae = (EntityAddedEvent)evt;
             if (eae.getIndex() == entities.size()-1) {

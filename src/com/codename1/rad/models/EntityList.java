@@ -394,6 +394,29 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
     }
     
     /**
+     * An event that is fired when the statue of the list has changed in ways
+     * that cannot be synchronized using Add/Remove events.  Listeners should 
+     * resynchronize their state with the state of the list.
+     */
+    public static class EntityListInvalidatedEvent extends EntityListEvent {
+        public EntityListInvalidatedEvent(EntityList source) {
+            super(source);
+        }
+    }
+    
+    /**
+     * Triggers an {@link EntityListInvalidatedEvent} to listeners to instruct 
+     * them that the list has changed in ways that cannot be reconstructed by
+     * the typical Add/Remove events, and that views should resynchronize their
+     * state with the list.
+     */
+    public void invalidate() {
+        if (listeners != null && listeners.hasListeners()) {
+            listeners.fireActionEvent(new EntityListInvalidatedEvent(this));
+        }
+    }
+    
+    /**
      * Exception thrown if a veto listener vetos and add/remove.
      */
     public static class VetoException extends RuntimeException {

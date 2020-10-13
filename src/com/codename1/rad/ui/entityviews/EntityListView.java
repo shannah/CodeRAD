@@ -34,6 +34,7 @@ import com.codename1.ui.plaf.Border;
 import java.util.ArrayList;
 import java.util.List;
 import com.codename1.rad.models.ContentType;
+import com.codename1.ui.Form;
 import com.codename1.ui.layouts.GridLayout;
 
 /**
@@ -161,8 +162,12 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         Entity e = eae.getEntity();
         EntityView rowView = renderer.getListCellRendererComponent(this, e, wrapper.getComponentCount(), selection.isSelected(wrapper.getComponentCount(), 0), false);
         Component cmp = (Component)rowView;
-
-        wrapper.add(cmp);
+        int index = evt.getIndex();
+        if (index > 0 && index < wrapper.getComponentCount()) {
+            wrapper.addComponent(index, cmp);
+        } else {
+            wrapper.add(cmp);
+        }
         if (getComponentForm() != null) {
             if (animateInsertions) {
                 cmp.setX(0);
@@ -260,6 +265,22 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     }
     
     private ActionListener<EntityListEvent> listListener = evt-> {
+        EntityList.EntityListInvalidatedEvent ie = evt.as(EntityList.EntityListInvalidatedEvent.class);
+        if (ie != null) {
+            // Received invalidated event.  We need to rebuild the view from scratch
+            // to sync with the model.
+            if (wrapper != null) {
+                wrapper.removeAll();
+            }
+            firstUpdate = true;
+            update();
+            Form f = getComponentForm();
+            if (f != null) {
+                revalidateWithAnimationSafety();
+            }
+            return;
+        }
+        
         EntityList.TransactionEvent te = evt.as(EntityList.TransactionEvent.class);
         if (te == null && evt.getTransaction() == null) {
             if (evt instanceof EntityList.EntityAddedEvent) {
