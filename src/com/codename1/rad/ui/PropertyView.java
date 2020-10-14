@@ -23,6 +23,7 @@ public abstract class PropertyView<T extends Component> extends Container implem
     private Entity entity;
     private FieldNode field;
     private PropertySelector propertySelector;
+    private int bindCounter;
     
     public PropertyView(T component, Entity entity, FieldNode field) {
         setLayout(new BorderLayout());
@@ -62,10 +63,54 @@ public abstract class PropertyView<T extends Component> extends Container implem
         super.deinitialize();
     }
     
+    /**
+     * Binds view to the model listeners. {@link #bind() } calls must be balanced with {@link #unbind() }
+     * calls.  {@link #bind() } is called inside {@link #initComponent() } (i.e. when the component
+     * is added to the UI.  {@link #unbind() } is called inside {@link #deinitialize() } (i.e. when
+     * the component is removed from the UI.
+     * 
+     * If you want to maintain binding when view is offscreen, you can call {@link #bind() } explicitly,
+     * but you'll need to also call {@link #unbind() } later on when you no longer need the binding, otherwise
+     * you may introduce a memory leak.
+     * 
+     * Subclasses should implement {@link #bindImpl() } and {@link #unbindImpl() }
+     */
+    public final void bind() {
+        bindCounter++;
+        if (bindCounter == 1) {
+            bindImpl();
+        }
+    }
     
-    public abstract void bind();
+    /**
+     * Unbinds view from the model listeners. {@link #bind() } calls must be balanced with {@link #unbind() }
+     * calls.  {@link #bind() } is called inside {@link #initComponent() } (i.e. when the component
+     * is added to the UI.  {@link #unbind() } is called inside {@link #deinitialize() } (i.e. when
+     * the component is removed from the UI.
+     * 
+     * If you want to maintain binding when view is offscreen, you can call {@link #bind() } explicitly,
+     * but you'll need to also call {@link #unbind() } later on when you no longer need the binding, otherwise
+     * you may introduce a memory leak.
+     * 
+     * Subclasses should implement {@link #bindImpl() } and {@link #unbindImpl() }.
+     */
+    public final void unbind() {
+        bindCounter--;
+        if (bindCounter == 0) {
+            unbindImpl();
+        }
+    }
     
-    public abstract void unbind();
+    /**
+     * Subclasses should override this method to bind to the model.
+     */
+    protected abstract void bindImpl();
+    
+    
+    /**
+     * Subclasses should override this method to unbind from the model.
+     */
+    protected abstract void unbindImpl();
     
     
     public T getComponent() {

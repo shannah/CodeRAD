@@ -37,12 +37,12 @@ public class HTMLComponentPropertyView extends PropertyView<HTMLComponent> {
     }
 
     @Override
-    public void bind() {
+    protected void bindImpl() {
         getEntity().addPropertyChangeListener(getProperty(), pcl);
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         getEntity().removePropertyChangeListener(getProperty(), pcl);
     }
     

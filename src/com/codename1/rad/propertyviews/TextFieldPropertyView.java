@@ -42,13 +42,13 @@ public class TextFieldPropertyView extends PropertyView<TextField> {
     
 
     @Override
-    public void bind() {
+    protected void bindImpl() {
         getPropertySelector().addPropertyChangeListener(pcl);
         getComponent().addDataChangedListener(dcl);
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         getComponent().removeDataChangedListener(dcl);
         getPropertySelector().removePropertyChangeListener(pcl);
     }

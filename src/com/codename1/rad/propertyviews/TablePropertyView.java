@@ -44,12 +44,12 @@ public class TablePropertyView extends PropertyView<Table> {
     }
 
     @Override
-    public void bind() {
+    protected void bindImpl() {
         
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         
     }
 

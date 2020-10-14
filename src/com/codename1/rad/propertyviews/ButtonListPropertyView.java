@@ -108,13 +108,13 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
     }
     
     @Override
-    public void bind() {
+    protected void bindImpl() {
         getPropertySelector().addPropertyChangeListener(pcl);
         getComponent().getModel().addSelectionListener(sl);
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         
         getComponent().getModel().removeSelectionListener(sl);
         getPropertySelector().removePropertyChangeListener(pcl);

@@ -41,13 +41,13 @@ public class SpanLabelPropertyView extends PropertyView<com.codename1.components
     }
 
     @Override
-    public void bind() {
+    protected void bindImpl() {
         getEntity().addPropertyChangeListener(getProperty(), pcl);
         
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         
         getEntity().removePropertyChangeListener(getProperty(), pcl);
     }

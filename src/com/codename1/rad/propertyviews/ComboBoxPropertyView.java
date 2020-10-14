@@ -39,13 +39,13 @@ public class ComboBoxPropertyView extends PropertyView<ComboBox> {
     }
 
     @Override
-    public void bind() {
+    protected void bindImpl() {
         getEntity().addPropertyChangeListener(getProperty(), pcl);
         getComponent().addActionListener(dcl);
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         getComponent().removeActionListener(dcl);
         getEntity().removePropertyChangeListener(getProperty(), pcl);
     }

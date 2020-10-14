@@ -65,7 +65,7 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
     }
 
     @Override
-    public void bind() {
+    protected void bindImpl() {
         getPropertySelector().addPropertyChangeListener(pcl);
         if (getIconPropertySelector() != null) {
             iconPropertySelector.addPropertyChangeListener(pcl);
@@ -75,7 +75,7 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         getPropertySelector().removePropertyChangeListener(pcl);
         if (getIconPropertySelector() != null) {
             getIconPropertySelector().removePropertyChangeListener(pcl);

@@ -42,13 +42,13 @@ public class SwitchPropertyView extends PropertyView<Switch> {
     }
     
     @Override
-    public void bind() {
+    protected void bindImpl() {
         getPropertySelector().addPropertyChangeListener(pcl);
         getComponent().addChangeListener(al);
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         getPropertySelector().removePropertyChangeListener(pcl);
         getComponent().removeChangeListener(al);
     }

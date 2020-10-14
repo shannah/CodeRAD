@@ -40,12 +40,12 @@ public class ImageContainerPropertyView extends PropertyView<ImageContainer> {
     }
     
     @Override
-    public void bind() {
+    protected void bindImpl() {
         getPropertySelector().addPropertyChangeListener(pcl);
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         getPropertySelector().removePropertyChangeListener(pcl);
     }
 
