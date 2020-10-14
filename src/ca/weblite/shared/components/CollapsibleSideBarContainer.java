@@ -255,7 +255,7 @@ public class CollapsibleSideBarContainer extends Container {
                 
                 sideMenuWidth = getLeft().getPreferredW();
                 slidePos = Math.min(sideMenuWidth, Math.max(0, startSlidePos + evt.getX() - startDragX));
-                revalidateWithAnimationSafety();
+                revalidateLater();
             } else if (evt.getEventType() == ActionEvent.Type.PointerReleased) {
                 if (dragging) {
                     if (Display.getInstance().getDragSpeed(false) < -1) {

@@ -62,7 +62,19 @@ public class ApplicationController extends Controller {
     
     public void init(Object context) {
         // use two network threads instead of one
+        
+        // Disable revalidating on style changes.  This will ultimately
+        // be the default for all CN1 apps.  But until then, we'll make it the default
+        // for CodeRAD apps
         CN.setProperty("Component.revalidateOnStyleChange", "false");
+        
+        // Disable the default revalidation behaviour that triggers a revalidate
+        // of the entire form when any container on the form is revalidated.
+        // This is expensive and shouldn't be necessary.  Ideally this flag should
+        // be set to false on *all* apps, but we don't want to break apps that depend
+        // on this behaviour.  But since CodeRAD is new, we can apply this by default
+        // for all CodeRAD apps.
+        CN.setProperty("Form.revalidateFromRoot", "false");
         updateNetworkThreadCount(2);
 
         theme = UIManager.initFirstTheme("/theme");

@@ -177,7 +177,7 @@ public class CollapsibleHeaderContainer extends Container {
                         startDragY = evt.getY();
                         slidePos = Math.max(0, Math.min(slidePos + diffY, titleBar.getPreferredH()));
                         evt.consume();
-                        revalidateWithAnimationSafety();
+                        revalidateLater();
                     }
                 } else {
                     // dragging up
@@ -185,7 +185,7 @@ public class CollapsibleHeaderContainer extends Container {
                         startDragY = evt.getY();
                         slidePos = Math.max(0, Math.min(slidePos + diffY, titleBar.getPreferredH()));
                         evt.consume();
-                        revalidateWithAnimationSafety();
+                        revalidateLater();
                     }
                 }
             } else if (ActionEvent.Type.PointerReleased == evt.getEventType()) {

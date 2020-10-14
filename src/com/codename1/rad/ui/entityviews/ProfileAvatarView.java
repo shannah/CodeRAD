@@ -595,17 +595,16 @@ public class ProfileAvatarView extends AbstractEntityView {
     }
 
     @Override
-    public void bind() {
-        super.bind();
+    protected void bindImpl() {
         leadButton.addActionListener(avatarClickedListener);
         leadButton.addLongPressListener(avatarClickedListener);
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         leadButton.removeActionListener(avatarClickedListener);
         leadButton.removeLongPressListener(avatarClickedListener);
-        super.unbind();
+
     }
     
     

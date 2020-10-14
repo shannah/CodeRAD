@@ -122,7 +122,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                 if (revalidate) {
                     Component entityView = findEntityViewParent(btn);
                     if (entityView instanceof Container) {
-                        ((Container)entityView).revalidateWithAnimationSafety();
+                        ((Container)entityView).revalidateLater();
                     } else {
                         entityView.repaint();
                     }

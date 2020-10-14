@@ -7,7 +7,13 @@ package com.codename1.rad.tests;
 
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityType;
+import static com.codename1.rad.models.EntityType.tags;
 import com.codename1.rad.models.EntityTypeBuilder;
+import com.codename1.rad.models.Property;
+import com.codename1.rad.models.StringProperty;
+import com.codename1.rad.schemas.ChatMessage;
+import com.codename1.rad.schemas.Comment;
+import com.codename1.rad.schemas.Person;
 import com.codename1.rad.schemas.Product;
 import com.codename1.rad.schemas.Thing;
 import com.codename1.testing.AbstractTest;
@@ -36,6 +42,7 @@ public class EntityTests extends AbstractTest {
     @Override
     public boolean runTest() throws Exception {
         gettersAndSettersTest();
+        testChatMessageEntities();
         return true;
     }
     
@@ -115,4 +122,73 @@ public class EntityTests extends AbstractTest {
         
     }
     
+    private void testChatMessageEntities() throws Exception {
+        ChatMessageModel chatMessage = new ChatMessageModel();
+        
+        Object res = chatMessage.get(ChatMessage.datePublished);
+        assertNull(res);
+        
+        Property p = chatMessage.TYPE.findProperty(ChatMessage.datePublished);
+        assertNotNull(p);
+        
+        res = chatMessage.get(p);
+        assertNull(res);
+        Date dt = new Date();
+        chatMessage.set(p, dt);
+        
+        res = chatMessage.get(p);
+        assertEqual(dt, res);
+        
+        res = chatMessage.get(ChatMessage.datePublished);
+        assertEqual(dt, res);
+        
+        p = chatMessage.findProperty(Comment.datePublished, Comment.dateCreated, Comment.dateModified);
+        
+        assertNotNull(p);
+        res = chatMessage.get(p);
+        assertEqual(dt, res);
+        
+    }
+    
 }
+
+
+
+class ChatAccount extends Entity {
+    
+    // The name property
+    public static StringProperty name, thumbnailUrl, phone;
+    
+    private static final EntityType TYPE = new EntityType() {{
+        name = string(tags(Thing.name));
+        thumbnailUrl = string(tags(Thing.thumbnailUrl));
+        phone = string(tags(Person.telephone));
+    }};
+    {
+        setEntityType(TYPE);
+    }
+    
+    public ChatAccount(String nm, String thumb, String phoneNum) {
+        set(name, nm);
+        set(thumbnailUrl, thumb);
+        set(phone, phoneNum);
+    }
+    
+}
+
+class ChatMessageModel extends Entity {
+    public static final EntityType TYPE = new EntityType(){{
+        string(ChatMessage.text);
+        date(ChatMessage.datePublished);
+        entity(ChatAccount.class, ChatMessage.creator);
+        Boolean(ChatMessage.isOwnMessage);
+        Boolean(ChatMessage.isFavorite);
+        string(ChatMessage.attachmentPlaceholderImage);
+    }};
+    {
+        setEntityType(TYPE);
+        
+    }
+    
+}
+

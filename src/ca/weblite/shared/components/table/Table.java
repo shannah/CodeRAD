@@ -193,7 +193,7 @@ public class Table<T> extends Container {
         editorComp.setPreferredH(existing.getHeight());
         editorComp.setPreferredW(existing.getWidth());
         this.replace(existing, editorComp, null);
-        revalidateWithAnimationSafety();
+        revalidateLater();
         Tuple nextPos = findNextEditableCell(row, column);
         if (nextPos != null) {
             editorComp.setNextFocusRight(new FocusTarget(nextPos.row, nextPos.column));
@@ -788,7 +788,7 @@ public class Table<T> extends Container {
             cmp = createTableCell(model.getValueAt(i, column), i, column);
             add(cellConstraint, cmp);
         }
-        revalidateWithAnimationSafety();
+        revalidateLater();
     }
     
     private Component createTableCell(Object value, int row, int col) {
@@ -816,7 +816,7 @@ public class Table<T> extends Container {
                 add(cellConstraint, createTableCell(value, i, j));
             }
         }
-        revalidateWithAnimationSafety();
+        revalidateLater();
     }
     
     

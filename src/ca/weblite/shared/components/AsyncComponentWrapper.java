@@ -40,7 +40,7 @@ public class AsyncComponentWrapper<T extends Component> extends Container {
                 return;
             }
             add(BorderLayout.CENTER, res);
-            revalidateWithAnimationSafety();
+            revalidateLater();
         });
         
     }

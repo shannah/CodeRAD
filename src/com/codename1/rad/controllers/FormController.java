@@ -172,7 +172,7 @@ public class FormController extends ViewController {
                     super.setTitle(title);
                     if (titleLbl != null) {
                         titleLbl.setText(title);
-                        revalidateWithAnimationSafety();
+                        revalidateLater();
                     }
                     
                     
@@ -252,7 +252,7 @@ public class FormController extends ViewController {
             titleBar.add(BorderLayout.CENTER, titleLbl);
             f.add(BorderLayout.NORTH, titleBar);
             f.add(BorderLayout.CENTER, cmp);
-            f.revalidateWithAnimationSafety();
+            f.revalidateLater();
             setView(f);
         }
     }

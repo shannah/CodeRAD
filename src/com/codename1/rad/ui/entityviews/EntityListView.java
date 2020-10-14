@@ -163,7 +163,8 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         EntityView rowView = renderer.getListCellRendererComponent(this, e, wrapper.getComponentCount(), selection.isSelected(wrapper.getComponentCount(), 0), false);
         Component cmp = (Component)rowView;
         int index = evt.getIndex();
-        if (index > 0 && index < wrapper.getComponentCount()) {
+        
+        if (index >= 0 && index < wrapper.getComponentCount()) {
             wrapper.addComponent(index, cmp);
         } else {
             wrapper.add(cmp);
@@ -183,13 +184,25 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
                 }
             } else {
                 if (commit) {
-                    getComponentForm().revalidateWithAnimationSafety();
+                    getComponentForm().revalidateLater();
                 }
             }
 
 
         }
         return cmp;
+    }
+    
+    public EntityView getRowViewForEntity(Entity e) {
+        for (Component child : wrapper) {
+            if (child instanceof EntityView) {
+                EntityView ev = (EntityView)child;
+                if (ev.getEntity() == e) {
+                    return ev;
+                }
+            }
+        }
+        return null;
     }
     
     /**
@@ -216,7 +229,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
                     }
                 } else {
                     if (commit) {
-                        wrapper.revalidateWithAnimationSafety();
+                        wrapper.revalidateLater();
                     }
                 }
             }
@@ -266,7 +279,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
                 getComponentForm().getAnimationManager().addAnimation(anim);
                 
             } else {
-                wrapper.revalidateWithAnimationSafety();
+                wrapper.revalidateLater();
             }
         }
         
@@ -284,7 +297,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
             update();
             Form f = getComponentForm();
             if (f != null) {
-                revalidateWithAnimationSafety();
+                revalidateLater();
             }
             return;
         }
@@ -388,17 +401,22 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         update();
     }
 
+    
+
     @Override
-    protected void initComponent() {
-        super.initComponent();
+    public void bindImpl() {
         getEntity().addActionListener(listListener);
     }
 
     @Override
-    protected void deinitialize() {
+    public void unbindImpl() {
         getEntity().removeActionListener(listListener);
-        super.deinitialize();
     }
+    
+    
+    
+    
+    
     
     
     

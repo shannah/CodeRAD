@@ -60,6 +60,7 @@ public class CodeRADTests {
         runner.add(new EntityListTest());
         runner.add(new ControllerTest());
         runner.add(new PropertySelectorTest());
+        runner.add(new EntityListViewTest());
         
         runner.showForm();
     }

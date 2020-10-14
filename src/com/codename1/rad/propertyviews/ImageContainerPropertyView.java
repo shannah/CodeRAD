@@ -69,7 +69,7 @@ public class ImageContainerPropertyView extends PropertyView<ImageContainer> {
         }
         Form f = getComponentForm();
         if (f != null) {
-            f.revalidateWithAnimationSafety();
+            f.revalidateLater();
         }
         
         

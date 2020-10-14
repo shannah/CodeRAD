@@ -118,7 +118,7 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
             if (iconVal != null) {
                 iconVal.ready(im->{
                     setIcon(im);
-                    revalidateWithAnimationSafety();
+                    revalidateLater();
                 });
             }
         }
@@ -264,13 +264,13 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
                     EntityImageRenderer iconRenderer = iconRendererAtt == null ? new DefaultEntityImageRenderer() : iconRendererAtt.getValue();
                     iconRenderer.createImage(this, iconProp, 0, false, false).ready(im->{
                         setIcon(im);
-                        revalidateWithAnimationSafety();
+                        revalidateLater();
                     });
                 }
             }
         }
         if (changed) {
-            revalidateWithAnimationSafety();
+            revalidateLater();
         }
         
                 

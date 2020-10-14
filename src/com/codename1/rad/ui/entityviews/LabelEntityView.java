@@ -99,7 +99,7 @@ public class LabelEntityView extends AbstractEntityView {
         if (changed) {
             Form f = getComponentForm();
             if (f != null) {
-                revalidateWithAnimationSafety();
+                revalidateLater();
             }
         }
         

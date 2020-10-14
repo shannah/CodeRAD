@@ -74,7 +74,7 @@ public class TabbedDocumentView extends Container {
             add(BorderLayout.CENTER, curr.frame);
             curr.tabButton.setSelected(true);
         }
-        revalidateWithAnimationSafety();
+        revalidateLater();
     }
     
     public int getDocumentCount() {
@@ -125,7 +125,7 @@ public class TabbedDocumentView extends Container {
         tabs.add(holder);
         tabsCnt.add(holder.tabButton);
         
-        revalidateWithAnimationSafety();
+        revalidateLater();
     }
     
     public void removeDocument(int index) {
@@ -141,7 +141,7 @@ public class TabbedDocumentView extends Container {
             currentIndex--;
             showDocument(currentIndex);
         }
-        revalidateWithAnimationSafety();
+        revalidateLater();
         
         
         

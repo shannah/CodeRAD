@@ -299,7 +299,7 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
             }
             Form f = getComponentForm();
             if (f != null) {
-                revalidateWithAnimationSafety();
+                revalidateLater();
             }
             return;
         }
@@ -404,8 +404,8 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
     }
 
     @Override
-    public void bind() {
-        super.bind();
+    protected void bindImpl() {
+        
         avatarWrapperViewController.setParent(ViewController.getViewController(this));
         ((EntityList)getEntity()).addActionListener(listListener);
         
@@ -413,11 +413,10 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
     }
 
     @Override
-    public void unbind() {
+    protected void unbindImpl() {
         avatarWrapperViewController.setParent(null);
         ((EntityList)getEntity()).removeActionListener(listListener);
-        
-        super.unbind();
+
     }
 
     
