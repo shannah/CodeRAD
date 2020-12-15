@@ -297,7 +297,10 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
             update();
             Form f = getComponentForm();
             if (f != null) {
-                revalidateLater();
+                // Important: We seem to need revalidate() here rather than revalidateLater()
+                // because if an animation is in progress, the component may just disappear for a 
+                // moment.
+                revalidate();
             }
             return;
         }

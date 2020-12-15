@@ -16,6 +16,7 @@ import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.models.TextFormatterAttribute;
+import com.codename1.rad.text.TextFormatter;
 import com.codename1.rad.ui.UI;
 import com.codename1.rad.ui.image.PropertyImageRenderer;
 import com.codename1.rad.ui.image.RoundImageRenderer;
@@ -108,7 +109,7 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
     
     protected String getText() {
         String out = _getText();
-        TextFormatterAttribute formatter = (TextFormatterAttribute)getField().findAttribute(TextFormatterAttribute.class);
+        TextFormatterAttribute formatter = (TextFormatterAttribute)getField().findInheritedAttribute(TextFormatterAttribute.class);
         if (formatter != null) {
             return formatter.getValue().format(out);
         }
@@ -118,6 +119,7 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
     @Override
     public void update() {
         String oldVal = getComponent().getText();
+        
         String newVal = iconOnly ? "" : getText();
         
         if (!Objects.equals(oldVal, newVal)) {

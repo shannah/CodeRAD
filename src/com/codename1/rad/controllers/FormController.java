@@ -6,6 +6,7 @@
 package com.codename1.rad.controllers;
 
 import com.codename1.ui.Button;
+import com.codename1.ui.CN;
 import com.codename1.ui.Command;
 import com.codename1.ui.Component;
 import com.codename1.ui.ComponentSelector;
@@ -269,12 +270,24 @@ public class FormController extends ViewController {
     /**
      * Goes back to previous form.  The previous form is always the parent controller's
      * form, if the parent controller is a FormController.
+     * 
+     * If the current controller is an instance of {@link AutoCloseable},
+     * then this will first attempt to call {@link AutoCloseable#close() } on the current form first.  If it throws an exception,
+     * then that exception will be swallowed, but the showBack() action will be cancelled.
      */
     public void back() {
         Controller parent = getParent();
         if (parent != null) {
             FormController fc = parent.getFormController();
             if (fc != null) {
+                if (this instanceof AutoCloseable) {
+                    AutoCloseable ac = (AutoCloseable)this;
+                    try {
+                        ac.close();
+                    } catch (Exception ex) {
+                        return;
+                    }
+                }
                 fc.getView().showBack();
             }
         }
@@ -284,7 +297,25 @@ public class FormController extends ViewController {
         getView().show();
     }
     
+    /**
+     * Shows this controller's form using the "back" animation.  If the current controller is an instance of {@link AutoCloseable},
+     * then this will first attempt to call {@link AutoCloseable#close() } on the current form first.  If it throws an exception,
+     * then that exception will be swallowed, but the showBack() action will be cancelled.
+     */
     public void showBack() {
+        Form currForm = CN.getCurrentForm();
+        if (currForm != null) {
+            ViewController currentController = getViewController(currForm);
+            if (currentController instanceof AutoCloseable) {
+                AutoCloseable ac = (AutoCloseable)currentController;
+                try {
+                    ac.close();
+                } catch (Exception ex) {
+                    return;
+                }
+            }
+        }
+        
         getView().showBack();
     }
     
