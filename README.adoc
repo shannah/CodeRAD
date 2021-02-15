@@ -1,6 +1,6 @@
 = CodeRAD
 
-Rapid Application Development toolkit and templates for Java developers using Codename One. It focuses on higher reusability, rich UI components and MVC (Model-View-Controller) principles.
+Rapid Application Development toolkit and templates for Java developers using https://www.codenameone.com/[Codename One]. It focuses on higher reusability, rich UI components and MVC (Model-View-Controller) principles.
 
 == Project Status
 
