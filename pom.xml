@@ -35,8 +35,8 @@
     </scm>
 	  
     <properties>
-        <cn1.plugin.version>7.0.16-SNAPSHOT</cn1.plugin.version>
-        <cn1.version>7.0.16-SNAPSHOT</cn1.version>
+        <cn1.plugin.version>7.0.13</cn1.plugin.version>
+        <cn1.version>7.0.13</cn1.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	      
         <java.version>1.8</java.version>
@@ -189,7 +189,40 @@
     <pluginRepositories>
 
     </pluginRepositories>
-    
-        
+
+
+    <profiles>
+        <profile>
+            <id>sign-artifacts</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <passphrase>${gpg.passphrase}</passphrase>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <distributionManagement>
+        <repository>
+            <id>nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
 </project>
