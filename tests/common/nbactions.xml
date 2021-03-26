@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>run</actionName>
+            <preAction>build-with-dependencies</preAction>
+            <packagings>
+                <packaging>jar</packaging>
+            </packagings>
+            <goals>
+                <goal>org.codehaus.mojo:exec-maven-plugin:3.0.0:exec</goal>
+            </goals>
+            <properties>
+                <exec.executable>${Env.M2_HOME}/bin/mvn</exec.executable>
+                <exec.args>verify -P simulator -Dcodename1.platform=javase</exec.args>
+                <exec.workingdir>../javase</exec.workingdir>
+                
+                
+            </properties>
+        </action>
+    </actions>

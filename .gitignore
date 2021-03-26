@@ -1,13 +1,2 @@
-*.jar
-private
-lib/impl
-build
-dist
-lib/CodenameOne_SRC.zip
-nbproject/build-impl.xml~
-CodeRADTests/lib/impl
-CodeRADTests/css/.backups
-Versions.properties
+target
 .DS_Store
-!asciidoclet-1.5.7-SNAPSHOT-shaded.jar
-drafts
