@@ -1,6 +1,6 @@
 = CodeRAD
 
-An MVC, Rapid-Application-Development library for Codename One
+Rapid Application Development toolkit and templates for Java developers using https://www.codenameone.com/[Codename One]. It focuses on higher reusability, rich UI components and MVC (Model-View-Controller) principles.
 
 == Project Status
 
@@ -18,7 +18,7 @@ This project is at an early stage but there are already a handful of polished co
 
 == Documentation
 
-. *https://shannah.github.io/RADChatRoom/getting-started-tutorial.html[How to Build a Messenging App in Codename One]* - A good startng place for getting a feel for what it is like to develop an app using CodeRAD.
+. *https://shannah.github.io/RADChatApp/getting-started-tutorial.html[How to Build a Messenging App in Codename One]* - A good startng place for getting a feel for what it is like to develop an app using CodeRAD.
 
 
 . *https://shannah.github.io/CodeRAD/javadoc[Java Docs]* - The overview page gives a good introduction to the concepts, and provides some code examples.  Most classes include descriptions.  Some have examples.  Still working on adding documentation for most methods.
@@ -28,18 +28,18 @@ This project is at an early stage but there are already a handful of polished co
 
 The following is a sample of a few components that have been developed with CodeRAD, and can be used in your Codename One application today:
 
-. https://github.com/shannah/RADChatRoom[RADChatRoom, window=_top] - A full-featured messaging application UI that can be used to add "Chat" capability to your app.
+. https://github.com/shannah/RADChatApp[RADChatRoom, window=_top] - A full-featured messaging application UI that can be used to add "Chat" capability to your app.
 +
-image::https://shannah.github.io/RADChatRoom/images/Image-210220-105119.095.png[RADChatRoom,240]
+image::https://shannah.github.io/RADChatApp/images/Image-210220-105119.095.png[RADChatRoom,240]
 . *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileAvatarView.html[ProfileAvatarView]* - Shows an entity's thumbnail image inside a round mask.
 +
 image::https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/doc-files/ProfileAvatarView.png[ProfileAvatarView,240]
-. *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.html[ProfileAvatarsTitleComponent]* - A component that displays a number of ProfileAvatarViews in a "fan" layout (i.e. like BoxLayout.X_AXIS, except that it will "fan them out" with overlap if there isn't enough space for everything).  This is used as the form's title component for the https://github.com/shannah/RADChatRoom[RADChatRoom] component.
+. *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.html[ProfileAvatarsTitleComponent]* - A component that displays a number of ProfileAvatarViews in a "fan" layout (i.e. like BoxLayout.X_AXIS, except that it will "fan them out" with overlap if there isn't enough space for everything).  This is used as the form's title component for the https://github.com/shannah/RADChatApp[RADChatRoom] component.
 +
-image::https://shannah.github.io/RADChatRoom/images/Image-210220-020916.612.png[ProvileAvatarsTitleComponent]
+image::https://shannah.github.io/RADChatApp/images/Image-210220-020916.612.png[ProvileAvatarsTitleComponent]
 . *https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/ui/entityviews/ProfileListView.html[ProfileListView]* - Displays a list of profile entities with avatar, name, and a customizable set of actions that can be performed for each one.
 +
-image::https://shannah.github.io/RADChatRoom/images/Image-220220-084136.625.png[ProfileListView,320]
+image::https://shannah.github.io/RADChatApp/images/Image-220220-084136.625.png[ProfileListView,320]
 
 == Building from Source
 
