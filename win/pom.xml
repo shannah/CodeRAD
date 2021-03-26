@@ -4,11 +4,11 @@
   <parent>
       <groupId>com.codenameone</groupId>
       <artifactId>coderad</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2-SNAPSHOT</version>
   </parent>
   <groupId>com.codenameone</groupId>
   <artifactId>coderad-win</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
 
   <name>coderad-win</name>
   <build>
