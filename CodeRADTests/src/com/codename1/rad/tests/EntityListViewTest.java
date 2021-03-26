@@ -38,6 +38,13 @@ public class EntityListViewTest extends AbstractTest {
         testSortedListTransactions();
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "EntityListViewTest";
+    }
+    
+    
     
     public static class SortedList<E> extends AbstractList<E> {
         private Comparator comparator;
