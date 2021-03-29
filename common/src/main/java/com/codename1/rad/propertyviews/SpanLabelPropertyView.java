@@ -54,6 +54,7 @@ public class SpanLabelPropertyView extends PropertyView<com.codename1.components
     
     @Override
     public void update() {
+        super.update();
         String oldVal = getComponent().getText();
         String newVal = getPropertySelector().getText("");
         TextFormatterAttribute formatter = (TextFormatterAttribute)getField().findAttribute(TextFormatterAttribute.class);

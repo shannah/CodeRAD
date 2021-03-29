@@ -51,6 +51,7 @@ public class ImageContainerPropertyView extends PropertyView<ImageContainer> {
 
     @Override
     public void update() {
+        super.update();
         String newImagePath = getPropertySelector().getText(null);
         if (getPropertySelector().isEmpty()) {
             if (isVisible()) {

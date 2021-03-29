@@ -55,6 +55,7 @@ public class CheckBoxPropertyView extends PropertyView<CheckBox> {
 
     @Override
     public void update() {
+        super.update();
         if (getPropertySelector().isFalsey() == getComponent().isSelected()) {
             getComponent().setSelected(!getPropertySelector().isFalsey());
         }

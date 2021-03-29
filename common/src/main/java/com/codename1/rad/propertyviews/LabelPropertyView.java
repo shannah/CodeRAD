@@ -118,6 +118,7 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
     
     @Override
     public void update() {
+        super.update();
         String oldVal = getComponent().getText();
         
         String newVal = iconOnly ? "" : getText();

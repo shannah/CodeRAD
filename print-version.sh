@@ -7,7 +7,7 @@
 # Output Example: 7.0.13-SNAPSHOT
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 cd $SCRIPTPATH
-regex='coderad (.*):$'
+regex='CodeRAD (.*):$'
 
 LINE=$(mvn validate | grep "Reactor Summary")
 [[ $LINE =~ $regex ]]

@@ -135,6 +135,7 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
     
     @Override
     public void update() {
+        super.update();
         if (getPropertySelector().isEmpty()) {
             if (getComponent().getModel().getSelectedIndex() != -1) {
                 getComponent().getModel().setSelectedIndex(-1);

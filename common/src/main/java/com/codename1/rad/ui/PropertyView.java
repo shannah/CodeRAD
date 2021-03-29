@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui;
 
+import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
@@ -13,6 +14,7 @@ import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.Editable;
 import com.codename1.ui.layouts.BorderLayout;
+import java.util.Objects;
 
 /**
  * Wrapper around a component that supports binding to a property.
@@ -137,7 +139,16 @@ public abstract class PropertyView<T extends Component> extends Container implem
         return entity;
     }
     
-    public abstract void update();
+    public void update() {
+        String oldUiid = getComponent().getUIID();
+        UIID newUIID = (UIID)getField().findAttribute(UIID.class);
+        if (newUIID != null) {
+            String newUIIDStr = newUIID.getValue(getEntity());
+            if (newUIIDStr != null && !Objects.equals(newUIIDStr, oldUiid)) {
+                getComponent().setUIID(newUIIDStr);
+            }
+        }
+    }
     public abstract void commit();
     
 }

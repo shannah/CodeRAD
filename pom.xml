@@ -7,9 +7,9 @@
     <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>coderad</name>
-    <description>Codename One coderad library</description>
-    <url>https://www.codenameone.com</url>
+    <name>CodeRAD</name>
+    <description>Rapid Application Development toolkit and templates for Java developers using Codename One</description>
+    <url>https://github.com/shannah/CodeRAD</url>
 
     <licenses>
         <license>

@@ -55,6 +55,7 @@ public class RadioPropertyView extends PropertyView<RadioButton> {
 
     @Override
     public void update() {
+        super.update();
         if (getPropertySelector().isFalsey() == getComponent().isSelected()) {
             getComponent().setSelected(!getPropertySelector().isFalsey());
         }

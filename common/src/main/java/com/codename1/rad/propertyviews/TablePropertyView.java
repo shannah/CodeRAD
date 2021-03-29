@@ -55,6 +55,7 @@ public class TablePropertyView extends PropertyView<Table> {
 
     @Override
     public void update() {
+        super.update();
         EntityListTableModel model = (EntityListTableModel)getComponent().getModel();
         EntityList list = model.getEntityList();
         

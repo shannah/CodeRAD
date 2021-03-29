@@ -6,6 +6,8 @@
 package com.codename1.rad.propertyviews;
 
 import com.codename1.l10n.ParseException;
+import com.codename1.rad.attributes.HintUIID;
+import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
@@ -13,6 +15,7 @@ import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.models.TextFormatterAttribute;
+import com.codename1.ui.Label;
 import com.codename1.ui.TextField;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
@@ -55,6 +58,7 @@ public class TextFieldPropertyView extends PropertyView<TextField> {
     
     @Override
     public void update() {
+        super.update();
         String oldVal = getComponent().getText();
         String newVal = ContentType.convert(
                 getProperty().getContentType(), 
@@ -68,6 +72,22 @@ public class TextFieldPropertyView extends PropertyView<TextField> {
         if (!Objects.equals(oldVal, newVal)) {
             getComponent().setText(newVal);
         }
+        
+        HintUIID hintUiid = (HintUIID)getField().findAttribute(HintUIID.class);
+        if (hintUiid != null) {
+            Label hintLabel = getComponent().getHintLabel();
+            if (hintLabel != null) {
+                String oldUiid = hintLabel.getUIID();
+                String newUiidStr = hintUiid.getValue(getEntity());
+                
+                if (newUiidStr != null && !Objects.equals(oldUiid, newUiidStr)) {
+                    hintLabel.setUIID(newUiidStr);
+                }
+            }
+            
+        }
+        
+        
     }
     
     @Override

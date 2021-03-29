@@ -52,6 +52,7 @@ public class ComboBoxPropertyView extends PropertyView<ComboBox> {
     
     @Override
     public void update() {
+        super.update();
         Object oldVal = getComponent().getSelectedItem();
         Object newVal = getProperty().getValue(getEntity());
         if (!Objects.equals(oldVal, newVal)) {

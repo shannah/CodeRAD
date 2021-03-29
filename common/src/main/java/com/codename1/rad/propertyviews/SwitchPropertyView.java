@@ -55,6 +55,7 @@ public class SwitchPropertyView extends PropertyView<Switch> {
 
     @Override
     public void update() {
+        super.update();
         if (getPropertySelector().isFalsey() != getComponent().isOff()) {
             getComponent().setValue(!getPropertySelector().isFalsey());
         }

@@ -49,6 +49,7 @@ public class HTMLComponentPropertyView extends PropertyView<HTMLComponent> {
     private String oldVal;
     @Override
     public void update() {
+        super.update();
         //String oldVal = getComponent().get
         String newVal = ContentType.convert(
                 getProperty().getContentType(), 
