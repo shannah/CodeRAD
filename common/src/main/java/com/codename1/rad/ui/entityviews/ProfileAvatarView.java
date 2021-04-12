@@ -396,7 +396,6 @@ public class ProfileAvatarView extends AbstractEntityView {
             
         } else {
             ActionNode action = node.getInheritedAction(PROFILE_AVATAR_CLICKED);
-            
             if (action != null) {
                 ActionEvent ae = action.fireEvent(getEntity(), this);
                 if (ae.isConsumed()) {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="coderad-javascript" />
+        <module name="coderad-common" />
+        <module name="coderad-ios" />
+        <module name="coderad-tests-javase" />
+        <module name="coderad-android" />
+        <module name="coderad-win" />
+        <module name="coderad-javase" />
+        <module name="coderad-tests-common" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="codenameone-maven-manual" target="8" />
+      <module name="coderad-android" target="8" />
+      <module name="coderad-common" target="8" />
+      <module name="coderad-ios" target="8" />
+      <module name="coderad-javascript" target="8" />
+      <module name="coderad-javase" target="1.8" />
+      <module name="coderad-lib" target="1.8" />
+      <module name="coderad-tests" target="8" />
+      <module name="coderad-tests-common" target="8" />
+      <module name="coderad-tests-javase" target="1.8" />
+      <module name="coderad-win" target="8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

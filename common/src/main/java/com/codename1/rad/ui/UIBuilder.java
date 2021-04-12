@@ -48,6 +48,12 @@ public class UIBuilder {
         fn.setParent(parentNode);
         return new LabelPropertyView(new com.codename1.ui.Label(), entity, fn);
     }
+
+    public LabelPropertyView image(Tag... tags) {
+        FieldNode fn = new FieldNode(UI.tags(tags));
+        fn.setParent(parentNode);
+        return LabelPropertyView.createIconLabel(new com.codename1.ui.Label(), entity, fn);
+    }
     
     
     public SpanLabelPropertyView spanLabel(Tag... tags) {

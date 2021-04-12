@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.codenameone:coderad-common:1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.m2/repository/com/codenameone/coderad-common/1.0-SNAPSHOT/coderad-common-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.m2/repository/com/codenameone/coderad-common/1.0-SNAPSHOT/coderad-common-1.0-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.m2/repository/com/codenameone/coderad-common/1.0-SNAPSHOT/coderad-common-1.0-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

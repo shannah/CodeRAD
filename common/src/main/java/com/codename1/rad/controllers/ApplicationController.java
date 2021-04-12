@@ -105,7 +105,7 @@ public class ApplicationController extends Controller {
     
     public void start() {
         showCurrentForm();
-        dispatchEvent(new StartEvent());
+        dispatchEvent(new StartEvent(current));
     }
     
     public void stop() {
@@ -133,7 +133,31 @@ public class ApplicationController extends Controller {
             return context;
         }
     }
-    public static class StartEvent extends ApplicationEvent{}
+    public static class StartEvent extends ApplicationEvent{
+        /**
+         * The current form of the application at the time that the StartEvent was fired.
+         */
+        private Form currentForm;
+
+        public StartEvent() {
+
+        }
+
+        public StartEvent(Form currentForm) {
+            this.currentForm = currentForm;
+        }
+
+        /**
+         * Gets the current form of the application at the time that the
+         * StartEvent was fired.  This will help event handlers to distinguish between the first start() call
+         * of the app, and subsequent start() calls.
+         * @return
+         */
+        public Form getCurrentForm() {
+            return currentForm;
+        }
+
+    }
     public static class StopEvent extends ApplicationEvent{}
     public static class DestroyEvent extends ApplicationEvent{}
 }

@@ -3,6 +3,16 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/codenameone-maven-manual.iml" filepath="$PROJECT_DIR$/.idea/codenameone-maven-manual.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/coderad-android.iml" filepath="$PROJECT_DIR$/android/coderad-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/coderad-common.iml" filepath="$PROJECT_DIR$/common/coderad-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ios/coderad-ios.iml" filepath="$PROJECT_DIR$/ios/coderad-ios.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javascript/coderad-javascript.iml" filepath="$PROJECT_DIR$/javascript/coderad-javascript.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javase/coderad-javase.iml" filepath="$PROJECT_DIR$/javase/coderad-javase.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lib/coderad-lib.iml" filepath="$PROJECT_DIR$/lib/coderad-lib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tests/coderad-tests.iml" filepath="$PROJECT_DIR$/tests/coderad-tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tests/common/coderad-tests-common.iml" filepath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" filepath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" />
+      <module fileurl="file://$PROJECT_DIR$/win/coderad-win.iml" filepath="$PROJECT_DIR$/win/coderad-win.iml" />
     </modules>
   </component>
 </project>

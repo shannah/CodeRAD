@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/android/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/android/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ios/src/main/objectivec" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ios/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/javascript/src/main/javascript" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/javascript/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/javase/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/javase/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tests/common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/win/src/main/csharp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/win/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

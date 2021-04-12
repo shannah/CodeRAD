@@ -28,6 +28,7 @@
             <version>${cn1.version}</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
     <build>
