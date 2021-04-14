@@ -98,6 +98,24 @@ public class EventContext {
         }
         return extraData.get(key);
     }
+
+    public <T> T lookupExtra(Class<T> type) {
+        for (Object o : extraData.values()) {
+            if (o.getClass() == type) {
+                return (T)o;
+            }
+        }
+        return null;
+    }
+
+    public Entity lookupExtraEntity(Class type) {
+        for (Object o : extraData.values()) {
+            if (type.isAssignableFrom(o.getClass())) {
+                return (Entity)o;
+            }
+        }
+        return null;
+    }
     
     public Iterable getExtraDataKeys() {
         if (extraData == null) {
@@ -114,4 +132,5 @@ public class EventContext {
     private Component eventSource;
     private ActionNode action;
     private Map extraData;
+
 }

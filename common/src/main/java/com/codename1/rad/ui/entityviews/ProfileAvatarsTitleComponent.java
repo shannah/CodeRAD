@@ -10,8 +10,7 @@ import com.codename1.rad.controllers.ViewController;
 import com.codename1.rad.layouts.FanLayout;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
-import com.codename1.rad.models.EntityList.EntityListEvent;
-import com.codename1.rad.models.EntityList.EntityRemovedEvent;
+
 import com.codename1.rad.models.Property;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ActionNode.ActionNodeEvent;
@@ -287,7 +286,7 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
     /**
      * Listener to add/remove avatars when profiles are added or removed from the view model.
      */
-    private final ActionListener<EntityListEvent> listListener = evt->{
+    private final ActionListener<EntityList.EntityListEvent> listListener = evt->{
         if (evt instanceof EntityList.EntityListInvalidatedEvent) {
             wrapper.removeAll();
             int len = getEntity().size();
@@ -319,7 +318,7 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
                 Component cmp = wrapper.getComponentAt(i);
                 if (cmp instanceof EntityView) {
                     EntityView ev = (EntityView)cmp;
-                    if (ev.getEntity() == ((EntityRemovedEvent) evt).getEntity()) {
+                    if (ev.getEntity() == ((EntityList.EntityRemovedEvent) evt).getEntity()) {
                         toRemove.add(cmp);
                         break;
                     }

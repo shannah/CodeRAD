@@ -348,7 +348,7 @@ public class FieldNode extends Node implements Proxyable {
     }
     
     /**
-     * Gets a property selector for this field node.  If the filed contained
+     * Gets a property selector for this field node.  If the field contained
      * a PropertyNode or a Tags node, then it will construct a selector from those.
      * 
      * Otherwise it will check for a {@link ProeprtySelectorAttribute}, and return 

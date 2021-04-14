@@ -11,12 +11,12 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.codenameone:codenameone-javase:7.0.8-b6" level="project" />
-    <orderEntry type="library" name="Maven: com.codenameone:codenameone-core:7.0.8-b6" level="project" />
+    <orderEntry type="library" name="Maven: com.codenameone:codenameone-javase:7.0.22" level="project" />
+    <orderEntry type="library" name="Maven: com.codenameone:codenameone-core:7.0.22" level="project" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.7.15-M1" level="project" />
     <orderEntry type="library" name="Maven: com.jhlabs:filters:2.0.235-1" level="project" />
     <orderEntry type="module" module-name="coderad-tests-common" />
-    <orderEntry type="library" name="Maven: com.codenameone:coderad-common:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="coderad-common" />
     <orderEntry type="module" module-name="coderad-tests-common" scope="TEST" production-on-test="" />
   </component>
 </module>

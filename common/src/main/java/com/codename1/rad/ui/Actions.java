@@ -26,6 +26,18 @@ import java.util.List;
 public class Actions implements Iterable<ActionNode> {
     private List<ActionNode> actions = new ArrayList<>();
 
+    public Actions() {
+
+    }
+
+    public Actions(Iterable<ActionNode> actions) {
+        add(actions);
+    }
+
+    public Actions(ActionNode... actions) {
+        add(actions);
+    }
+
     public void add(ActionNode... nodes) {
         for (ActionNode n : nodes) {
             actions.add(n);

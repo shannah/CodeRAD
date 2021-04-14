@@ -43,6 +43,9 @@ public interface ActionCategories {
     public static final Category LIST_SELECT_ACTION = new Category();
     public static final Category LIST_REMOVE_ACTION = new Category();
     public static final Category LIST_ADD_ACTION = new Category();
+    public static final Category LIST_REFRESH_ACTION = new Category();
+    public static final Category LIST_LOAD_MORE_ACTION = new Category();
+
     
     /**
      * Action fired when button is pressed.

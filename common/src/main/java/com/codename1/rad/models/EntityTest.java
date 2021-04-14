@@ -5,10 +5,13 @@
  */
 package com.codename1.rad.models;
 
+import com.codename1.rad.attributes.Condition;
+import com.codename1.rad.attributes.SelectedCondition;
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.nodes.ActionNode;
 
 /**
- * Encapsulates a boolean test performed against an {@link Entity}.  This is primarily used by {@link SelectedCondition}, {@link EnabledCondition}, and {@link Condition} as attributes of
+ * Encapsulates a boolean test performed against an {@link Entity}.  This is primarily used by {@link SelectedCondition}, {@link ActionNode.EnabledCondition}, and {@link Condition} as attributes of
  * {@link ActionNode} to allow actions to test their state when an entity is updated.
  * @author shannah
  * 

@@ -16,7 +16,7 @@ import com.codename1.rad.models.Entity;
 public interface EntityListCellRenderer {
     public EntityView getListCellRendererComponent(
             EntityListView list, 
-            Entity value, 
+            Entity value,
             int index, 
             boolean isSelected, 
             boolean isFocused

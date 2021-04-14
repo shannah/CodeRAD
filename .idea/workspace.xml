@@ -23,264 +23,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_13.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_8_b6.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_13.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_8_b6.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_coderad_common_1_0_SNAPSHOT.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_jhlabs_filters_2_0_235_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_xerial_sqlite_jdbc_3_7_15_M1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/android/coderad-android.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ios/coderad-ios.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/javascript/coderad-javascript.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/javase/coderad-javase.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/coderad-lib.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/coderad-tests.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/win/coderad-win.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codenameone-maven-manual.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codenameone-maven-manual.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityListProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityProxy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_13.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_22.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_8_b6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_13.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_22.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_8_b6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_coderad_common_1_0_SNAPSHOT.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/common/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/AsyncComponentWrapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/CollapsibleHeaderContainer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/CollapsibleSideBarContainer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/ComponentImage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/HelpButton.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/InternalFrame.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/OverflowContainer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/PopupMenu.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/SideTabs.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/TabbedDocumentView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/TagEditor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/AbstractTableCellEditor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/AbstractTableCellRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/DefaultTableCellEditor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/DefaultTableCellRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/SelectionMode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/StringArrayTableModel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/Table.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/TableCellEditor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/TableCellRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/components/table/TableModel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/event/ChangeObserver.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/ca/weblite/shared/event/FilteredActionListener.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/ext/ui/FontAwesome.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/ActionStyleAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/Badge.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/BadgeUIID.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/Columns.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/Condition.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/EnabledCondition.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/IconRendererAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/IconUIID.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/ImageIcon.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/ListCellRendererAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/MaterialIcon.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/NodeDecoratorAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/PropertyImageRendererAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/PropertySelectorAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/PropertyViewDecoratorAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/SelectedCondition.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/TableCellEditorAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/TableCellRendererAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/TextIcon.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/UIID.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/UIIDPrefix.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/ViewPropertyParameterAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/ViewType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/attributes/WidgetType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/ActionSupport.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/AppSectionController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/ApplicationController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/Controller.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/ControllerEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/EventProducer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/FieldEditorFormController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/FormController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/controllers/ViewController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/events/DefaultEventFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/events/EventContext.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/events/EventFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/io/ElementSelector.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/io/ParsingService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/io/ResultParser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/layouts/FanLayout.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/AbstractProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/Aggregate.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/AggregateEntityList.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/Attribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/AttributeSet.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/BooleanProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/ContentType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/DataTransformer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/DateFormatterAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/DateProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/DoubleProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/DynamicEntityType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/Entity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/EntityFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/EntityList.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/EntityListProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/EntityProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/EntityProvider.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/EntityTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/EntityType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/EntityTypeBuilder.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/IntProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/ListProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/NumberFormatterAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/Properties.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/Property.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/PropertyChangeEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/PropertySelector.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/PropertySelectorProvider.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/PropertyUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/PropertyVetoException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/SimpleProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/StringProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/StringProvider.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/Tag.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/Tags.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/TextFormatterAttribute.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/VetoablePropertyChangeEvent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/models/WidgetDescriptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/ActionNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/ActionViewFactoryNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/ActionsNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/ComponentDecoratorNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/EntityViewFactoryNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/EventFactoryNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/FieldNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/FormNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/ListNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/Node.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/OptionsNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/PropertyNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/PropertyViewDecoratorNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/PropertyViewFactoryNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/Proxyable.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/RowTemplateNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/SectionNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/SwipeContainer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/TableColumns.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/nodes/ViewNode.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/processing/Result.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/ButtonListPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/CheckBoxPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/ComboBoxPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/HTMLComponentPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/ImageContainerPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/LabelPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/RadioPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/SpanLabelPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/SwitchPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/TablePropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/TextAreaPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/propertyviews/TextFieldPropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/Action.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/Article.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/ChatMessage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/ChatRoom.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/Comment.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/ContactPoint.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/CreativeWork.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/Event.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/ListRowItem.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/MediaObject.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/NewsArticle.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/Person.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/PostalAddress.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/Product.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/SearchAction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/SocialMediaPosting.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/schemas/Thing.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/AllFormatsDateFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/CurrencyFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/DateFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/DecimalNumberFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/DefaultTextFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/IntegerFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/LocalDateLongStyleFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/LocalDateShortStyleFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/LocalDateTimeFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/LocalDateTimeMediumStyleFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/LocalDateTimeShortStyleFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/NumberFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/TextFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/text/TimeAgoDateFormatter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/AbstractEntityView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/ActionCategories.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/ActionStyle.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/ActionViewFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/Actions.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/ComplexSelection.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/ComponentDecorator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/ComponentDecorators.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/DefaultActionViewFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/DefaultEntityListCellRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/DefaultEntityViewFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/DefaultPropertyViewFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/EntityEditor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/EntityForm.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/EntityListCellRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/EntityView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/EntityViewFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/FieldEditor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/NodeDecorator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/NodeList.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/PropertyView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/PropertyViewDecorator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/PropertyViewFactory.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/SelectForm.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/Selection.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/SettingsForm.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/StrongCache.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/UI.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/UIBuilder.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/ViewProperty.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/ViewPropertyParameter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/WidgetTypes.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/animations/TypingAnimation.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/decorators/ContactListDecorator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/entityviews/EntityListView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/entityviews/LabelEntityView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/entityviews/MultiButtonEntityView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/entityviews/ProfileAvatarView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/entityviews/ProfileListView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/entityviews/TabsEntityView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/entityviews/WrapperEntityView.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/AsyncImage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/ClasspathImage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/DefaultEntityImageRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/EntityImageRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/FileSystemImage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/FirstCharEntityImageRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/ImageContainer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/ImageUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/NetworkImage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/PropertyImageRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/ResourceImage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/RoundImageRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/RoundRectImageRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/StorageImage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/image/WrappedImage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/menus/ActionSheet.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/menus/PopupActionsMenu.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/table/EntityListTableCellEditor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/table/EntityListTableCellRenderer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/build/stubs/com/codename1/rad/ui/table/EntityListTableModel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ApplicationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ApplicationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/UIBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/UIBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/ProfileAvatarView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/ProfileAvatarView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/coderad-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/events/EventContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/events/EventContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/PropertySelector.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/PropertySelector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/FieldNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/FieldNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/Node.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/Node.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/ActionCategories.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/ActionCategories.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/EntityListCellRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/EntityListCellRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/EntityListView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/EntityListView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/allclasses-frame.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/allclasses-frame.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/allclasses-noframe.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/allclasses-noframe.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/ca/weblite/shared/components/AsyncComponentWrapper.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/ca/weblite/shared/components/AsyncComponentWrapper.html" afterDir="false" />
@@ -383,6 +145,7 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/Columns.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/Columns.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/Condition.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/Condition.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/EnabledCondition.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/EnabledCondition.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/HintUIID.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/HintUIID.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/IconRendererAttribute.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/IconRendererAttribute.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/IconUIID.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/IconUIID.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/ImageIcon.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/ImageIcon.html" afterDir="false" />
@@ -407,6 +170,7 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/Columns.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/Columns.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/Condition.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/Condition.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/EnabledCondition.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/EnabledCondition.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/HintUIID.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/HintUIID.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/IconRendererAttribute.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/IconRendererAttribute.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/IconUIID.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/IconUIID.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/ImageIcon.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/ImageIcon.html" afterDir="false" />
@@ -975,6 +739,10 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-summary.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-summary.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-tree.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-tree.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-use.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-use.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codenameone/package-frame.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codenameone/package-summary.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codenameone/package-tree.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codenameone/package-use.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/constant-values.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/constant-values.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/deprecated-list.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/deprecated-list.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/help-doc.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/help-doc.html" afterDir="false" />
@@ -983,16 +751,22 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/overview-frame.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/overview-frame.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/overview-summary.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/overview-summary.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/overview-tree.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/overview-tree.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/javadoc/package-list" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/package-list" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/serialized-form.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/serialized-form.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/common/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/javase/coderad-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/javase/coderad-javase.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -1028,7 +802,7 @@
       <recent name="$PROJECT_DIR$/images" />
     </key>
   </component>
-  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -1047,13 +821,12 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="821" y="280" key="#Project_Structure" timestamp="1617797778520">
@@ -1096,21 +869,22 @@
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state width="1105" height="467" key="GridCell.Tab.1.right/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1617710132503" />
-    <state x="815" y="489" width="1065" height="754" key="find.popup" timestamp="1617051387623">
+    <state x="815" y="489" width="1065" height="754" key="find.popup" timestamp="1618414094499">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
-    <state x="815" y="489" width="1065" height="754" key="find.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1617051387623" />
-    <state width="600" height="428" key="javadoc.popup" timestamp="1617639524436">
+    <state x="815" y="489" width="1065" height="754" key="find.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618414094499" />
+    <state width="600" height="428" key="javadoc.popup" timestamp="1618420970294">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
-    <state width="600" height="428" key="javadoc.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1617639524436" />
+    <state width="600" height="428" key="javadoc.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618420970294" />
     <state x="406" y="295" width="913" height="579" key="new project wizard" timestamp="1614789213887">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state x="406" y="295" width="913" height="579" key="new project wizard/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1614789213887" />
-    <state x="788" y="452" width="670" height="676" key="search.everywhere.popup" timestamp="1618227768551">
+    <state x="788" y="452" width="670" height="676" key="search.everywhere.popup" timestamp="1618432968864">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
-    <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618227768551" />
+    <state x="443" y="272" width="670" height="430" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1618261010075" />
+    <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618432968864" />
   </component>
 </project>

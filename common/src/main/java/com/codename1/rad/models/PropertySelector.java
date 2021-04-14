@@ -967,7 +967,7 @@ public class PropertySelector {
         
         private Entity get(EntityList el) {
             if (el != null && index >= 0 && index < el.size()) {
-                return el.get(index);
+                return (Entity) el.get(index);
             }
             return null;
             

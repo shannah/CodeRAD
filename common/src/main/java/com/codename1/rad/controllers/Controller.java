@@ -5,10 +5,12 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.rad.models.Entity;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ActionNode.ActionNodeEvent;
 import com.codename1.rad.nodes.Node;
 import com.codename1.rad.nodes.ViewNode;
+import com.codename1.rad.ui.EntityView;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ import java.util.Map;
  * == Actions and Events
  * 
  * The primary mechanism for receiving notification about user actions is via Actions.  The controller defines the action, and the passes it to the view, associating it with
- * {@link ActionCategory}.  If the {@link EntitView} supports that {@link ActionCategory} it will fire an {@link ActionNode.ActionNodeEvent} event which the controller can process.
+ * {@link ActionNode.Category}.  If the {@link EntityView} supports that {@link ActionNode.Category} it will fire an {@link ActionNode.ActionNodeEvent} event which the controller can process.
  * 
  * For example, the {@link com.codename1.rad.ui.entityviews.ProfileAvatarView} view supports the {@link com.codename1.rad.ui.entityviews.ProfileAvatarView#PROFILE_AVATAR_CLICKED} category
  * so a controller can register an action with that view as follows:
@@ -97,7 +99,7 @@ public class Controller implements ActionListener<ControllerEvent> {
     
     /**
      * Adds a controller listener.  Controller listeners are notified of Controller
-     * events that are dispatched using {@link #dispatchEvent(com.codename1.ui.controllers.ControllerEvent) }.
+     * events that are dispatched using {@link #dispatchEvent(ControllerEvent) }.
      * 
      * This is the means by which information propagates up the controller hierarchy from views and 
      * sub-controllers.
@@ -292,10 +294,17 @@ public class Controller implements ActionListener<ControllerEvent> {
                 return out;
             }
         }
+        if (type.isAssignableFrom(getClass())) {
+            return (T)this;
+        }
         if (parent != null) {
             return parent.lookup(type);
         }
         return null;
+    }
+
+    public Entity lookupEntity(Class type) {
+        return (Entity)lookup(type);
     }
     
     /**
@@ -303,10 +312,19 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param obj The object to add to the lookups.
      */
     public void addLookup(Object obj) {
+        if (obj == null) return;
         if (lookups == null) {
             lookups = new HashMap<>();
         }
         lookups.put(obj.getClass(), obj);
+    }
+
+    public <T> void addLookup(Class<T> type, T object) {
+        if (object == null) return;
+        if (lookups == null) {
+            lookups = new HashMap<>();
+        }
+        lookups.put(type, object);
     }
     
     

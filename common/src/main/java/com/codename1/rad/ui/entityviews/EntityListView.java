@@ -6,6 +6,11 @@
 package com.codename1.rad.ui.entityviews;
 
 import ca.weblite.shared.components.CollapsibleHeaderContainer.ScrollableContainer;
+import com.codename1.components.InfiniteScrollAdapter;
+import com.codename1.io.Log;
+import com.codename1.rad.attributes.ListCellRendererAttribute;
+import com.codename1.rad.models.EntityListProvider;
+import com.codename1.rad.nodes.RowTemplateNode;
 import com.codename1.rad.ui.EntityListCellRenderer;
 import com.codename1.rad.ui.AbstractEntityView;
 import com.codename1.rad.ui.ActionCategories;
@@ -18,7 +23,7 @@ import com.codename1.rad.nodes.ListNode;
 import com.codename1.rad.nodes.Node;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
-import com.codename1.rad.models.EntityList.EntityListEvent;
+
 import com.codename1.components.FloatingActionButton;
 import com.codename1.rad.ui.UI;
 import com.codename1.ui.Component;
@@ -26,6 +31,7 @@ import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.animations.ComponentAnimation;
+import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -33,6 +39,7 @@ import com.codename1.ui.layouts.Layout;
 import com.codename1.ui.plaf.Border;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.codename1.rad.models.ContentType;
 import com.codename1.ui.Form;
 import com.codename1.ui.layouts.GridLayout;
@@ -118,7 +125,210 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     boolean firstUpdate = true;
     private boolean animateInsertions=true;
     private boolean animateRemovals=true;
-    
+
+    private EntityListProvider.Request nextProviderRequest;
+
+
+    /**
+     * Creates a list view for the given Entity list
+     * @param list The view model to render.
+     * @param node Node providing configuration and actions for the view.
+     */
+    public EntityListView(T list, ListNode node) {
+        super(list);
+        if (node == null) node = new ListNode();
+        setUIID("EntityListView");
+        setName("EntityListView");
+        this.getStyle().stripMarginAndPadding();
+        this.node = node;
+        renderer = node.getListCellRenderer();
+        if (renderer == null) {
+            renderer = UI.getDefaultListCellRenderer();
+        }
+        Boolean animateInsertionsBool = (Boolean)node.getViewParameter(ANIMATE_INSERTIONS, ViewPropertyParameter.createValueParam(ANIMATE_INSERTIONS, true)).getValue(list);
+        if (animateInsertionsBool != null) {
+            animateInsertions = animateInsertionsBool.booleanValue();
+        }
+        Boolean animateRemovalsBool = (Boolean)node.getViewParameter(ANIMATE_REMOVALS, ViewPropertyParameter.createValueParam(ANIMATE_REMOVALS, true)).getValue(list);
+        if (animateRemovalsBool != null) {
+            animateRemovals= animateRemovalsBool.booleanValue();
+        }
+        Boolean scrollableY = (Boolean)node.getViewParameter(SCROLLABLE_Y, ViewPropertyParameter.createValueParam(SCROLLABLE_Y, false)).getValue(list);
+        if (scrollableY != null) {
+            wrapper.setScrollableY(scrollableY);
+            wrapper.setGrabsPointerEvents(true);
+        }
+
+        RowLayout rowLayout = (RowLayout)node.getViewParameterValue(LAYOUT);
+        if (rowLayout != null && rowLayout == RowLayout.Grid) {
+            Integer columns = (Integer)node.getViewParameterValue(COLUMNS);
+            GridLayout gridLayout;
+            if (columns == null) {
+                gridLayout = GridLayout.autoFit();
+            } else {
+                Integer landscapeColumns = (Integer)node.getViewParameterValue(LANDSCAPE_COLUMNS);
+                if (landscapeColumns == null) {
+                    gridLayout = new GridLayout(columns);
+                } else {
+                    gridLayout = new GridLayout(1, columns, 1, landscapeColumns);
+                }
+            }
+            wrapper.setLayout(gridLayout);
+        }
+        setLayout(new BorderLayout());
+        //add(BorderLayout.CENTER, wrapper);
+        $(wrapper).setPadding(0).setMargin(0).setBorder(Border.createEmpty());
+        ActionNode addAction = node.getAction(ActionCategories.LIST_ADD_ACTION);
+        if (addAction != null) {
+            FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
+            fab.addActionListener(e -> {
+                addAction.fireEvent(getEntity(), this);
+            });
+            add(BorderLayout.CENTER, fab.bindFabToContainer(wrapper));
+        } else {
+            add(BorderLayout.CENTER, wrapper);
+        }
+
+        ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
+        ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
+        final EntityListProvider provider = (EntityListProvider)node.lookup(EntityListProvider.class);
+
+        // If there is a refresh action, or there is a provider, then
+        // We'll add pullToRefresh
+        if (refreshAction != null || provider != null) {
+            wrapper.setScrollableY(true);
+            wrapper.addPullToRefresh(()->{
+                refresh();
+            });
+        }
+
+        // If there is a loadMore action or a provider, then
+        // we'l add infinite scroll.
+        if (loadMoreAction != null || provider != null) {
+            wrapper.setScrollableY(true);
+            InfiniteScrollAdapter.createInfiniteScroll(wrapper, ()->{
+                loadMore();
+            }, provider != null && getEntity().size() == 0);
+        }
+
+
+
+        update();
+    }
+
+    public void refresh() {
+        ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
+        ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
+        final EntityListProvider provider = (EntityListProvider)node.lookup(EntityListProvider.class);
+        Entity requestData = null;
+        if (refreshAction != null) {
+            ActionEvent evt = refreshAction.fireEvent(getEntity(), this);
+
+
+            if (evt.isConsumed() && evt instanceof ActionNode.ActionNodeEvent && provider != null) {
+                ActionNode.ActionNodeEvent ane = (ActionNode.ActionNodeEvent) evt;
+                requestData = ane.getContext().lookupExtraEntity(EntityListProvider.IEntityListRequestData.class);
+
+            }
+        }
+        if (provider != null)  {
+            if (requestData == null) {
+                requestData = new EntityListProvider.RequestData();
+            }
+            nextProviderRequest = null;
+            EntityListProvider.Request req = new EntityListProvider.Request(EntityListProvider.RequestType.REFRESH, (Entity & EntityListProvider.IEntityListRequestData)requestData);
+            provider.getEntities(req).onResult((res, err) -> {
+                if (err != null) {
+                    // We just swallow errors.
+                    // The provider can return an error to indicate that it's done but no data.
+                    // But it is up to the provider to propagate errors up the UI or log if necessary.
+                    return;
+                }
+                nextProviderRequest = req.getNextRequest();
+                EntityList modelList = getEntity();
+                modelList.startTransaction();
+                modelList.clear();
+                for (Object o : res) {
+                    modelList.add((Entity) o);
+                }
+                boolean localAnimateInsertions = animateInsertions;
+                animateInsertions = false;
+                boolean localAnimateRemovals = animateRemovals;
+                animateRemovals = false;
+                modelList.commitTransaction();
+                animateInsertions = localAnimateInsertions;
+                animateRemovals = localAnimateRemovals;
+                if (loadMoreAction != null) {
+                    InfiniteScrollAdapter.addMoreComponents(wrapper, new Component[0], req.hasMore());
+                }
+                Form f = getComponentForm();
+                if (f != null) {
+                    getComponentForm().revalidateWithAnimationSafety();
+                }
+
+            });
+
+        }
+
+
+    }
+
+    public void loadMore() {
+        Entity requestData = null;
+        ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
+        ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
+        final EntityListProvider provider = (EntityListProvider)node.lookup(EntityListProvider.class);
+        if (loadMoreAction != null) {
+            ActionEvent evt = loadMoreAction.fireEvent(getEntity(), this);
+
+
+            if (evt.isConsumed() && evt instanceof ActionNode.ActionNodeEvent && provider != null) {
+                ActionNode.ActionNodeEvent ane = (ActionNode.ActionNodeEvent) evt;
+                requestData = ane.getContext().lookupExtraEntity(EntityListProvider.IEntityListRequestData.class);
+
+            }
+        }
+        if (provider != null)  {
+            if (requestData == null) {
+                requestData = new EntityListProvider.RequestData();
+            }
+            EntityListProvider.Request req = nextProviderRequest != null ? nextProviderRequest :
+                    new EntityListProvider.Request(EntityListProvider.RequestType.LOAD_MORE, (Entity & EntityListProvider.IEntityListRequestData)requestData);
+            provider.getEntities(req).onResult((res, err) -> {
+                if (err != null) {
+                    // We just swallow errors.
+                    // The provider can return an error to indicate that it's done but no data.
+                    // But it is up to the provider to propagate errors up the UI or log if necessary.
+                    return;
+                }
+                nextProviderRequest = req.getNextRequest();
+                EntityList modelSet = getEntity();
+                if (res.size() > 0) {
+                    modelSet.startTransaction();
+                    for (Entity en : (Iterable<Entity>)res) {
+                        modelSet.add(en);
+                    }
+                    boolean localAnimateInsertions = animateInsertions;
+                    animateInsertions = false;
+                    boolean localAnimateRemovals = animateRemovals;
+                    animateRemovals = false;
+                    modelSet.commitTransaction();
+                    animateInsertions = localAnimateInsertions;
+                    animateRemovals = localAnimateRemovals;
+                    InfiniteScrollAdapter.addMoreComponents(wrapper, new Component[0], req.hasMore());
+                    Form f = getComponentForm();
+                    if (f != null) {
+                        getComponentForm().revalidateWithAnimationSafety();
+                    }
+
+                }
+            });
+
+        }
+    }
+
+
+
     /**
      * Sets whether to animate insertions into the list.  This can also be configured using the {@link #ANIMATE_INSERTIONS}
      * view property.
@@ -285,7 +495,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         
     }
     
-    private ActionListener<EntityListEvent> listListener = evt-> {
+    private ActionListener<EntityList.EntityListEvent> listListener = evt-> {
         EntityList.EntityListInvalidatedEvent ie = evt.as(EntityList.EntityListInvalidatedEvent.class);
         if (ie != null) {
             // Received invalidated event.  We need to rebuild the view from scratch
@@ -341,70 +551,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         this(list, null);
     }
 
-    /**
-     * Creates a list view for the given Entity list
-     * @param list The view model to render.
-     * @param node Node providing configuration and actions for the view.
-     */
-    public EntityListView(T list, ListNode node) {
-        super(list);
-        if (node == null) node = new ListNode();
-        setUIID("EntityListView");
-        setName("EntityListView");
-        this.getStyle().stripMarginAndPadding();
-        this.node = node;
-        renderer = node.getListCellRenderer();
-        if (renderer == null) {
-            renderer = UI.getDefaultListCellRenderer();
-        }
-        Boolean animateInsertionsBool = (Boolean)node.getViewParameter(ANIMATE_INSERTIONS, ViewPropertyParameter.createValueParam(ANIMATE_INSERTIONS, true)).getValue(list);
-        if (animateInsertionsBool != null) {
-            animateInsertions = animateInsertionsBool.booleanValue();
-        }
-        Boolean animateRemovalsBool = (Boolean)node.getViewParameter(ANIMATE_REMOVALS, ViewPropertyParameter.createValueParam(ANIMATE_REMOVALS, true)).getValue(list);
-        if (animateRemovalsBool != null) {
-            animateRemovals= animateRemovalsBool.booleanValue();
-        }
-        Boolean scrollableY = (Boolean)node.getViewParameter(SCROLLABLE_Y, ViewPropertyParameter.createValueParam(SCROLLABLE_Y, false)).getValue(list);
-        if (scrollableY != null) {
-            wrapper.setScrollableY(scrollableY);
-            wrapper.setGrabsPointerEvents(true);
-        }
-        
-        RowLayout rowLayout = (RowLayout)node.getViewParameterValue(LAYOUT);
-        if (rowLayout != null && rowLayout == RowLayout.Grid) {
-            Integer columns = (Integer)node.getViewParameterValue(COLUMNS);
-            GridLayout gridLayout;
-            if (columns == null) {
-               gridLayout = GridLayout.autoFit();
-            } else {
-                Integer landscapeColumns = (Integer)node.getViewParameterValue(LANDSCAPE_COLUMNS);
-                if (landscapeColumns == null) {
-                    gridLayout = new GridLayout(columns);
-                } else {
-                    gridLayout = new GridLayout(1, columns, 1, landscapeColumns);
-                }
-            }
-            wrapper.setLayout(gridLayout);
-        }
-        setLayout(new BorderLayout());
-        //add(BorderLayout.CENTER, wrapper);
-        $(wrapper).setPadding(0).setMargin(0).setBorder(Border.createEmpty());
-        ActionNode addAction = node.getAction(ActionCategories.LIST_ADD_ACTION);
-        if (addAction != null) {
-            FloatingActionButton fab = FloatingActionButton.createFAB(FontImage.MATERIAL_ADD);
-            fab.addActionListener(e -> {
-                addAction.fireEvent(getEntity(), this);
-            });
-            add(BorderLayout.CENTER, fab.bindFabToContainer(wrapper));
-        } else {
-            add(BorderLayout.CENTER, wrapper);
-        }
-        
-        update();
-    }
 
-    
 
     @Override
     public void bindImpl() {
@@ -544,6 +691,4 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         wrapper.setGrabsPointerEvents(scrollableY);
     }
 
-    
-    
 }
