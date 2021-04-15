@@ -8,7 +8,11 @@ package com.codename1.rad.ui.entityviews;
 import ca.weblite.shared.components.CollapsibleHeaderContainer.ScrollableContainer;
 import com.codename1.components.InfiniteScrollAdapter;
 import com.codename1.io.Log;
+import com.codename1.rad.attributes.EntityListProviderAttribute;
+import com.codename1.rad.attributes.EntityListProviderLookup;
 import com.codename1.rad.attributes.ListCellRendererAttribute;
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.FormController;
 import com.codename1.rad.models.EntityListProvider;
 import com.codename1.rad.nodes.RowTemplateNode;
 import com.codename1.rad.ui.EntityListCellRenderer;
@@ -191,12 +195,14 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
 
         ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
         ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
-        final EntityListProvider provider = (EntityListProvider)node.lookup(EntityListProvider.class);
+        final EntityListProvider provider = getProviderImpl();
+        final Class providerLookup = getProviderLookupImpl();
 
         // If there is a refresh action, or there is a provider, then
         // We'll add pullToRefresh
-        if (refreshAction != null || provider != null) {
+        if (refreshAction != null || provider != null || providerLookup != null) {
             wrapper.setScrollableY(true);
+            wrapper.setGrabsPointerEvents(true);
             wrapper.addPullToRefresh(()->{
                 refresh();
             });
@@ -204,8 +210,9 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
 
         // If there is a loadMore action or a provider, then
         // we'l add infinite scroll.
-        if (loadMoreAction != null || provider != null) {
+        if (loadMoreAction != null || provider != null || providerLookup != null) {
             wrapper.setScrollableY(true);
+            wrapper.setGrabsPointerEvents(true);
             InfiniteScrollAdapter.createInfiniteScroll(wrapper, ()->{
                 loadMore();
             }, provider != null && getEntity().size() == 0);
@@ -216,10 +223,55 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         update();
     }
 
+    private Class providerLookup;
+    private boolean providerLookupLoaded;
+    private EntityListProvider provider;
+    private boolean providerLoaded;
+
+    private Class getProviderLookupImpl() {
+        if (!providerLookupLoaded) {
+            providerLookupLoaded = true;
+            providerLookup = (Class)node.findInheritedAttributeValue(EntityListProviderLookup.class, Class.class);
+        }
+        return providerLookup;
+    }
+
+    public Class getProviderLookup() {
+        return getProviderLookupImpl();
+    }
+
+
+    private EntityListProvider getProviderImpl() {
+        if (!providerLoaded) {
+            providerLoaded = true;
+            provider = (EntityListProvider)node.findInheritedAttributeValue(EntityListProviderAttribute.class, EntityListProvider.class);
+        }
+        return provider;
+    }
+
+    public EntityListProvider getProvider() {
+        EntityListProvider provider = getProviderImpl();
+        if (provider != null) {
+            return provider;
+        }
+
+        Class providerLookup = getProviderLookup();
+        if (providerLookup != null) {
+            Controller controller = FormController.getViewController(this);
+            if (controller != null) {
+                Object tmp = controller.lookup(providerLookup);
+                if (tmp instanceof EntityListProvider) {
+                    return (EntityListProvider)tmp;
+                }
+            }
+        }
+        return null;
+    }
+
     public void refresh() {
         ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
         ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
-        final EntityListProvider provider = (EntityListProvider)node.lookup(EntityListProvider.class);
+        final EntityListProvider provider = getProvider();
         Entity requestData = null;
         if (refreshAction != null) {
             ActionEvent evt = refreshAction.fireEvent(getEntity(), this);
@@ -231,7 +283,8 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
 
             }
         }
-        if (provider != null)  {
+
+        if ( provider != null)  {
             if (requestData == null) {
                 requestData = new EntityListProvider.RequestData();
             }
@@ -277,7 +330,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         Entity requestData = null;
         ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
         ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
-        final EntityListProvider provider = (EntityListProvider)node.lookup(EntityListProvider.class);
+        final EntityListProvider provider = getProvider();
         if (loadMoreAction != null) {
             ActionEvent evt = loadMoreAction.fireEvent(getEntity(), this);
 
@@ -691,4 +744,149 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         wrapper.setGrabsPointerEvents(scrollableY);
     }
 
+
+
+    public static class Builder {
+        private Boolean scrollableY;
+        private RowLayout listLayout;
+        private Integer columns;
+        private Integer landscapeColumns;
+        private Boolean animateRemovals;
+        private Boolean animateInsertions;
+        private ActionNode refreshAction;
+        private ActionNode loadMoreAction;
+        private ActionNode addAction;
+        private ActionNode selectAction;
+        private ActionNode removeAction;
+        private EntityListCellRenderer renderer;
+        private EntityListProvider provider;
+        private Class providerLookup;
+        private EntityList model;
+        private ListNode node;
+        private Node parentNode;
+
+        public Builder scrollableY(boolean scrollableY) {
+            this.scrollableY = scrollableY;
+            return this;
+        }
+
+        public Builder listLayout(RowLayout layout) {
+            this.listLayout = layout;
+            return this;
+        }
+
+        public Builder columns(int columns) {
+            this.columns = columns;
+            return this;
+        }
+
+        public Builder landscapeColumns(int cols) {
+            this.landscapeColumns = cols;
+            return this;
+        }
+
+        public Builder animateRemovals(boolean animate) {
+            this.animateRemovals = animate;
+            return this;
+        }
+
+        public Builder animateInsertions(boolean animate) {
+            this.animateInsertions = animate;
+            return this;
+
+        }
+
+        public Builder refreshAction(ActionNode refreshAction) {
+            this.refreshAction = refreshAction;
+            return this;
+        }
+
+        public Builder loadMoreAction(ActionNode loadMoreAction) {
+            this.loadMoreAction = loadMoreAction;
+            return this;
+        }
+
+        public Builder addAction(ActionNode addAction) {
+            this.addAction = addAction;
+            return this;
+        }
+
+        public Builder selectAction(ActionNode selectAction) {
+            this.selectAction = selectAction;
+            return this;
+        }
+
+        public Builder removeAction(ActionNode removeAction) {
+            this.removeAction = removeAction;
+            return this;
+        }
+
+        public Builder renderer(EntityListCellRenderer renderer) {
+            this.renderer = renderer;
+            return this;
+        }
+
+        public Builder provider(EntityListProvider provider) {
+            this.provider = provider;
+            return this;
+        }
+
+        public Builder providerLookup(Class lookupClass) {
+            this.providerLookup = lookupClass;
+            return this;
+        }
+
+        public Builder model(EntityList model) {
+            this.model = model;
+            return this;
+        }
+
+        public Builder node(ListNode node) {
+            this.node = node;
+            return this;
+        }
+
+        public Builder parentNode(Node parentNode) {
+            this.parentNode = parentNode;
+            return this;
+        }
+
+
+
+        public ListNode buildNode() {
+            if (node == null) {
+                node = new ListNode();
+                if (parentNode != null) {
+                    node.setParent(parentNode);
+                }
+            }
+            node.setAttributes(
+                    scrollableY == null ? null : UI.param(SCROLLABLE_Y, scrollableY),
+                    animateInsertions == null ? null : UI.param(ANIMATE_INSERTIONS, animateInsertions),
+                    animateRemovals == null ? null : UI.param(ANIMATE_REMOVALS, animateRemovals),
+                    listLayout == null ? null : UI.param(LAYOUT, listLayout),
+                    columns == null ? null : UI.param(COLUMNS, columns),
+                    landscapeColumns == null ? null : UI.param(LANDSCAPE_COLUMNS, landscapeColumns),
+                    refreshAction == null ? null : UI.actions(ActionCategories.LIST_REFRESH_ACTION, refreshAction),
+                    loadMoreAction == null ? null : UI.actions(ActionCategories.LIST_LOAD_MORE_ACTION, loadMoreAction),
+                    addAction == null ? null : UI.actions(ActionCategories.LIST_ADD_ACTION, addAction),
+                    removeAction == null ? null : UI.actions(ActionCategories.LIST_REMOVE_ACTION, removeAction),
+                    selectAction == null ? null : UI.actions(ActionCategories.LIST_SELECT_ACTION, selectAction),
+                    renderer == null ? null : UI.cellRenderer(renderer),
+                    provider == null ? null : UI.provider(provider),
+                    providerLookup == null ? null : UI.providerLookup(providerLookup)
+                    );
+
+            return node;
+        }
+
+        public EntityListView build() {
+            if (model == null) {
+                model = new EntityList();
+            }
+            return new EntityListView(model, buildNode());
+        }
+
+
+    }
 }

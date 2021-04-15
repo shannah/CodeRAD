@@ -169,6 +169,23 @@ public abstract class Node<T> extends Attribute<T> {
         }
         return null;
     }
+
+    public <V, E extends Attribute> V findAttributeValue(Class<E> attributeType, Class<V> valueType) {
+        E att = findAttribute(attributeType);
+        if (att != null) {
+            return (V)att.getValue();
+        }
+        return null;
+    }
+
+    public <V, E extends Attribute> V findInheritedAttributeValue(Class<E> attributeType, Class<V> valueType) {
+        E att = findInheritedAttribute(attributeType);
+        if (att != null) {
+            return (V)att.getValue();
+        }
+        return null;
+    }
+
     
     /**
      * Find an attribute in this node, or a parent node.  This first checks the current 
@@ -701,64 +718,7 @@ public abstract class Node<T> extends Attribute<T> {
         return null;
     }
 
-    private HashMap<Class,Object> lookups;
 
-    /**
-     * Obtains an object of the given type that has been previously registered by this controller (or a parent controller) via the {@link #addLookup(java.lang.Object) }
-     * method.  This facilitates the creation of shared objects that can be accessed by controllers and all of their descendants. For example,
-     * the ApplicationController might register a webservice client via addLookup() so that all controllers in the application can obtain
-     * a reference to this client via a simple lookup.
-     *
-     *
-     * @param <V> The type object to look up.
-     * @param type The type of object to look up.
-     * @return The object, or null if none was registered.
-     */
-    public <V> V lookup(Class<V> type) {
-        if (lookups != null) {
-            V out = (V)lookups.get(type);
-            if (out != null) {
-                return out;
-            }
-            for (Object o : lookups.values()) {
-                if (type.isAssignableFrom(o.getClass())) {
-                    return (V)o;
-                }
-            }
-        }
-
-        if (type.isAssignableFrom(getClass())) {
-            return (V)this;
-        }
-        if (parent != null) {
-            return (V)parent.lookup(type);
-        }
-        return null;
-    }
-
-    public Entity lookupEntity(Class type) {
-        return (Entity)lookup(type);
-    }
-
-    /**
-     * Registers an object so that it can be retrieved using {@link #lookup(java.lang.Class) }.
-     * @param obj The object to add to the lookups.
-     */
-    public void addLookup(Object obj) {
-        if (obj == null) return;
-        if (lookups == null) {
-            lookups = new HashMap<>();
-        }
-        lookups.put(obj.getClass(), obj);
-    }
-
-    public <V> void addLookup(Class<V> type, V object) {
-        if (object == null) return;
-        if (lookups == null) {
-            lookups = new HashMap<>();
-        }
-        lookups.put(type, object);
-    }
 
 
 }

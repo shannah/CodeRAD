@@ -8,22 +8,15 @@ package com.codename1.rad.ui;
 
 import ca.weblite.shared.components.table.DefaultTableCellEditor;
 import ca.weblite.shared.components.table.DefaultTableCellRenderer;
-import com.codename1.rad.attributes.ActionStyleAttribute;
+import com.codename1.rad.attributes.*;
 import com.codename1.rad.events.EventFactory;
+import com.codename1.rad.models.*;
 import com.codename1.rad.nodes.FormNode;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.nodes.PropertyNode;
 import com.codename1.rad.nodes.SectionNode;
-import com.codename1.rad.attributes.Columns;
-import com.codename1.rad.attributes.IconRendererAttribute;
-import com.codename1.rad.attributes.ImageIcon;
-import com.codename1.rad.attributes.ListCellRendererAttribute;
-import com.codename1.rad.attributes.MaterialIcon;
-import com.codename1.rad.attributes.NodeDecoratorAttribute;
-import com.codename1.rad.attributes.TableCellEditorAttribute;
-import com.codename1.rad.attributes.TableCellRendererAttribute;
-import com.codename1.rad.attributes.ViewPropertyParameterAttribute;
 
+import com.codename1.rad.ui.entityviews.EntityListView;
 import com.codename1.rad.ui.image.EntityImageRenderer;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ActionsNode;
@@ -37,33 +30,13 @@ import com.codename1.rad.nodes.ViewNode;
 import ca.weblite.shared.components.table.TableCellEditor;
 import ca.weblite.shared.components.table.TableCellRenderer;
 import com.codename1.io.File;
-import com.codename1.rad.attributes.Badge;
-import com.codename1.rad.attributes.BadgeUIID;
-import com.codename1.rad.attributes.Condition;
-import com.codename1.rad.attributes.IconUIID;
-import com.codename1.rad.attributes.PropertyImageRendererAttribute;
-import com.codename1.rad.attributes.PropertySelectorAttribute;
-import com.codename1.rad.attributes.SelectedCondition;
-import com.codename1.rad.attributes.TextIcon;
-import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.events.DefaultEventFactory;
-import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.DateFormatterAttribute;
-import com.codename1.rad.models.EntityTest;
-import com.codename1.rad.models.EntityType;
-import com.codename1.rad.models.NumberFormatterAttribute;
-import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Editable;
 import com.codename1.rad.models.Property.Getter;
 import com.codename1.rad.models.Property.GetterAttribute;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Property.Setter;
 import com.codename1.rad.models.Property.SetterAttribute;
-import com.codename1.rad.models.PropertySelector;
-import com.codename1.rad.models.PropertySelectorProvider;
-import com.codename1.rad.models.StringProvider;
-import com.codename1.rad.models.Tag;
-import com.codename1.rad.models.TextFormatterAttribute;
 import com.codename1.rad.nodes.ActionNode.Category;
 import com.codename1.rad.nodes.ActionNode.EnabledCondition;
 import com.codename1.rad.nodes.ActionViewFactoryNode;
@@ -131,17 +104,75 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     public static void setDefaultEntityViewFactory(EntityViewFactory factory) {
         defaultEntityViewFactory = factory;
     }
-    
+
+
+    /**
+     * Adds a {@link #LIST_REMOVE_ACTION} used by {@link com.codename1.rad.ui.entityviews.EntityListView}.
+     * @param removeAction The action to be used for removes.
+     * @return
+     */
     public static ActionsNode removeAction(ActionNode removeAction) {
         return actions(LIST_REMOVE_ACTION, removeAction);
     }
-    
+
+
+    /**
+     * Adds a {@link #LIST_SELECT_ACTION} used by {@link com.codename1.rad.ui.entityviews.EntityListView}
+     * @param selectAction The action to be used for row selection.
+     * @return
+     */
     public static ActionsNode selectAction(ActionNode selectAction) {
         return actions(LIST_SELECT_ACTION, selectAction);
     }
-    
+
+    /**
+     * Adds a {@link #LIST_ADD_ACTION} used by {@link com.codename1.rad.ui.entityviews.EntityListView}
+     * @param insertAction
+     * @return
+     */
     public static ActionsNode addAction(ActionNode insertAction) {
         return actions(LIST_ADD_ACTION, insertAction);
+    }
+
+    /**
+     * Adds a {@link #LIST_REFRESH_ACTION} used by {@link com.codename1.rad.ui.entityviews.EntityListView}
+     * @param refreshAction The action to be triggered when the list is refreshed.
+     * @return
+     */
+    public static ActionsNode refreshAction(ActionNode refreshAction) {
+        return actions(LIST_REFRESH_ACTION, refreshAction);
+    }
+
+    /**
+     * Adds a {@link #LIST_LOAD_MORE_ACTION} used by {@link com.codename1.rad.ui.entityviews.EntityListView}
+     * @param loadMoreAction The action to be triggered when a request is made to load more records in the list.
+     * @return
+     */
+    public static ActionsNode loadMoreAction(ActionNode loadMoreAction) {
+        return actions(LIST_LOAD_MORE_ACTION, loadMoreAction);
+    }
+
+    /**
+     * Specifies the {@link EntityListProvider} to be used by {@link EntityListView}.
+     * @param provider
+     * @return
+     * @see #providerLookup(Class)
+     */
+    public static EntityListProviderAttribute provider(EntityListProvider provider) {
+        return new EntityListProviderAttribute(provider);
+    }
+
+    /**
+     * Specifies a lookup marker class that should be used to lookup the provider for
+     * an EntityListView.  This allows the list view to search up the Controller hierarchy
+     * for a provider rather than have a provider explicitly supplied.
+     * @param lookupClass The class to use to lookup the provider.  This doesn't have to be a provider class,
+     *                    but it is assumed that the object that this "looks up" will be of type {@link EntityListProvider}.
+     * @return
+     * @see #provider(EntityListProvider) 
+     */
+    public static EntityListProviderLookup providerLookup(Class lookupClass) {
+        return new EntityListProviderLookup(lookupClass);
     }
     
     public static EntityViewFactory getDefaultEntityViewFactory() {

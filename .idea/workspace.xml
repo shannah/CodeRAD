@@ -23,26 +23,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityListProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityProxy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_13.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_22.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_8_b6.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_13.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_22.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_8_b6.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_coderad_common_1_0_SNAPSHOT.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/attributes/EntityListProviderAttribute.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/attributes/EntityListProviderLookup.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/coderad-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/events/EventContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/events/EventContext.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/PropertySelector.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/PropertySelector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/FieldNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/FieldNode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/Node.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/Node.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/ActionCategories.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/ActionCategories.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/EntityListCellRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/EntityListCellRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/UI.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/UI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/EntityListView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/EntityListView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/ProfileAvatarsTitleComponent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/allclasses-frame.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/allclasses-frame.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/allclasses-noframe.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/allclasses-noframe.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/ca/weblite/shared/components/AsyncComponentWrapper.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/ca/weblite/shared/components/AsyncComponentWrapper.html" afterDir="false" />
@@ -289,8 +276,14 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityList.VetoableEntityRemovedEvent.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityList.VetoableEntityRemovedEvent.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityList.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityList.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProperty.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProperty.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.IEntityListRequestData.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.IEntityListRequestData.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.Request.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.Request.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.RequestData.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.RequestData.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.RequestType.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.RequestType.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityListProvider.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityProperty.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityProperty.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityProvider.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityProvider.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityProxy.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityProxy.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityTest.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityTest.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityType.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityType.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityTypeBuilder.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/EntityTypeBuilder.html" afterDir="false" />
@@ -349,8 +342,14 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityList.VetoableEntityRemovedEvent.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityList.VetoableEntityRemovedEvent.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityList.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityList.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProperty.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProperty.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.IEntityListRequestData.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.IEntityListRequestData.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.Request.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.Request.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.RequestData.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.RequestData.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.RequestType.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.RequestType.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityListProvider.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityProperty.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityProperty.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityProvider.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityProvider.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityProxy.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityProxy.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityTest.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityTest.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityType.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityType.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityTypeBuilder.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/models/class-use/EntityTypeBuilder.html" afterDir="false" />
@@ -739,10 +738,6 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-summary.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-summary.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-tree.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-tree.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-use.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/table/package-use.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codenameone/package-frame.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codenameone/package-summary.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codenameone/package-tree.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codenameone/package-use.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/constant-values.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/constant-values.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/deprecated-list.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/deprecated-list.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/help-doc.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/help-doc.html" afterDir="false" />
@@ -752,9 +747,6 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/overview-summary.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/overview-summary.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/overview-tree.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/overview-tree.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/serialized-form.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/serialized-form.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/javase/coderad-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/javase/coderad-javase.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -837,6 +829,14 @@
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state x="560" y="338" key="#com.intellij.execution.impl.EditConfigurationsDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1617640365801" />
+    <state x="1093" y="456" key="#com.intellij.ide.util.MemberChooser" timestamp="1618490468100">
+      <screen x="0" y="23" width="2560" height="1417" />
+    </state>
+    <state x="1093" y="456" key="#com.intellij.ide.util.MemberChooser/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618490468100" />
+    <state x="992" y="418" key="#com.intellij.refactoring.encapsulateFields.EncalpsulateFieldsDialog" timestamp="1618490431613">
+      <screen x="0" y="23" width="2560" height="1417" />
+    </state>
+    <state x="992" y="418" key="#com.intellij.refactoring.encapsulateFields.EncalpsulateFieldsDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618490431613" />
     <state width="1105" height="467" key="GridCell.Tab.0.bottom" timestamp="1617710132501">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
