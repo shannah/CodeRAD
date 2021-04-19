@@ -464,6 +464,10 @@ public class PropertySelector {
         this.tags = tags;
         
     }
+
+    public PropertySelector(EntityWrapper root, Tag... tags) {
+        this(root.getEntity(), tags);
+    }
     
     /**
      * Creates a new property selector.
@@ -473,6 +477,10 @@ public class PropertySelector {
     public PropertySelector(Entity root, Property property) {
         this.root = root;
         this.property = property;
+    }
+
+    public PropertySelector(EntityWrapper root, Property property) {
+        this(root.getEntity(), property);
     }
     
     /**
@@ -985,7 +993,15 @@ public class PropertySelector {
         return new PropertySelector(root, prop);
     }
 
+    public static PropertySelector propertySelector(EntityWrapper root, Property prop) {
+        return propertySelector(root.getEntity(), prop);
+    }
+
     public static PropertySelector propertySelector(Entity root, Tag... tags) {
         return new PropertySelector(root, tags);
+    }
+
+    public static PropertySelector propertySelector(EntityWrapper root, Tag... tags) {
+        return propertySelector(root.getEntity(), tags);
     }
 }

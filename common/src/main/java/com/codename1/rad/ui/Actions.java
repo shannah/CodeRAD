@@ -132,5 +132,9 @@ public class Actions implements Iterable<ActionNode> {
         }
         return this;
     }
+
+    public int indexOf(ActionNode action) {
+        return actions.indexOf(action);
+    }
     
 }

@@ -6,10 +6,7 @@
 package com.codename1.rad.nodes;
 
 import com.codename1.rad.attributes.IconUIID;
-import com.codename1.rad.ui.Actions;
-import com.codename1.rad.ui.NodeList;
-import com.codename1.rad.ui.ViewProperty;
-import com.codename1.rad.ui.ViewPropertyParameter;
+import com.codename1.rad.ui.*;
 import com.codename1.rad.attributes.NodeDecoratorAttribute;
 import com.codename1.rad.attributes.PropertySelectorAttribute;
 import com.codename1.rad.attributes.UIID;
@@ -718,6 +715,11 @@ public abstract class Node<T> extends Attribute<T> {
         return null;
     }
 
+
+    public <T extends Node> Node appendChild(T child) {
+        child.setParent(this);
+        return child;
+    }
 
 
 

@@ -5,13 +5,16 @@
  */
 package com.codename1.rad.ui;
 
-import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.Property;
-import com.codename1.rad.models.PropertyChangeEvent;
-import com.codename1.rad.models.Tag;
+import com.codename1.rad.attributes.ViewControllerAttribute;
+import com.codename1.rad.controllers.ViewController;
+import com.codename1.rad.models.*;
+import com.codename1.rad.nodes.Node;
+import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.events.ActionListener;
 import java.util.Observer;
+
+import static com.codename1.ui.ComponentSelector.$;
 
 /**
  * A base class for a view that can bind to an entity.  Sublasses just need toi implement {@link #update() }.
@@ -21,7 +24,8 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     private T entity;
     private int bindCount;
     private boolean bindOnPropertyChangeEvents = true;
-    
+    private Node node;
+    private boolean activated;
     
     
     
@@ -35,7 +39,23 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     };
     
     public AbstractEntityView(T entity) {
+        this(entity, null);
+    }
+
+    public AbstractEntityView(T entity, Node node) {
+        if (entity == null) {
+            throw new IllegalArgumentException("AbstractEntityView requires non-null entity, but received null");
+        }
         this.entity = entity;
+        this.node = node;
+        if (node != null) {
+            ViewController ctl = (ViewController)node.findAttributeValue(ViewControllerAttribute.class, ViewController.class);
+            if (ctl != null && ViewController.getViewController(this) != ctl) {
+                ctl.setView(this);
+            }
+        }
+
+
     }
     
     /**
@@ -124,6 +144,7 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     
     @Override
     protected void initComponent() {
+
         super.initComponent();
         bind();
     }
@@ -145,5 +166,12 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     protected Property findProperty(Tag... tags) {
         return getEntity().getEntityType().findProperty(tags);
     }
-    
+
+    @Override
+    public Node getViewNode() {
+        return node;
+    }
+
+
+
 }

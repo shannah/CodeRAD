@@ -5,7 +5,12 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.ui.CN;
+import com.codename1.ui.Component;
+import com.codename1.ui.Form;
 import com.codename1.ui.events.ActionEvent;
+import com.codename1.util.AsyncResource;
+import com.codename1.util.SuccessCallback;
 
 /**
  * A base event for all controller events.  This is the fundamental building block for how information
@@ -13,6 +18,8 @@ import com.codename1.ui.events.ActionEvent;
  * @author shannah
  */
 public class ControllerEvent extends ActionEvent {
+
+    private AsyncResource asyncResource;
     
     /**
      * Creates a new controller event.
@@ -41,5 +48,63 @@ public class ControllerEvent extends ActionEvent {
         }
         return null;
     }
+
+    public <T extends ControllerEvent> boolean as(Class<T> type, SuccessCallback<T> callback) {
+        T cevt = as(type);
+        if (cevt == null) return false;
+        callback.onSucess(cevt);
+        return true;
+    }
+
+    public <T extends AsyncResource> T getAsyncResource(Class<T> type) {
+        if (!isConsumed() || asyncResource == null || !type.isAssignableFrom(asyncResource.getClass())) {
+           return null;
+        }
+        return (T) asyncResource;
+    }
+
+    public void setAsyncResource(AsyncResource task) {
+        asyncResource = task;
+    }
+
+    public AsyncResource getAsyncResource() {
+        return asyncResource;
+    }
+
+    public ViewController getViewController() {
+        Component cmp = getComponent();
+        if (cmp == null) {
+            return null;
+        }
+        return ViewController.getViewController(cmp);
+    }
+
+    public FormController getFormController() {
+        ViewController ctl = getViewController();
+        if (ctl == null) return null;
+        return ctl.getFormController();
+    }
+
+    public AppSectionController getAppSectionController() {
+        ViewController ctl = getViewController();
+        if (ctl == null) return null;
+        return ctl.getSectionController();
+    }
+
+    public ApplicationController getApplicationController() {
+        ViewController ctl = getViewController();
+        if (ctl == null) {
+            Form f = CN.getCurrentForm();
+            if (f == null) {
+                return null;
+            }
+            ctl = ViewController.getViewController(f);
+
+        }
+
+        if (ctl == null) return null;
+        return ctl.getApplicationController();
+    }
+
     
 }

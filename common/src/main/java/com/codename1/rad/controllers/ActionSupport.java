@@ -85,6 +85,13 @@ public class ActionSupport<T extends ActionEvent> {
             }
         }
     }
+
+    public static <T extends ActionEvent>  T as(ActionEvent e, Class<T> type) {
+        if (type.isAssignableFrom(e.getClass())) {
+            return (T)e;
+        }
+        return null;
+    }
     
     
     

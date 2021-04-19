@@ -9,6 +9,7 @@ package com.codename1.rad.ui;
 import ca.weblite.shared.components.table.DefaultTableCellEditor;
 import ca.weblite.shared.components.table.DefaultTableCellRenderer;
 import com.codename1.rad.attributes.*;
+import com.codename1.rad.controllers.ViewController;
 import com.codename1.rad.events.EventFactory;
 import com.codename1.rad.models.*;
 import com.codename1.rad.nodes.FormNode;
@@ -615,7 +616,10 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     public static IconRendererAttribute iconRenderer(EntityImageRenderer renderer) {
         return new IconRendererAttribute(renderer);
     }
-    
+
+    public static ViewControllerAttribute controller(ViewController ctl) {
+        return new ViewControllerAttribute(ctl);
+    }
     
     public static ViewNode view(Attribute... atts) {
         return new ViewNode(atts);

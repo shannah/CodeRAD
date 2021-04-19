@@ -15,6 +15,8 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import com.codename1.util.Base64;
 import com.codename1.util.StringUtil;
+import com.codename1.util.SuccessCallback;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -134,7 +136,7 @@ public class UserProfile extends Entity {
  * 
  * @author shannah
  */
-public class Entity extends Observable  {
+public class Entity extends Observable implements IEntity  {
     Map<Object,Object> properties;
     private EntityType entityType;
     private Map<Property,Set<ActionListener>> propertyChangeListenersMap;
@@ -699,6 +701,59 @@ public class Entity extends Observable  {
         }
         return getEntity(prop);
     }
+
+    public <T> boolean as(Class<T> cls, SuccessCallback<T> callback) {
+        if (cls.isAssignableFrom(getClass())) {
+            callback.onSucess((T)this);
+            return true;
+        }
+        return false;
+    }
+
+    public <T> T getAs(Property prop, Class<T> cls) {
+        Object o = get(prop);
+        if (o == null) return null;
+        if (cls.isAssignableFrom(o.getClass())) {
+            return (T)o;
+        }
+        return null;
+    }
+    public <T> T getAs(Tag tag, Class<T> cls) {
+        Object o = get(tag);
+        if (o == null) return null;
+        if (cls.isAssignableFrom(o.getClass())) {
+            return (T)o;
+        }
+        return null;
+    }
+
+    public <T> boolean getAs(Property prop, Class<T> cls, SuccessCallback<T> callback) {
+        Object o = get(prop);
+        if (o == null) {
+            return false;
+        }
+        if (cls.isAssignableFrom(o.getClass())) {
+            callback.onSucess((T)o);
+            return true;
+        }
+        return false;
+    }
+
+    public <T> boolean getAs(Tag tag, Class<T> cls, SuccessCallback<T> callback) {
+        Object o = get(tag);
+        if (o == null) {
+            return false;
+        }
+        if (cls.isAssignableFrom(o.getClass())) {
+            callback.onSucess((T)o);
+            return true;
+        }
+        return false;
+    }
+
+
+
+
     
     /**
      * Gets the a property value as an Entity.
@@ -1240,6 +1295,10 @@ public class Entity extends Observable  {
         set(prop, e);
         
     }
+
+    public void setEntity(Property prop, EntityWrapper ew) {
+        setEntity(prop, ew.getEntity());
+    }
     
     /**
      * Sets property as Entity.
@@ -1249,6 +1308,10 @@ public class Entity extends Observable  {
      */
     public boolean setEntity(Tag tag, Entity e) {
         return set(tag, e == null ? ContentType.EntityType : e.getEntityType().getContentType(), e);
+    }
+
+    public boolean setEntity(Tag tag, EntityWrapper ew) {
+        return setEntity(tag, ew.getEntity());
     }
     
     /**
@@ -1260,6 +1323,12 @@ public class Entity extends Observable  {
     public boolean setEntity(Entity e, Tag... tags) {
         return set(e == null ? ContentType.EntityType : e.getEntityType().getContentType(), e, tags);
     }
+
+    public boolean setEntity(EntityWrapper entityWrapper, Tag... tags) {
+        return setEntity(entityWrapper.getEntity(), tags);
+    }
+
+
     
     /**
      * Checks if property is an Entity.
@@ -1448,5 +1517,44 @@ public class Entity extends Observable  {
     
     public static EntityTypeBuilder entityTypeBuilder(Class<? extends Entity> cls) {
         return EntityTypeBuilder.entityTypeBuilder(cls);
+    }
+
+    private java.util.ArrayList wrappers;
+    private java.util.ArrayList wrappers() {
+        if (wrappers == null) {
+            wrappers = new java.util.ArrayList();
+        }
+        return wrappers;
+    }
+    public static <T> T wrap(Class<T> type, Entity e) {
+        if (e == null) return null;
+        if (type.isAssignableFrom(e.getClass())) {
+            return (T)e;
+        }
+        for (Object o : e.wrappers()) {
+            if (type.isAssignableFrom(o.getClass())) {
+                return (T)o;
+            }
+        }
+        EntityType et = e.getEntityType();
+        T wrapper =  et.createWrapperFor(e, type);
+        if (wrapper != null) {
+            e.wrappers.add(wrapper);
+        }
+        return wrapper;
+
+    }
+
+    public <T> T wrap(Class<T> type) {
+        return Entity.wrap(type, this);
+    }
+
+
+    public <T> T getWrappedEntity(Property prop, Class<T> wrapperType) {
+        return Entity.wrap(wrapperType, getEntity(prop));
+    }
+
+    public <T> T getWrappedEntity(Tag tag, Class<T> wrapperType) {
+        return Entity.wrap(wrapperType, getEntity(tag));
     }
 }

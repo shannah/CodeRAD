@@ -17,8 +17,12 @@ import com.codename1.ui.Form;
 import com.codename1.ui.Label;
 import com.codename1.ui.Toolbar;
 import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Style;
+
+import javax.swing.text.View;
+import java.util.ArrayList;
 
 /**
  * A controller for handling application logic related to a Form.
@@ -88,6 +92,18 @@ public class ChatFormController extends FormController {
  */
 public class FormController extends ViewController {
     private String title;
+    private String pathName;
+
+    private ActionListener showListener;
+
+    private ActionListener showListener() {
+        if (showListener == null) {
+            showListener = evt->{
+                dispatchEvent(new FormShownEvent(evt.getSource()));
+            };
+        }
+        return showListener;
+    }
     
     /**
      * Base class for FormController events.
@@ -110,6 +126,17 @@ public class FormController extends ViewController {
         
         public FormBackEvent(Object source) {
             super(source);
+        }
+    }
+
+    public static class FormShownEvent extends FormControllerEvent {
+        public FormShownEvent(Object source) { super(source);}
+        public Form getSourceForm() {
+            return (Form)getSource();
+        }
+
+        public FormController getSourceFormController() {
+            return FormController.getFormController(getSourceForm());
         }
     }
     
@@ -157,12 +184,17 @@ public class FormController extends ViewController {
     Label titleLbl;
     
     /**
-     * Overrides parent setView().  Delegates to {@link #setView(com.codename1.ui.Form} if cmp is 
+     * Overrides parent setView().  Delegates to {@link #setView(com.codename1.ui.Form) } if cmp is
      * a form.  Throws IllegalArgumentException otherwise.
      * @param cmp 
      */
     public void setView(Component cmp) {
+        Form currView = getView();
+        if (currView != null) {
+            currView.removeShowListener(showListener());
+        }
         if (cmp instanceof Form) {
+            ((Form)cmp).addShowListener(showListener());
             setView((Form)cmp);
         } else {
             
@@ -219,6 +251,7 @@ public class FormController extends ViewController {
 
                }
             };
+            f.addShowListener(showListener());
             f.getToolbar().hideToolbar();
             Container titleBar = new Container(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
             titleBar.setSafeArea(true);
@@ -337,8 +370,60 @@ public class FormController extends ViewController {
         }
     }
 
-   
-    
+
+    /**
+     * Gets the pathName for this controller.
+     * @return
+     */
+    public String getPathName() {
+        return pathName;
+    }
+
+    /**
+     * Sets the path name for this controller whih will be used by {@link #getPathString(String)}.
+     * @param name The path name for this controller.
+     */
+    public void setPathName(String name) {
+        this.pathName = name;
+    }
+
+    /**
+     * Gets the full path string to this controller.  This allows the controller hierarchy to be described as a path,
+     * like a filesystem path.
+     *
+     * . If the {@link #pathName} of any controller in the controller hierarchy is null, then that controller is
+     * omitted from the path.
+     * . Only {@link FormController} controllers are included in the path.
+     * . If this FormController has no {@link #pathName} set, then this will return the same path string as the parent controller.
+     * . If none of the controllers in the hierarchy (including this one) have a {@link #pathName} set then this will return an empty string.
+     *
+     * @param separator The path separator
+     * @return The path string to this controller.
+     */
+    public String getPathString(String separator) {
+        String name = getPathName();
+        name = name == null ? "" : separator + name;
+        Controller parent = getParent();
+        if (parent == null) {
+            return name;
+        }
+        FormController formController = parent.getFormController();
+        if (formController == null) {
+            return name;
+        }
+        return formController.getPathString(separator) + name;
+    }
+
+
+    public static FormController getFormController(Form form) {
+        ViewController vc = ViewController.getViewController(form);
+        if (vc == null) return null;
+        FormController fc = vc.getFormController();
+        if (fc == null) {
+            return null;
+        }
+        return fc;
+    }
     
     
     

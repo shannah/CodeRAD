@@ -160,4 +160,36 @@ public class ApplicationController extends Controller {
     }
     public static class StopEvent extends ApplicationEvent{}
     public static class DestroyEvent extends ApplicationEvent{}
+
+    public FormController getCurrentFormController() {
+        Form f = CN.getCurrentForm();
+        if (f == null) {
+            return null;
+        }
+        ViewController vc = ViewController.getViewController(f);
+        if (vc == null) {
+            return null;
+        }
+        return vc.getFormController();
+    }
+
+    public String getCurrentPath() {
+        FormController fc = getCurrentFormController();
+        if (fc == null) {
+            return "";
+        }
+        return fc.getPathString("/");
+    }
+
+    private FormController currentFormController;
+
+    @Override
+    public void actionPerformed(ControllerEvent evt) {
+        super.actionPerformed(evt);
+        if (!evt.isConsumed()) {
+            evt.as(FormController.FormShownEvent.class, fse -> {
+                currentFormController = fse.getSourceFormController();
+            });
+        }
+    }
 }

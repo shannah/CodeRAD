@@ -11,8 +11,11 @@ import com.codename1.io.Log;
 import com.codename1.rad.attributes.EntityListProviderAttribute;
 import com.codename1.rad.attributes.EntityListProviderLookup;
 import com.codename1.rad.attributes.ListCellRendererAttribute;
+import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.rad.controllers.FormController;
+import com.codename1.rad.events.EventContext;
 import com.codename1.rad.models.EntityListProvider;
 import com.codename1.rad.nodes.RowTemplateNode;
 import com.codename1.rad.ui.EntityListCellRenderer;
@@ -42,7 +45,9 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.Layout;
 import com.codename1.ui.plaf.Border;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.codename1.rad.models.ContentType;
 import com.codename1.ui.Form;
@@ -111,7 +116,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     public static final ViewProperty<Integer> LANDSCAPE_COLUMNS = ViewProperty.intProperty();
     
     
-    private ListNode node;
+
     private EntityListCellRenderer renderer;
     private ComplexSelection selection = new ComplexSelection();
     private Container wrapper = new Container(BoxLayout.y()) {
@@ -133,19 +138,21 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     private EntityListProvider.Request nextProviderRequest;
 
 
+
+
     /**
      * Creates a list view for the given Entity list
      * @param list The view model to render.
      * @param node Node providing configuration and actions for the view.
      */
     public EntityListView(T list, ListNode node) {
-        super(list);
-        if (node == null) node = new ListNode();
+        super(list, node == null ? new ListNode() : node);
+        node = getViewNode();
         setUIID("EntityListView");
         setName("EntityListView");
         this.getStyle().stripMarginAndPadding();
-        this.node = node;
-        renderer = node.getListCellRenderer();
+
+        renderer = getViewNode().getListCellRenderer();
         if (renderer == null) {
             renderer = UI.getDefaultListCellRenderer();
         }
@@ -195,12 +202,11 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
 
         ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
         ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
-        final EntityListProvider provider = getProviderImpl();
-        final Class providerLookup = getProviderLookupImpl();
+
 
         // If there is a refresh action, or there is a provider, then
         // We'll add pullToRefresh
-        if (refreshAction != null || provider != null || providerLookup != null) {
+        if (refreshAction != null ) {
             wrapper.setScrollableY(true);
             wrapper.setGrabsPointerEvents(true);
             wrapper.addPullToRefresh(()->{
@@ -210,12 +216,12 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
 
         // If there is a loadMore action or a provider, then
         // we'l add infinite scroll.
-        if (loadMoreAction != null || provider != null || providerLookup != null) {
+        if (loadMoreAction != null) {
             wrapper.setScrollableY(true);
             wrapper.setGrabsPointerEvents(true);
             InfiniteScrollAdapter.createInfiniteScroll(wrapper, ()->{
                 loadMore();
-            }, provider != null && getEntity().size() == 0);
+            }, getEntity().size() == 0);
         }
 
 
@@ -223,161 +229,114 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         update();
     }
 
-    private Class providerLookup;
-    private boolean providerLookupLoaded;
-    private EntityListProvider provider;
-    private boolean providerLoaded;
 
-    private Class getProviderLookupImpl() {
-        if (!providerLookupLoaded) {
-            providerLookupLoaded = true;
-            providerLookup = (Class)node.findInheritedAttributeValue(EntityListProviderLookup.class, Class.class);
-        }
-        return providerLookup;
-    }
-
-    public Class getProviderLookup() {
-        return getProviderLookupImpl();
-    }
-
-
-    private EntityListProvider getProviderImpl() {
-        if (!providerLoaded) {
-            providerLoaded = true;
-            provider = (EntityListProvider)node.findInheritedAttributeValue(EntityListProviderAttribute.class, EntityListProvider.class);
-        }
-        return provider;
-    }
-
-    public EntityListProvider getProvider() {
-        EntityListProvider provider = getProviderImpl();
-        if (provider != null) {
-            return provider;
-        }
-
-        Class providerLookup = getProviderLookup();
-        if (providerLookup != null) {
-            Controller controller = FormController.getViewController(this);
-            if (controller != null) {
-                Object tmp = controller.lookup(providerLookup);
-                if (tmp instanceof EntityListProvider) {
-                    return (EntityListProvider)tmp;
-                }
-            }
-        }
-        return null;
-    }
 
     public void refresh() {
-        ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
-        ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
-        final EntityListProvider provider = getProvider();
+        ActionNode refreshAction = getViewNode().getAction(ActionCategories.LIST_REFRESH_ACTION);
+        ActionNode loadMoreAction = getViewNode().getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
+
         Entity requestData = null;
         if (refreshAction != null) {
-            ActionEvent evt = refreshAction.fireEvent(getEntity(), this);
+            Map extraData = new HashMap();
+            EventContext.addExtra(extraData, EntityListProvider.RequestType.REFRESH);
+            ControllerEvent evt = ActionSupport.as(refreshAction.fireEvent(getEntity(), this, extraData), ControllerEvent.class);
+            if (evt != null && evt.isConsumed()) {
+                EntityListProvider.Request request = evt.getAsyncResource(EntityListProvider.Request.class);
+                if (request != null) {
+                    // The provider is fulfilling the request asynchronously.
+                    request.onResult((res, err) -> {
+                        if (err != null) {
+                            return;
+                        }
+                        nextProviderRequest = request.getNextRequest();
+                        EntityList modelList = getEntity();
+                        modelList.startTransaction();
+                        modelList.clear();
+                        for (Object o : res) {
+                            modelList.add((Entity) o);
+                        }
+                        boolean localAnimateInsertions = animateInsertions;
+                        animateInsertions = false;
+                        boolean localAnimateRemovals = animateRemovals;
+                        animateRemovals = false;
+                        modelList.commitTransaction();
+                        animateInsertions = localAnimateInsertions;
+                        animateRemovals = localAnimateRemovals;
+                        if (loadMoreAction != null) {
+                            InfiniteScrollAdapter.addMoreComponents(wrapper, new Component[0], request.hasMore());
+                        }
+                        Form f = getComponentForm();
+                        if (f != null) {
+                            getComponentForm().revalidateWithAnimationSafety();
+                        }
 
-
-            if (evt.isConsumed() && evt instanceof ActionNode.ActionNodeEvent && provider != null) {
-                ActionNode.ActionNodeEvent ane = (ActionNode.ActionNodeEvent) evt;
-                requestData = ane.getContext().lookupExtraEntity(EntityListProvider.IEntityListRequestData.class);
-
+                    });
+                }
             }
+
         }
 
-        if ( provider != null)  {
-            if (requestData == null) {
-                requestData = new EntityListProvider.RequestData();
-            }
-            nextProviderRequest = null;
-            EntityListProvider.Request req = new EntityListProvider.Request(EntityListProvider.RequestType.REFRESH, (Entity & EntityListProvider.IEntityListRequestData)requestData);
-            provider.getEntities(req).onResult((res, err) -> {
-                if (err != null) {
-                    // We just swallow errors.
-                    // The provider can return an error to indicate that it's done but no data.
-                    // But it is up to the provider to propagate errors up the UI or log if necessary.
-                    return;
-                }
-                nextProviderRequest = req.getNextRequest();
-                EntityList modelList = getEntity();
-                modelList.startTransaction();
-                modelList.clear();
-                for (Object o : res) {
-                    modelList.add((Entity) o);
-                }
-                boolean localAnimateInsertions = animateInsertions;
-                animateInsertions = false;
-                boolean localAnimateRemovals = animateRemovals;
-                animateRemovals = false;
-                modelList.commitTransaction();
-                animateInsertions = localAnimateInsertions;
-                animateRemovals = localAnimateRemovals;
-                if (loadMoreAction != null) {
-                    InfiniteScrollAdapter.addMoreComponents(wrapper, new Component[0], req.hasMore());
-                }
-                Form f = getComponentForm();
-                if (f != null) {
-                    getComponentForm().revalidateWithAnimationSafety();
-                }
 
-            });
-
-        }
 
 
     }
 
     public void loadMore() {
         Entity requestData = null;
-        ActionNode refreshAction = node.getAction(ActionCategories.LIST_REFRESH_ACTION);
-        ActionNode loadMoreAction = node.getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
-        final EntityListProvider provider = getProvider();
+        ActionNode refreshAction = getViewNode().getAction(ActionCategories.LIST_REFRESH_ACTION);
+        ActionNode loadMoreAction = getViewNode().getAction(ActionCategories.LIST_LOAD_MORE_ACTION);
+
         if (loadMoreAction != null) {
-            ActionEvent evt = loadMoreAction.fireEvent(getEntity(), this);
-
-
-            if (evt.isConsumed() && evt instanceof ActionNode.ActionNodeEvent && provider != null) {
-                ActionNode.ActionNodeEvent ane = (ActionNode.ActionNodeEvent) evt;
-                requestData = ane.getContext().lookupExtraEntity(EntityListProvider.IEntityListRequestData.class);
+            Map extraData = new HashMap();
+            if (nextProviderRequest != null) {
+                EventContext.addExtra(extraData, nextProviderRequest);
 
             }
-        }
-        if (provider != null)  {
-            if (requestData == null) {
-                requestData = new EntityListProvider.RequestData();
+            EventContext.addExtra(extraData, EntityListProvider.RequestType.LOAD_MORE);
+
+            ControllerEvent evt = ActionSupport.as(loadMoreAction.fireEvent(getEntity(), this, extraData), ControllerEvent.class);
+
+            if (evt != null && evt.isConsumed()) {
+                EntityListProvider.Request req = evt.getAsyncResource(EntityListProvider.Request.class);
+
+                nextProviderRequest = null;
+                if (req != null) {
+                    req.onResult((res, err) -> {
+                        if (err != null) {
+                            // We just swallow errors.
+                            // The provider can return an error to indicate that it's done but no data.
+                            // But it is up to the provider to propagate errors up the UI or log if necessary.
+                            return;
+                        }
+                        nextProviderRequest = req.getNextRequest();
+                        EntityList modelSet = getEntity();
+                        if (res.size() > 0) {
+                            modelSet.startTransaction();
+                            for (Entity en : (Iterable<Entity>)res) {
+                                modelSet.add(en);
+                            }
+                            boolean localAnimateInsertions = animateInsertions;
+                            animateInsertions = false;
+                            boolean localAnimateRemovals = animateRemovals;
+                            animateRemovals = false;
+                            modelSet.commitTransaction();
+                            animateInsertions = localAnimateInsertions;
+                            animateRemovals = localAnimateRemovals;
+                            InfiniteScrollAdapter.addMoreComponents(wrapper, new Component[0], req.hasMore());
+                            Form f = getComponentForm();
+                            if (f != null) {
+                                getComponentForm().revalidateWithAnimationSafety();
+                            }
+
+                        }
+                    });
+                }
+
             }
-            EntityListProvider.Request req = nextProviderRequest != null ? nextProviderRequest :
-                    new EntityListProvider.Request(EntityListProvider.RequestType.LOAD_MORE, (Entity & EntityListProvider.IEntityListRequestData)requestData);
-            provider.getEntities(req).onResult((res, err) -> {
-                if (err != null) {
-                    // We just swallow errors.
-                    // The provider can return an error to indicate that it's done but no data.
-                    // But it is up to the provider to propagate errors up the UI or log if necessary.
-                    return;
-                }
-                nextProviderRequest = req.getNextRequest();
-                EntityList modelSet = getEntity();
-                if (res.size() > 0) {
-                    modelSet.startTransaction();
-                    for (Entity en : (Iterable<Entity>)res) {
-                        modelSet.add(en);
-                    }
-                    boolean localAnimateInsertions = animateInsertions;
-                    animateInsertions = false;
-                    boolean localAnimateRemovals = animateRemovals;
-                    animateRemovals = false;
-                    modelSet.commitTransaction();
-                    animateInsertions = localAnimateInsertions;
-                    animateRemovals = localAnimateRemovals;
-                    InfiniteScrollAdapter.addMoreComponents(wrapper, new Component[0], req.hasMore());
-                    Form f = getComponentForm();
-                    if (f != null) {
-                        getComponentForm().revalidateWithAnimationSafety();
-                    }
 
-                }
-            });
 
         }
+
     }
 
 
@@ -700,8 +659,8 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     }
 
     @Override
-    public Node getViewNode() {
-        return node;
+    public ListNode getViewNode() {
+        return (ListNode)super.getViewNode();
     }
     
     /**
@@ -889,4 +848,6 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
 
 
     }
+
+
 }

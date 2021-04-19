@@ -6,7 +6,6 @@
 package com.codename1.rad.models;
 
 
-import com.codename1.io.Log;
 import com.codename1.rad.models.Property.Description;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Property.Widget;
@@ -65,7 +64,7 @@ public class UserProfile extends Entity {
 * . {@link #Boolean(com.codename1.rad.models.Attribute...) }
 * . {@link #Double(com.codename1.rad.models.Attribute...) }
 * . {@link #date(com.codename1.rad.models.Attribute...) }
-* . {@link #entity(java.lang.Class) } - an entity
+* . {@link #entity(Class, Attribute[])} - an entity
 * . {@link #list(java.lang.Class, com.codename1.rad.models.Attribute...) } - A list of entities.
 * 
 * These methods will create the corresponding property and add it to the {@link EntityType} using {@link #addProperty(com.codename1.rad.models.Property) }.  You can also create custom property types by subclassing {@link AbstractProperty}
@@ -77,6 +76,8 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     private EntityType superType;
     private ContentType contentType;
     private EntityFactory factory;
+    // Factory for creating wrapper objects.
+    private EntityWrapperFactory wrapperFactory;
     //private Map<String,Property> properties = new HashMap<>();
     private final Set<Property> propertiesSet = new LinkedHashSet<>();
     private static Map<Class<?>, EntityType> types = new HashMap<>();
@@ -388,6 +389,22 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     public EntityFactory getFactory() {
         return this.factory;
     }
+
+    public EntityType wrapperFactory(EntityWrapperFactory factory) {
+        this.wrapperFactory = factory;
+        return this;
+    }
+
+    public EntityWrapperFactory getWrapperFactory() {
+        return wrapperFactory;
+    }
+
+    <T> T createWrapperFor(Entity e, Class<T> wrapperType) {
+        if (wrapperFactory == null) {
+            throw new IllegalStateException("EntityType cannot create wrapper for entity because it doesn't have a wrapper factory set");
+        }
+        return wrapperFactory.createWrapperFor(e, wrapperType);
+    }
     
     /**
      * Initializes content type of an entity.
@@ -566,6 +583,10 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     public <T extends EntityList> ListProperty<T> list(Class<T> type, Attribute... atts) {
         return compose(type, atts);
     }
+
+    public ListProperty entityList(Attribute... atts) {
+        return list(EntityList.class, atts);
+    }
     
     /**
      * Creates a new EntityProperty (i.e. a property containing an Entity and adds it to the property set.
@@ -580,6 +601,15 @@ public class EntityType implements Iterable<Property>, EntityFactory {
         propertiesSet.add(p);
         return p;
     }
+
+    public EntityProperty entity(Attribute... atts) {
+        EntityProperty p = new EntityProperty(Entity.class);
+        p.setAttributes(atts);
+        propertiesSet.add(p);
+        return p;
+    }
+
+    
     
     
     /**

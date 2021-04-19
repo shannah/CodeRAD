@@ -32,6 +32,8 @@ import com.codename1.rad.ui.UI;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
+import com.codename1.util.SuccessCallback;
+
 import java.util.Map;
 
 /**
@@ -379,6 +381,13 @@ public class ActionNode extends Node implements Proxyable {
         }
         return null;
     }
+
+    public static boolean asActionNodeEvent(ActionEvent evt, SuccessCallback<ActionNodeEvent> callback) {
+        ActionNodeEvent ane = getActionNodeEvent(evt);
+        if (ane == null) return false;
+        callback.onSucess(ane);
+        return true;
+    }
     
     public static ActionNodeEvent getActionNodeEvent(ActionEvent evt, ActionNode action) {
         ActionNodeEvent ane = getActionNodeEvent(evt);
@@ -387,6 +396,13 @@ public class ActionNode extends Node implements Proxyable {
         }
         return null;
     }
+
+    public static boolean asActionNodeEvent(ActionEvent evt, ActionNode action, SuccessCallback<ActionNodeEvent> callback) {
+        ActionNodeEvent ane = getActionNodeEvent(evt, action);
+        if (ane == null) return false;
+        callback.onSucess(ane);
+        return true;
+    }
     
     public static ActionNode getActionNode(ActionEvent evt) {
         ActionNodeEvent ane = getActionNodeEvent(evt);
@@ -394,6 +410,13 @@ public class ActionNode extends Node implements Proxyable {
             return ane.getAction();
         }
         return null;
+    }
+
+    public static boolean asActionNode(ActionEvent evt, SuccessCallback<ActionNode> callback) {
+        ActionNode n = getActionNode(evt);
+        if (n == null) return false;
+        callback.onSucess(n);
+        return true;
     }
     
     public ActionEvent fireEvent(EventContext context) {
@@ -458,31 +481,7 @@ public class ActionNode extends Node implements Proxyable {
         }
         return l.getValue(context);
     }
-    /*
-    public void decorate(com.codename1.ui.Label label, Entity context) {
-        ActionStyle style = getActionStyle();
-        if (style == null) {
-            style = ActionStyle.IconRight;
-        }
-        boolean icon = style != ActionStyle.TextOnly;
-        boolean text = style != ActionStyle.IconOnly;
-        if (text) {
-            label.setText(getLabelText(context));
-        } else {
-            label.setText("");
-        }
-        if (icon) {
-            if (getMaterialIcon() != null) {
-                label.setMaterialIcon(getMaterialIcon().getValue());
-            } else if (getImageIcon() != null) {
-                label.setIcon(getImageIcon().getValue());
-            } else if (getTextIcon() != null) {
-                label.setIcon(getTextIcon().getValue(context));
-            }
-        }
- 
-    }
-*/
+
     
     
     public Component createView(Entity entity) {

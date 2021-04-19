@@ -1,35 +1,45 @@
 package com.codename1.rad.models;
 
+import com.codename1.rad.controllers.ControllerEvent;
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.ui.events.ActionListener;
 import com.codename1.util.AsyncResource;
 
 /**
  * An interface used to load an entity list asynchronously.
  */
-public interface EntityListProvider {
+public interface EntityListProvider extends ActionListener<ActionNode.ActionNodeEvent> {
 
-    public static interface IEntityListRequestData {
+    public static class UpdateProviderRequestEvent extends ControllerEvent {
+        private Request request;
+        private EntityListProvider provider;
 
+        public UpdateProviderRequestEvent(Object source, EntityListProvider provider, Request request) {
+            super(source);
+            this.provider = provider;
+            this.request = request;
+        }
+
+        public Request getRequest() {
+            return request;
+        }
+
+        public EntityListProvider getProvider() {
+            return provider;
+        }
     }
 
-    public static class RequestData extends Entity implements IEntityListRequestData {
 
-    }
 
     /**
      * The response of a call to {@link #getEntities(Request)}
      */
     public static class Request extends AsyncResource<EntityList> {
         private RequestType requestType = RequestType.REFRESH;
-        private Entity requestData;
         private Request nextRequest;
 
         public Request(RequestType type) {
-            this(type, new RequestData());
-        }
-
-        public <T extends Entity & IEntityListRequestData> Request(RequestType type, T requestData) {
             this.requestType = type;
-            this.requestData = null;
         }
 
         public Request() {
@@ -69,6 +79,7 @@ public interface EntityListProvider {
      * @return Async result.
      */
     public Request getEntities(Request request);
+    public Request createRequest(RequestType type);
 
 
 }

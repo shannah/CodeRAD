@@ -23,11 +23,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/attributes/EntityListProviderAttribute.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/attributes/EntityListProviderLookup.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/attributes/ViewControllerAttribute.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/events/FillSlotEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/AbstractEntityListProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/AbstractEntityWrapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityWrapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityWrapperFactory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/IEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Slot.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/util/NonNull.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ActionSupport.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ActionSupport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ApplicationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ApplicationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ControllerEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ControllerEvent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/FormController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/FormController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ViewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ViewController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/events/EventContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/events/EventContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/Entity.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/Entity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityList.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityListProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityListProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityType.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntityType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/PropertySelector.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/PropertySelector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/ActionNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/ActionNode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/Node.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/Node.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/AbstractEntityView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/AbstractEntityView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/EntityView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/EntityView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/UI.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/UI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/EntityListView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/EntityListView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/allclasses-frame.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/allclasses-frame.html" afterDir="false" />
@@ -132,6 +154,8 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/Columns.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/Columns.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/Condition.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/Condition.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/EnabledCondition.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/EnabledCondition.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/EntityListProviderAttribute.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/EntityListProviderAttribute.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/EntityListProviderLookup.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/EntityListProviderLookup.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/HintUIID.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/HintUIID.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/IconRendererAttribute.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/IconRendererAttribute.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/IconUIID.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/IconUIID.html" afterDir="false" />
@@ -157,6 +181,8 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/Columns.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/Columns.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/Condition.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/Condition.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/EnabledCondition.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/EnabledCondition.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/EntityListProviderAttribute.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/EntityListProviderAttribute.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/EntityListProviderLookup.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/EntityListProviderLookup.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/HintUIID.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/HintUIID.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/IconRendererAttribute.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/IconRendererAttribute.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/IconUIID.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/attributes/class-use/IconUIID.html" afterDir="false" />
@@ -654,6 +680,7 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/decorators/package-summary.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/decorators/package-summary.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/decorators/package-tree.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/decorators/package-tree.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/decorators/package-use.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/decorators/package-use.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/EntityListView.Builder.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/EntityListView.Builder.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/EntityListView.RowLayout.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/EntityListView.RowLayout.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/EntityListView.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/EntityListView.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/LabelEntityView.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/LabelEntityView.html" afterDir="false" />
@@ -666,6 +693,7 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/ProfileListView.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/ProfileListView.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/TabsEntityView.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/TabsEntityView.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/WrapperEntityView.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/WrapperEntityView.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/class-use/EntityListView.Builder.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/class-use/EntityListView.Builder.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/class-use/EntityListView.RowLayout.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/class-use/EntityListView.RowLayout.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/class-use/EntityListView.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/class-use/EntityListView.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/class-use/LabelEntityView.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/com/codename1/rad/ui/entityviews/class-use/LabelEntityView.html" afterDir="false" />
@@ -746,6 +774,7 @@
       <change beforePath="$PROJECT_DIR$/docs/javadoc/overview-frame.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/overview-frame.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/overview-summary.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/overview-summary.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/overview-tree.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/overview-tree.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/javadoc/package-list" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/package-list" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/javadoc/serialized-form.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/javadoc/serialized-form.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -756,6 +785,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -782,6 +812,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_directory_selection" value="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/events" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.23304562" />
@@ -789,6 +820,11 @@
     <property name="settings.editor.selected.configurable" value="reference.settings.project.maven.runner" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveInnerDialog.RECENTS_KEY">
+      <recent name="com.codename1.rad.ui" />
+      <recent name="" />
+      <recent name="com.codename1.rad.events" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/images" />
@@ -829,14 +865,30 @@
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state x="560" y="338" key="#com.intellij.execution.impl.EditConfigurationsDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1617640365801" />
-    <state x="1093" y="456" key="#com.intellij.ide.util.MemberChooser" timestamp="1618490468100">
+    <state x="1093" y="456" key="#com.intellij.ide.util.MemberChooser" timestamp="1618673215114">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
-    <state x="1093" y="456" key="#com.intellij.ide.util.MemberChooser/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618490468100" />
-    <state x="992" y="418" key="#com.intellij.refactoring.encapsulateFields.EncalpsulateFieldsDialog" timestamp="1618490431613">
+    <state x="1093" y="456" key="#com.intellij.ide.util.MemberChooser/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618673215114" />
+    <state x="1015" y="543" key="#com.intellij.ide.util.PackageChooserDialog" timestamp="1618835921851">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
-    <state x="992" y="418" key="#com.intellij.refactoring.encapsulateFields.EncalpsulateFieldsDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618490431613" />
+    <state x="1015" y="543" key="#com.intellij.ide.util.PackageChooserDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618835921851" />
+    <state x="992" y="418" key="#com.intellij.refactoring.encapsulateFields.EncalpsulateFieldsDialog" timestamp="1618836295521">
+      <screen x="0" y="23" width="2560" height="1417" />
+    </state>
+    <state x="992" y="418" key="#com.intellij.refactoring.encapsulateFields.EncalpsulateFieldsDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618836295521" />
+    <state x="1101" y="662" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1618836053268">
+      <screen x="0" y="23" width="2560" height="1417" />
+    </state>
+    <state x="1101" y="662" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618836053268" />
+    <state x="1031" y="611" key="#com.intellij.refactoring.move.moveInner.MoveInnerDialog" timestamp="1618836060326">
+      <screen x="0" y="23" width="2560" height="1417" />
+    </state>
+    <state x="1031" y="611" key="#com.intellij.refactoring.move.moveInner.MoveInnerDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618836060326" />
+    <state x="825" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1618523791228">
+      <screen x="0" y="23" width="2560" height="1417" />
+    </state>
+    <state x="825" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618523791228" />
     <state width="1105" height="467" key="GridCell.Tab.0.bottom" timestamp="1617710132501">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
@@ -869,22 +921,37 @@
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state width="1105" height="467" key="GridCell.Tab.1.right/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1617710132503" />
+    <state x="1054" y="544" key="chooseDestDirectoryDialog" timestamp="1618835935567">
+      <screen x="0" y="23" width="2560" height="1417" />
+    </state>
+    <state x="1054" y="544" key="chooseDestDirectoryDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618835935567" />
     <state x="815" y="489" width="1065" height="754" key="find.popup" timestamp="1618414094499">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state x="815" y="489" width="1065" height="754" key="find.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618414094499" />
-    <state width="600" height="428" key="javadoc.popup" timestamp="1618420970294">
+    <state width="600" height="428" key="javadoc.popup" timestamp="1618838000589">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
-    <state width="600" height="428" key="javadoc.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618420970294" />
+    <state width="600" height="428" key="javadoc.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618838000589" />
     <state x="406" y="295" width="913" height="579" key="new project wizard" timestamp="1614789213887">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state x="406" y="295" width="913" height="579" key="new project wizard/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1614789213887" />
-    <state x="788" y="452" width="670" height="676" key="search.everywhere.popup" timestamp="1618432968864">
+    <state x="788" y="452" width="670" height="676" key="search.everywhere.popup" timestamp="1618836746444">
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state x="443" y="272" width="670" height="430" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1618261010075" />
-    <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618432968864" />
+    <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618836746444" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/AbstractEntityListProvider.java</url>
+          <line>26</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

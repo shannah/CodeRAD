@@ -5,14 +5,19 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.rad.events.FillSlotEvent;
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ActionNode.ActionNodeEvent;
-import com.codename1.rad.nodes.Node;
 import com.codename1.rad.nodes.ViewNode;
 import com.codename1.rad.ui.EntityView;
+import com.codename1.rad.ui.Slot;
+import com.codename1.ui.Component;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
+import com.codename1.util.SuccessCallback;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -142,6 +147,8 @@ public class Controller implements ActionListener<ControllerEvent> {
         addEventListener(h.wrapperListener);
         
     }
+
+
     
     public void removeActionListener(ActionNode action, ActionListener<ActionNodeEvent> l) {
         ActionHandler h = findActionHandler(action, l);
@@ -303,6 +310,12 @@ public class Controller implements ActionListener<ControllerEvent> {
         return null;
     }
 
+    /**
+     * Obtains a lookup as an entity.  This is a a convenient wrapper around {@link #lookup(Class)} that can
+     * be used in cases where you expect to receive an Entity.
+     * @param type
+     * @return
+     */
     public Entity lookupEntity(Class type) {
         return (Entity)lookup(type);
     }
@@ -319,6 +332,12 @@ public class Controller implements ActionListener<ControllerEvent> {
         lookups.put(obj.getClass(), obj);
     }
 
+    /**
+     * Adds a lookup with a specific clas as a key.
+     * @param type The class to use as the key of the lookup.
+     * @param object The value of the lookup.
+     * @param <T> The type of object.
+     */
     public <T> void addLookup(Class<T> type, T object) {
         if (object == null) return;
         if (lookups == null) {
@@ -326,6 +345,104 @@ public class Controller implements ActionListener<ControllerEvent> {
         }
         lookups.put(type, object);
     }
+
+    /**
+     * Looks up an object starting at the parent controller.
+     * @param type The type of object to lookup.
+     * @param <T> The type of object to lookup.
+     * @return A matching object or null.
+     */
+    public <T> T parentLookup(Class<T> type) {
+        if (parent == null) {
+            return null;
+        }
+        return parent.lookup(type);
+    }
+
+    /**
+     * Looks up an entity starting at the parent controller.
+     * @param type The type of the entity to look for.
+     * @return A matching Entity or null.
+     */
+    public Entity parentLookupEntity(Class type) {
+        if (parent == null) return null;
+        return parent.lookupEntity(type);
+    }
+
+    /**
+     * Calls {@link #withLookup(Class, SuccessCallback)} on the parent controller.
+     * @param type The type of object we're looking for.
+     * @param callback Callback executed only if lookup finds something.
+     * @param <T> The type of object to look for.
+     * @return True if lookup finds something.
+     */
+    public <T> boolean withParentLookup(Class<T> type, SuccessCallback<T> callback) {
+        T o = parentLookup(type);
+        if (o == null) return false;
+        callback.onSucess(o);
+        return true;
+    }
+
+    /**
+     * Calls {@link #lookupEntity(Class)} on the Parent controller.
+     * @param type The typeof entity to look for.  This may also be an Interface.
+     * @param callback Callback executed only if a matching entity is found.
+     * @return True if entity is found.
+     */
+    public boolean withParentLookupEntity(Class type, SuccessCallback<Entity> callback) {
+        Entity o = parentLookupEntity(type);
+        if (o == null) return false;
+        callback.onSucess(o);
+        return true;
+
+    }
+
+    /**
+     * Does lookup for object of given type.  If found, it passes it to the given callback.
+     * @param type The type of object to lookup.
+     * @param callback Callback executed only if the lookup is found.
+     * @param <T> The type of object to look for.
+     * @return True if the lookup is found.
+     */
+    public <T> boolean withLookup(Class<T> type, SuccessCallback<T> callback) {
+        T o = lookup(type);
+        if (o == null) return false;
+        callback.onSucess(o);
+        return true;
+    }
+
+    /**
+     * Looks up an entity of a given class, and executes the provided callback with it if the
+     * entity is found.
+     * @param type A type of entity.  This may be a Class or an Interface.
+     * @param callback  Call back that is only called if the lookup finds a match.
+     * @return Boolean returns true if the lookup was found.
+     */
+    public boolean withLookupEntity(Class type, SuccessCallback<Entity> callback) {
+        Entity o = lookupEntity(type);
+        if (o == null) return false;
+        callback.onSucess(o);
+        return true;
+
+    }
+
+    /**
+     * Adds a listener to be notified when the Slot placeholder with the given ID is requesting to be filled.
+     * @param slotId The ID of the slot that you wish to fill with this handler.
+     * @param l Listener that is called when a slot with the given ID is requesting to be filled.  To set content in the slot
+     *          you can obtain a reference to the slot via {@link FillSlotEvent#getSlot()} and call {@link Slot#setContent(Component)}
+     *          on it.  *Make sure you call {@link FillSlotEvent#consume()} if you set the content to prevent the event
+     *          from bubbling up the controller hierarchy and being overridden by another controller.*
+     */
+    public void fillSlot(Tag slotId, ActionListener<FillSlotEvent> l) {
+        addEventListener(evt -> {
+            FillSlotEvent fse = evt.as(FillSlotEvent.class);
+            if (fse != null && fse.getSlot().getId() == slotId) {
+                l.actionPerformed(fse);
+            }
+        });
+    }
+
     
     
 }

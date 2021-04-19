@@ -84,6 +84,14 @@ public class EventContext {
     public void setAction(ActionNode action) {
         this.action = action;
     }
+
+    public static void putExtra(Map data, Object key, Object val) {
+        data.put(key, val);
+    }
+
+    public static void addExtra(Map data, Object val) {
+        data.put(val, val);
+    }
     
     public void putExtra(Object key, Object val) {
         if (extraData == null) {
@@ -99,21 +107,33 @@ public class EventContext {
         return extraData.get(key);
     }
 
+    public void addExtra(Object val) {
+        if (val != null) {
+            putExtra(val, val);
+        }
+    }
+
     public <T> T lookupExtra(Class<T> type) {
-        for (Object o : extraData.values()) {
-            if (o.getClass() == type) {
-                return (T)o;
+        if (extraData != null) {
+            for (Object o : extraData.values()) {
+                if (o != null && type.isAssignableFrom(o.getClass())) {
+                    return (T)o;
+                }
             }
         }
+
         return null;
     }
 
     public Entity lookupExtraEntity(Class type) {
-        for (Object o : extraData.values()) {
-            if (type.isAssignableFrom(o.getClass())) {
-                return (Entity)o;
+        if (extraData != null) {
+            for (Object o : extraData.values()) {
+                if (type.isAssignableFrom(o.getClass())) {
+                    return (Entity)o;
+                }
             }
         }
+
         return null;
     }
     

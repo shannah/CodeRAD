@@ -526,6 +526,10 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             setChanged();
         }
     }
+
+    public void add(EntityWrapper wrapper) {
+        add((T)wrapper.getEntity());
+    }
     
     protected T beforeAdd(T link) {
         return link;
@@ -561,6 +565,10 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             }
         }
         return false;
+    }
+
+    public boolean remove(EntityWrapper w) {
+        return remove((T)w.getEntity());
     }
     
     /**

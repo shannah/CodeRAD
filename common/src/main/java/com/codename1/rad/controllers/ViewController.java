@@ -5,7 +5,10 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.rad.ui.AbstractEntityView;
+import com.codename1.rad.ui.Slot;
 import com.codename1.ui.Component;
+import com.codename1.ui.Container;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.ActionSource;
 import com.codename1.ui.events.ComponentStateChangeEvent;
@@ -105,6 +108,7 @@ public class ViewController extends Controller {
             }
             this.view.removeStateChangeListener(stateChangeListener);
             this.view.putClientProperty(KEY, null);
+
             dispatchEvent(new DidUnSetViewEvent(this, this.view));
             
         }
@@ -117,9 +121,50 @@ public class ViewController extends Controller {
                 ((ActionSource)this.view).addActionListener(viewListener);
             }
             this.view.putClientProperty(KEY, this);
-            //System.out.println("Dispatching did set view event");
+
+            activate(this.view);
             dispatchEvent(new DidSetViewEvent(this, this.view));
         }
+    }
+
+
+    /**
+     * Activates a component.  This is called when the component is assigned to a controller.
+     * The primary purpose of this is to activate all of the slots in the view.  Containers
+     * are recursively activated.
+     *
+     * @param cmp The component to activate.
+     */
+    private static void activate(Component cmp) {
+        if (isActivated(cmp)) return;
+        cmp.putClientProperty(KEY_ACTIVATED, Boolean.TRUE);
+        if (cmp instanceof Slot) {
+            // We activate a slot first using the slot activation.
+            // Then we'll propagate our activation call to the slot's
+            // children,in case any children have been added.
+            ((Slot)cmp).activate();
+        }
+        if (cmp instanceof Container) {
+            Container cnt = (Container)cmp;
+            for (Component child : cnt) {
+                activate(child);
+            }
+        }
+    }
+
+    /**
+     * Key for storing an activation flag in a view so that it is not activated twice.
+     */
+    private static String KEY_ACTIVATED = "$$ViewController$$Activated";
+
+    /**
+     * Checks if the given component has already been activated.
+     * @param cmp The component to check for activation.
+     * @return True if the component is already activated.
+     */
+    private static boolean isActivated(Component cmp) {
+        Boolean activated = (Boolean)cmp.getClientProperty(KEY_ACTIVATED);
+        return activated != null;
     }
     
     public static ViewController getViewController(Component cmp) {
