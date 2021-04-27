@@ -11,8 +11,9 @@ import com.codename1.rad.ui.UI;
 import com.codename1.rad.attributes.IconRendererAttribute;
 import com.codename1.rad.attributes.PropertySelectorAttribute;
 import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.PropertySelector;
+import com.codename1.rad.models.Entity;
 
 /**
  * A node representing an EntityView.

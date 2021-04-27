@@ -28,6 +28,7 @@ import com.codename1.xml.XMLParser;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
+import com.codename1.rad.models.Entity;
 
 /**
  *
@@ -114,11 +115,11 @@ public class ResultParserTest extends AbstractTest {
                 + "}";
         
         Entity person = parser.parseRow(Result.fromContent(json, Result.JSON), personType.newInstance());
-        assertEqual("Paul", person.getText(Person.name));
-        assertEqual("paul@example.com", person.getText(Person.email));
+        assertEqual("Paul", person.getEntity().getText(Person.name));
+        assertEqual("paul@example.com", person.getEntity().getText(Person.email));
         
         
-        Publications pubs = (Publications)person.get(publications);
+        Publications pubs = (Publications)person.getEntity().get(publications);
         assertEqual(2, pubs.size());
         assertEqual("Time Magazine", pubs.get(0).get(Thing.name));
         assertEqual("Vancouver Sun", pubs.get(1).get(Thing.name));
@@ -157,8 +158,8 @@ public class ResultParserTest extends AbstractTest {
         
         String json = "{\"name\":\"Paul\", \"email\":\"paul@example.com\", \"dob\" : \"December 27, 1978\"}";
         Entity person = parser.parseRow(Result.fromContent(json, Result.JSON), personType.newInstance());
-        assertEqual("Paul", person.getText(Person.name));
-        assertEqual("paul@example.com", person.getText(Person.email));
+        assertEqual("Paul", person.getEntity().getText(Person.name));
+        assertEqual("paul@example.com", person.getEntity().getText(Person.email));
         
     }
     
@@ -177,8 +178,8 @@ public class ResultParserTest extends AbstractTest {
         
         String json = "{\"name\":\"Paul\", \"email\":\"paul@example.com\", \"dob\" : \"December 27, 1978\"}";
         Entity person = parser.parseRow(Result.fromContent(json, Result.JSON), personType.newInstance());
-        assertEqual("Paul", person.getText(Person.name));
-        assertEqual("paul@example.com", person.getText(Person.email));
+        assertEqual("Paul", person.getEntity().getText(Person.name));
+        assertEqual("paul@example.com", person.getEntity().getText(Person.email));
         
     }
     
@@ -199,8 +200,8 @@ public class ResultParserTest extends AbstractTest {
         XMLParser xparser = new XMLParser();
         Element root = xparser.parse(new StringReader("<?xml version='1.0'?>\n"+json));
         Entity person = parser.parseRow(Result.fromContent(root), personType.newInstance());
-        assertEqual("Paul", person.getText(Person.name));
-        assertEqual("paul@example.com", person.getText(Person.email));
+        assertEqual("Paul", person.getEntity().getText(Person.name));
+        assertEqual("paul@example.com", person.getEntity().getText(Person.email));
         
     }
     
@@ -221,8 +222,8 @@ public class ResultParserTest extends AbstractTest {
         XMLParser xparser = new XMLParser();
         Element root = xparser.parse(new StringReader("<?xml version='1.0'?>\n"+json));
         Entity person = parser.parseRow(Result.fromContent(root), personType.newInstance());
-        assertEqual("Paul", person.getText(Person.name));
-        assertEqual("paul@example.com", person.getText(Person.email));
+        assertEqual("Paul", person.getEntity().getText(Person.name));
+        assertEqual("paul@example.com", person.getEntity().getText(Person.email));
         
     }
         public static final Tag publications = new Tag("Publications");
@@ -445,17 +446,17 @@ public class ResultParserTest extends AbstractTest {
         XMLParser xparser = new XMLParser();
         Element root = xparser.parse(new StringReader("<?xml version='1.0'?>\n"+json));
         Entity person = parser.parseRow(Result.fromContent(root), personType.newInstance());
-        assertEqual("Paul", person.getText(Person.name));
-        assertEqual("paul@example.com", person.getText(Person.email));
+        assertEqual("Paul", person.getEntity().getText(Person.name));
+        assertEqual("paul@example.com", person.getEntity().getText(Person.email));
         
-        People children = (People)person.get(Person.children);
+        People children = (People)person.getEntity().get(Person.children);
         assertEqual(2, children.size());
         assertEqual("Jim", children.get(0).get(Person.name));
         assertEqual("jim@example.com", children.get(0).get(Person.email));
         assertEqual("Jill", children.get(1).get(Person.name));
         assertEqual("jill@example.com", children.get(1).get(Person.email));
         
-        Publications pubs = (Publications)person.get(publications);
+        Publications pubs = (Publications)person.getEntity().get(publications);
         assertEqual(2, pubs.size());
         assertEqual("Time Magazine", pubs.get(0).get(Thing.name));
         assertEqual("Vancouver Sun", pubs.get(1).get(Thing.name));

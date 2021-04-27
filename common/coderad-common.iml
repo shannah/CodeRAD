@@ -7,10 +7,16 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/annotations" isTestSource="false" generated="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.codenameone:codenameone-core:7.0.22" level="project" />
+    <orderEntry type="library" name="Maven: com.codenameone:coderad-annotations:1.0.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.codenameone:coderad-annotation-processor:1.0.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.codenameone:codenameone-core:7.0.24-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="annotations" />
+    <orderEntry type="module" module-name="coderad-annotation-processor" scope="PROVIDED" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.squareup:javapoet:1.13.0" level="project" />
   </component>
 </module>

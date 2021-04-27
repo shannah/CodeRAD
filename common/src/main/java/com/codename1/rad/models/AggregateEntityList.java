@@ -21,8 +21,8 @@ public class AggregateEntityList<T extends Entity> extends EntityList<T> impleme
 
     @Override
     protected T beforeAdd(T link) {
-        if (link.getAggregate() != getAggregate()) {
-            link.getAggregate().remove(link);
+        if (link.getEntity().getAggregate() != getAggregate()) {
+            link.getEntity().getAggregate().remove(link);
             getAggregate().add(link);
         }
         return link;

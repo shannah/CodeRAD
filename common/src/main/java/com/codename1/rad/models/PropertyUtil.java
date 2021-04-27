@@ -21,8 +21,8 @@ public class PropertyUtil {
      */
     public static Object getRawProperty(Entity entity, Property prop) {
         
-        if (entity.properties != null) {
-            return entity.properties.get(prop);
+        if (entity.getEntity().properties != null) {
+            return entity.getEntity().properties.get(prop);
         }
         return null;
     }
@@ -37,12 +37,12 @@ public class PropertyUtil {
         if (value != null && !prop.getContentType().getRepresentationClass().isAssignableFrom(value.getClass())) {
             throw new IllegalArgumentException("Property "+prop+" of type "+prop.getContentType().getRepresentationClass()+" is not assignable by value "+value+" of type "+value.getClass());
         }
-        if (entity.properties == null) {
+        if (entity.getEntity().properties == null) {
             if (entity.getEntityType() != null) {
                 if (!entity.getEntityType().contains(prop)) {
                     throw new IllegalArgumentException("Entity type "+entity.getEntityType()+" does not contain property "+prop);
                 }
-                entity.initProperties();
+                entity.getEntity().initProperties();
             }
         }
         if (entity.getEntityType() == null) {
@@ -54,19 +54,19 @@ public class PropertyUtil {
         if (!entity.getEntityType().contains(prop)) {
             throw new IllegalArgumentException("Entity type "+entity.getEntityType()+" does not contain property "+prop);
         }
-        Object existing = entity.properties.get(prop);
+        Object existing = entity.getEntity().properties.get(prop);
         if (!Objects.equals(existing, value)) {
             if (entity.hasVetoablePropertyChangeListeners(prop)) {
                 VetoablePropertyChangeEvent vevt = new VetoablePropertyChangeEvent(entity, prop, existing, value);
-                entity.fireVetoablePropertyChangeEvent(vevt);
+                entity.getEntity().fireVetoablePropertyChangeEvent(vevt);
                 if (vevt.isVetoed()) {
                     throw new PropertyVetoException(vevt.getReason(), vevt);
                 }
             }
-            entity.properties.put(prop, value);
-            entity.setChangedInternal();
+            entity.getEntity().properties.put(prop, value);
+            entity.getEntity().setChangedInternal();
             if (entity.hasPropertyChangeListeners(prop)) {
-                entity.firePropertyChangeEvent(new PropertyChangeEvent(entity, prop, existing, value));
+                entity.getEntity().firePropertyChangeEvent(new PropertyChangeEvent(entity, prop, existing, value));
             }
             
         }

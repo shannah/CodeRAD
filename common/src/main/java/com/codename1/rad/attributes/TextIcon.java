@@ -16,8 +16,9 @@
 package com.codename1.rad.attributes;
 
 import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.StringProvider;
+import com.codename1.rad.models.Entity;
 
 /**
  *

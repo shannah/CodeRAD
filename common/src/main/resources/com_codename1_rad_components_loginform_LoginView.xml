@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<border>
+    <border constraint="north" id="top-actions">
+        <$topLeftActions constraint="west"/>
+        <$topRightActions constraint="east"/>
+    </border>
+    <border constraint="center">
+        <$headerContent constraint="north"/>
+        <y constraint="center">
+
+            <$title />
+            <$errorMessage />
+            <$loginUsername />
+            <$loginPassword />
+        </y>
+        <$footerContent constraint="south"/>
+    </border>
+    <border constraint="south" id="bottom-actions">
+        <$forgotPasswordAction constraint="west"/>
+        <$loginAction constraint="east"/>
+    </border>
+</border>

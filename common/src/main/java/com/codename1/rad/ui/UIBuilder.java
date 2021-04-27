@@ -16,7 +16,7 @@
 package com.codename1.rad.ui;
 
 import com.codename1.components.SpanLabel;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.FieldNode;
@@ -29,6 +29,7 @@ import com.codename1.rad.propertyviews.TextFieldPropertyView;
 import com.codename1.ui.TextArea;
 import com.codename1.ui.TextField;
 import com.codename1.ui.html.HTMLComponent;
+import com.codename1.rad.models.Entity;
 
 /**
  *

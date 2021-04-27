@@ -12,11 +12,11 @@ import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ListNode;
 import com.codename1.rad.nodes.SwipeContainer;
 import com.codename1.rad.nodes.ViewNode;
-import com.codename1.rad.models.Entity;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.SwipeableContainer;
 import com.codename1.ui.layouts.GridLayout;
+import com.codename1.rad.models.Entity;
 
 /**
  * The default renderer for rendering a row of the EntityListView.

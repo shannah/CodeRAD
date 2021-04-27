@@ -6,22 +6,25 @@
 package com.codename1.rad.controllers;
 
 import com.codename1.rad.events.FillSlotEvent;
-import com.codename1.rad.models.Entity;
+
+import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ActionNode.ActionNodeEvent;
+import com.codename1.rad.nodes.ActionsNode;
 import com.codename1.rad.nodes.ViewNode;
+import com.codename1.rad.ui.Actions;
 import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.ui.Slot;
+import com.codename1.rad.ui.UI;
 import com.codename1.ui.Component;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import com.codename1.util.SuccessCallback;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import com.codename1.rad.models.Entity;
 
 /**
  * A base class for all Controller classes.
@@ -77,6 +80,8 @@ public class Controller implements ActionListener<ControllerEvent> {
     private ViewNode node;
     private Controller parent;
     private Map<Class,Object> lookups;
+    private Map<ActionNode.Category,Actions> actionMap;
+    private boolean started;
     
     private static class ActionHandler {
         private ActionNode action;
@@ -100,6 +105,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      */
     public Controller(Controller parent) {
         this.parent = parent;
+
     }
     
     /**
@@ -192,7 +198,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      */
     @Override
     public void actionPerformed(ControllerEvent evt) {
-        
+
     }
     
     /**
@@ -260,7 +266,15 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @return A ViewNode
      */
     protected ViewNode createViewNode() {
-        return new ViewNode();
+
+        startControllerInternal();
+        ViewNode n = new ViewNode();
+        if (actionMap != null) {
+            for (ActionNode.Category c : actionMap.keySet()) {
+                n.setAttributes(UI.actions(c, actionMap.get(c)));
+            }
+        }
+        return n;
     }
     
     /**
@@ -272,6 +286,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @return 
      */
     public ViewNode getViewNode() {
+        startControllerInternal();
         if (node == null) {
             node = createViewNode();
             ViewNode parentNode = null;
@@ -295,6 +310,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @return The object, or null if none was registered.
      */
     public <T> T lookup(Class<T> type) {
+
         if (lookups != null) {
             T out = (T)lookups.get(type);
             if (out != null) {
@@ -315,6 +331,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * be used in cases where you expect to receive an Entity.
      * @param type
      * @return
+     * @since 2.0
      */
     public Entity lookupEntity(Class type) {
         return (Entity)lookup(type);
@@ -325,6 +342,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param obj The object to add to the lookups.
      */
     public void addLookup(Object obj) {
+
         if (obj == null) return;
         if (lookups == null) {
             lookups = new HashMap<>();
@@ -337,8 +355,10 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param type The class to use as the key of the lookup.
      * @param object The value of the lookup.
      * @param <T> The type of object.
+     * @since 2.0
      */
     public <T> void addLookup(Class<T> type, T object) {
+        startControllerInternal();
         if (object == null) return;
         if (lookups == null) {
             lookups = new HashMap<>();
@@ -351,6 +371,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param type The type of object to lookup.
      * @param <T> The type of object to lookup.
      * @return A matching object or null.
+     * @since 2.0
      */
     public <T> T parentLookup(Class<T> type) {
         if (parent == null) {
@@ -363,6 +384,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * Looks up an entity starting at the parent controller.
      * @param type The type of the entity to look for.
      * @return A matching Entity or null.
+     * @since 2.0
      */
     public Entity parentLookupEntity(Class type) {
         if (parent == null) return null;
@@ -375,8 +397,10 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param callback Callback executed only if lookup finds something.
      * @param <T> The type of object to look for.
      * @return True if lookup finds something.
+     * @since 2.0
      */
     public <T> boolean withParentLookup(Class<T> type, SuccessCallback<T> callback) {
+
         T o = parentLookup(type);
         if (o == null) return false;
         callback.onSucess(o);
@@ -388,6 +412,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param type The typeof entity to look for.  This may also be an Interface.
      * @param callback Callback executed only if a matching entity is found.
      * @return True if entity is found.
+     * @since 2.0
      */
     public boolean withParentLookupEntity(Class type, SuccessCallback<Entity> callback) {
         Entity o = parentLookupEntity(type);
@@ -403,6 +428,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param callback Callback executed only if the lookup is found.
      * @param <T> The type of object to look for.
      * @return True if the lookup is found.
+     * @since 2.0
      */
     public <T> boolean withLookup(Class<T> type, SuccessCallback<T> callback) {
         T o = lookup(type);
@@ -417,6 +443,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param type A type of entity.  This may be a Class or an Interface.
      * @param callback  Call back that is only called if the lookup finds a match.
      * @return Boolean returns true if the lookup was found.
+     * @since 2.0
      */
     public boolean withLookupEntity(Class type, SuccessCallback<Entity> callback) {
         Entity o = lookupEntity(type);
@@ -433,8 +460,10 @@ public class Controller implements ActionListener<ControllerEvent> {
      *          you can obtain a reference to the slot via {@link FillSlotEvent#getSlot()} and call {@link Slot#setContent(Component)}
      *          on it.  *Make sure you call {@link FillSlotEvent#consume()} if you set the content to prevent the event
      *          from bubbling up the controller hierarchy and being overridden by another controller.*
+     * @since 2.0
      */
     public void fillSlot(Tag slotId, ActionListener<FillSlotEvent> l) {
+
         addEventListener(evt -> {
             FillSlotEvent fse = evt.as(FillSlotEvent.class);
             if (fse != null && fse.getSlot().getId() == slotId) {
@@ -443,6 +472,397 @@ public class Controller implements ActionListener<ControllerEvent> {
         });
     }
 
+
     
-    
+
+    /**
+     * A lifecycle method that should be used to cleanup variables and listeners that were setup in
+     * the {@link #onStartController()} method.  Lookups, actions, and the view node are automatically
+     * cleared when the controller is stopped, so you don't have to worry about cleaning up things like that.
+     *
+     * However, you should clean up any variables that you initialized in {@link #onStartController()}.
+     *
+     * When live-content reloading is enabled in the Codename One simulator, it will trigger {@link #refresh()}
+     * which stops and starts the controller hierarchy.
+     *
+     * @since 2.0
+     * @see #onStartController()
+     * @see #refresh()
+     */
+    protected void onStopController() {
+
+    }
+
+    /**
+     * A lifecycle method that shoudl be used to setup the controller.  Use this instead of
+     * the constructor as this will allow you to work nicely with live content reloading.  When
+     * live-content reloading is enabled in the Codename One simulator, it will trigger {@link #refresh()}
+     * which stops and starts the controller hierarchy.
+     *
+     * When this method is run, you can assume that the parent controller is already in the "started" state.
+     *
+     */
+    protected void onStartController() {
+
+    }
+
+    /**
+     * Starts the given controller.  This will trigger the {@link #onStartController()} method, which
+     * should be used for setup instead of the constructor.
+     *
+     * @since 2.0
+     * @see #onStartController()
+     * @see #onStopController()
+     */
+    public final void startController() {
+        startControllerInternal();
+    }
+
+
+    /**
+     * Static method that starts a given controller, and returns the controller back
+     * for chaining.
+     * @param controller The controller to start.
+     * @param <T>
+     * @return The controller.
+     * @since 2.0
+     */
+    public static <T extends Controller> T start(T controller) {
+        controller.startControllerInternal();
+        return controller;
+    }
+
+
+    /**
+     * Package-private method used to start the controller.  This calls {@link #onStartController()}
+     * which can be implemented by subclasses to create the view, and set up action listeners.
+     *
+     * The start/stop lifecycle is used to support live-content reloading when resources or class definitions
+     * are changed.  The Codename One simulator will trigger a {@link #refresh()} when live content reloading
+     * is enabled.
+     * @since 2.0
+     *
+     */
+    void startControllerInternal() {
+        if (started || starting || stopping) {
+            return;
+        }
+        starting = true;
+        if (parent != null) {
+            parent.startControllerInternal();
+        }
+
+
+        initControllerActionsInternal();
+        onStartController();
+        started = true;
+        starting = false;
+    }
+
+    /**
+     * Flag to indicate that the controller is in the process of starting or stopping.  Calls to {@link #startControllerInternal()}
+     * or {@link #stopControllerInternal()} will short circuit if called while starting or stopping.
+     */
+    private boolean starting, stopping;
+
+    /**
+     * Package-private method used to stop the controller.  This calls {@link #onStopController()}
+     * which can be implemented by subclasses to cleanup resources when the controller is stopped.
+     *
+     * This clears out lookups, actions, node, etc...  After stopping this controller, it will propagate
+     * up the controller hierarchy, stopping the parents also.
+     *
+     * The start/stop lifecycle is used to support live-content reloading when resources or class definitions
+     * are changed.  The Codename One simulator will trigger a {@link #refresh()} when live content reloading
+     * is enabled.
+     *
+     */
+    void stopControllerInternal() {
+
+        if (!started || stopping || starting) {
+            return;
+        }
+        stopping = true;
+        onStopController();
+        lookups = null;
+        actionMap = null;
+        node = null;
+        actionHandlers.clear();
+        actionsInitialized = false;
+        List toRemove = new ArrayList();
+        for (Object l : listeners.getListenerCollection()) {
+            toRemove.add(l);
+
+        }
+        for (Object o : toRemove) {
+            listeners.removeListener(o);
+        }
+        listeners.addListener(this);
+
+
+        if (parent != null) {
+            parent.stopControllerInternal();
+        }
+
+        started = false;
+        stopping = false;
+    }
+
+    /**
+     * Checks if the controller is started.  Controllers follow multiple lifecycles.  This "started" flag
+     * pertains to the "start/stop" lifecycle.  When the app is "reloaded" due to resource changes, then
+     * the {@link #onStopController()} method is triggered, which cleans up all of the controller's resources.
+     * Then the {@link #startController()}} method is triggered, which creates them again.  This is used
+     * to allow live reloading of changes.
+     *
+     * @return True if the controller is in "started" state.
+     * @see #startController()
+     * @see #onStartController()
+     * @see #onStopController()
+     */
+    public boolean isStarted() {
+        return started;
+    }
+
+
+    /**
+     * Refreshes the controller.  This calls {@link #onStopController()} and {@link #startController()}
+     * and is useful for reloading the application when changes are made to the classes or resources.
+     */
+    public void refresh() {
+        stopControllerInternal();
+        startControllerInternal();
+    }
+
+
+    /**
+     * Extends an existing action from one of the parent controllers, and registers it as an action
+     * on this controller.
+     * @param category The category to register the action to.
+     * @param overwriteAttributes Whether to overwrite existing attributes of the action.  If false, attributes
+     *                            provided will be ignored when extending actions that already have those attributes
+     *                            defined.
+     * @param attributes Attributes to add to the action.
+     * @return The action that was added.
+     * @since 2.0
+     */
+    public ActionNode extendAction(ActionNode.Category category, boolean overwriteAttributes, Attribute... attributes) {
+        ActionNode action = getInheritedAction(category);
+        if (action == null) {
+            action = UI.action(attributes);
+        }
+        else {
+            action = (ActionNode)action.createProxy(action.getParent());
+            action.setAttributes(overwriteAttributes, attributes);
+        }
+        addActions(category, action);
+        return action;
+    }
+
+    /**
+     * Extends an action from a parent controller, and registers it as an action on this controller.
+     * @param category The category to register the action to.
+     * @param callback Callback which is executed immediately on the action, which is used to configure
+     *                 the action.
+     * @return The action node that was added/extended.
+     * @see #extendAction(ActionNode.Category, boolean, Attribute[])
+     */
+    public ActionNode extendAction(ActionNode.Category category, SuccessCallback<ActionNode> callback) {
+        ActionNode extendedAction = extendAction(category, false);
+        callback.onSucess(extendedAction);
+        return extendedAction;
+    }
+
+
+    /**
+     * Adds a set of actions to this controller, registered to a given category.
+     * @param category The category to register the actions under.
+     * @param actions The actions to register.
+     * @see #extendAction(ActionNode.Category, SuccessCallback) To extend an existing action
+     * from a parent controller, and register the extended action on this controller.
+     * @since 2.0
+     */
+    public void addActions(ActionNode.Category category, ActionNode... actions) {
+        if (actionMap == null) {
+            actionMap = new HashMap();
+        }
+        Actions acts = null;
+        if (!actionMap.containsKey(category)) {
+            acts = new Actions();
+            actionMap.put(category, acts);
+        } else {
+            acts = actionMap.get(category);
+        }
+
+        acts.add(actions);
+
+    }
+
+    public void addActions(ActionNode.Category category, Actions actions) {
+        addActions(category, actions.toArray());
+    }
+
+
+    /**
+     * Gets the first action matching the given category that is registered on this controller
+     * or one of the controller's parents.  If none is found, it will return null.
+     * @param category The category of action to return.
+     * @return A matching action or null if none is found.
+     * @see #getAction(ActionNode.Category) to retrieve an action from this controller only.
+     * @see #getInheritedActions(ActionNode.Category, boolean) To retrieve multiple actions from the controller
+     * @since 2.0
+     * hierarchy.
+     */
+
+    public ActionNode getInheritedAction(ActionNode.Category category) {
+        ActionNode out = getAction(category);
+        if (out != null) return out;
+        if (parent != null) {
+            return parent.getInheritedAction(category);
+        }
+        return null;
+    }
+
+    /**
+     * Gets actions registered in the specified category on this controller or parents.
+     * @param category The category of action to retrieve.
+     * @param aggregate If true, then this will return a set of all actions in this category, registered in
+     *                  this controller, and all of its parents - combined together.  If false, then this will
+     *                  return the set of actions in this category in the first controller that contains at least
+     *                  one action in this category, starting with this container, and walking up the
+     *                  controller hierarchy until it finds one with at least one action in this category.
+     * @return A set of matching actions.
+     * @see #getActions(ActionNode.Category) To retrieve only actions registered on this controller.
+     * @see #getInheritedAction(ActionNode.Category) To retrieve only a single action.
+     * @since 2.0
+     */
+    public Actions getInheritedActions(ActionNode.Category category, boolean aggregate) {
+        Actions out = getActions(category);
+        if (out != null) {
+            if (aggregate && parent != null) {
+                out.add(parent.getInheritedActions(category, aggregate));
+            }
+            return out;
+        }
+        if (parent != null) {
+            return parent.getInheritedActions(category, aggregate);
+        }
+        return new Actions();
+    }
+
+
+    /**
+     * Gets an action in the specified category that is registered on this controller.
+     * @param category The category of action to look for.
+     * @return A matching ActionNode or null if this controller has no action registered in that category.
+     * @see {@link #getActions(ActionNode.Category)} to get multiple actions in the category.
+     * @see {@link #getInheritedAction(ActionNode.Category)} To check parent controllers for actions as well.
+     * @since 2.0
+     */
+    public ActionNode getAction(ActionNode.Category category) {
+        if (actionMap == null) {
+            return null;
+        }
+        Actions categoryActions = actionMap.get(category);
+        if (categoryActions == null || categoryActions.isEmpty()) return null;
+        return categoryActions.iterator().next();
+    }
+
+    /**
+     * Gets actions registered in this Controller in the specified category.  This does *not*
+     * check the parent for actions.  If there are no actions registered on *this* controller
+     * then it will return an empty {@link Actions}.
+     *
+     *
+     *
+     * @param category The category of action to retrieve.
+     * @return An {@link Actions} object with all of the actions that are registered in this controller
+     * for that category.
+     *
+     * @see {@link #getInheritedActions(ActionNode.Category, boolean)} To retrieve all actions in this controller
+     * and its parent(s).
+     * @see {@link #getAction(ActionNode.Category)} to retrieve only a single action in the category.
+     * @since 2.0
+     */
+    public Actions getActions(ActionNode.Category category) {
+        if (actionMap == null) {
+            return new Actions();
+        }
+        Actions out = actionMap.get(category);
+        if (out == null) return new Actions();
+        return new Actions(out);
+    }
+
+    /**
+     * Gets an actions node for the given category such that it can be added directly to
+     * a {@link ViewNode}.  This method is usually called inside {@link #createViewNode()}
+     * for adding actions to the view node.
+     * @param category
+     * @param aggregate
+     * @return
+     * @since 2.0
+     */
+    public ActionsNode getActionsNode(ActionNode.Category category, boolean aggregate) {
+        return UI.actions(category, getInheritedActions(category, aggregate));
+    }
+
+    /**
+     * Gets a single {@link ActionNode} for the given category.  This is a convenience method
+     * that you can use in implementations of {@link #createViewNode()} to easily get an {@link ActionsNode}
+     * that is ready to add to the view node.
+     *
+     * This uses {@link #getInheritedAction(ActionNode.Category)} to find the action.
+     *
+     * @param category The category of action we wish to retrieve.
+     * @return An {@link ActionsNode} with zero or one action registered with the given category.
+     *
+     * @see #getInheritedAction(ActionNode.Category)
+     * @since 2.0
+     */
+    public ActionsNode getSingleActionsNode(ActionNode.Category category) {
+        ActionNode action = getInheritedAction(category);
+        if (action == null) {
+            return UI.actions(category);
+        } else {
+            return UI.actions(category, action);
+        }
+    }
+
+    // Flag to indicate whether actions have been initialized.  Used to ensure
+    // that initControllerActionsInternal() is only called once.
+    private boolean actionsInitialized;
+
+    /**
+     * Initializes actions for the controller.  Uses {@link #actionsInitialized} flag
+     * to ensure that this is only run once.
+     *
+     * Calls {@link #initControllerActions()} which can be overridden by subclasses.
+     */
+    void initControllerActionsInternal() {
+        if (actionsInitialized) {
+            return;
+        }
+        actionsInitialized = true;
+        initControllerActions();
+    }
+
+    /**
+     * This can be used to initialize actions that the controller uses.  It is called
+     * just before {@link #startController()}, and it can be overridden by subclasses
+     * to provide further modifications to actions that have been initialized.
+     *
+     * Generally this would include calls to {@link #addActions(ActionNode.Category, ActionNode...)} and
+     * {@link #extendAction(ActionNode.Category, SuccessCallback)}.
+     * @since 2.0
+     */
+    protected void initControllerActions() {
+
+    }
+
+
+
+
+
+
+
 }

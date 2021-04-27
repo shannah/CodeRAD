@@ -8,7 +8,7 @@ package com.codename1.rad.propertyviews;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.ui.ComboBox;
@@ -16,6 +16,7 @@ import com.codename1.ui.TextField;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  * View for binding to {@link ComboBox} components.
@@ -40,21 +41,21 @@ public class ComboBoxPropertyView extends PropertyView<ComboBox> {
 
     @Override
     protected void bindImpl() {
-        getEntity().addPropertyChangeListener(getProperty(), pcl);
+        getEntity().getEntity().addPropertyChangeListener(getProperty(), pcl);
         getComponent().addActionListener(dcl);
     }
 
     @Override
     protected void unbindImpl() {
         getComponent().removeActionListener(dcl);
-        getEntity().removePropertyChangeListener(getProperty(), pcl);
+        getEntity().getEntity().removePropertyChangeListener(getProperty(), pcl);
     }
     
     @Override
     public void update() {
         super.update();
         Object oldVal = getComponent().getSelectedItem();
-        Object newVal = getProperty().getValue(getEntity());
+        Object newVal = getProperty().getValue(getEntity().getEntity());
         if (!Objects.equals(oldVal, newVal)) {
             getComponent().setSelectedItem(newVal);
         }
@@ -64,7 +65,7 @@ public class ComboBoxPropertyView extends PropertyView<ComboBox> {
     public void commit() {
         
         getProperty().setValue(
-                getEntity(), 
+                getEntity().getEntity(), 
                 getComponent().getSelectedItem()
         );
     }

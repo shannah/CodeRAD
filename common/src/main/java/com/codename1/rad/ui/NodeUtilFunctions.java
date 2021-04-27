@@ -12,7 +12,6 @@ import com.codename1.rad.nodes.EventFactoryNode;
 import com.codename1.rad.nodes.FormNode;
 import com.codename1.rad.nodes.Node;
 import ca.weblite.shared.components.PopupMenu;
-import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
 import com.codename1.ui.Button;
 import static com.codename1.ui.CN.NORTH;
@@ -26,6 +25,7 @@ import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.Layout;
+import com.codename1.rad.models.Entity;
 
 /**
  *

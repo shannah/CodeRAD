@@ -76,7 +76,7 @@ There are just a few fundamental concepts required to start using CodeRAD to acc
 . https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller[MVC (Model-View-Controller)] - A design pattern employed by CodeRAD which is used for developing user interfaces which divides the related program logic into three interconnected elements
 +
 image::https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/MVC-Process.svg/200px-MVC-Process.svg.png[]
-. *Entities* - CodeRAD introduces `Entity`, a base class for "model" classes.  This includes all the required plumbing for developing reusable components, such as property binding, property change events, data conversion, property lookup, etc...
+. *Entities* - CodeRAD introduces `RADEntity`, a base class for "model" classes.  This includes all the required plumbing for developing reusable components, such as property binding, property change events, data conversion, property lookup, etc...
 . *Properties* - Properties are the analog of instance variables for entities.  They include built-in support for binding, change events, and data-conversion.
 . *Tags* - Tags enable loose-coupling of components.  Properties may contain one or more "tags" which can be used as a more generic way to reference properties on an entity.
 . *Views* - A View is a user interface component that renders a model in a specific way.

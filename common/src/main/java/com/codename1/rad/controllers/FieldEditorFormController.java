@@ -15,7 +15,7 @@
  */
 package com.codename1.rad.controllers;
 
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.ui.EntityEditor;
@@ -29,6 +29,7 @@ import com.codename1.ui.Container;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.Form;
 import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.rad.models.Entity;
 
 /**
  *
@@ -41,8 +42,11 @@ public class FieldEditorFormController extends FormController {
     public FieldEditorFormController(Controller parent, Entity entity, FieldNode fld) {
         super(parent);
         this.entity = entity;
-        fld = (FieldNode)fld.createProxy(fld.getParent());
+        fld = (FieldNode) fld.createProxy(fld.getParent());
         this.field = fld;
+    }
+    protected void onStartController() {
+        super.onStartController();
         Form f = new Form(new BorderLayout());
         f.getToolbar().hideToolbar();
         Container titleBar = new Container(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
@@ -70,9 +74,9 @@ public class FieldEditorFormController extends FormController {
             titleBar.add(BorderLayout.EAST, done);
         }
         
-        Label l = field.getLabel(entity.getEntityType());
+        Label l = field.getLabel(entity.getEntity().getEntityType());
         if (l != null) {
-            titleBar.add(BorderLayout.CENTER, new com.codename1.ui.Label(l.getValue(entity), "Title"));
+            titleBar.add(BorderLayout.CENTER, new com.codename1.ui.Label(l.getValue(entity.getEntity()), "Title"));
         } 
         f.add(BorderLayout.NORTH, titleBar);
         

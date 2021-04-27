@@ -10,7 +10,7 @@ import com.codename1.rad.attributes.HintUIID;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.models.TextFormatterAttribute;
 import com.codename1.ui.Label;
@@ -18,6 +18,7 @@ import com.codename1.ui.TextArea;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  * A view for binding to {@link TextArea} components.
@@ -42,14 +43,14 @@ public class TextAreaPropertyView extends PropertyView<TextArea> {
 
     @Override
     protected void bindImpl() {
-        getEntity().addPropertyChangeListener(getProperty(), pcl);
+        getEntity().getEntity().addPropertyChangeListener(getProperty(), pcl);
         getComponent().addDataChangedListener(dcl);
     }
 
     @Override
     protected void unbindImpl() {
         getComponent().removeDataChangedListener(dcl);
-        getEntity().removePropertyChangeListener(getProperty(), pcl);
+        getEntity().getEntity().removePropertyChangeListener(getProperty(), pcl);
     }
     
     @Override
@@ -58,7 +59,7 @@ public class TextAreaPropertyView extends PropertyView<TextArea> {
         String oldVal = getComponent().getText();
         String newVal = ContentType.convert(
                 getProperty().getContentType(), 
-                getProperty().getValue(getEntity()),
+                getProperty().getValue(getEntity().getEntity()),
                 ContentType.Text
         );
         TextFormatterAttribute formatter = (TextFormatterAttribute)getField().findAttribute(TextFormatterAttribute.class);
@@ -98,7 +99,7 @@ public class TextAreaPropertyView extends PropertyView<TextArea> {
             }
         }
         getProperty().setValue(
-                getEntity(), 
+                getEntity().getEntity(), 
                 ContentType.convert(
                         ContentType.Text, 
                         text, 

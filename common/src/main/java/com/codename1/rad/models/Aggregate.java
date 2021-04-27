@@ -19,7 +19,7 @@ import java.util.Set;
  * root is dirty.
  * @author shannah
  */
-public class Aggregate extends Entity implements Iterable<Entity> {
+public class Aggregate extends BaseEntity implements Iterable<Entity> {
     private transient final Entity root;
     private transient Set<Entity> entities=new HashSet<>();
     
@@ -34,8 +34,8 @@ public class Aggregate extends Entity implements Iterable<Entity> {
     
     public Aggregate(Entity root) {
         this.root = root;
-        root.setAggregate(this);
-        root.addObserver(entityObserver);
+        root.getEntity().setAggregate(this);
+        root.getEntity().addObserver(entityObserver);
         entities.add(root);
     }
     public Entity getRoot() {
@@ -51,15 +51,15 @@ public class Aggregate extends Entity implements Iterable<Entity> {
     
     public void add(Entity entity) {
         if (entities.add(entity)) {
-            entity.setAggregate(this);
-            entity.addObserver(entityObserver);
+            entity.getEntity().setAggregate(this);
+            entity.getEntity().addObserver(entityObserver);
         }
     }
     
     public void remove(Entity entity) {
         if (entities.remove(entity)) {
-            entity.setAggregate(null);
-            entity.deleteObserver(entityObserver);
+            entity.getEntity().setAggregate(null);
+            entity.getEntity().deleteObserver(entityObserver);
         }
     }
 
@@ -67,7 +67,7 @@ public class Aggregate extends Entity implements Iterable<Entity> {
     public synchronized boolean hasChanged() {
         if (!super.hasChanged()) {
             for (Entity e : new ArrayList<>(entities)) {
-                if (e.hasChanged()) {
+                if (e.getEntity().hasChanged()) {
                     return true;
                 }
             }
@@ -81,14 +81,14 @@ public class Aggregate extends Entity implements Iterable<Entity> {
     protected synchronized void clearChanged() {
         super.clearChanged();
         for (Entity e : new ArrayList<Entity>(entities)) {
-            e.clearChanged();
+            e.getEntity().clearChanged();
         }
     }
 
     @Override
     public void notifyObservers(Object arg) {
         for (Entity e : new ArrayList<Entity>(entities)) {
-            e.notifyObservers(arg);
+            e.getEntity().notifyObservers(arg);
         }
         super.notifyObservers(arg);
     }

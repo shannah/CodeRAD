@@ -6,8 +6,9 @@
 package com.codename1.rad.ui;
 
 import com.codename1.rad.nodes.ActionNode;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.ui.Component;
+import com.codename1.rad.models.Entity;
 
 /**
  * A factory to create a view for a given action, which acts on the provided entity.

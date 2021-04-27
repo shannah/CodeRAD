@@ -7,7 +7,7 @@ package com.codename1.rad.models;
 
 import com.codename1.rad.attributes.Condition;
 import com.codename1.rad.attributes.SelectedCondition;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.nodes.ActionNode;
 
 /**

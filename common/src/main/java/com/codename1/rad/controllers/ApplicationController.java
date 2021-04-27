@@ -6,13 +6,12 @@
 package com.codename1.rad.controllers;
 
 import com.codename1.io.Log;
-import com.codename1.ui.CN;
+import com.codename1.ui.*;
+
 import static com.codename1.ui.CN.addNetworkErrorListener;
 import static com.codename1.ui.CN.getCurrentForm;
 import static com.codename1.ui.CN.updateNetworkThreadCount;
-import com.codename1.ui.Dialog;
-import com.codename1.ui.Form;
-import com.codename1.ui.Toolbar;
+
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
 
@@ -23,7 +22,7 @@ import com.codename1.ui.util.Resources;
  * {@link DestroyEvent}, and {@link InitEvent}.
  * 
  * The application controller is ideally suited to act as the main class for a CodenameOne application.  It implements all of the
- * lifecycle methods ({@link #init(java.lang.Object) }, {@link #start() }, {@link #stop() }, and {@link #destroy() }, and dispatches 
+ * lifecycle methods ({@link #init(java.lang.Object) }, {@link #onStartController() }, {@link #onStopController() }, and {@link #destroy() }, and dispatches
  * corresponding events that you can handle in your controller.
  * 
  * == Example
@@ -55,12 +54,20 @@ public class ApplicationController extends Controller {
         super((Controller)null);
         instance = this;
     }
-    
+
+    @Override
+    void startControllerInternal() {
+        if (!Display.isInitialized()) return;
+        if (!CN.isEdt()) return;
+        super.startControllerInternal();
+    }
+
     public static ApplicationController getInstance() {
         return instance;
     }
     
     public void init(Object context) {
+        startControllerInternal();
         // use two network threads instead of one
         
         // Disable revalidating on style changes.  This will ultimately

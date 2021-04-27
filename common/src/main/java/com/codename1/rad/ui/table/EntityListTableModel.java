@@ -15,7 +15,7 @@ import static ca.weblite.shared.components.table.TableModel.TableModelEvent.INVA
 import static ca.weblite.shared.components.table.TableModel.TableModelEvent.UPDATE;
 import com.codename1.rad.models.ContentType;
 import static com.codename1.rad.models.ContentType.Text;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityList.EntityAddedEvent;
 import com.codename1.rad.models.EntityList.EntityListInvalidatedEvent;
@@ -29,6 +29,7 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import java.util.HashMap;
 import java.util.Map;
+import com.codename1.rad.models.Entity;
 
 /**
  * A table model that allows using a {@link Table} to render and edit an EntityList.
@@ -108,7 +109,7 @@ public class EntityListTableModel<T extends Entity> implements TableModel {
             } else {
                 rebuildIndexMap();
             }
-            eae.getEntity().addPropertyChangeListener(pcl);
+            eae.getEntity().getEntity().addPropertyChangeListener(pcl);
             listeners.fireActionEvent(
                     new TableModelEvent(
                             EntityListTableModel.this,
@@ -120,7 +121,7 @@ public class EntityListTableModel<T extends Entity> implements TableModel {
             );
         } else if (evt instanceof EntityRemovedEvent) {
             EntityRemovedEvent eae = (EntityRemovedEvent)evt;
-            eae.getEntity().removePropertyChangeListener(pcl);
+            eae.getEntity().getEntity().removePropertyChangeListener(pcl);
             listeners.fireActionEvent(
                     new TableModelEvent(
                             EntityListTableModel.this,
@@ -179,7 +180,7 @@ public class EntityListTableModel<T extends Entity> implements TableModel {
         FieldNode column = columns.getColumn(columnIndex);
         PropertyNode prop = column.getProperty();
         if (prop != null) {
-            return prop.getValue().getValue(e);
+            return prop.getValue().getValue(e.getEntity());
         } else {
             return "";
         }
@@ -195,7 +196,7 @@ public class EntityListTableModel<T extends Entity> implements TableModel {
         Property prop = columns.getColumn(columnIndex).getProperty(entityType);
         Entity e = entities.get(rowIndex);
         if (prop != null) {
-            prop.setValue(e, value);
+            prop.setValue(e.getEntity(), value);
         }
     }
 
@@ -221,13 +222,13 @@ public class EntityListTableModel<T extends Entity> implements TableModel {
     
     private void addPropertyListeners() {
         for (T e : entities) {
-            e.addPropertyChangeListener(pcl);
+            e.getEntity().addPropertyChangeListener(pcl);
         }
     }
     
     private void removePropertyListeners() {
         for (T e : entities) {
-            e.removePropertyChangeListener(pcl);
+            e.getEntity().removePropertyChangeListener(pcl);
         }
     }
     

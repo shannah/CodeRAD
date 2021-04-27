@@ -51,6 +51,7 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         if (node != null) {
             ViewController ctl = (ViewController)node.findAttributeValue(ViewControllerAttribute.class, ViewController.class);
             if (ctl != null && ViewController.getViewController(this) != ctl) {
+                ctl.startController();
                 ctl.setView(this);
             }
         }
@@ -99,9 +100,9 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         bindCount++;
         if (bindCount == 1) {
             if (bindOnPropertyChangeEvents) {
-                entity.addPropertyChangeListener(pcl);
+                entity.getEntity().addPropertyChangeListener(pcl);
             } else {
-                entity.addObserver(observer);
+                entity.getEntity().addObserver(observer);
             }
             bindImpl();
         }
@@ -126,10 +127,10 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         if (bindCount == 0) {
             unbindImpl();
             if (bindOnPropertyChangeEvents) {
-                entity.removePropertyChangeListener(pcl);
+                entity.getEntity().removePropertyChangeListener(pcl);
             } else {
                 
-                entity.deleteObserver(observer);
+                entity.getEntity().deleteObserver(observer);
             }
            
         }
@@ -164,7 +165,7 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     }
     
     protected Property findProperty(Tag... tags) {
-        return getEntity().getEntityType().findProperty(tags);
+        return getEntity().getEntity().getEntityType().findProperty(tags);
     }
 
     @Override
@@ -173,5 +174,9 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     }
 
 
+    
+    public <V> V getParam(ViewProperty<V> property, V defaultValue) {
+        return (V)node.getViewParameter(property, ViewPropertyParameter.createValueParam(property, defaultValue)).getValue(entity);
+    }
 
 }

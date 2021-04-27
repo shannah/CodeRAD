@@ -15,12 +15,13 @@
  */
 package com.codename1.rad.ui.menus;
 
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.ui.Actions;
 import com.codename1.ui.Button;
 import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.Sheet;
 import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.rad.models.Entity;
 
 /**
  *

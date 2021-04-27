@@ -15,13 +15,14 @@
  */
 package com.codename1.rad.propertyviews;
 
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.ui.CheckBox;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.rad.models.Entity;
 
 /**
  *
@@ -67,7 +68,7 @@ public class CheckBoxPropertyView extends PropertyView<CheckBox> {
             
             Entity e = getPropertySelector().getLeafEntity();
             Property p = getPropertySelector().getLeafProperty();
-            e.setBoolean(p, getComponent().isSelected());
+            e.getEntity().setBoolean(p, getComponent().isSelected());
             
         }
         

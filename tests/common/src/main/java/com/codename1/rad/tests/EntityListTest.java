@@ -14,6 +14,7 @@ import com.codename1.rad.models.EntityList.TransactionEvent;
 import com.codename1.testing.AbstractTest;
 import com.codename1.ui.events.ActionListener;
 import java.util.Observer;
+import com.codename1.rad.models.Entity;
 
 /**
  *

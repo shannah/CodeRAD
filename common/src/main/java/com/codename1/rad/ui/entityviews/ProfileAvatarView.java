@@ -7,7 +7,7 @@ package com.codename1.rad.ui.entityviews;
 
 import ca.weblite.shared.components.ComponentImage;
 import com.codename1.rad.models.ContentType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.models.Tags;
@@ -44,6 +44,7 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.geom.Dimension;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Border;
+import com.codename1.rad.models.Entity;
 
 /**
  * A view that shows a profile's avatar filled in a circle.  
@@ -457,10 +458,10 @@ public class ProfileAvatarView extends AbstractEntityView {
         if (entity != null) {
 
             if (iconProp == null) {
-                iconProp = entity.getEntityType().findProperty(iconTags.toArray());
+                iconProp = entity.getEntity().getEntityType().findProperty(iconTags.toArray());
             }
             if (nameProp == null) {
-                nameProp = entity.getEntityType().findProperty(nameTags.toArray());
+                nameProp = entity.getEntity().getEntityType().findProperty(nameTags.toArray());
             }
         }
         setLayout(new BorderLayout());
@@ -517,7 +518,7 @@ public class ProfileAvatarView extends AbstractEntityView {
 
             if (iconProp != null) {
                 int sizePx = CN.convertToPixels(sizeMM);
-                Image img = getEntity().createImageToStorage(iconProp, 
+                Image img = getEntity().getEntity().createImageToStorage(iconProp, 
                         EncodedImage.createFromImage(label.getIcon().fill(sizePx, sizePx), false), 
                         "@avatar"+label.getIcon().getWidth()+"x"+label.getIcon().getHeight(), 
                         URLImage.createMaskAdapter(getCircleMask()));

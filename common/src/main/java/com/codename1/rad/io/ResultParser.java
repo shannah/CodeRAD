@@ -20,7 +20,7 @@ import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.rad.processing.Result;
 import com.codename1.rad.models.ContentType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityFactory;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityProperty;
@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.codename1.rad.models.Entity;
 
 /**
  * A class that can parse XML or JSON data structures into Entity objects.
@@ -1041,10 +1042,10 @@ public class ResultParser implements EntityFactory {
      * @throws IOException if parsing fails.
      */
     public Entity parseRow(Result rowResult, Entity rowEntity) throws IOException {
-        if (rowEntity.getEntityType() != entityType) {
-            ResultParser matchingParser = getParserFor(rowEntity.getEntityType());
+        if (rowEntity.getEntity().getEntityType() != entityType) {
+            ResultParser matchingParser = getParserFor(rowEntity.getEntity().getEntityType());
             if (matchingParser == null) {
-                throw new IOException("No parser found for type "+rowEntity.getEntityType());
+                throw new IOException("No parser found for type "+rowEntity.getEntity().getEntityType());
             }
             return matchingParser.parseRow(rowResult, rowEntity);
         }
@@ -1054,7 +1055,7 @@ public class ResultParser implements EntityFactory {
             Property prop = propertyParser.property;
             if (prop == null) {
                 if (propertyParser.tags != null) {
-                    prop = rowEntity.findProperty(propertyParser.tags);
+                    prop = rowEntity.getEntity().findProperty(propertyParser.tags);
                 }
             }
             if (prop == null) {
@@ -1076,25 +1077,25 @@ public class ResultParser implements EntityFactory {
                 val = propertyParser.parserCallback.parse(val);
             }
             if (val == null) {
-                rowEntity.set(val, null);
+                rowEntity.getEntity().set(val, null);
             } else if (val.getClass() == Double.class) {
-                rowEntity.setDouble(prop, (Double)val);
+                rowEntity.getEntity().setDouble(prop, (Double)val);
             } else if (val.getClass() == Integer.class) {
-                rowEntity.setInt(prop, (Integer)val);
+                rowEntity.getEntity().setInt(prop, (Integer)val);
             } else if (val.getClass() == Long.class) {
-                rowEntity.setLong(prop, (Long)val);
+                rowEntity.getEntity().setLong(prop, (Long)val);
             } else if (val.getClass() == Float.class) {
-                rowEntity.setFloat(prop, (Float)val);
+                rowEntity.getEntity().setFloat(prop, (Float)val);
             } else if (val.getClass() == Boolean.class) {
-                rowEntity.setBoolean(prop, (Boolean)val);
+                rowEntity.getEntity().setBoolean(prop, (Boolean)val);
             } else if (val.getClass() == String.class) {
-                rowEntity.setText(prop, (String)val);
+                rowEntity.getEntity().setText(prop, (String)val);
             } else if (val.getClass() == Date.class) {
-                rowEntity.setDate(prop, (Date)val);
+                rowEntity.getEntity().setDate(prop, (Date)val);
             } else if (val instanceof List) {
                 if (prop.getContentType().isEntityList()) {
                     
-                    parse((List)val, rowEntity.getEntityListNonNull(prop));
+                    parse((List)val, rowEntity.getEntity().getEntityListNonNull(prop));
                 } else {
                     throw new IOException("Property type mismatch.  Value "+val+" for property selector "+rs+" is a list, but the property "+prop+" is not an entity list type.");
                 }
@@ -1104,12 +1105,12 @@ public class ResultParser implements EntityFactory {
                     Class cls = eProp.getRepresentationClass();
                     Entity e;
                     try {
-                        e = (Entity)createEntity(cls);
+                        e = createEntity(cls);
                     } catch (Throwable t) {
                         throw new IOException("Failed to create new entity instance for property "+prop+" of type "+cls);
                     }
                     e = parseRow(Result.fromContent((Map)val), e);
-                    rowEntity.set(prop, e);
+                    rowEntity.getEntity().set(prop, e);
                 } else {
                     throw new IOException("Property type mismatch.  Value "+val+" for property selector "+rs+" is a map, but the property "+prop+" is not an entity type.");
                 }
@@ -1119,12 +1120,12 @@ public class ResultParser implements EntityFactory {
                     Class cls = eProp.getRepresentationClass();
                     Entity e;
                     try {
-                        e = (Entity)createEntity(cls);
+                        e = createEntity(cls);
                     } catch (Throwable t) {
                         throw new IOException("Failed to create new entity instance for property "+prop+" of type "+cls);
                     }
                     e = parseRow(Result.fromContent((Element)val), e);
-                    rowEntity.set(prop, e);
+                    rowEntity.getEntity().set(prop, e);
                 } else {
                     throw new IOException("Property type mismatch.  Value "+val+" for property selector "+rs+" is a map, but the property "+prop+" is not an entity type.");
                 }

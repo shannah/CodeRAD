@@ -39,7 +39,7 @@ public class FirstCharEntityImageRenderer implements EntityImageRenderer {
     
     @Override
     public AsyncImage createImage(EntityView view, Property property, int rowIndex, boolean selected, boolean focused) {
-        String str = view.getEntity().getEntityType().getText(property, view.getEntity());
+        String str = view.getEntity().getEntity().getEntityType().getText(property, view.getEntity().getEntity());
         if (str == null || str.length() == 0) {
             str = " ";
         }

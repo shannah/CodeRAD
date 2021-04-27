@@ -22,7 +22,7 @@ import com.codename1.rad.attributes.UIIDPrefix;
 import com.codename1.rad.attributes.WidgetType;
 import com.codename1.rad.controllers.FieldEditorFormController;
 import com.codename1.rad.controllers.ViewController;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property.Description;
 import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.nodes.ActionNode;
@@ -40,6 +40,7 @@ import com.codename1.ui.Label;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.rad.models.Entity;
 
 /**
  * A settings form similar to the iOS and Android "Settings" applications.  
@@ -435,7 +436,7 @@ public class SettingsForm extends AbstractEntityView implements WidgetTypes {
             $(this).addTags("SettingsFormSection", "left-edge");
             com.codename1.rad.models.Property.Label l = section.getLabel();
             if (l != null) {
-                Label lbl = new Label(l.getValue(entity), uiidPrefix+uiid+"Label");
+                Label lbl = new Label(l.getValue(entity.getEntity()), uiidPrefix+uiid+"Label");
                 $(lbl).addTags("left-inset");
                 add(lbl);
             }
@@ -585,7 +586,7 @@ public class SettingsForm extends AbstractEntityView implements WidgetTypes {
                 
             } 
             
-            WidgetType wtype = fieldNode.getWidgetType(entity.getEntityType());
+            WidgetType wtype = fieldNode.getWidgetType(entity.getEntity().getEntityType());
             
             
             PropertySelector psel = fieldNode.getPropertySelector(entity);
@@ -616,7 +617,7 @@ public class SettingsForm extends AbstractEntityView implements WidgetTypes {
             
             SpanLabel description = null;
             
-            Description fieldDesc = fieldNode.getDescription(entity.getEntityType());
+            Description fieldDesc = fieldNode.getDescription(entity.getEntity().getEntityType());
             Description actionDesc = action.getDescription();
             if (!expandable && actionDesc == null && fieldDesc != null) {
                 actionDesc = fieldDesc;

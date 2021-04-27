@@ -8,7 +8,6 @@ package com.codename1.rad.ui.entityviews;
 import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.rad.controllers.ViewController;
 import com.codename1.rad.layouts.FanLayout;
-import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
 
 import com.codename1.rad.models.Property;
@@ -39,6 +38,7 @@ import com.codename1.ui.layouts.FlowLayout;
 import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.plaf.Border;
 import java.util.ArrayList;
+import com.codename1.rad.models.Entity;
 
 /**
  * A component with profile avatars of one or more profiles.  This component is appropriate to use as a
@@ -378,12 +378,12 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
         if (getEntity().size() > 0) {
             
             if (nameProp != null) {
-                text.append(getEntity().get(0).getText(nameProp));
+                text.append(getEntity().get(0).getEntity().getText(nameProp));
             }
         }
         if (getEntity().size() == 2) {
             if (nameProp != null) {
-                text.append(" & ").append(getEntity().get(1).getText(nameProp));
+                text.append(" & ").append(getEntity().get(1).getEntity().getText(nameProp));
             }
         }
         if (getEntity().size() > 2) {

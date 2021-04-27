@@ -13,8 +13,7 @@ import com.codename1.rad.attributes.IconUIID;
 import com.codename1.rad.attributes.SelectedCondition;
 import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.nodes.ActionNode;
-import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.Property.Label;
+
 import com.codename1.ui.Button;
 import com.codename1.ui.Component;
 import static com.codename1.ui.Component.BOTTOM;
@@ -29,8 +28,9 @@ import com.codename1.ui.FontImage;
 import com.codename1.ui.Form;
 import com.codename1.ui.Image;
 import com.codename1.ui.events.ActionListener;
-import com.codename1.ui.plaf.Style;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
+import com.codename1.ui.events.ActionEvent;
 
 /**
  * The default factory to use for creating views for actions.
@@ -149,7 +149,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         Button button = btn;
         
         if (action.getLabel() != null && text) {
-            button.setText(action.getLabel().getValue(entity));
+            button.setText(action.getLabel().getValue(entity.getEntity()));
         }
         
         if (action.getImageIcon() != null && includeIcon) {
@@ -286,13 +286,13 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         @Override
         protected void initComponent() {
             super.initComponent();
-            entity.addPropertyChangeListener(pcl);
+            entity.getEntity().addPropertyChangeListener(pcl);
             update(ActionButton.this, entity, action);
         }
 
         @Override
         protected void deinitialize() {
-            entity.removePropertyChangeListener(pcl);
+            entity.getEntity().removePropertyChangeListener(pcl);
             super.deinitialize();
         }
         
@@ -347,13 +347,13 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         @Override
         protected void initComponent() {
             super.initComponent();
-            entity.addPropertyChangeListener(pcl);
+            entity.getEntity().addPropertyChangeListener(pcl);
             update(ActionToggleButton.this, entity, action);
         }
 
         @Override
         protected void deinitialize() {
-            entity.removePropertyChangeListener(pcl);
+            entity.getEntity().removePropertyChangeListener(pcl);
             super.deinitialize();
         }
         

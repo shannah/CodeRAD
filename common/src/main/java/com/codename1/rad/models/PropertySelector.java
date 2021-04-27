@@ -60,8 +60,8 @@ public class PropertySelector {
                     Property oldLeafProperty = getLeafProperty();
                     Object oldValue;
                     if (oldLeafEntity != null && oldLeafProperty != null) {
-                        oldLeafEntity.removePropertyChangeListener(oldLeafProperty, pcl);
-                        oldValue = oldLeafEntity.get(oldLeafProperty);
+                        oldLeafEntity.getEntity().removePropertyChangeListener(oldLeafProperty, pcl);
+                        oldValue = oldLeafEntity.getEntity().get(oldLeafProperty);
                     } else {
                         oldValue = null;
                     }
@@ -74,8 +74,8 @@ public class PropertySelector {
                             Property newLeafProperty = getLeafProperty();
                             Object newValue;
                             if (newLeafEntity != null && newLeafProperty != null) {
-                                newLeafEntity.addPropertyChangeListener(newLeafProperty, pcl);
-                                newValue = newLeafEntity.get(newLeafProperty);
+                                newLeafEntity.getEntity().addPropertyChangeListener(newLeafProperty, pcl);
+                                newValue = newLeafEntity.getEntity().get(newLeafProperty);
                             } else {
                                 newValue = null;
                             }
@@ -155,16 +155,16 @@ public class PropertySelector {
         if (root != null) {
             Property prop = property;
             if (prop == null && tags != null) {
-                prop = root.findProperty(tags);
+                prop = root.getEntity().findProperty(tags);
             }
             if (prop != null) {
-                root.addVetoablePropertyChangeListener(prop, l);
+                root.getEntity().addVetoablePropertyChangeListener(prop, l);
             }
         } else {
             Entity leafEntity = getLeafEntity();
             Property leafProperty = getLeafProperty();
             if (leafEntity != null && leafProperty != null) {
-                leafEntity.addVetoablePropertyChangeListener(leafProperty, l);
+                leafEntity.getEntity().addVetoablePropertyChangeListener(leafProperty, l);
             }
             parent.addVetoablePropertyChangeListener(l);
         }
@@ -182,16 +182,16 @@ public class PropertySelector {
         if (root != null) {
             Property prop = property;
             if (prop == null && tags != null) {
-                prop = root.findProperty(tags);
+                prop = root.getEntity().findProperty(tags);
             }
             if (prop != null) {
-                root.addVetoablePropertyChangeListener(prop, l);
+                root.getEntity().addVetoablePropertyChangeListener(prop, l);
             }
         } else {
             Entity leafEntity = getLeafEntity();
             Property leafProperty = getLeafProperty();
             if (leafEntity != null && leafProperty != null) {
-                leafEntity.addVetoablePropertyChangeListener(leafProperty, l);
+                leafEntity.getEntity().addVetoablePropertyChangeListener(leafProperty, l);
             }
             parent.addVetoablePropertyChangeListener(l);
         }
@@ -248,8 +248,8 @@ public class PropertySelector {
                 Property leafProperty = getLeafProperty();
                 Object oldValue;
                 if (leafEntity != null && leafProperty != null && pcl != null) {
-                    leafEntity.removePropertyChangeListener(leafProperty, pcl);
-                    oldValue = leafEntity.get(leafProperty);
+                    leafEntity.getEntity().removePropertyChangeListener(leafProperty, pcl);
+                    oldValue = leafEntity.getEntity().get(leafProperty);
                 } else {
                     oldValue = null;
                 }
@@ -262,7 +262,7 @@ public class PropertySelector {
                     public void actionPerformed(PropertyChangeEvent afterEvent) {
                         
                         // Remove this one-off listener
-                        source.removePropertyChangeListener(prop, this);
+                        source.getEntity().removePropertyChangeListener(prop, this);
                         
                         // Re-add vetoable change and list change listeners to the parent
                         parent.addVetoablePropertyChangeListener(vpcl);
@@ -276,8 +276,8 @@ public class PropertySelector {
                         if (newLeafEntity != null && newLeafProperty != null) {
                             
                             // Re-add the property change listener to the leaf entity
-                            newLeafEntity.addPropertyChangeListener(newLeafProperty, pcl);
-                            newValue = newLeafEntity.get(newLeafProperty);
+                            newLeafEntity.getEntity().addPropertyChangeListener(newLeafProperty, pcl);
+                            newValue = newLeafEntity.getEntity().get(newLeafProperty);
                             
                         } else {
                             newValue = null;
@@ -293,7 +293,7 @@ public class PropertySelector {
                     }
                 };
                 // Add the one-off listener to fire after the change is complete.
-                source.addPropertyChangeListener(prop, afterChangeListener);
+                source.getEntity().addPropertyChangeListener(prop, afterChangeListener);
                 
             };
         }
@@ -308,16 +308,16 @@ public class PropertySelector {
         if (root != null) {
             Property prop = property;
             if (prop == null && tags != null) {
-                prop = root.findProperty(tags);
+                prop = root.getEntity().findProperty(tags);
             }
             if (prop != null) {
-                root.addPropertyChangeListener(prop, pcl());
+                root.getEntity().addPropertyChangeListener(prop, pcl());
             }
         } else {
             Entity leafEntity = getLeafEntity();
             Property leafProperty = getLeafProperty();
             if (leafEntity != null && leafProperty != null) {
-                leafEntity.addPropertyChangeListener(leafProperty, pcl());
+                leafEntity.getEntity().addPropertyChangeListener(leafProperty, pcl());
             }
             parent.addVetoablePropertyChangeListener(vpcl());
             parent.addListChangeListener(listChangeListener());
@@ -343,16 +343,16 @@ public class PropertySelector {
                 if (root != null) {
                     Property prop = property;
                     if (prop == null && tags != null) {
-                        prop = root.findProperty(tags);
+                        prop = root.getEntity().findProperty(tags);
                     }
                     if (prop != null) {
-                        root.removePropertyChangeListener(prop, pcl);
+                        root.getEntity().removePropertyChangeListener(prop, pcl);
                     }
                 } else {
                     Entity leafEntity = getLeafEntity();
                     Property leafProperty = getLeafProperty();
                     if (leafEntity != null && leafProperty != null) {
-                        leafEntity.removePropertyChangeListener(leafProperty, pcl());
+                        leafEntity.getEntity().removePropertyChangeListener(leafProperty, pcl());
                     }
                     parent.removeVetoablePropertyChangeListener(vpcl());
                     parent.removeListChangeListener(listChangeListener());
@@ -391,7 +391,7 @@ public class PropertySelector {
             }
             Property prop = property;
             if (prop == null) {
-                prop = e.getEntityType().findProperty(tags);
+                prop = e.getEntity().getEntityType().findProperty(tags);
             }
             if (prop != null) {
                 //if (type == ContentType.EntityType && !e.isEntity(prop)) {
@@ -400,7 +400,7 @@ public class PropertySelector {
                 if (!prop.getContentType().canConvertTo(type) && !type.canConvertFrom(prop.getContentType())) {
                     return false;
                 }
-                e.set(prop, type, value);
+                e.getEntity().set(prop, type, value);
                 return true;
             }
         }
@@ -435,7 +435,7 @@ public class PropertySelector {
             }
             Property prop = property;
             if (prop == null) {
-                prop = e.getEntityType().findProperty(tags);
+                prop = e.getEntity().getEntityType().findProperty(tags);
             }
             if (prop != null) {
                 //if (type == ContentType.EntityType && !e.isEntity(prop)) {
@@ -444,7 +444,7 @@ public class PropertySelector {
                 if (!prop.getContentType().canConvertTo(type) && !type.canConvertFrom(prop.getContentType())) {
                     return defaultValue;
                 }
-                T out = e.get(prop, type);
+                T out = e.getEntity().get(prop, type);
                 if (out == null) {
                     return defaultValue;
                 }
@@ -465,10 +465,6 @@ public class PropertySelector {
         
     }
 
-    public PropertySelector(EntityWrapper root, Tag... tags) {
-        this(root.getEntity(), tags);
-    }
-    
     /**
      * Creates a new property selector.
      * @param root The root entity to select properties on.
@@ -479,9 +475,7 @@ public class PropertySelector {
         this.property = property;
     }
 
-    public PropertySelector(EntityWrapper root, Property property) {
-        this(root.getEntity(), property);
-    }
+    
     
     /**
      * Creates a new property selector with the given parent selector.
@@ -691,10 +685,10 @@ public class PropertySelector {
             }
             Property prop = property;
             if (prop == null) {
-                prop = e.getEntityType().findProperty(tags);
+                prop = e.getEntity().getEntityType().findProperty(tags);
             }
             if (prop != null) {
-                return e.isEmpty(prop);
+                return e.getEntity().isEmpty(prop);
             }
         }
         return true;
@@ -725,10 +719,10 @@ public class PropertySelector {
             
             Property prop = property;
             if (prop == null) {
-                prop = e.getEntityType().findProperty(tags);
+                prop = e.getEntity().getEntityType().findProperty(tags);
             }
             if (prop != null) {
-                return e.isFalsey(prop);
+                return e.getEntity().isFalsey(prop);
             }
         }
         return true;
@@ -881,7 +875,7 @@ public class PropertySelector {
         }
         Property prop = property;
         if (prop == null) {
-            prop = e.getEntityType().findProperty(tags);
+            prop = e.getEntity().getEntityType().findProperty(tags);
         }
         return prop;
     }
@@ -939,12 +933,12 @@ public class PropertySelector {
             return e instanceof EntityList;
         }
         
-        if (e.getEntityType().isDynamic()) {
+        if (e.getEntity().getEntityType().isDynamic()) {
             return true;
         }
         Property prop = property;
         if (prop == null) {
-            prop = e.getEntityType().findProperty(tags);
+            prop = e.getEntity().getEntityType().findProperty(tags);
         }
         return prop != null;
     }
@@ -993,15 +987,11 @@ public class PropertySelector {
         return new PropertySelector(root, prop);
     }
 
-    public static PropertySelector propertySelector(EntityWrapper root, Property prop) {
-        return propertySelector(root.getEntity(), prop);
-    }
+    
 
     public static PropertySelector propertySelector(Entity root, Tag... tags) {
         return new PropertySelector(root, tags);
     }
 
-    public static PropertySelector propertySelector(EntityWrapper root, Tag... tags) {
-        return propertySelector(root.getEntity(), tags);
-    }
+   
 }

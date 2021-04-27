@@ -9,7 +9,7 @@ import com.codename1.l10n.ParseException;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.models.TextFormatterAttribute;
 import com.codename1.ui.TextArea;
@@ -17,6 +17,7 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
 import com.codename1.ui.html.HTMLComponent;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  * A view for binding to {@link TextArea} components.
@@ -38,12 +39,12 @@ public class HTMLComponentPropertyView extends PropertyView<HTMLComponent> {
 
     @Override
     protected void bindImpl() {
-        getEntity().addPropertyChangeListener(getProperty(), pcl);
+        getEntity().getEntity().addPropertyChangeListener(getProperty(), pcl);
     }
 
     @Override
     protected void unbindImpl() {
-        getEntity().removePropertyChangeListener(getProperty(), pcl);
+        getEntity().getEntity().removePropertyChangeListener(getProperty(), pcl);
     }
     
     private String oldVal;
@@ -53,7 +54,7 @@ public class HTMLComponentPropertyView extends PropertyView<HTMLComponent> {
         //String oldVal = getComponent().get
         String newVal = ContentType.convert(
                 getProperty().getContentType(), 
-                getProperty().getValue(getEntity()),
+                getProperty().getValue(getEntity().getEntity()),
                 ContentType.Text
         );
         TextFormatterAttribute formatter = (TextFormatterAttribute)getField().findAttribute(TextFormatterAttribute.class);

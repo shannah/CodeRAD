@@ -16,7 +16,7 @@
 package com.codename1.rad.ui.entityviews;
 
 import ca.weblite.shared.components.ComponentImage;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property;
 import com.codename1.rad.nodes.Node;
 import com.codename1.rad.nodes.ViewNode;
@@ -29,6 +29,7 @@ import com.codename1.ui.Label;
 import com.codename1.ui.URLImage.ImageAdapter;
 import com.codename1.ui.layouts.BorderLayout;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  * A view which displays a label representing a given entity.  This will display the entity name {@link Thing.name} 
@@ -68,15 +69,15 @@ public class LabelEntityView extends AbstractEntityView {
     public void update() {
         boolean changed = false;
         String text = "";
-        if (!getEntity().isEmpty(nameProperty)) {
-            text = getEntity().getText(nameProperty);
+        if (!getEntity().getEntity().isEmpty(nameProperty)) {
+            text = getEntity().getEntity().getText(nameProperty);
         }
         if (!Objects.equals(text, label.getText())) {
             label.setText(text);
             changed = true;
         }
         
-        String iconVal = getEntity().getText(iconProperty);
+        String iconVal = getEntity().getEntity().getText(iconProperty);
         if (!Objects.equals(iconVal, lastIconVal)) {
             lastIconVal = iconVal;
             changed = true;

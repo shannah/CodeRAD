@@ -6,10 +6,11 @@
 package com.codename1.rad.ui;
 
 import com.codename1.rad.models.ContentType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.models.Tags;
+import com.codename1.rad.models.Entity;
 
 /**
  * A parameter that can be added to the node hierarchy to set the value or binding of a ViewProperty.
@@ -59,7 +60,7 @@ public class ViewPropertyParameter<T> {
         if (tags == null) {
             return value;
         }
-        return (T)context.getEntityType().getPropertyValue(context, property.getContentType(), tags.toArray());
+        return (T)context.getEntity().getEntityType().getPropertyValue(context.getEntity(), property.getContentType(), tags.toArray());
     }
     
     public Property findProperty(Entity context) {
@@ -67,7 +68,7 @@ public class ViewPropertyParameter<T> {
             return null;
         }
         
-        return (Property)context.getEntityType().findProperty(tags.toArray());
+        return (Property)context.getEntity().getEntityType().findProperty(tags.toArray());
     }
     
     

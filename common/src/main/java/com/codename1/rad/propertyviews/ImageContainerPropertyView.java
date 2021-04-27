@@ -15,7 +15,6 @@
  */
 package com.codename1.rad.propertyviews;
 
-import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.ui.PropertyView;
@@ -23,6 +22,7 @@ import com.codename1.rad.ui.image.ImageContainer;
 import com.codename1.ui.Form;
 import com.codename1.ui.events.ActionListener;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  *

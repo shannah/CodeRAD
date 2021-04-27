@@ -9,7 +9,7 @@ package com.codename1.rad.nodes;
 
 import com.codename1.rad.attributes.WidgetType;
 import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Description;
@@ -29,6 +29,7 @@ import com.codename1.rad.ui.EntityEditor.DescriptionStyleAttribute;
 import com.codename1.rad.ui.EntityEditor.LabelStyle;
 import com.codename1.rad.ui.EntityEditor.LabelStyleAttribute;
 import com.codename1.rad.ui.image.PropertyImageRenderer;
+import com.codename1.rad.models.Entity;
 
 
 /**
@@ -360,7 +361,7 @@ public class FieldNode extends Node implements Proxyable {
         if (context == null) {
             return null;
         }
-        Property prop = getProperty(context.getEntityType());
+        Property prop = getProperty(context.getEntity().getEntityType());
         if (prop != null) {
             return new PropertySelector(context, prop);
         }

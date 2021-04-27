@@ -36,6 +36,7 @@ public class ActionsNode extends Node implements Iterable<ActionNode> {
     public void setAttributes(Attribute... atts) {
         //super.setAttributes(atts);
         for (Attribute att : atts) {
+            if (att == null) continue;
             if (att.getClass() == ActionNode.class) {
                 ActionNode n = (ActionNode)att;
                 if (actions == null) {

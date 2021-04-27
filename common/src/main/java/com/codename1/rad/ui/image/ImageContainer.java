@@ -15,7 +15,7 @@
  */
 package com.codename1.rad.ui.image;
 
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.schemas.ListRowItem;
@@ -31,6 +31,7 @@ import com.codename1.ui.geom.Dimension;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.Layout;
 import com.codename1.ui.plaf.Border;
+import com.codename1.rad.models.Entity;
 
 /**
  * A that manages the loading of URLImages, application of mask (rect or roundrect), and proper sizing
@@ -140,7 +141,7 @@ public class ImageContainer extends Container {
     }
     
     public static ImageContainer createToStorage(Entity entity) {
-        return createToStorage(entity, entity.getEntityType().findProperty(Thing.image, Thing.thumbnailUrl, ListRowItem.icon));
+        return createToStorage(entity, entity.getEntity().getEntityType().findProperty(Thing.image, Thing.thumbnailUrl, ListRowItem.icon));
     }    
     
     
@@ -175,7 +176,7 @@ public class ImageContainer extends Container {
     }
     
     public static ImageContainer createToFileSystem(Entity entity) {
-        return createToFileSystem(entity, entity.getEntityType().findProperty(Thing.image, Thing.thumbnailUrl, ListRowItem.icon));
+        return createToFileSystem(entity, entity.getEntity().getEntityType().findProperty(Thing.image, Thing.thumbnailUrl, ListRowItem.icon));
     }
 
 

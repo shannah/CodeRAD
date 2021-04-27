@@ -18,7 +18,7 @@ import java.util.List;
  * and removed from this list.
  * @author shannah
  */
-public class EntityList<T extends Entity> extends Entity implements Iterable<T> {
+public class EntityList<T extends Entity> extends BaseEntity implements Iterable<T> {
 
     /**
      * @return the rowType
@@ -509,7 +509,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
             throw new IllegalStateException("Nary composition has max length "+maxLen+".  Cannot add another.");
         }
         if (getRowType() == null) {
-            setRowType(link.getEntityType());
+            setRowType(link.getEntity().getEntityType());
         }
         link = beforeAdd(link);
         //int len = entities().size();
@@ -527,10 +527,6 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         }
     }
 
-    public void add(EntityWrapper wrapper) {
-        add((T)wrapper.getEntity());
-    }
-    
     protected T beforeAdd(T link) {
         return link;
     }
@@ -567,9 +563,7 @@ public class EntityList<T extends Entity> extends Entity implements Iterable<T> 
         return false;
     }
 
-    public boolean remove(EntityWrapper w) {
-        return remove((T)w.getEntity());
-    }
+  
     
     /**
      * Removes all items from the list.  This will fire {@link VetoableEntityRemovedEvent} and {@link EntityRemovedEvent} events

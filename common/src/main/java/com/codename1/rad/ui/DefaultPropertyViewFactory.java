@@ -29,7 +29,7 @@ import com.codename1.components.CheckBoxList;
 import com.codename1.components.RadioButtonList;
 import com.codename1.components.Switch;
 import com.codename1.components.SwitchList;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property.Name;
 import com.codename1.rad.propertyviews.ButtonListPropertyView;
@@ -46,6 +46,7 @@ import com.codename1.rad.ui.PropertyViewDecorator;
 import com.codename1.rad.attributes.PropertyViewDecoratorAttribute;
 import com.codename1.rad.nodes.PropertyViewDecoratorNode;
 import com.codename1.rad.nodes.Node;
+import com.codename1.rad.models.Entity;
 
 /**
  * Default factory used to convert a {@link FieldNode} into a {@link PropertyView}.
@@ -84,7 +85,7 @@ public class DefaultPropertyViewFactory implements PropertyViewFactory {
                 return new LabelPropertyView(new com.codename1.ui.Label(), entity, field);
             }
             ComboBox cb = new ComboBox();
-            OptionsNode opts = field.getOptions(entity.getEntityType());
+            OptionsNode opts = field.getOptions(entity.getEntity().getEntityType());
             if (opts != null) {
                 cb.setModel(opts.getValue());
             }
@@ -100,7 +101,7 @@ public class DefaultPropertyViewFactory implements PropertyViewFactory {
                 throw new IllegalArgumentException("Cannot create a table for field "+field+" because it has not columns defined.  Add a ColumnsNode to the field's attributes.");
             }
             //EntityListTableModel tableModel = new EntityListTableModel
-            EntityList entityList = (EntityList)entity.get(field.getProperty(entity.getEntityType()));
+            EntityList entityList = (EntityList)entity.getEntity().get(field.getProperty(entity.getEntity().getEntityType()));
             if (entityList == null) {
                 
             }
@@ -171,7 +172,7 @@ public class DefaultPropertyViewFactory implements PropertyViewFactory {
     
     @Override
     public PropertyView createPropertyView(Entity entity, FieldNode field) {
-        PropertyViewFactory typeFactory = registry.get(field.getWidgetType(entity.getEntityType()));
+        PropertyViewFactory typeFactory = registry.get(field.getWidgetType(entity.getEntity().getEntityType()));
         if (typeFactory == null) {
             throw new IllegalArgumentException("Type "+field.getWidgetType()+" not supported");
         }

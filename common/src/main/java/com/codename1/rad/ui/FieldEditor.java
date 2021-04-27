@@ -8,7 +8,7 @@ package com.codename1.rad.ui;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.attributes.WidgetType;
 import ca.weblite.shared.components.HelpButton;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property;
 import com.codename1.components.SpanLabel;
 import com.codename1.rad.ui.EntityEditor.DescriptionStyle;
@@ -18,6 +18,7 @@ import com.codename1.ui.Container;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
+import com.codename1.rad.models.Entity;
 
 /**
  * An editor for a {@link FieldNode}.  Used internally by {@link EntityEditor} for rendering its fields.
@@ -48,10 +49,10 @@ public class FieldEditor extends Container {
         built = true;
         
         setLayout(BoxLayout.y());
-        Property.Label lbl = field.getLabel(entity.getEntityType());
+        Property.Label lbl = field.getLabel(entity.getEntity().getEntityType());
         LabelStyle labelStyle = field.getLabelStyle(LabelStyle.Default);
         
-        Property.Description description = field.getDescription(entity.getEntityType());
+        Property.Description description = field.getDescription(entity.getEntity().getEntityType());
         DescriptionStyle descriptionStyle = field.getDescriptionStyle(DescriptionStyle.HelpButton);
         Container above = new Container(new FlowLayout());
         above.stripMarginAndPadding();
@@ -92,7 +93,7 @@ public class FieldEditor extends Container {
             }
         }
         
-        WidgetType widgetType = field.getWidgetType(entity.getEntityType());
+        WidgetType widgetType = field.getWidgetType(entity.getEntity().getEntityType());
         if (widgetType != null) {
             
             component = field.getViewFactory().createPropertyView(entity, field);

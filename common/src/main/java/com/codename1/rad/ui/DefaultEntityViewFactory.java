@@ -18,6 +18,7 @@ import com.codename1.ui.Container;
 import com.codename1.ui.SwipeableContainer;
 import com.codename1.ui.layouts.BoxLayout;
 import java.util.HashMap;
+import com.codename1.rad.models.Entity;
 
 /**
  * The default factory used for rendering a ViewNode as an EntityView.

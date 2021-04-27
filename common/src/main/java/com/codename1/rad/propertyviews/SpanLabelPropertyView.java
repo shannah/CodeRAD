@@ -8,7 +8,7 @@ package com.codename1.rad.propertyviews;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.models.TextFormatterAttribute;
@@ -16,6 +16,7 @@ import com.codename1.rad.ui.UI;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  * A view for binding to {@link SpanLabel} components.
@@ -42,14 +43,14 @@ public class SpanLabelPropertyView extends PropertyView<com.codename1.components
 
     @Override
     protected void bindImpl() {
-        getEntity().addPropertyChangeListener(getProperty(), pcl);
+        getEntity().getEntity().addPropertyChangeListener(getProperty(), pcl);
         
     }
 
     @Override
     protected void unbindImpl() {
         
-        getEntity().removePropertyChangeListener(getProperty(), pcl);
+        getEntity().getEntity().removePropertyChangeListener(getProperty(), pcl);
     }
     
     @Override

@@ -9,7 +9,7 @@ import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
 import com.codename1.rad.models.DateFormatterAttribute;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.PropertyChangeEvent;
@@ -26,6 +26,7 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
 import java.util.Date;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  * View for binding to {@link com.codename1.ui.Label} components.

@@ -11,10 +11,11 @@ import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.ui.table.EntityListTableModel;
 import ca.weblite.shared.components.table.Table;
 import ca.weblite.shared.components.table.Table.TableEvent;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.rad.models.Entity;
 
 /**
  * A view for binding to {@link Table} components. 
@@ -35,7 +36,7 @@ public class TablePropertyView extends PropertyView<Table> {
     }
     
     private EntityList getPropertyAsEntityList() {
-        Object propertyVal = getEntity().get(getProperty());
+        Object propertyVal = getEntity().getEntity().get(getProperty());
         if (!(propertyVal instanceof EntityList)) {
             throw new IllegalStateException("TablePropertyView only supports EntityList properties");
         }
@@ -83,7 +84,7 @@ public class TablePropertyView extends PropertyView<Table> {
         if (ePropertyVal == list) {
             return;
         }
-        getEntity().set(getProperty(), list);
+        getEntity().getEntity().set(getProperty(), list);
     }
     
 }

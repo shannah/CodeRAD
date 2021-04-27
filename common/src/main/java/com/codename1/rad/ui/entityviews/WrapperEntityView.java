@@ -7,11 +7,12 @@ package com.codename1.rad.ui.entityviews;
 
 import com.codename1.rad.ui.AbstractEntityView;
 import com.codename1.rad.nodes.Node;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.ui.Component;
 import static com.codename1.ui.ComponentSelector.$;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Border;
+import com.codename1.rad.models.Entity;
 
 /**
  * An entity view that is made explicitly to wrap another component.  

@@ -5,8 +5,9 @@
  */
 package com.codename1.rad.ui;
 
-import com.codename1.rad.models.Entity;
+
 import com.codename1.ui.Form;
+import com.codename1.rad.models.Entity;
 
 /**
  * A form with an embedded {@link EntityEditor}.

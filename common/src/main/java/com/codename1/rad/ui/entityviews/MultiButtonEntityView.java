@@ -21,7 +21,7 @@ import com.codename1.rad.nodes.EventFactoryNode;
 import com.codename1.rad.nodes.ViewNode;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.ContentType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
@@ -34,6 +34,7 @@ import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.ui.events.ActionEvent;
 
 import com.codename1.ui.events.ActionListener;
+import com.codename1.rad.models.Entity;
 
 /**
  * A view that renders an {@link Entity} as a MultiButton.  
@@ -196,23 +197,23 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
     
     @Override
     public void bind() {
-        entity.addPropertyChangeListener(pcl);
+        entity.getEntity().addPropertyChangeListener(pcl);
     }
 
     @Override
     public void unbind() {
-        entity.removePropertyChangeListener(pcl);
+        entity.getEntity().removePropertyChangeListener(pcl);
     }
 
     @Override
     public void update() {
-        EntityType type = getEntity().getEntityType();
+        EntityType type = getEntity().getEntity().getEntityType();
         boolean changed = false;
         if (line1PropDirty) {
             line1PropDirty = false;
             line1Prop = line1Prop == null ? type.findProperty(line1, Thing.name) : line1Prop;
             if (line1Prop != null) {
-                String text = type.getText(line1Prop, entity);
+                String text = type.getText(line1Prop, entity.getEntity());
                 if (!Objects.equals(text, getTextLine1())) {
                     setTextLine1(text);
                     changed = true;
@@ -223,7 +224,7 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
             line2PropDirty = false;
             line2Prop = line2Prop == null ? type.findProperty(line2, Thing.description) : line2Prop;
             if (line2Prop != null) {
-                String text = type.getText(line2Prop, entity);
+                String text = type.getText(line2Prop, entity.getEntity());
                 if (!Objects.equals(text, getTextLine2())) {
                     setTextLine2(text);
                     changed = true;
@@ -234,7 +235,7 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
             line3PropDirty = false;
             line3Prop = line3Prop == null ? type.findProperty(line3) : line3Prop;
             if (line3Prop != null) {
-                String text = type.getText(line3Prop, entity);
+                String text = type.getText(line3Prop, entity.getEntity());
                 if (!Objects.equals(text, getTextLine3())) {
                     setTextLine3(text);
                     changed = true;
@@ -245,7 +246,7 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
             line4PropDirty = false;
             line4Prop = line4Prop == null ? type.findProperty(line4) : line4Prop;
             if (line4Prop != null) {
-                String text = type.getText(line4Prop, entity);
+                String text = type.getText(line4Prop, entity.getEntity());
                 if (!Objects.equals(text, getTextLine4())) {
                     setTextLine4(text);
                     changed = true;
@@ -258,7 +259,7 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
             Property iconProp = this.iconProp != null ? this.iconProp : type.findProperty(icon);
             this.iconProp = iconProp;
             if (iconProp != null) {
-                Object iconData = iconProp.getValue(getEntity());
+                Object iconData = iconProp.getValue(getEntity().getEntity());
                 if (iconData != null) {
                     IconRendererAttribute iconRendererAtt = (IconRendererAttribute)viewNode.findInheritedAttribute(IconRendererAttribute.class);
                     EntityImageRenderer iconRenderer = iconRendererAtt == null ? new DefaultEntityImageRenderer() : iconRendererAtt.getValue();

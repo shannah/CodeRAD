@@ -21,9 +21,6 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.plaf.Style;
 
-import javax.swing.text.View;
-import java.util.ArrayList;
-
 /**
  * A controller for handling application logic related to a Form.
  * 
@@ -90,7 +87,7 @@ public class ChatFormController extends FormController {
 
  * @author shannah
  */
-public class FormController extends ViewController {
+public class FormController extends ViewController implements Runnable {
     private String title;
     private String pathName;
 
@@ -151,7 +148,11 @@ public class FormController extends ViewController {
      */
     public void setView(Form form) {
         super.setView(form);
-        if (hasBackCommand()) {
+        Form currView = getView();
+        if (currView != null) {
+            currView.removeShowListener(showListener());
+        }
+        if (form != null && hasBackCommand()) {
             form.setBackCommand(new Command("") {
                 @Override
                 public void actionPerformed(ActionEvent evt) {
@@ -189,6 +190,10 @@ public class FormController extends ViewController {
      * @param cmp 
      */
     public void setView(Component cmp) {
+        if (cmp == null) {
+            setView((Form)null);
+            return;
+        }
         Form currView = getView();
         if (currView != null) {
             currView.removeShowListener(showListener());
@@ -327,6 +332,8 @@ public class FormController extends ViewController {
     }
     
     public void show() {
+        startControllerInternal();
+        CN.go(this);
         getView().show();
     }
     
@@ -424,7 +431,26 @@ public class FormController extends ViewController {
         }
         return fc;
     }
-    
-    
+
+
+
+
+    public void refresh() {
+        boolean isShowing = CN.getCurrentForm() == getView();
+        super.refresh();
+        if (isShowing) {
+            show();
+        }
+    }
+
+    public void run() {
+        if (isStarted()) {
+            refresh();
+        } else {
+            startControllerInternal();
+            show();
+        }
+    }
+
     
 }

@@ -7,7 +7,6 @@ package com.codename1.rad.ui;
 
 import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.nodes.FieldNode;
-import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertySelector;
 import com.codename1.ui.Component;
@@ -15,6 +14,7 @@ import com.codename1.ui.Container;
 import com.codename1.ui.Editable;
 import com.codename1.ui.layouts.BorderLayout;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  * Wrapper around a component that supports binding to a property.
@@ -120,7 +120,7 @@ public abstract class PropertyView<T extends Component> extends Container implem
     }
     
     public Property getProperty() {
-        return getField().getProperty(entity.getEntityType());
+        return getField().getProperty(entity.getEntity().getEntityType());
     }
     
     public PropertySelector getPropertySelector() {

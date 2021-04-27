@@ -18,7 +18,7 @@ public class DefaultEntityImageRenderer implements EntityImageRenderer {
     @Override
     public AsyncImage createImage(EntityView view, Property property, int rowIndex, boolean selected, boolean focused) {
         try {
-            return (AsyncImage)ContentType.convert(property.getContentType(), property.getValue(view.getEntity()), AsyncImage.CONTENT_TYPE);
+            return (AsyncImage)ContentType.convert(property.getContentType(), property.getValue(view.getEntity().getEntity()), AsyncImage.CONTENT_TYPE);
         } catch (Throwable t) {
             return null;
         }

@@ -5,7 +5,7 @@
  */
 package com.codename1.rad.ui.entityviews;
 
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.nodes.ActionNode;
@@ -28,6 +28,7 @@ import static com.codename1.ui.layouts.BorderLayout.NORTH;
 import static com.codename1.ui.layouts.BorderLayout.WEST;
 import com.codename1.ui.layouts.GridLayout;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  * A list view that can show a list of profiles.  
@@ -138,7 +139,7 @@ public class ProfileListView extends EntityListView {
             setLayout(new BorderLayout());
             ProfileAvatarView avatar = new ProfileAvatarView(profile, avatarSizeMM);
             add(WEST, avatar);
-            nameProp = profile.getEntityType().findProperty(Thing.name);
+            nameProp = profile.getEntity().getEntityType().findProperty(Thing.name);
             nameLabel = new com.codename1.ui.Label();
             add(CENTER, nameLabel);
             
@@ -172,7 +173,7 @@ public class ProfileListView extends EntityListView {
         public void update() {
             String name = "";
             if (nameProp != null) {
-                name = getEntity().getText(nameProp);
+                name = getEntity().getEntity().getText(nameProp);
             }
             if (!Objects.equals(name, nameLabel.getText())) {
                 nameLabel.setText(name);

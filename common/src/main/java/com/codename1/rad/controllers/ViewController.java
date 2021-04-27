@@ -5,7 +5,8 @@
  */
 package com.codename1.rad.controllers;
 
-import com.codename1.rad.ui.AbstractEntityView;
+import com.codename1.rad.models.Entity;
+import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.ui.Slot;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
@@ -86,11 +87,16 @@ public class ViewController extends Controller {
     private ActionListener<ComponentStateChangeEvent> stateChangeListener = evt -> {
         if (evt.isInitialized()) {
             initController();
+            initController();
         } else {
             deinitialize();
         }
     };
     
+    /**
+     * Creates a new ViewController with the given parent controller.
+     * @param parent 
+     */
     public ViewController(Controller parent) {
         super(parent);
     }
@@ -136,6 +142,7 @@ public class ViewController extends Controller {
      * @param cmp The component to activate.
      */
     private static void activate(Component cmp) {
+
         if (isActivated(cmp)) return;
         cmp.putClientProperty(KEY_ACTIVATED, Boolean.TRUE);
         if (cmp instanceof Slot) {
@@ -167,16 +174,28 @@ public class ViewController extends Controller {
         return activated != null;
     }
     
+    /**
+     * Gets the ViewController associated with this component.  This will
+     * return the "nearest" view controller found in the view hierarchy.  I.e.
+     * If the {@literal cmp} has no view controller, then it will look in the 
+     * parent container, and it's parent, if necessary, all the way up to
+     *  the Form.
+     * 
+     * @param cmp Component whose ViewController we wish to retrieve.
+     * @return The ViewController for the component.
+     */
     public static ViewController getViewController(Component cmp) {
         Component orig = cmp;
         ViewController ctrl = (ViewController)cmp.getClientProperty(KEY);
         if (ctrl != null) {
+            ctrl.startControllerInternal();
             return ctrl;
         }
         cmp = orig.getOwner();
         if (cmp != null) {
             ctrl =  getViewController(cmp);
             if (ctrl != null) {
+                ctrl.startControllerInternal();
                 return ctrl;
             }
         }
@@ -186,6 +205,7 @@ public class ViewController extends Controller {
         if (cmp != null) {
             ctrl = getViewController(cmp);
             if (ctrl != null) {
+                ctrl.startControllerInternal();
                 return ctrl;
             }
         }
@@ -199,22 +219,40 @@ public class ViewController extends Controller {
      * @return 
      */
     public Component getView() {
+        startController();
         return view;
     }
     
-    
+
+
     /**
      * Callback called when the view is initialized (i.e. made visible)
      */
     public void initController() {
-        
+        startControllerInternal();
     }
     
     /**
      * Callback called when the view is deinitialized (i.e. removed from display hierarchy).
      */
     public void deinitialize() {
-        
+
     }
+
+
+
+    /**
+     * Gets the ViewModel.
+     * @return 
+     */
+    public Entity getViewModel() {
+
+        if (view instanceof EntityView) {
+            return ((EntityView)view).getEntity();
+        }
+       
+        return null;
+    }
+
 
 }

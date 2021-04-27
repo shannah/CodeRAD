@@ -18,7 +18,7 @@ package com.codename1.rad.propertyviews;
 import com.codename1.components.ButtonList;
 import com.codename1.rad.attributes.Columns;
 import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import com.codename1.rad.models.Entity;
 
 /**
  *
@@ -156,7 +157,7 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
         MultipleSelectionListModel model = getComponent().getMultiListModel();
         Entity e = getPropertySelector().getLeafEntity();
         Property p = getPropertySelector().getLeafProperty();
-        Object val = p.getValue(e);
+        Object val = p.getValue(e.getEntity());
         
         int len = model.getSize();
 
@@ -173,12 +174,12 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
                 List selectedObjects = new ArrayList();
                 List<String> selectedIds = new ArrayList<>();
                 boolean useIds = true;
-                EntityList el = e.getEntityList(p);
+                EntityList el = e.getEntity().getEntityList(p);
                 
                 for (Object obj : el) {
                     selectedObjects.add(obj);
                     if (obj instanceof Entity) {
-                        String id = ((Entity)obj).getText(Thing.identifier);
+                        String id = ((Entity)obj).getEntity().getText(Thing.identifier);
                         if (id == null) {
                             useIds = false;
                             break;
@@ -196,7 +197,7 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
                         Object rowVal = model.getItemAt(i);
                         if (rowVal instanceof Entity) {
                             Entity rowEnt = (Entity)rowVal;
-                            String rowId = rowEnt.getText(Thing.identifier);
+                            String rowId = rowEnt.getEntity().getText(Thing.identifier);
                             if (rowId == null) {
                                 throw new IllegalStateException("Attempt to use identifiers for matching items in ButtonListPropertyView, but row item "+rowEnt+" has no identifier.  Property: "+p+" in entity "+e);
                             }
@@ -253,7 +254,7 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
     private void updateSingleSelectionModel() {
         Entity e = getPropertySelector().getLeafEntity();
         Property p = getPropertySelector().getLeafProperty();
-        Object val = p.getValue(e);
+        Object val = p.getValue(e.getEntity());
 
         ListModel model = getComponent().getModel();
         int len = model.getSize();
@@ -261,13 +262,13 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
         int selectedIndex = model.getSelectedIndex();
         if (p.getContentType().isEntity()) {
             // For entities, we'll allow matching on ID.
-            Entity currSelection = e.getEntity(p);
-            String id = currSelection.getText(Thing.identifier);
+            Entity currSelection = e.getEntity().getEntity(p);
+            String id = currSelection.getEntity().getText(Thing.identifier);
             if (id != null) {
                 for (int i=0; i<len; i++) {
                     Object rowVal = model.getItemAt(i);
                     if (rowVal instanceof Entity) {
-                        String rowId = ((Entity)rowVal).getText(Thing.identifier);
+                        String rowId = ((Entity)rowVal).getEntity().getText(Thing.identifier);
                         if (Objects.equals(rowId, id)) {
                             if (i != selectedIndex) {
                                 model.setSelectedIndex(i);
@@ -297,7 +298,7 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
 
         } else {
             for (int i=0; i<len; i++) {
-                if (Objects.equals(model.getItemAt(i), e.get(p))) {
+                if (Objects.equals(model.getItemAt(i), e.getEntity().get(p))) {
                     if (selectedIndex != i) {
                         model.setSelectedIndex(i);
                     }
@@ -322,17 +323,17 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
         int selectedIndex = getComponent().getModel().getSelectedIndex();
         if (selectedIndex < 0) {
             if (p.getContentType().isEntityList()) {
-                e.getEntityList(p).clear();
-                e.setChanged(p, true);
+                e.getEntity().getEntityList(p).clear();
+                e.getEntity().setChanged(p, true);
             } else if (Collection.class.isAssignableFrom(p.getContentType().getRepresentationClass())){
-                ((Collection)e.get(p)).clear();
-                e.setChanged(p, true);
+                ((Collection)e.getEntity().get(p)).clear();
+                e.getEntity().setChanged(p, true);
             } else {
                 throw new IllegalStateException("Unsupported property content type for property");
             }
         } else {
             Object selectedObject = getComponent().getModel().getItemAt(selectedIndex);
-            e.set(p, selectedObject);
+            e.getEntity().set(p, selectedObject);
         }
     }
     
@@ -341,10 +342,10 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
         Property p = getPropertySelector().getLeafProperty();
         int selectedIndex = getComponent().getModel().getSelectedIndex();
         if (selectedIndex < 0) {
-            e.set(p, null);
+            e.getEntity().set(p, null);
         } else {
             Object selectedObject = getComponent().getModel().getItemAt(selectedIndex);
-            e.set(p, selectedObject);
+            e.getEntity().set(p, selectedObject);
         }
         
     }

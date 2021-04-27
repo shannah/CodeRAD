@@ -15,7 +15,7 @@ import com.codename1.rad.nodes.ListNode;
 import com.codename1.rad.nodes.Node;
 import com.codename1.rad.nodes.SectionNode;
 import com.codename1.rad.nodes.ViewNode;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Property.Name;
@@ -28,6 +28,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
+import com.codename1.rad.models.Entity;
 
 /**
  * A View that can render forms for editing an entity.  The form can be customized with a view descriptor to specify
@@ -319,7 +320,7 @@ public class EntityEditor extends Container {
         private void buildSections() {
             List<FieldEditor> currRow = new ArrayList<>();
             for (FieldNode field : sectionDescriptor) {
-               if (field.getProperty(entity.getEntityType()) == null) {
+               if (field.getProperty(entity.getEntity().getEntityType()) == null) {
                    continue;
                }
                FieldEditor propertyEditor = new FieldEditor(entity, field);

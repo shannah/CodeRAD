@@ -9,7 +9,7 @@ import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.events.FillSlotEvent;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.Node;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.events.ActionEvent;
@@ -17,6 +17,7 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 
 import static com.codename1.ui.ComponentSelector.$;
+import com.codename1.rad.models.Entity;
 
 /**
  * An interface used by views that can bind to entities.

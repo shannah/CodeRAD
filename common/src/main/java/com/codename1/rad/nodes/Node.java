@@ -6,6 +6,7 @@
 package com.codename1.rad.nodes;
 
 import com.codename1.rad.attributes.IconUIID;
+import com.codename1.rad.models.*;
 import com.codename1.rad.ui.*;
 import com.codename1.rad.attributes.NodeDecoratorAttribute;
 import com.codename1.rad.attributes.PropertySelectorAttribute;
@@ -13,14 +14,7 @@ import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.attributes.UIIDPrefix;
 import com.codename1.rad.attributes.ViewPropertyParameterAttribute;
 import com.codename1.rad.nodes.ActionNode.Category;
-import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.AttributeSet;
-import com.codename1.rad.models.DateFormatterAttribute;
-import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.NumberFormatterAttribute;
-import com.codename1.rad.models.PropertySelector;
-import com.codename1.rad.models.Tags;
-import com.codename1.rad.models.TextFormatterAttribute;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -348,7 +342,15 @@ public abstract class Node<T> extends Attribute<T> {
            }
        }
    }
-    
+
+    public void setAttributes(boolean overwrite, Attribute... atts) {
+        if (overwrite) {
+            setAttributes(atts);
+        } else {
+            setAttributesIfNotExists(atts);
+        }
+    }
+
     /**
      * Sets attributes on this node.
      * @param atts The attributes to set.
@@ -721,6 +723,14 @@ public abstract class Node<T> extends Attribute<T> {
         return child;
     }
 
+    @Override
+    public String toString() {
+        Property.Name name = findAttribute(Property.Name.class);
+        if (name != null) {
+            return "Node{type="+getClass()+", name="+name.toString()+"}";
+        } else {
+            return super.toString();
+        }
 
-
+    }
 }

@@ -17,7 +17,7 @@ package com.codename1.rad.ui.entityviews;
 
 import ca.weblite.shared.components.CollapsibleHeaderContainer.ScrollableContainer;
 import com.codename1.rad.attributes.UIID;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.PropertySelector;
@@ -33,6 +33,7 @@ import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.Tabs;
 import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.rad.models.Entity;
 
 /**
  * An Tabs component that is backed by a view model.  You can specify the tabs in this
@@ -301,7 +302,7 @@ public class TabsEntityView extends AbstractEntityView implements ScrollableCont
             if (content == null) {
                 continue;
             }
-            tabs.addTab(l.getValue(getEntity()), (Component)content);
+            tabs.addTab(l.getValue(getEntity().getEntity()), (Component)content);
         }
         setLayout(new BorderLayout());
         add(BorderLayout.CENTER, tabs);

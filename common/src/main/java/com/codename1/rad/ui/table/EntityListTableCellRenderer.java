@@ -10,11 +10,12 @@ import ca.weblite.shared.components.table.AbstractTableCellRenderer;
 import ca.weblite.shared.components.table.DefaultTableCellRenderer;
 import ca.weblite.shared.components.table.Table;
 import ca.weblite.shared.components.table.TableCellRenderer;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property.Editable;
 import com.codename1.ui.Component;
 import com.codename1.rad.ui.PropertyViewFactory;
 import com.codename1.rad.ui.UI;
+import com.codename1.rad.models.Entity;
 
 /**
  * A renderer for rendering cells of {@link Table}s that use {@link EntityListTableModel} as a model.

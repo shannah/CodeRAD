@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.nodes;
 
+import com.codename1.rad.models.*;
 import com.codename1.rad.ui.ActionStyle;
 import com.codename1.rad.ui.ActionViewFactory;
 import com.codename1.rad.attributes.ActionStyleAttribute;
@@ -16,8 +17,7 @@ import com.codename1.rad.attributes.ImageIcon;
 import com.codename1.rad.attributes.MaterialIcon;
 import com.codename1.rad.attributes.SelectedCondition;
 import com.codename1.rad.attributes.TextIcon;
-import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.Property.Description;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Property.Name;
@@ -25,7 +25,6 @@ import com.codename1.ui.Command;
 import com.codename1.ui.Component;
 import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.ControllerEvent;
-import com.codename1.rad.models.EntityTest;
 import com.codename1.rad.ui.ComponentDecorators;
 import com.codename1.rad.ui.NodeList;
 import com.codename1.rad.ui.UI;
@@ -35,6 +34,10 @@ import com.codename1.ui.util.EventDispatcher;
 import com.codename1.util.SuccessCallback;
 
 import java.util.Map;
+
+import com.codename1.rad.ui.image.EntityImageRenderer;
+import com.codename1.rad.ui.image.PropertyImageRenderer;
+import com.codename1.ui.Image;
 
 /**
  * A special {@link Node} that defines an action. When added to prescribed {@link Category}, an Action may manifest itself as a button,
@@ -95,13 +98,81 @@ public class ChatFormController extends FormController {
  * @author shannah
  */
 public class ActionNode extends Node implements Proxyable {
+
+
+    public static class OverrideRule extends Attribute {
+        private int maxNum;
+
+        private boolean aggregate;
+
+        public OverrideRule() {
+            super(null);
+        }
+
+        public OverrideRule(int maxNum, boolean aggregate) {
+            this();
+            this.maxNum = maxNum;
+            this.aggregate = aggregate;
+        }
+
+
+        /**
+         * The maximum number of actions to fetch from parent
+         * controllers.
+         */
+        public int getMaxNum() {
+            return maxNum;
+        }
+
+        /**
+         * Whether to aggregate actions from parents together
+         * in a single set. If true, then this will load
+         * actions from parents up to the maxNum.  If false,
+         * then it will take only from a single parent controller
+         * -- the top level one.
+         */
+        public boolean isAggregate() {
+            return aggregate;
+        }
+
+
+    }
     
+    /**
+     * A callback the is to be called after an ActionNodeEvent has been triggered.  This is useful
+     * for determining if the event was consumed.
+     */
+    public static interface AfterActionCallback extends SuccessCallback<ActionEvent> {
+        
+    }
+    
+    /**
+     * A node wrapper for {@link AfterActionCallback}.
+     */
+    public static class AfterActionCallbackNode extends Node<AfterActionCallback> {
+        public AfterActionCallbackNode(AfterActionCallback callback) {
+            super(callback);
+        }
+    }
+    
+    public void addAfterActionCallback(AfterActionCallback callback) {
+        setAttributes(new AfterActionCallbackNode(callback));
+    }
+    
+    
+    /**
+     * Adds an action listener to the action node.
+     */
     private static class ActionListenerNode extends Node<ActionListener> {
         private ActionListenerNode(ActionListener l) {
             super(l);
         }
     }
     
+    /**
+     * Adds an action listener to this action.
+     * @param l 
+     */
     public void addActionListener(ActionListener l) {
         setAttributes(new ActionListenerNode(l));
         
@@ -109,7 +180,9 @@ public class ActionNode extends Node implements Proxyable {
     
    
    
-    
+    /**
+     * Attribute for adding a test for the enabled condition of the action.
+     */
     public static class EnabledCondition extends Attribute<EntityTest> {
         
         public EnabledCondition(EntityTest value) {
@@ -118,24 +191,44 @@ public class ActionNode extends Node implements Proxyable {
         
     }
     
+    /**
+     * Creates a new ActionNode.
+     * @param atts 
+     */
     public ActionNode(Attribute... atts) {
         super(null, atts);
     }
     
     
+    /**
+     * Gets the component decorators for this action.
+     * @return 
+     */
     public ComponentDecorators getComponentDecorators() {
         return new ComponentDecorators(getChildNodes(ComponentDecoratorNode.class));
     }
    
+    /**
+     * Decorates the given component using the registered component decorators.
+     * @param cmp 
+     */
     public void decorateComponent(Component cmp) {
         getComponentDecorators().decorate(cmp);
     }
 
+    /**
+     * Gets the event factory used for creating action events.
+     * @return 
+     */
     public EventFactoryNode getEventFactory() {
         
         return (EventFactoryNode)findInheritedAttribute(EventFactoryNode.class);
     }
     
+    /**
+     * Gets the registered view factory for the action.
+     * @return 
+     */
     public ActionViewFactory getViewFactory() {
         ActionViewFactoryNode n =  (ActionViewFactoryNode)findInheritedAttribute(ActionViewFactoryNode.class);
         if (n != null) {
@@ -159,6 +252,10 @@ public class ActionNode extends Node implements Proxyable {
         return null;
     }
     
+    /**
+     * Checks the action style.
+     * @return 
+     */
     public ActionStyle getActionStyle() {
         ActionStyleAttribute att = (ActionStyleAttribute)findInheritedAttribute(ActionStyleAttribute.class);
         if (att != null) {
@@ -167,6 +264,11 @@ public class ActionNode extends Node implements Proxyable {
         return null;
     }
     
+    /**
+     * Checks if this action uses the text style.  If using the text style, then this
+     * action will display it's label as text.
+     * @return 
+     */
     public boolean isTextStyle() {
         ActionStyle style = getActionStyle();
         if (style == null) {
@@ -179,6 +281,11 @@ public class ActionNode extends Node implements Proxyable {
         return true;
     }
     
+    /**
+     * Checks if this action uses the icon style. If using the icon style, then this action 
+     * will display an icon.
+     * @return 
+     */
     public boolean isIconStyle() {
         ActionStyle style = getActionStyle();
         if (style == null) {
@@ -191,15 +298,27 @@ public class ActionNode extends Node implements Proxyable {
         return true;
     }
     
+    /**
+     * Gets the badge attribute.
+     * @return 
+     */
     public Badge getBadge() {
         return (Badge)findAttribute(Badge.class);
     }
     
+    /**
+     * Gets the badge UIID attribute.
+     * @return 
+     */
     public BadgeUIID getBadgeUIID() {
         return (BadgeUIID)findAttribute(BadgeUIID.class);
     }
     
     
+    /**
+     * Gets the selected action node.
+     * @return 
+     */
     public ActionNode getSelected() {
         Selected sel = (Selected)findAttribute(Selected.class);
         if (sel == null) {
@@ -208,6 +327,10 @@ public class ActionNode extends Node implements Proxyable {
         return sel;
     }
     
+    /**
+     * Gets the unselected action node.
+     * @return 
+     */
     public ActionNode getUnselected() {
         Unselected sel = (Unselected)findAttribute(Unselected.class);
         if (sel == null) {
@@ -216,6 +339,10 @@ public class ActionNode extends Node implements Proxyable {
         return sel;
     }
     
+    /**
+     * Gets the pressed action node.
+     * @return 
+     */
     public ActionNode getPressed() {
         Pressed sel = (Pressed)findAttribute(Pressed.class);
         if (sel == null) {
@@ -224,6 +351,10 @@ public class ActionNode extends Node implements Proxyable {
         return sel;
     }
     
+    /**
+     * Gets the disabled action node.
+     * @return 
+     */
     public ActionNode getDisabled() {
         Disabled sel = (Disabled)findAttribute(Disabled.class);
         if (sel == null) {
@@ -232,6 +363,10 @@ public class ActionNode extends Node implements Proxyable {
         return sel;
     }
     
+    /**
+     * Gets the category of the action.
+     * @return 
+     */
     public Category getCategory() {
         Category out = (Category)findAttribute(Category.class);
         if (out != null) {
@@ -250,26 +385,52 @@ public class ActionNode extends Node implements Proxyable {
         
     }
     
+    /**
+     * Gets the action label.
+     * @return 
+     */
     public Label getLabel() {
         return (Label)findAttribute(Label.class);
     }
     
+    /**
+     * Gets a description for the action.
+     * @return 
+     */
     public Description getDescription() {
         return (Description)findAttribute(Description.class);
     }
     
+    /**
+     * Gets the condition attribute.  This attribute can be used to show/hide the action
+     * depending on a boolean test condition. 
+     * @return 
+     */
     public Condition getCondition() {
         return (Condition)findAttribute(Condition.class);
     }
     
+    /**
+     * Gets the selected condition attribute.
+     * @return 
+     */
     public SelectedCondition getSelectedCondition() {
         return (SelectedCondition)findAttribute(SelectedCondition.class);
     }
     
+    /**
+     * Gets the enabled condition attribute.
+     * @return 
+     */
     public EnabledCondition getEnabledCondition() {
         return (EnabledCondition)findAttribute(EnabledCondition.class);
     }
     
+    /**
+     * Checks if the action is enabled for the given entity context.
+     * @param entity The entity to use as a context for testing the enabled state.
+     * @return 
+     */
     public boolean isEnabled(Entity entity) {
         EnabledCondition cond = getEnabledCondition();
         if (cond != null) {
@@ -279,6 +440,11 @@ public class ActionNode extends Node implements Proxyable {
     
     }
     
+    /**
+     * Checks if the action is selected for the given entity context.
+     * @param entity The entity to use as a context for testing the selected condition.
+     * @return 
+     */
     public boolean isSelected(Entity entity) {
         SelectedCondition cond = getSelectedCondition();
         if (cond != null) {
@@ -287,18 +453,35 @@ public class ActionNode extends Node implements Proxyable {
         return true;
     }
     
+    /**
+     * Gets the image icon for the action.
+     * @return 
+     */
     public ImageIcon getImageIcon() {
         return (ImageIcon)findAttribute(ImageIcon.class);
     }
     
+    /**
+     * Gets the material icon for the action.
+     * @return 
+     */
     public MaterialIcon getMaterialIcon() {
         return (MaterialIcon)findAttribute(MaterialIcon.class);
     }
     
+    /**
+     * Gets the text icon for the action.
+     * @return 
+     */
     public TextIcon getTextIcon() {
         return (TextIcon) findAttribute(TextIcon.class);
     }
 
+    /**
+     * Creates a proxy node for the current ActionNode.
+     * @param parent The parent node for the proxy node.
+     * @return The proxy node.
+     */
     @Override
     public Node createProxy(Node parent) {
         ActionNode out = new ActionNode();
@@ -308,37 +491,59 @@ public class ActionNode extends Node implements Proxyable {
     }
 
     @Override
+    /**
+     * Action Nodes can act as a proxy for other action nodes, so this returns true by default.
+     */
     public boolean canProxy() {
         return true;
     }
     
     
     
-    
+    /**
+     * A sub-node of an ActionNode that contains attributes for the action specific to
+     * its selected state.
+     */
     public static class Selected extends ActionNode {
         public Selected(Attribute... atts) {
             super(atts);
         }
     }
     
+    /**
+     * A sub-node of an ActionNode that contains attributes for the action specific to
+     * its disabled state.
+     */
     public static class Disabled extends ActionNode {
         public Disabled(Attribute... atts) {
             super(atts);
         }
     }
     
+    /**
+     * A sub-node of an ActionNode that contains attributes for the action specific to
+     * its unselected state.
+     */
     public static class Unselected extends ActionNode {
         public Unselected(Attribute... atts) {
             super(atts);
         }
     }
     
+    /**
+     * A sub-node of an ActionNode that contains attributes for the action specific 
+     * to its pressed state.
+     */
     public static class Pressed extends ActionNode {
         public Pressed(Attribute... atts) {
             super(atts);
         }
     }
     
+    /**
+     * A category is used as a marker in a View to allow groups of actions to be added to the view
+     * in a single category.
+     */
     public static class Category extends Attribute<Name> {
         
         public Category(Name value) {
@@ -349,26 +554,52 @@ public class ActionNode extends Node implements Proxyable {
             this(new Name(""));
         }
         
+        public Category(String name) {
+            this(new Name(name));
+        }
+        
     }
     
+    /**
+     * An action node event.  This is the type of event triggered by an action node.
+     */
     public static class ActionNodeEvent extends ControllerEvent {
+        
+        /**
+         * The event context.
+         */
         private EventContext context;
         
-        
+        /**
+         * Creates a new ActionNodeEvent with the given context.
+         * @param context 
+         */
         public ActionNodeEvent(EventContext context) {
             super(context.getEventSource());
             this.context = context;
             
         }
         
+        /**
+         * Gets the action that triggeed this event.
+         * @return 
+         */
         public ActionNode getAction() {
             return context.getAction();
         }
         
+        /**
+         * Gets the entity context where the action was triggered.
+         * @return 
+         */
         public Entity getEntity() {
             return context.getEntity();
         }
         
+        /**
+         * Gets the context of the event.
+         * @return 
+         */
         public EventContext getContext() {
             return context;
         }
@@ -412,6 +643,13 @@ public class ActionNode extends Node implements Proxyable {
         return null;
     }
 
+    /**
+     * If the provided event is an ActionNode, then it will be passed as an argument to the callback.  Otherwise the callback will
+     * not be run.
+     * @param evt The event
+     * @param callback The callback.
+     * @return 
+     */
     public static boolean asActionNode(ActionEvent evt, SuccessCallback<ActionNode> callback) {
         ActionNode n = getActionNode(evt);
         if (n == null) return false;
@@ -419,21 +657,56 @@ public class ActionNode extends Node implements Proxyable {
         return true;
     }
     
+    /**
+     * Fires an event with the given event context.
+     * @param context The event context.
+     * @return 
+     */
     public ActionEvent fireEvent(EventContext context) {
         EventFactoryNode eventFactory = this.getEventFactory();
         EventContext contextCopy = context.copyWithNewAction(this);
         ActionEvent actionEvent = eventFactory.getValue().createEvent(contextCopy);
-
+        fireActionListeners(actionEvent);
+        if (actionEvent.isConsumed()) {
+            fireAfterActionCallback(actionEvent);
+            return actionEvent;
+        }
         ActionSupport.dispatchEvent(actionEvent);
+        fireAfterActionCallback(actionEvent);
         return actionEvent;
     }
     
+    /**
+     * Fires registered callbacks to run after the action has been dispatched.
+     * 
+     * @param evt 
+     */
+    private void fireAfterActionCallback(ActionEvent evt) {
+        for (Node n : getChildNodes(AfterActionCallbackNode.class)) {
+            AfterActionCallbackNode aacn = (AfterActionCallbackNode)n;
+            ((AfterActionCallback)aacn.getValue()).onSucess(evt);
+        }
+    }
+
     
     
+    /**
+     * Fires an event with the given entity and source for the context
+     * @param entity
+     * @param source
+     * @return 
+     */
     public ActionEvent fireEvent(Entity entity, Component source) {
         return fireEvent(entity, source, null);
     }
     
+    /**
+     * Fires an event with the given entity, source, and extra data as the context.
+     * @param entity
+     * @param source
+     * @param extraData
+     * @return 
+     */
     public ActionEvent fireEvent(Entity entity, Component source, Map extraData) {
         EventFactoryNode eventFactory = this.getEventFactory();
         if (eventFactory == null) {
@@ -450,22 +723,41 @@ public class ActionNode extends Node implements Proxyable {
         }
 
         ActionEvent actionEvent = eventFactory.getValue().createEvent(eventContext);
+        fireActionListeners(actionEvent);
+        if (actionEvent.isConsumed()) {
+            fireAfterActionCallback(actionEvent);
+            return actionEvent;
+        }
+        ActionSupport.dispatchEvent(actionEvent);
+        fireAfterActionCallback(actionEvent);
+        return actionEvent;
+    }
+    
+    
+    private void fireActionListeners(ActionEvent actionEvent) {
         NodeList actionListeners = getChildNodes(ActionListenerNode.class);
         for (Node n : actionListeners) {
             ActionListenerNode aln = (ActionListenerNode)n;
             aln.getValue().actionPerformed(actionEvent);
             if (actionEvent.isConsumed()) {
-                return actionEvent;
+                return;
             }
         }
-        ActionSupport.dispatchEvent(actionEvent);
-        return actionEvent;
     }
     
+    /**
+     * Converts the string to the empty string if it is null. Otherwise just returns the string.
+     * @param str
+     * @return 
+     */
     private String str(String str) {
         return str == null ? "" : str;
     }
     
+    /**
+     * Gets the label text for this action.
+     * @return 
+     */
     public String getLabelText() {
         Label l = getLabel();
         if (l == null) {
@@ -474,21 +766,36 @@ public class ActionNode extends Node implements Proxyable {
         return l.getValue();
     }
     
+    /**
+     * Gets the label text for this action with the given entity used as the context.
+     * @param context
+     * @return 
+     */
     public String getLabelText(Entity context) {
         Label l = getLabel();
         if (l == null) {
             return "";
         }
-        return l.getValue(context);
+        return l.getValue(context.getEntity());
     }
 
     
-    
+    /**
+     * Creates a view for the action using the current view factory.
+     * @param entity
+     * @return 
+     */
     public Component createView(Entity entity) {
         return getViewFactory().createActionView(entity, this);
     }
    
     
+    /**
+     * Creates a command from the action using the given entity and source componentas a context.
+     * @param entity
+     * @param source
+     * @return 
+     */
     public Command createCommand(Entity entity, Component source) {
         ActionStyle style = getActionStyle();
         if (style == null) {
@@ -531,6 +838,119 @@ public class ActionNode extends Node implements Proxyable {
         }
         
         
+    }
+    
+    /**
+     * A builder to create action nodes.
+     */
+    public static class Builder {
+        private ActionNode action;
+        private boolean overwrite = true;
+        
+        public Builder(ActionNode action) {
+            this.action = action;
+        }
+        
+        public Builder() {
+            this(UI.action());
+        }
+
+        public Builder overwrite(boolean overwrite) {
+            this.overwrite = overwrite;
+            return this;
+        }
+        
+        public Builder label(String label) {
+            action.setAttributes(overwrite, UI.label(label));
+            return this;
+        }
+        
+        public Builder uiid(String uiid) {
+            action.setAttributes(overwrite, UI.uiid(uiid));
+            return this;
+        }
+        
+        public Builder icon(String text) {
+            action.setAttributes(overwrite, UI.icon(text));
+            return this;
+        }
+
+        public Builder name(String text) {
+            action.setAttributes(overwrite, new Property.Name(text));
+            return this;
+        }
+        
+        public Builder icon(char materialIcon) {
+            action.setAttributes(overwrite, UI.icon(materialIcon));
+            return this;
+        }
+        
+        public Builder icon(Image icon) {
+            action.setAttributes(overwrite, UI.icon(icon));
+            return this;
+        }
+        
+        public Builder icon(StringProvider provider) {
+            action.setAttributes(overwrite, UI.icon(provider));
+            return this;
+        }
+        
+        public Builder icon(String text, StringProvider provider) {
+            action.setAttributes(overwrite, UI.icon(text, provider));
+            return this;
+        }
+        
+        public Builder iconRenderer(EntityImageRenderer renderer) {
+            action.setAttributes(overwrite, UI.iconRenderer(renderer));
+            return this;
+        }
+        
+        public Builder iconRenderer(PropertyImageRenderer renderer) {
+            action.setAttributes(overwrite, UI.iconRenderer(renderer));
+            return this;
+        }
+        
+        public Builder iconUIid(String uiid) {
+            action.setAttributes(overwrite, UI.iconUiid(uiid));
+            
+            return this;
+        }
+        
+        public Builder selectedCondition(EntityTest test) {
+            action.setAttributes(overwrite, UI.selectedCondition(test));
+            return this;
+        }
+        
+        public Builder enabledCondition(EntityTest test) {
+            action.setAttributes(overwrite, UI.enabledCondition(test));
+            return this;
+        }
+        public Builder addActionListener(ActionListener l) {
+            action.addActionListener(l);
+            return this;
+        }
+        
+        public Builder addAfterActionCallback(AfterActionCallback callback) {
+            action.addAfterActionCallback(callback);
+            return this;
+        }
+        
+        public Builder condition(EntityTest test) {
+            action.setAttributes(overwrite, UI.condition(test));
+            return this;
+        }
+        
+        public ActionNode build() {
+            return action;
+        }
+    }
+    
+    public static Builder builder() {
+        return new Builder();
+    }
+    
+    public static Builder mutator(ActionNode node) {
+        return new Builder(node);
     }
     
 }

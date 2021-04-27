@@ -16,9 +16,10 @@
 package com.codename1.rad.attributes;
 
 import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.models.PropertySelector;
 import com.codename1.rad.models.PropertySelectorProvider;
+import com.codename1.rad.models.Entity;
 
 /**
  *

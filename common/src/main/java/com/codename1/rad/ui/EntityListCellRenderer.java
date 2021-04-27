@@ -7,6 +7,7 @@ package com.codename1.rad.ui;
 
 import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.ui.entityviews.EntityListView;
+
 import com.codename1.rad.models.Entity;
 
 /**

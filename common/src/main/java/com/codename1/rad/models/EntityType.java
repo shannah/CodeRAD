@@ -77,7 +77,7 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     private ContentType contentType;
     private EntityFactory factory;
     // Factory for creating wrapper objects.
-    private EntityWrapperFactory wrapperFactory;
+    //private EntityWrapperFactory wrapperFactory;
     //private Map<String,Property> properties = new HashMap<>();
     private final Set<Property> propertiesSet = new LinkedHashSet<>();
     private static Map<Class<?>, EntityType> types = new HashMap<>();
@@ -206,7 +206,7 @@ public class EntityType implements Iterable<Property>, EntityFactory {
                     t = (EntityType)type.newInstance();
                 } else if (Entity.class.isAssignableFrom(type)) {
                     Entity e = createEntityForClass(type);
-                    t = e.getEntityType();
+                    t = e.getEntity().getEntityType();
                 }
                 
                 types.put(type, t);
@@ -249,7 +249,7 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     public static void deregister(Class... classes) {
         for (Class type : classes) {
             Entity e = (Entity)createEntityForClass(type);
-            EntityType et = e.getEntityType();
+            EntityType et = e.getEntity().getEntityType();
             
             types.remove(et.getClass());
             types.remove(type);
@@ -359,7 +359,7 @@ public class EntityType implements Iterable<Property>, EntityFactory {
         }
        
         if (et == null) {
-            et = e.getEntityType();
+            et = e.getEntity().getEntityType();
         }
         if (et == null) {
             et = new EntityTypeBuilder()
@@ -390,22 +390,23 @@ public class EntityType implements Iterable<Property>, EntityFactory {
         return this.factory;
     }
 
-    public EntityType wrapperFactory(EntityWrapperFactory factory) {
-        this.wrapperFactory = factory;
-        return this;
-    }
-
-    public EntityWrapperFactory getWrapperFactory() {
-        return wrapperFactory;
-    }
-
-    <T> T createWrapperFor(Entity e, Class<T> wrapperType) {
-        if (wrapperFactory == null) {
-            throw new IllegalStateException("EntityType cannot create wrapper for entity because it doesn't have a wrapper factory set");
-        }
-        return wrapperFactory.createWrapperFor(e, wrapperType);
-    }
     
+//    public EntityType wrapperFactory(EntityWrapperFactory factory) {
+//        this.wrapperFactory = factory;
+//        return this;
+//    }
+//
+//    public EntityWrapperFactory getWrapperFactory() {
+//        return wrapperFactory;
+//    }
+//
+//    <T> T createWrapperFor(Entity e, Class<T> wrapperType) {
+//        if (wrapperFactory == null) {
+//            throw new IllegalStateException("EntityType cannot create wrapper for entity because it doesn't have a wrapper factory set");
+//        }
+//        return wrapperFactory.createWrapperFor(e, wrapperType);
+//    }
+//    
     /**
      * Initializes content type of an entity.
      * @param e 
@@ -1027,7 +1028,7 @@ public class EntityType implements Iterable<Property>, EntityFactory {
             }
         }
         if (entityClass == null) {
-            Entity out = new Entity();
+            Entity out = new BaseEntity();
             out.setEntityType(this);
             return (Entity)out;
         }
@@ -1036,7 +1037,7 @@ public class EntityType implements Iterable<Property>, EntityFactory {
             out.setEntityType(this);
             return (Entity)out;
         } catch (Throwable t) {
-            Entity out = new Entity();
+            Entity out = new BaseEntity();
             out.setEntityType(this);
             return (Entity)out;
         }

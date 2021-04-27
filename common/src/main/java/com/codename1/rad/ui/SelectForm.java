@@ -16,13 +16,14 @@
 package com.codename1.rad.ui;
 
 import com.codename1.rad.attributes.WidgetType;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.nodes.OptionsNode;
 import com.codename1.ui.Container;
 import com.codename1.ui.TextField;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
+import com.codename1.rad.models.Entity;
 
 /**
  *

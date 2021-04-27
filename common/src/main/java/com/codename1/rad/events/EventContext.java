@@ -6,11 +6,12 @@
 package com.codename1.rad.events;
 
 import com.codename1.rad.nodes.ActionNode;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.ui.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import com.codename1.rad.models.Entity;
 
 /**
  * Encapsulates a context in which an {@link ActionNode}'s event is fired.  The context

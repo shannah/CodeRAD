@@ -9,10 +9,10 @@ import com.codename1.rad.ui.ActionStyle;
 import com.codename1.rad.ui.Actions;
 import com.codename1.rad.nodes.ActionNode;
 import ca.weblite.shared.components.PopupMenu;
-import com.codename1.rad.models.Entity;
 import com.codename1.ui.Component;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.Layout;
+import com.codename1.rad.models.Entity;
 
 /**
  * A popup menu for rendering a list of actions.

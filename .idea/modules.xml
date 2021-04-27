@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/annotations/annotations.iml" filepath="$PROJECT_DIR$/annotations/annotations.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/codenameone-maven-manual.iml" filepath="$PROJECT_DIR$/.idea/codenameone-maven-manual.iml" />
       <module fileurl="file://$PROJECT_DIR$/android/coderad-android.iml" filepath="$PROJECT_DIR$/android/coderad-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/coderad-annotation-processor/coderad-annotation-processor.iml" filepath="$PROJECT_DIR$/coderad-annotation-processor/coderad-annotation-processor.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/coderad-common.iml" filepath="$PROJECT_DIR$/common/coderad-common.iml" />
       <module fileurl="file://$PROJECT_DIR$/ios/coderad-ios.iml" filepath="$PROJECT_DIR$/ios/coderad-ios.iml" />
       <module fileurl="file://$PROJECT_DIR$/javascript/coderad-javascript.iml" filepath="$PROJECT_DIR$/javascript/coderad-javascript.iml" />

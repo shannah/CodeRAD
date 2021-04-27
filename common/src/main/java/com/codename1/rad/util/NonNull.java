@@ -21,4 +21,8 @@ public class NonNull {
         callback.onSucess(o);
         return true;
     }
+    
+    public static boolean empty(Object val) {
+        return val == null || val.toString().isEmpty();
+    }
 }

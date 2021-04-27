@@ -6,7 +6,7 @@
 package com.codename1.rad.ui;
 
 import com.codename1.rad.models.Attribute;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.Node;
 import com.codename1.ui.Container;
@@ -17,6 +17,7 @@ import com.codename1.ui.layouts.GridLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import com.codename1.rad.models.Entity;
 
 /**
  * A light-weight list of actions.  Includes some utility methods that are handy for performing on 
@@ -95,6 +96,16 @@ public class Actions implements Iterable<ActionNode> {
             } else {
                 cnt.addComponent(n.createView(entity));
             }
+        }
+    }
+    
+    public Container createHorizontalGrid(Entity entity) {
+        if (size() > 0) {
+            Container cnt = new Container(new GridLayout(size()));
+            addToContainer(cnt, entity);
+            return cnt;
+        } else {
+            return new Container();
         }
     }
     

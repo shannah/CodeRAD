@@ -16,7 +16,7 @@
 package com.codename1.rad.io;
 
 import com.codename1.io.JSONParser;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.util.AsyncResource;
 import com.codename1.util.EasyThread;
 import com.codename1.xml.Element;
@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
+import com.codename1.rad.models.Entity;
 
 /**
  * An service that provides JSON/XML parsing asynchronously on a background thread.

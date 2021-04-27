@@ -9,10 +9,11 @@ import com.codename1.rad.nodes.FieldNode;
 import ca.weblite.shared.components.table.AbstractTableCellEditor;
 import ca.weblite.shared.components.table.Table;
 import ca.weblite.shared.components.table.TableCellEditor;
-import com.codename1.rad.models.Entity;
+
 import com.codename1.ui.Component;
 import com.codename1.rad.ui.PropertyViewFactory;
 import com.codename1.rad.ui.UI;
+import com.codename1.rad.models.Entity;
 
 /**
  * A cell editor for editing cell in a Table that uses {@link EntityListTableModel} as a model.

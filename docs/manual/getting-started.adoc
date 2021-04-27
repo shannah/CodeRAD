@@ -156,7 +156,7 @@ public class UserProfile extends Entity { <1>
     }
 }
 ----
-<1> Model classes always extends `Entity`.  This provides all of the functionality required for binding, reflection, change events, and loose-coupling.
+<1> Model classes always extends `RADEntity`.  This provides all of the functionality required for binding, reflection, change events, and loose-coupling.
 <2> We define an `EntityType` for this class, as a `static final` which defines the properties that are included in this entity. 
 <3> We define the properties of the EntityType inside its initializer. (The double braces `{{` and `}}` is not a typo.). In this case we are defining a string field, and we are tagging it with the `Person.name` tag.  This allows for loose-coupling as any view can bind to this property without explicit knowledge that this field exists.  The View simply specifies that it binds to the `Person.name` tag, and it the `UserProfile` entity will know what to do to bind it.
 <4> In the initializer for `UserProfile` we set the entity type.  **This is very important**, otherwise instances of the `UserProfile` class won't know what entity type they are.
@@ -191,7 +191,7 @@ public class HelloFormController extends FormController {
 <1> We added the `user` parameter to set the user to say "hello" to.
 <2> We used the `user.getText(Person.name)` to get the value of the `Person.name` property as text.  This is loosely coupled as there are no specific references to the the "name" field in UserProfile.
 
-TIP: We declared the argument type as `UserProfile`, but we could have simply left it generic as `Entity` and it would work fine since we aren't dependent on any thing specific about our UserProfile.  Declaring it a `UserProfile` might just be helpful for development since it allows you to more easily see which properties you expect to find on this entity.
+TIP: We declared the argument type as `UserProfile`, but we could have simply left it generic as `RADEntity` and it would work fine since we aren't dependent on any thing specific about our UserProfile.  Declaring it a `UserProfile` might just be helpful for development since it allows you to more easily see which properties you expect to find on this entity.
 
 Now our `HelloFormController`, instead of saying "Hello World", it will say "Hello <Name>" where "<Name>" is the name stored in the provided user profile.  Next we'll create a form to request the user's name.
 
@@ -346,7 +346,7 @@ public class AskUserNameView extends AbstractEntityView { <1>
 ----
 <1> Since the `AskUserNameView` is more complex than the `HelloView` we will derive from `AbstractEntityView` instead of `Container` because it includes some handy features for property binding and event dispatching.
 <2> We define a `Category` so that controllers that instantiate this view can register actions in this category to receive events when the user presses "Submit".  We'll refer to this later from our controller.
-<3> The constructor takes a model (`Entity`) and a `ViewNode` as a parameter.  We'll learn more about `ViewNode` in a moment. A view node is kind of like a "schema" for the view.  It allows you to pass attributes to the view that will affect how the view behaves.
+<3> The constructor takes a model (`RADEntity`) and a `ViewNode` as a parameter.  We'll learn more about `ViewNode` in a moment. A view node is kind of like a "schema" for the view.  It allows you to pass attributes to the view that will affect how the view behaves.
 <4> We check to see if the controller has registered an action to be notified when the user presses "Submit".  You'll see later how this action is registered from the controller.
 <5> We fire an event to the registered action.  We pass the current model, `user`, and the originating component of the event `this`.  This event will be dispatched to the controller, and will propagate up the controller hierarchy until it is consumed, or until it reaches the top of the hierarchy.
 <7> The `update()` method will be run any time any of the properties in the model (i.e. `user`) are changed.  This can be used to help keep the view in sync with its model.
@@ -602,7 +602,7 @@ This chapter was meant only to scratch the surface of what it is like to develop
 2. Each form of your application should have an associated controller which is a subclass of `FormViewController`.  
 3. All controllers, except for the ApplicationController should have a parent controller so that the application has a "controller hierarchy".
 4. The "controller hierarchy" helps to structure the application by allowing events to propagate up through the hierarchy from children to parents.  This results in looser coupling between the forms of an application, and it provides a built-in navigation stack.  The "Back" button always goes to the "parent" controller's form, for example.
-5. By using CodeRAD's `Entity` class as a base class for your application's "model" classes, you get property binding, and loose-coupling between your models and views.  
+5. By using CodeRAD's `RADEntity` class as a base class for your application's "model" classes, you get property binding, and loose-coupling between your models and views.
 7. The `AbstractEntityView` class can be used instead of "Container" to build "live", rich, loosely-coupled UI components that bind to your models.
 8. The `EntityEditor` class is a "live" UI component that will allow you to edit one or more properties of a model/entity.  It takes a `FormNode` as a parameter, which declaratively defines how the form should be rendered - e.g. fields, sections, widget types, actions, etc..  This chapter only showed a tiny glimpse of its capabilities.  As you'll learn later on in this book, the EntityEditor can be customized to a great extent to provide nearly all of your model editing needs.  It supports many different widget types, and allows you to arrange your forms into sections with different layouts for each section; inject actions which manifest themselves as menus and buttons in strategic places in the form; and is completely plugable to add your own widget types and rendering strategies.
 
