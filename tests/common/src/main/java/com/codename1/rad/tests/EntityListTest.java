@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.tests;
 
+import com.codename1.rad.models.BaseEntity;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityList.EntityAddedEvent;
@@ -46,9 +47,9 @@ public class EntityListTest extends AbstractTest {
     private void testGenericList() throws Exception {
         EntityList list = new EntityList();
         assertEqual(0, list.size());
-        list.add(new Entity());
-        list.add(new Entity());
-        list.add(new Entity());
+        list.add(new BaseEntity());
+        list.add(new BaseEntity());
+        list.add(new BaseEntity());
         assertEqual(3, list.size());
         Entity firstEntity = list.get(0);
         assertNotNull(firstEntity);
@@ -73,7 +74,7 @@ public class EntityListTest extends AbstractTest {
         assertEqual(stats.counter, 1);
         list.notifyObservers();
         assertEqual(1, stats.counter);
-        list.add(new Entity());
+        list.add(new BaseEntity());
         assertEqual(1, stats.counter);
         list.notifyObservers();
         assertEqual(2, stats.counter);
@@ -105,9 +106,9 @@ public class EntityListTest extends AbstractTest {
     
     private void testTransactions() throws Exception {
         EntityList el = new EntityList();
-        Entity bob = new Entity();
-        Entity gary = new Entity();
-        Entity june = new Entity();
+        Entity bob = new BaseEntity();
+        Entity gary = new BaseEntity();
+        Entity june = new BaseEntity();
         
         class Stats {
             private Object data;

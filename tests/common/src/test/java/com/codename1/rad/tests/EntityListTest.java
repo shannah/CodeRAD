@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package com.codename1.rad.tests;
+import com.codename1.rad.models.BaseEntity;
 import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityType;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public class EntityListTest extends AbstractTest {
     
-    static class MyEntity extends Entity {
+    static class MyEntity extends BaseEntity {
         public static final EntityType TYPE = new EntityType(){{
             date(ChatMessage.dateCreated);
         }};

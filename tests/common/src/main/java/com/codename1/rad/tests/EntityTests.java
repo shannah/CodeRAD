@@ -5,12 +5,10 @@
  */
 package com.codename1.rad.tests;
 
-import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.EntityType;
+import com.codename1.rad.models.*;
+
 import static com.codename1.rad.models.EntityType.tags;
-import com.codename1.rad.models.EntityTypeBuilder;
-import com.codename1.rad.models.Property;
-import com.codename1.rad.models.StringProperty;
+
 import com.codename1.rad.schemas.ChatMessage;
 import com.codename1.rad.schemas.Comment;
 import com.codename1.rad.schemas.Person;
@@ -47,7 +45,7 @@ public class EntityTests extends AbstractTest {
     }
     
     private void gettersAndSettersTest() throws Exception {
-        class MyProduct extends Entity {}
+        class MyProduct extends BaseEntity {}
         EntityType productType = new EntityTypeBuilder()
                 .string(Thing.name)
                 .Double(Product.width)
@@ -154,7 +152,7 @@ public class EntityTests extends AbstractTest {
 
 
 
-class ChatAccount extends Entity {
+class ChatAccount extends BaseEntity {
     
     // The name property
     public static StringProperty name, thumbnailUrl, phone;
@@ -176,7 +174,7 @@ class ChatAccount extends Entity {
     
 }
 
-class ChatMessageModel extends Entity {
+class ChatMessageModel extends BaseEntity {
     public static final EntityType TYPE = new EntityType(){{
         string(ChatMessage.text);
         date(ChatMessage.datePublished);

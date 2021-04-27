@@ -8,6 +8,13 @@
           <entry name="$PROJECT_DIR$/coderad-annotation-processor/target/classes" />
         </processorPath>
       </profile>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="annotations" />
+        <module name="coderad-common" />
+      </profile>
       <profile name="Annotation profile for CodeRAD" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -18,20 +25,13 @@
           <entry name="$MAVEN_REPOSITORY$/com/squareup/javapoet/1.13.0/javapoet-1.13.0.jar" />
         </processorPath>
         <module name="coderad-javascript" />
-        <module name="coderad-ios" />
         <module name="coderad-tests-javase" />
+        <module name="coderad-ios" />
         <module name="coderad-android" />
         <module name="coderad-win" />
         <module name="coderad-javase" />
         <module name="coderad-tests-common" />
         <module name="coderad-annotation-processor" />
-      </profile>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="annotations" />
-        <module name="coderad-common" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

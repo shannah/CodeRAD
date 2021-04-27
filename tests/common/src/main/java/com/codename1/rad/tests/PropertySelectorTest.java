@@ -6,13 +6,10 @@
 package com.codename1.rad.tests;
 
 import com.codename1.rad.io.ResultParser;
-import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.EntityList;
-import com.codename1.rad.models.EntityType;
-import com.codename1.rad.models.EntityTypeBuilder;
-import com.codename1.rad.models.PropertySelector;
+import com.codename1.rad.models.*;
+
 import static com.codename1.rad.models.PropertySelector.propertySelector;
-import com.codename1.rad.models.Tag;
+
 import com.codename1.rad.schemas.Thing;
 import com.codename1.testing.AbstractTest;
 
@@ -169,7 +166,7 @@ public class PropertySelectorTest extends AbstractTest {
             .string(Thing.name)
             .string(Thing.description)
             .build();
-        class Book extends Entity {}
+        class Book extends BaseEntity {}
         EntityType.register(Book.class, bookType, cls->{return new Book();});
         class Books extends EntityList<Book> {}
         EntityType.registerList(Books.class, Book.class, cls->{return new Books();});
@@ -180,7 +177,7 @@ public class PropertySelectorTest extends AbstractTest {
         EntityType catalogType = new EntityTypeBuilder()
             .list(Books.class, BOOKS)
             .build();
-        class Catalog extends Entity {{setEntityType(catalogType);}}
+        class Catalog extends BaseEntity {{setEntityType(catalogType);}}
         EntityType.register(Catalog.class, cls->{return new Catalog();});
        
         

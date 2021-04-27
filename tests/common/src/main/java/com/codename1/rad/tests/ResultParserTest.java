@@ -8,17 +8,15 @@ package com.codename1.rad.tests;
 import com.codename1.io.Log;
 import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
+import com.codename1.rad.models.*;
 import com.codename1.rad.processing.Result;
 import com.codename1.rad.io.ResultParser;
 import com.codename1.rad.io.ResultParser.PropertyParserCallback;
 import static com.codename1.rad.io.ResultParser.resultParser;
 import com.codename1.rad.io.ParsingService;
-import com.codename1.rad.models.Entity;
-import static com.codename1.rad.models.Entity.entityTypeBuilder;
-import com.codename1.rad.models.EntityList;
-import com.codename1.rad.models.EntityType;
-import com.codename1.rad.models.EntityTypeBuilder;
-import com.codename1.rad.models.Tag;
+
+import static com.codename1.rad.models.BaseEntity.entityTypeBuilder;
+
 import com.codename1.rad.schemas.Person;
 import com.codename1.rad.schemas.Product;
 import com.codename1.rad.schemas.Thing;
@@ -242,7 +240,7 @@ public class ResultParserTest extends AbstractTest {
                 .build();
         
         
-        public static class PersonModel extends Entity {
+        public static class PersonModel extends BaseEntity {
             
             {
                 setEntityType(personType);
@@ -257,7 +255,7 @@ public class ResultParserTest extends AbstractTest {
             }
         }
         
-        public static class PublicationModel extends Entity {
+        public static class PublicationModel extends BaseEntity {
             {
                 setEntityType(publicationType);
             }
@@ -592,7 +590,7 @@ public class ResultParserTest extends AbstractTest {
             .string(Thing.name)
             .string(Thing.description)
             .build();
-        class Book extends Entity {}
+        class Book extends BaseEntity {}
         EntityType.register(Book.class, bookType, cls->{return new Book();});
         class Books extends EntityList<Book> {}
         EntityType.registerList(Books.class, Book.class, cls->{return new Books();});
@@ -603,7 +601,7 @@ public class ResultParserTest extends AbstractTest {
         EntityType catalogType = new EntityTypeBuilder()
             .list(Books.class, BOOKS)
             .build();
-        class Catalog extends Entity {{setEntityType(catalogType);}}
+        class Catalog extends BaseEntity {{setEntityType(catalogType);}}
         EntityType.register(Catalog.class, cls->{return new Catalog();});
        
         
@@ -687,7 +685,7 @@ public class ResultParserTest extends AbstractTest {
             "  ]\n" +
             "}";
         
-        class Color extends Entity {}
+        class Color extends BaseEntity {}
         Tag type = new Tag("type");
         Tag red = new Tag("red"), green = new Tag("green"), blue = new Tag("blue"), alpha = new Tag("alpha");
         EntityType colorType = entityTypeBuilder(Color.class)
@@ -704,7 +702,7 @@ public class ResultParserTest extends AbstractTest {
         EntityType.registerList(Colors.class, Color.class, cls -> {return new Colors();});
         
         Tag colors = new Tag("colors");
-        class ColorSet extends Entity {}
+        class ColorSet extends BaseEntity {}
         EntityType colorsetType = entityTypeBuilder(ColorSet.class)
                 .list(Colors.class, colors)
                 .factory(cls -> {return new ColorSet();})
@@ -863,7 +861,7 @@ public class ResultParserTest extends AbstractTest {
             "  ]\n" +
             "}";
         
-        class Color extends Entity {}
+        class Color extends BaseEntity {}
         Tag type = new Tag("type");
         Tag red = new Tag("red"), green = new Tag("green"), blue = new Tag("blue"), alpha = new Tag("alpha");
         EntityType colorType = entityTypeBuilder(Color.class)
@@ -880,7 +878,7 @@ public class ResultParserTest extends AbstractTest {
         EntityType.registerList(Colors.class, Color.class, cls -> {return new Colors();});
         
         Tag colors = new Tag("colors");
-        class ColorSet extends Entity {}
+        class ColorSet extends BaseEntity {}
         EntityType colorsetType = entityTypeBuilder(ColorSet.class)
                 .list(Colors.class, colors)
                 .factory(cls -> {return new ColorSet();})

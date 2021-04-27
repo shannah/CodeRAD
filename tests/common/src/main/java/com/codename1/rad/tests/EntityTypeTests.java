@@ -5,10 +5,7 @@
  */
 package com.codename1.rad.tests;
 
-import com.codename1.rad.models.Entity;
-import com.codename1.rad.models.EntityList;
-import com.codename1.rad.models.EntityType;
-import com.codename1.rad.models.EntityTypeBuilder;
+import com.codename1.rad.models.*;
 
 import com.codename1.rad.schemas.Thing;
 import com.codename1.testing.AbstractTest;
@@ -44,7 +41,7 @@ public class EntityTypeTests extends AbstractTest {
         EntityType personType = new EntityTypeBuilder()
                 .string(Thing.name)
                 .build();
-        class Person extends Entity {
+        class Person extends BaseEntity {
             {
                 setEntityType(personType);
             }
@@ -78,7 +75,7 @@ public class EntityTypeTests extends AbstractTest {
         
     }
     
-    public static class StaticPerson extends Entity {
+    public static class StaticPerson extends BaseEntity {
         
     }
     static {

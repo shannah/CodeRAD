@@ -5,8 +5,11 @@
  */
 package com.codename1.rad.tests;
 
+import com.codename1.rad.models.BaseEntity;
 import com.codename1.rad.models.Entity;
-import static com.codename1.rad.models.Entity.entityTypeBuilder;
+
+import static com.codename1.rad.models.BaseEntity.entityTypeBuilder;
+
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityType;
 import com.codename1.rad.schemas.Thing;
@@ -96,7 +99,7 @@ public class EntityListViewTest extends AbstractTest {
             
         };
         
-        class Person extends Entity {}
+        class Person extends BaseEntity {}
         entityTypeBuilder(Person.class)
                 .string(Thing.name)
                 .factory(cls -> {return new Person();})
