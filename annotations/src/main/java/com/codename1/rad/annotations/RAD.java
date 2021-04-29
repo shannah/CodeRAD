@@ -20,5 +20,6 @@ public @interface RAD {
     public String[] tag() default {};
     public String property() default "";
     
+    
 
 }

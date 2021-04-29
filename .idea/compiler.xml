@@ -23,6 +23,8 @@
           <entry name="$PROJECT_DIR$/coderad-annotation-processor/target/classes" />
           <entry name="$PROJECT_DIR$/annotations/target/classes" />
           <entry name="$MAVEN_REPOSITORY$/com/squareup/javapoet/1.13.0/javapoet-1.13.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/apache/commons/commons-text/1.9/commons-text-1.9.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar" />
         </processorPath>
         <module name="coderad-javascript" />
         <module name="coderad-tests-javase" />

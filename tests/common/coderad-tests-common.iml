@@ -24,5 +24,7 @@
     <orderEntry type="module" module-name="coderad-annotation-processor" />
     <orderEntry type="module" module-name="annotations" />
     <orderEntry type="library" name="Maven: com.squareup:javapoet:1.13.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-text:1.9" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.11" level="project" />
   </component>
 </module>

@@ -179,4 +179,6 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         return (V)node.getViewParameter(property, ViewPropertyParameter.createValueParam(property, defaultValue)).getValue(entity);
     }
 
+
+
 }

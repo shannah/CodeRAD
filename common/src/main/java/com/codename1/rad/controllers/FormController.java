@@ -333,7 +333,7 @@ public class FormController extends ViewController implements Runnable {
     
     public void show() {
         startControllerInternal();
-        CN.go(this);
+        CN.setBookmark(this);
         getView().show();
     }
     
