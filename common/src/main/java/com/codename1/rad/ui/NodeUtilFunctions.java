@@ -26,6 +26,7 @@ import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.Layout;
+import com.codename1.ui.layouts.GridLayout;
 
 /**
  *
@@ -42,8 +43,9 @@ class NodeUtilFunctions {
         buildActionsBar(
                 node, target, entity,
                 node.getActions(FormNode.BOTTOM_RIGHT_MENU), 
-                node.getActions(FormNode.BOTTOM_LEFT_MENU), 
-                null);
+                node.getActions(FormNode.BOTTOM_LEFT_MENU),
+                null,
+                node.getActions(FormNode.BOTTOM_MENU));
     }
     
     static  void buildTopActionsBar(Node node, Container target, Entity entity) {
@@ -59,19 +61,38 @@ class NodeUtilFunctions {
                 entity,
                 node.getActions(FormNode.TOP_RIGHT_MENU), 
                 node.getActions(FormNode.TOP_LEFT_MENU), 
-                node.getActions(FormNode.OVERFLOW_MENU)
+                node.getActions(FormNode.OVERFLOW_MENU),
+                node.getActions(FormNode.TOP_MENU)
                 );
     }
     static  void buildActionsBar(Node node, Container target, Entity entity, Actions right, Actions left, Actions overflow) {
+        buildActionsBar(node, target, entity, right, left, overflow, (Actions)null);
+    }
+    static  void buildActionsBar(Node node, Container target, Entity entity, Actions right, Actions left, Actions overflow, Actions middle) {
         Container actionsBar = new Container(new BorderLayout());
         Container actionsBarRight = new Container(new BorderLayout());
+
         
+
+
+        if (middle != null && middle.size() > 0) {
+            GridLayout layout = new GridLayout(middle.size());
+
+            Container cnt = new Container(layout);
+            middle.addToContainer(cnt, entity);
+
+            actionsBar.add(BorderLayout.CENTER, cnt);
+        }
         if (left != null) {
             Container cnt = new Container(BoxLayout.x());
             for (ActionNode action : left) {
                 cnt.add(action.getViewFactory().createActionView(entity, action));
             }
-            actionsBar.add(BorderLayout.CENTER, cnt);
+            if (actionsBar.getComponentCount() > 0) {
+                actionsBar.add(BorderLayout.WEST, cnt);
+            } else {
+                actionsBar.add(BorderLayout.CENTER, cnt);
+            }
         }
         
         if (right != null) {
@@ -110,9 +131,12 @@ class NodeUtilFunctions {
             actionsBarRight.add(BorderLayout.EAST, new Button(popup.getCommand()));
             
         }
+
         if (actionsBarRight.getComponentCount() > 0) {
             actionsBar.add(BorderLayout.EAST, actionsBarRight);
         }
+
+
         
         
         if (actionsBar.getComponentCount() > 0) {
