@@ -6,8 +6,7 @@
 package com.codename1.rad.nodes;
 
 import com.codename1.rad.models.*;
-import com.codename1.rad.ui.ActionStyle;
-import com.codename1.rad.ui.ActionViewFactory;
+import com.codename1.rad.ui.*;
 import com.codename1.rad.attributes.ActionStyleAttribute;
 import com.codename1.rad.attributes.Badge;
 import com.codename1.rad.attributes.BadgeUIID;
@@ -21,23 +20,19 @@ import com.codename1.rad.attributes.TextIcon;
 import com.codename1.rad.models.Property.Description;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Property.Name;
-import com.codename1.ui.Command;
-import com.codename1.ui.Component;
+import com.codename1.ui.*;
 import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.ControllerEvent;
-import com.codename1.rad.ui.ComponentDecorators;
-import com.codename1.rad.ui.NodeList;
-import com.codename1.rad.ui.UI;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.util.EventDispatcher;
 import com.codename1.util.SuccessCallback;
 
 import java.util.Map;
+import java.util.Objects;
 
 import com.codename1.rad.ui.image.EntityImageRenderer;
 import com.codename1.rad.ui.image.PropertyImageRenderer;
-import com.codename1.ui.Image;
 
 /**
  * A special {@link Node} that defines an action. When added to prescribed {@link Category}, an Action may manifest itself as a button,
@@ -836,7 +831,8 @@ public class ActionNode extends Node implements Proxyable {
                     };
                 }
         }
-        
+
+
         
     }
     
@@ -943,6 +939,8 @@ public class ActionNode extends Node implements Proxyable {
         public ActionNode build() {
             return action;
         }
+
+
     }
     
     public static Builder builder() {

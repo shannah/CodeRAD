@@ -15,6 +15,7 @@
  */
 package com.codename1.rad.ui;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.attributes.WidgetType;
 
 import com.codename1.rad.nodes.FieldNode;
@@ -35,7 +36,7 @@ public class SelectForm extends Container {
     private FieldNode field;
     private Entity entity;
     
-    public SelectForm(Entity entity, FieldNode field) {
+    public SelectForm(@Inject Entity entity, @Inject FieldNode field) {
         super(new BorderLayout());
         this.entity = entity;
         this.field = field;

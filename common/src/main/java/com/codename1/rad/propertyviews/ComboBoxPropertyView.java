@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.propertyviews;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
@@ -35,7 +36,7 @@ public class ComboBoxPropertyView extends PropertyView<ComboBox> {
     };
     
     
-    public ComboBoxPropertyView(ComboBox component, Entity entity, FieldNode field) {
+    public ComboBoxPropertyView(@Inject ComboBox component, @Inject Entity entity, @Inject FieldNode field) {
         super(component, entity, field);
     }
 

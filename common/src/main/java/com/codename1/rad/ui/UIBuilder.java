@@ -17,6 +17,7 @@ package com.codename1.rad.ui;
 
 import com.codename1.components.SpanLabel;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.models.Property.Label;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.FieldNode;
@@ -39,7 +40,7 @@ public class UIBuilder {
     private Entity entity;
     private ViewNode parentNode;
     
-    public UIBuilder(Entity entity, ViewNode parentNode) {
+    public UIBuilder(@Inject Entity entity, @Inject ViewNode parentNode) {
         this.entity = entity;
         this.parentNode = parentNode;
     }

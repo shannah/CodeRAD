@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui.entityviews;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.rad.controllers.ViewController;
 import com.codename1.rad.layouts.FanLayout;
@@ -349,7 +350,7 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
      * @param node The view node for this title component.  
      * @param avatarSizeMM The size in millimeters of the avatars.
      */
-    public ProfileAvatarsTitleComponent(EntityList entity, ViewNode node, float avatarSizeMM) {
+    public ProfileAvatarsTitleComponent(@Inject EntityList entity, @Inject ViewNode node, float avatarSizeMM) {
         super(entity);
         this.node = node;
         this.avatarSizeMM = avatarSizeMM;

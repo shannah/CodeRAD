@@ -21,8 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.codename1.rad.ui;
+package com.codename1.rad.nodes;
 
+import com.codename1.rad.nodes.Node;
+import com.codename1.rad.nodes.NodeBuilder;
+import com.codename1.rad.ui.EntityView;
 import com.codename1.ui.Component;
 
 import java.util.Map;
@@ -31,12 +34,12 @@ import java.util.Map;
  *
  * @author shannah
  */
-public abstract class AbstractComponentBuilder<T extends Component> implements ComponentBuilder<T> {
+public abstract class AbstractNodeBuilder<T extends Node> implements NodeBuilder<T> {
     private final EntityView context;
-    private T component;
+    private T node;
     private String tagName;
     private Map<String,String> attributes;
-    protected AbstractComponentBuilder(EntityView context, String tagName, Map<String,String> attributes) {
+    protected AbstractNodeBuilder(EntityView context, String tagName, Map<String,String> attributes) {
         this.tagName = tagName;
         this.context = context;
         this.attributes = attributes;
@@ -46,11 +49,11 @@ public abstract class AbstractComponentBuilder<T extends Component> implements C
         return context;
     }
     
-    public T getComponent() {
-        if (component == null) {
-            component = build();
+    public T getNode() {
+        if (node == null) {
+            node = build();
         }
-        return component;
+        return node;
     }
 
 

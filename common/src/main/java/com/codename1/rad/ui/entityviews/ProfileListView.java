@@ -6,6 +6,7 @@
 package com.codename1.rad.ui.entityviews;
 
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.nodes.ActionNode;
@@ -74,15 +75,15 @@ public class ProfileListView extends EntityListView {
     public static final Category ACCOUNT_LIST_ROW_SELECTED = new Category();
     
     
-    public ProfileListView(EntityList list) {
+    public ProfileListView(@Inject EntityList list) {
         this(list, null, 5);
     }
     
-    public ProfileListView(EntityList list, ListNode node, float avatarSizeMM) {
+    public ProfileListView(@Inject EntityList list, @Inject ListNode node, float avatarSizeMM) {
         super(list, decorateNode(node, avatarSizeMM));
     }
     
-    private static ListNode decorateNode(ListNode n, float avatarSizeMM) {
+    private static ListNode decorateNode(@Inject ListNode n, float avatarSizeMM) {
         if (n == null) n = new ListNode();
         n.setAttributes(UI.cellRenderer(new ProfileListRowCellRenderer(avatarSizeMM)));
         return n;

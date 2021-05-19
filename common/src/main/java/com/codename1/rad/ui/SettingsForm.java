@@ -16,6 +16,7 @@
 package com.codename1.rad.ui;
 
 import com.codename1.components.SpanLabel;
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.attributes.PropertySelectorAttribute;
 import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.attributes.UIIDPrefix;
@@ -374,7 +375,7 @@ public class SettingsForm extends AbstractEntityView implements WidgetTypes {
      * @param entity The entity to be edited by this settings form.
      * @param node The node defining the sections and fields in this form.  
      */
-    public SettingsForm(Entity entity, ViewNode node) {
+    public SettingsForm(@Inject Entity entity, @Inject ViewNode node) {
         super(entity);
         this.node = node;
         node.setAttributesIfNotExists(UI.viewFactory(new SettingsFormActionViewFactory()));
@@ -570,7 +571,7 @@ public class SettingsForm extends AbstractEntityView implements WidgetTypes {
      */
     public static class SettingsFormActionView extends Container {
         
-        public SettingsFormActionView(Entity entity, ActionNode action) {
+        public SettingsFormActionView(@Inject Entity entity, @Inject ActionNode action) {
             super(new BorderLayout());
             Container cnt = this;
             String uiidPrefix = action.getUIIDPrefix("");
@@ -689,7 +690,7 @@ public class SettingsForm extends AbstractEntityView implements WidgetTypes {
     public static class SettingsFormActionViewFactory implements ActionViewFactory {
 
         @Override
-        public Component createActionView(Entity entity, ActionNode action) {
+        public Component createActionView(@Inject Entity entity, @Inject ActionNode action) {
             return new SettingsFormActionView(entity, action);
         }
         

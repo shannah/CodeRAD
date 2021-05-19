@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui.entityviews;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.ActionCategories;
 import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.ui.ViewProperty;
@@ -80,7 +81,7 @@ public class MultiButtonEntityView<T extends Entity> extends MultiButton impleme
         }
     };
     
-    public MultiButtonEntityView(T entity, ViewNode viewNode) {
+    public MultiButtonEntityView(@Inject T entity, @Inject ViewNode viewNode) {
         this.entity = entity;
         this.viewNode = viewNode;
         line1Prop = prop(LINE1, line1Default);

@@ -20,7 +20,10 @@ import com.codename1.rad.models.Entity;
  * @author shannah
  */
 public class ViewNode extends Node {
-    
+
+    public ViewNode() {
+        super(null);
+    }
     public ViewNode(Attribute... atts) {
         super(null, atts);
     }

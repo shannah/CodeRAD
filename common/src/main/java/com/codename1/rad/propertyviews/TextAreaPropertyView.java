@@ -6,6 +6,7 @@
 package com.codename1.rad.propertyviews;
 
 import com.codename1.l10n.ParseException;
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.attributes.HintUIID;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
@@ -37,7 +38,7 @@ public class TextAreaPropertyView extends PropertyView<TextArea> {
     };
     
     
-    public TextAreaPropertyView(TextArea component, Entity entity, FieldNode field) {
+    public TextAreaPropertyView(@Inject TextArea component, @Inject Entity entity, @Inject FieldNode field) {
         super(component, entity, field);
     }
 

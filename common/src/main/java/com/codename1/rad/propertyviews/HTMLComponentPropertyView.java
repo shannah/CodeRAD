@@ -6,6 +6,7 @@
 package com.codename1.rad.propertyviews;
 
 import com.codename1.l10n.ParseException;
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
@@ -33,7 +34,7 @@ public class HTMLComponentPropertyView extends PropertyView<HTMLComponent> {
     
     
     
-    public HTMLComponentPropertyView(HTMLComponent component, Entity entity, FieldNode field) {
+    public HTMLComponentPropertyView(@Inject HTMLComponent component, @Inject Entity entity, @Inject FieldNode field) {
         super(component, entity, field);
     }
 

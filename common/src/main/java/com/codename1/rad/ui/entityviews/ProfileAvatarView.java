@@ -6,6 +6,7 @@
 package com.codename1.rad.ui.entityviews;
 
 import ca.weblite.shared.components.ComponentImage;
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.models.ContentType;
 
 import com.codename1.rad.models.Property;
@@ -419,7 +420,7 @@ public class ProfileAvatarView extends AbstractEntityView {
      * @param entity The view model.
      * @param sizeMM The size of the avatar icon in mm.
      */
-    public ProfileAvatarView(Entity entity, float sizeMM) {
+    public ProfileAvatarView(@Inject Entity entity, float sizeMM) {
         this(entity, new ViewNode(), sizeMM);
     }
     
@@ -429,7 +430,7 @@ public class ProfileAvatarView extends AbstractEntityView {
      * @param node The ui view descriptor.  This can be used to register actions, view properties, etc... to customize the view.
      * @param sizeMM The size of the avatar icon in mm.
      */
-    public ProfileAvatarView(Entity entity, Node node, float sizeMM) {
+    public ProfileAvatarView(@Inject Entity entity, @Inject Node node, float sizeMM) {
         super(entity);
         setUIID("ProfileAvatarView");
         setGrabsPointerEvents(true);

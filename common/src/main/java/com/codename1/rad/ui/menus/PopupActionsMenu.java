@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui.menus;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.ActionStyle;
 import com.codename1.rad.ui.Actions;
 import com.codename1.rad.nodes.ActionNode;
@@ -22,7 +23,7 @@ public class PopupActionsMenu extends PopupMenu {
     private Actions actions;
     
     
-    public PopupActionsMenu(Actions actions, Entity entity, Component source) {
+    public PopupActionsMenu(@Inject Actions actions, @Inject Entity entity, @Inject Component source) {
         
         this.actions = actions;
         boolean includesText = false;

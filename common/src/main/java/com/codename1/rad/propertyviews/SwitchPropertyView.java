@@ -17,6 +17,7 @@ package com.codename1.rad.propertyviews;
 
 import com.codename1.components.Switch;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.nodes.FieldNode;
@@ -38,7 +39,7 @@ public class SwitchPropertyView extends PropertyView<Switch> {
         commit();
     };
     
-    public SwitchPropertyView(Switch sw, Entity e, FieldNode field) {
+    public SwitchPropertyView(@Inject Switch sw, @Inject Entity e, @Inject FieldNode field) {
         super(sw, e, field);
     }
     

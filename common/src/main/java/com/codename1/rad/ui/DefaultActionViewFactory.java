@@ -43,7 +43,7 @@ import com.codename1.ui.events.ActionEvent;
 public class DefaultActionViewFactory implements ActionViewFactory {
     
     
-    private static void update(Button btn, Entity entity, ActionNode action) {
+    public static void update(Button btn, Entity entity, ActionNode action) {
         boolean repaint = false;
         boolean revalidate = false;
         
@@ -67,21 +67,24 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                 repaint = true;
             }
         }
-        
-        String currTextVal = btn.getText();
-        String newTextVal = action.getLabelText(entity);
-        if (!Objects.equals(currTextVal, newTextVal)) {
-            btn.setText(newTextVal);
-            repaint = true;
+        if (action.getLabel() != null) {
+            String currTextVal = btn.getText();
+            String newTextVal = action.getLabelText(entity);
+            if (!Objects.equals(currTextVal, newTextVal)) {
+                btn.setText(newTextVal);
+                repaint = true;
+            }
         }
-       
-        String currUiid = btn.getUIID();
-        String newUiid = action.getUIID(entity, "Button");
-        if (!Objects.equals(currUiid, newUiid)) {
-            btn.setUIID(newUiid);
-            repaint = true;
+
+        if (action.getUIID() != null) {
+            String currUiid = btn.getUIID();
+            String newUiid = action.getUIID(entity, "Button");
+            if (!Objects.equals(currUiid, newUiid)) {
+                btn.setUIID(newUiid);
+                repaint = true;
+            }
         }
-        
+
         
         if (btn instanceof CheckBox) {
             SelectedCondition selectedCond = action.getSelectedCondition();
@@ -133,7 +136,7 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         }
     }
     
-    private static void initUI(Button btn, Entity entity, ActionNode action) {
+    public static void initUI(Button btn, Entity entity, ActionNode action) {
         btn.setBlockLead(true);
         boolean text = action.isTextStyle();
         boolean includeIcon = action.isIconStyle();

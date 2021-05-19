@@ -1,5 +1,6 @@
 package com.codename1.rad.ui;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.ui.*;
 
 public abstract class EntityViewFragment {
@@ -8,7 +9,7 @@ public abstract class EntityViewFragment {
     
     
     
-    protected EntityViewFragment(EntityView context) {
+    protected EntityViewFragment(@Inject EntityView context) {
         this.context = context;
     }
     
@@ -26,6 +27,8 @@ public abstract class EntityViewFragment {
     
     
     protected abstract Component createComponent();
+
+
 
 
 }

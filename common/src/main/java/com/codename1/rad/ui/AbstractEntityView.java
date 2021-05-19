@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.attributes.ViewControllerAttribute;
 import com.codename1.rad.controllers.ViewController;
 import com.codename1.rad.models.*;
@@ -20,12 +21,12 @@ import static com.codename1.ui.ComponentSelector.$;
  * A base class for a view that can bind to an entity.  Sublasses just need toi implement {@link #update() }.
  * @author shannah
  */
-public abstract class AbstractEntityView<T extends Entity> extends Container implements EntityView<T> {
-    private T entity;
+public abstract class AbstractEntityView<T extends Entity> extends Container implements EntityView<T>, Activatable {
+    //private T entity;
     private int bindCount;
     private boolean bindOnPropertyChangeEvents = true;
-    private Node node;
-    private boolean activated;
+    //private Node node;
+    private ViewContext<T> context;
     
     
     
@@ -37,39 +38,54 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     private Observer observer = (o, arg) -> {
         update();
     };
-    
-    public AbstractEntityView(T entity) {
-        this(entity, null);
-    }
 
-    public AbstractEntityView(T entity, Node node) {
+    public AbstractEntityView(@Inject ViewContext<T> context) {
+        this.context = context;
+        T entity = context.getEntity();
         if (entity == null) {
             throw new IllegalArgumentException("AbstractEntityView requires non-null entity, but received null");
         }
-        this.entity = entity;
-        this.node = node;
-        if (node != null) {
-            ViewController ctl = (ViewController)node.findAttributeValue(ViewControllerAttribute.class, ViewController.class);
+
+        if (context.getNode() != null) {
+            ViewController ctl = (ViewController)context.getNode().findAttributeValue(ViewControllerAttribute.class, ViewController.class);
             if (ctl != null && ViewController.getViewController(this) != ctl) {
                 ctl.startController();
+                if (context.getController() == null) {
+                    context.setController(ctl);
+                }
                 ctl.setView(this);
             }
         }
+    }
 
+    /**
+     * @deprecated Use use {@link #AbstractEntityView(ViewContext)}
+     * @param entity
+     */
+    public AbstractEntityView(@Inject T entity) {
+        this(entity, null);
+    }
 
+    /**
+     * @deprecated Use {@link #AbstractEntityView(ViewContext)}
+     * @param entity
+     * @param node
+     */
+    public AbstractEntityView(@Inject T entity, @Inject Node node) {
+        this(new ViewContext<T>(null, entity, node));
     }
     
     /**
      * Set whether to bind to the model on PropertyChangeEvents.  Default value is {@literal true},
      * which results in very eager updates.  Setting this value to {@literal false} will cause
      * the binding to use the Observer pattern so that {@link #update() } will only be triggered
-     * in response to a {@link Entity#notifyObservers() } call.
+     * in response to a {@link BaseEntity#notifyObservers() } call.
      * 
      * 
      * 
      * @param bindOnPcl {@literal true} to trigger {@link #update() } in response
      * to PropertyChangeEvents on the mode.  {@literal false} to trigger {@link #update() }
-     * in response to {@link Entity#notifyObservers() }
+     * in response to {@link BaseEntity#notifyObservers() }
      * 
      * @throws IllegalStateException If this method is called while the view is already bound.
      */
@@ -100,9 +116,9 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         bindCount++;
         if (bindCount == 1) {
             if (bindOnPropertyChangeEvents) {
-                entity.getEntity().addPropertyChangeListener(pcl);
+                context.getEntity().getEntity().addPropertyChangeListener(pcl);
             } else {
-                entity.getEntity().addObserver(observer);
+                context.getEntity().getEntity().addObserver(observer);
             }
             bindImpl();
         }
@@ -127,10 +143,10 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         if (bindCount == 0) {
             unbindImpl();
             if (bindOnPropertyChangeEvents) {
-                entity.getEntity().removePropertyChangeListener(pcl);
+                context.getEntity().getEntity().removePropertyChangeListener(pcl);
             } else {
                 
-                entity.getEntity().deleteObserver(observer);
+                context.getEntity().getEntity().deleteObserver(observer);
             }
            
         }
@@ -157,11 +173,11 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     }
     
     public T getEntity() {
-        return entity;
+        return context.getEntity();
     }
     
     public void setEntity(T entity) {
-        this.entity = entity;
+        context.setEntity(entity);
     }
     
     protected Property findProperty(Tag... tags) {
@@ -170,15 +186,24 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
 
     @Override
     public Node getViewNode() {
-        return node;
+        return context.getNode();
     }
 
 
     
     public <V> V getParam(ViewProperty<V> property, V defaultValue) {
-        return (V)node.getViewParameter(property, ViewPropertyParameter.createValueParam(property, defaultValue)).getValue(entity);
+        return (V)context.getNode().getViewParameter(property, ViewPropertyParameter.createValueParam(property, defaultValue)).getValue(getEntity());
     }
 
 
+    @Override
+    public void activate() {
+        if (context.getController() == null) {
+            context.setController(ViewController.getViewController(this));
+        }
+    }
 
+    public ViewContext<T> getContext() {
+        return context;
+    }
 }

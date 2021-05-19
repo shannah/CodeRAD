@@ -1,5 +1,6 @@
 package com.codename1.rad.ui;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.Controller;
 import com.codename1.rad.events.FillSlotEvent;
@@ -17,7 +18,7 @@ import com.codename1.rad.models.Entity;
  * A placeholder that can be inserted into a View, that will be filled
  * at activation time by a Slot.
  */
-public class Slot extends Container {
+public class Slot extends Container implements Activatable {
 
     /**
      * An ID for the slot which can be referenced by {@link Controller#fillSlot(Tag, ActionListener)} to fill the slot.
@@ -51,11 +52,11 @@ public class Slot extends Container {
         $(this).selectAllStyles().setPadding(0).setMargin(0).setBgTransparency(0);
     }
 
-    public Slot(Tag id, Entity entity, Node node) {
+    public Slot(Tag id, @Inject Entity entity, @Inject Node node) {
         this(id, new SlotContext(entity, node));
     }
 
-    public Slot(Tag id, EntityView ev) {
+    public Slot(Tag id, @Inject EntityView ev) {
         this(id, new SlotContext(ev));
     }
 
@@ -64,6 +65,7 @@ public class Slot extends Container {
      * trigger a {@link FillSlotEvent} which can be handled by {@link Controller#fillSlot(Tag, ActionListener)} to
      * fill the slot contents.
      */
+    @Override
     public void activate() {
         if (activated) return;
         activated = true;

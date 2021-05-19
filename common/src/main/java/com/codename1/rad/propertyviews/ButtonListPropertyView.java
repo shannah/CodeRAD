@@ -16,6 +16,7 @@
 package com.codename1.rad.propertyviews;
 
 import com.codename1.components.ButtonList;
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.attributes.Columns;
 import com.codename1.rad.models.Attribute;
 
@@ -104,7 +105,7 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
     };
     
 
-    public ButtonListPropertyView(ButtonList buttonList, Entity entity, FieldNode field) {
+    public ButtonListPropertyView(@Inject ButtonList buttonList, @Inject Entity entity, @Inject FieldNode field) {
         super(decorateButtonList(field, buttonList), entity, field);
     }
     

@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.propertyviews;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
@@ -48,21 +49,21 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
     
     
     
-    public LabelPropertyView(com.codename1.ui.Label component, Entity entity, FieldNode textField) {
+    public LabelPropertyView(@Inject com.codename1.ui.Label component, @Inject Entity entity, @Inject FieldNode textField) {
         this(component, entity, textField, null);
     }
     
-    public LabelPropertyView(com.codename1.ui.Label component, Entity entity, FieldNode textField, FieldNode iconField) {
+    public LabelPropertyView(@Inject com.codename1.ui.Label component, @Inject Entity entity, @Inject FieldNode textField, FieldNode iconField) {
         super(component, entity, textField);
         this.iconField = iconField;
         update();
     }
     
-    public LabelPropertyView(com.codename1.ui.Label component, Entity entity, Tag... tags) {
+    public LabelPropertyView(@Inject com.codename1.ui.Label component, @Inject Entity entity, Tag... tags) {
         this(component, entity, new FieldNode(UI.tags(tags)));
     }
     
-    public LabelPropertyView(com.codename1.ui.Label component, Entity entity, Property prop) {
+    public LabelPropertyView(@Inject com.codename1.ui.Label component, @Inject Entity entity, @Inject Property prop) {
         this(component, entity, new FieldNode(UI.property(prop)));
     }
 

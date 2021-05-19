@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.propertyviews;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.ContentType;
@@ -33,11 +34,11 @@ public class SpanLabelPropertyView extends PropertyView<com.codename1.components
     
     
     
-    public SpanLabelPropertyView(com.codename1.components.SpanLabel component, Entity entity, PropertySelector property) {
+    public SpanLabelPropertyView(@Inject com.codename1.components.SpanLabel component, @Inject Entity entity, @Inject PropertySelector property) {
         this(component, entity, new FieldNode(UI.property(property)));
     }
     
-    public SpanLabelPropertyView(com.codename1.components.SpanLabel component, Entity entity, FieldNode field) {
+    public SpanLabelPropertyView(@Inject com.codename1.components.SpanLabel component, @Inject Entity entity, @Inject FieldNode field) {
         super(component, entity, field);
     }
 

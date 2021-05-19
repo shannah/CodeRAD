@@ -9,6 +9,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import java.util.Set;
 
@@ -54,710 +55,41 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-@SupportedAnnotationTypes(RAD_ANNOTATION_TYPE)
+@SupportedAnnotationTypes({RAD_ANNOTATION_TYPE, STUB_ANNOTATION_TYPE, GENERATE_HELPER_ANNOTATION_TYPE})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
-public class EntityProcessor extends AbstractProcessor {
+public class EntityProcessor extends BaseProcessor {
 
+    private RoundEnvironment roundEnv;
 
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        //super.init(new RADProcessingEnvironment(processingEnv));
+        super.init(new ProcessingEnvironmentWrapper(processingEnv));
+    }
+
+    @Override
+    void installTypes(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        ViewProcessor vp = new ViewProcessor(processingEnv);
+        vp.installTypes(annotations, roundEnv);
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        this.roundEnv = roundEnv;
+        System.out.println( "----------------------STARTING ROUND--------------------");
+        installTypes(annotations, roundEnv);
         boolean out = processSchemas(annotations, roundEnv);
         out = processEntities(annotations, roundEnv) || out;
-        out = processFragments(annotations, roundEnv) || out;
-        out = processViews(annotations, roundEnv) || out;
+        out = new ViewProcessor(processingEnv).process(annotations, roundEnv) || out;
         
         
         return out;
     }
     
-    public boolean processFragments(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
-        TypeElement entityViewType = processingEnv.getElementUtils().getTypeElement("com.codename1.rad.ui.EntityViewFragment");
-        for (Element el : annotatedElements) {
-            if (!(el instanceof TypeElement)) continue;
-            TypeElement typeEl = (TypeElement)el;
-            if (!isA(typeEl, "com.codename1.rad.ui.EntityViewFragment")) {
-                continue;
-            }
-            
-            processFragment(typeEl);
-            
-        }
-        return true;
-        
-    }
-    
-    public boolean processViews(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
-        TypeElement entityViewType = processingEnv.getElementUtils().getTypeElement("com.codename1.rad.ui.EntityView");
-        for (Element el : annotatedElements) {
-            if (!(el instanceof TypeElement)) continue;
-            TypeElement typeEl = (TypeElement)el;
-            if (!isA(typeEl, "com.codename1.rad.ui.EntityView")) {
-                continue;
-            }
-            
-            processView(typeEl);
-            
-        }
-        return true;
-    }
-    
-    private void processView(TypeElement typeEl) {
-        
-    }
-    
-    private boolean isA(TypeMirror mirror, String fqn) {
-        return isA(processingEnv.getElementUtils().getTypeElement(mirror.toString()), fqn);
-    }
-    
-                
-    private void processFragment(TypeElement typeEl) {
-        final Set<Element> dependentElements = new HashSet<>();
-        dependentElements.add(typeEl);
-        try {
-            String xmlString = null;
-            for (Element member : processingEnv.getElementUtils().getAllMembers(typeEl)) {
-                if (member.getKind() == ElementKind.FIELD && member.getSimpleName().contentEquals("FRAGMENT_XML")) {
-                    if (!(member instanceof VariableElement)) {
-                        continue;
-                    }
-                    VariableElement varEl = (VariableElement)member;
-                    xmlString = (String)varEl.getConstantValue();
-                    break;
-                    
-                }
-            }
-            
-            if (xmlString == null) {
-                processingEnv.getMessager().printMessage(Kind.ERROR, "Cannot find member FRAGMENT_XML in fragment class "+typeEl.getQualifiedName()+".", typeEl);
-                return;
-            }
-            
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            org.w3c.dom.Document doc = builder.parse(new ByteArrayInputStream(xmlString.getBytes("utf-8")), "utf-8");
-            
-            
-            /**
-             * Encapsulates a `<rad:namespace>` tag which is used to define where to 
-             * find Tags, Builders, and Categories.
-             */
-            class Namespace {
-                /**
-                 * A package that is scoured for tags, categories and builders.  
-                 */
-                String nsPackage;
-                
-                /**
-                 * A class that is checked for tags, categories, and builders.
-                 */
-                String nsClass;
-                
-                /**
-                 * Looks at static fields in class to find Tag with given name.
-                 */
-                String findTagInClass(TypeElement typeEl, String name) {
-                     List<Element> fields = typeEl.getEnclosedElements().stream()
-                            .filter(element -> element.getKind() == ElementKind.FIELD).collect(Collectors.toList());
 
 
-                    for (Element el : fields) {
-                        if (el.getModifiers().contains(Modifier.STATIC)) {
-                            continue;
-                        }
-                        if (!el.getSimpleName().contentEquals(name)) {
-                            continue;
-                        }
-                        TypeMirror fieldType = el.asType();
-                        if (fieldType.toString().equals("com.codename1.rad.models.Tag")) {
-                            return typeEl.toString() + "." + el.getSimpleName().toString();
-                        }
 
-                    }
-                    return null;
-                    
-                }
-                
-                /**
-                 * Looks at class to find static Category fields with given name.
-                 */
-                String findCategoryInClass(TypeElement typeEl, String name) {
-                     List<Element> fields = typeEl.getEnclosedElements().stream()
-                            .filter(element -> element.getKind() == ElementKind.FIELD).collect(Collectors.toList());
-
-
-                    for (Element el : fields) {
-                        if (el.getModifiers().contains(Modifier.STATIC)) {
-                            continue;
-                        }
-                        if (!el.getSimpleName().contentEquals(name)) {
-                            continue;
-                        }
-                        TypeMirror fieldType = el.asType();
-                        if (fieldType.toString().equals("com.codename1.rad.nodes.ActionNode.Category")) {
-                            return typeEl.toString() + "." + el.getSimpleName().toString();
-                        }
-
-                    }
-                    return null;
-                    
-                }
-                
-                /**
-                 * Looks at class to see if it is a builder class with the given tag annotation.  Also
-                 * looks in inner classes.
-                 */
-                String findBuilderInClass(TypeElement typeEl, String tagName) {
-                    
-                    if (typeEl == null) return null;
-                    RAD annotation = typeEl.getAnnotation(RAD.class);
-                    
-                    if (annotation != null && isA(typeEl, "com.codename1.rad.ui.ComponentBuilder")) {
-                        
-                        for (String annoTag : annotation.tag()) {
-                            if (tagName.equals(annoTag)) {
-                                return typeEl.getQualifiedName().toString();
-                            }
-                        }
-                    }
-
-                    List<Element> classes =  typeEl.getEnclosedElements().stream()
-                        .filter(element -> element.getKind() == ElementKind.CLASS || element.getKind() == ElementKind.INTERFACE).collect(Collectors.toList());
-                    for (Element childClass : classes) {
-                        String match = findBuilderInClass((TypeElement)childClass, tagName);
-                        if (match != null) {
-                            return match;
-                        }
-                    }
-                    return null;
-                        
-                        
-                }
-                
-                /**
-                 * Finds a builder in this namespace annotated with the given tag.  Annotation
-                 * is `@RAD(tag="sometag")`
-                 */
-                String findBuilder(String tagName) {
-                    if (nsClass != null) {
-                        TypeElement typeEl = processingEnv.getElementUtils().getTypeElement(nsClass);
-                        return findBuilderInClass(typeEl, tagName);
-                        
-                        
-                        
-                    }
-                    if (nsPackage != null) {
-                        PackageElement pkgEl = processingEnv.getElementUtils().getPackageElement(nsPackage);
-                        List<Element> classes =  pkgEl.getEnclosedElements().stream()
-                                .filter(element -> element.getKind() == ElementKind.CLASS || element.getKind() == ElementKind.INTERFACE).collect(Collectors.toList());
-                        for (Element clsEl : classes) {
-                            String match = findBuilderInClass((TypeElement)clsEl, tagName);
-                            if (match != null) {
-                                return match;
-                            }
-                        }
-                        
-                    }
-                    
-                    return null;
-                }
-                
-                
-                        
-                /**
-                 * Finds a tag with the given name in the namespace.
-                 */
-                String findTag(String name) {
-                    if (nsClass != null) {
-                        TypeElement typeEl = processingEnv.getElementUtils().getTypeElement(nsClass);
-                        if (typeEl == null) return null;
-                        return findTagInClass(typeEl, name);
-                        
-                        
-                    }
-                    if (nsPackage != null) {
-                        PackageElement pkgEl = processingEnv.getElementUtils().getPackageElement(nsPackage);
-                        List<Element> classes =  pkgEl.getEnclosedElements().stream()
-                                .filter(element -> element.getKind() == ElementKind.CLASS || element.getKind() == ElementKind.INTERFACE).collect(Collectors.toList());
-                        for (Element clsEl : classes) {
-                            String match = findTagInClass((TypeElement)clsEl, name);
-                            if (match != null) {
-                                return match;
-                            }
-                        }
-                        
-                    }
-                    
-                    return null;
-                }
-                
-                /**
-                 * Finds a category with the given name in the namespace.
-                 */
-                String findCategory(String name) {
-                     if (nsClass != null) {
-                        TypeElement typeEl = processingEnv.getElementUtils().getTypeElement(nsClass);
-                        if (typeEl == null) return null;
-                        return findCategoryInClass(typeEl, name);
-                        
-                        
-                    }
-                    if (nsPackage != null) {
-                        PackageElement pkgEl = processingEnv.getElementUtils().getPackageElement(nsPackage);
-                        List<Element> classes =  pkgEl.getEnclosedElements().stream()
-                                .filter(element -> element.getKind() == ElementKind.CLASS || element.getKind() == ElementKind.INTERFACE).collect(Collectors.toList());
-                        for (Element clsEl : classes) {
-                            String match = findCategoryInClass((TypeElement)clsEl, name);
-                            if (match != null) {
-                                return match;
-                            }
-                        }
-                        
-                    }
-                    
-                    return null;
-                }
-            }
-            
-            // Load all of the namespaces listed in <namespace> tags.
-            final List<Namespace> namespaces = new ArrayList<Namespace>();
-            
-            {
-                NodeList nsList = doc.getElementsByTagNameNS("*'", "namespace");
-                int len = nsList.getLength();
-                for (int i = 0; i<len; i++) {
-                    org.w3c.dom.Element el = (org.w3c.dom.Element)nsList.item(i);
-                    String pkg = (String)el.getAttribute("package");
-                    Namespace ns = new Namespace();
-                    ns.nsPackage = (String)el.getAttribute("package");
-                    ns.nsClass = (String)el.getAttribute("class");
-                    namespaces.add(ns);
-
-
-                }
-            }
-
-            Namespace buildersNs = new Namespace();
-            buildersNs.nsPackage = "com.codename1."
-
-            
-            
-            
-            final StringBuilder sb = new StringBuilder();
-            sb.append("    @Override\n");
-            sb.append("    public Component createComponent() { return createComponent0(); }\n");
-            
-            class Generator {
-                
-                
-                String findCategory(String categoryName) {
-                    for (Namespace ns : namespaces) {
-                        String match = ns.findCategory(categoryName);
-                        if (match != null) {
-                            return match;
-                        }
-                    }
-                    return null;
-                }
-                String getBuilderClass(String tagName) {
-                    for (Namespace ns : namespaces) {
-                        String match = ns.findBuilder(tagName);
-                        if (match != null) {
-                            return match;
-                        }
-                    }
-                    return null;
-                }
-                
-                String findTag(String tagName) {
-                    for (Namespace ns : namespaces) {
-                        String match = ns.findTag(tagName);
-                        if (match != null) {
-                            return match;
-                        }
-                    }
-                    return null;
-                }
-                
-                void generate(org.w3c.dom.Element e) {
-                    String elementId = e.getAttribute("elementId");
-                    if (elementId != null) {
-                        sb.append("    private Component createComponent").append(elementId).append("() {\n");
-                        String builderClass = getBuilderClass(e.getTagName());
-                        if (builderClass == null) {
-                            processingEnv.getMessager().printMessage(Kind.ERROR, "Cannot find builder for tag "+e.getTagName(), typeEl);
-                            return;
-                        }
-                        NamedNodeMap attributes = e.getAttributes();
-                        TypeElement builderTypeEl = processingEnv.getElementUtils().getTypeElement(builderClass);
-                        dependentElements.add(builderTypeEl);
-                        List<Element> builderMethods = processingEnv.getElementUtils().getAllMembers(builderTypeEl).stream()
-                                .filter(m -> m.getKind() == ElementKind.METHOD).collect(Collectors.toList());
-                        Optional<ExecutableElement> getComponentMethodEl = (Optional<ExecutableElement>)processingEnv.getElementUtils().getAllMembers(builderTypeEl).stream()
-                                .filter(m -> m.getKind() == ElementKind.METHOD && m.getSimpleName().contentEquals("getComponent")).findFirst();
-                        
-                        if( !getComponentMethodEl.isPresent()) {
-                            processingEnv.getMessager().printMessage(Kind.ERROR, "Cannot find getComponent() method in builder "+typeEl, typeEl);
-                        }
-                        String componentType = getComponentMethodEl.get().getReturnType().toString();
-                        Map<String,Element> componentMethodMap = new HashMap<>();
-                        TypeElement componentTypeEl = processingEnv.getElementUtils().getTypeElement(componentType);
-                        List<Element> componentMethods = processingEnv.getElementUtils().getAllMembers(componentTypeEl).stream()
-                                .filter(m -> m.getKind() == ElementKind.METHOD).collect(Collectors.toList());
-                        for (Element m : componentMethods) {
-                            if (!(m instanceof ExecutableElement)) {
-                                continue;
-                            }
-                            ExecutableElement exM = (ExecutableElement)m;
-                            if (exM.getParameters().size() != 1) {
-                                continue;
-                            }
-                            if (!exM.getSimpleName().toString().startsWith("set")) {
-                                componentMethodMap.put(m.getSimpleName().toString().toLowerCase(), m);
-                            }
-                        }
-                        
-                        
-                        Map<String,Element> builderMethodMap = new HashMap<>();
-                        for (Element m : builderMethods) {
-                            if (!(m instanceof ExecutableElement)) {
-                                continue;
-                            }
-                            ExecutableElement exM = (ExecutableElement)m;
-                            if (exM.getParameters().size() != 1) {
-                                continue;
-                            }
-                            builderMethodMap.put(m.getSimpleName().toString().toLowerCase(), m);
-                        }
-                        
-                        sb.append("        ").append(builderClass).append(" builder = new ").append(builderClass).append("(getEntityView());\n");
-                        int numAtts = attributes.getLength();
-                        for (int i=0; i<numAtts; i++) {
-                            org.w3c.dom.Attr attribute = (org.w3c.dom.Attr)attributes.item(i);
-                            ExecutableElement builderMethod = (ExecutableElement)builderMethodMap.get(attribute.getName().toLowerCase());
-                            
-                            boolean useComponentMethod=false;
-                            if (builderMethod == null) {
-                                builderMethod = (ExecutableElement)componentMethodMap.get(attribute.getName().toLowerCase());
-                                useComponentMethod = builderMethod != null;
-                                
-                            }
-                            if (builderMethod == null) {
-                                processingEnv.getMessager().printMessage(Kind.ERROR, "Cannot find method in builder appropriate to handle attribute "+attribute.getName()+" while processing XML element "+e, typeEl);
-                                return;
-                            }
-                            
-                            String getComponent = "";
-                            if (useComponentMethod) getComponent = "getComponent().";
-                            
-                            VariableElement param = ((List<VariableElement>)builderMethod.getParameters()).get(0);
-                            String methodName = builderMethod.getSimpleName().toString();
-                            String paramType = param.asType().toString();
-                            if (isPrimitive(param.asType())) {
-                                sb.append("        builder.").append(getComponent).append(methodName).append("(").append(attribute.getValue()).append(");\n");
-                            } else if (paramType.equals("java.lang.String")) {
-                                sb.append("        builder.").append(getComponent).append(methodName).append("(\"").append(StringEscapeUtils.escapeJava(attribute.getValue())).append("\");\n");
-                            } else if (paramType.equals("com.codename1.rad.models.Tag")) {
-                                sb.append("        builder.").append(getComponent).append(methodName).append("(").append(findTag(attribute.getValue())).append(");\n");
-                            } else if (paramType.equals("com.codename1.rad.models.Tags")) {
-                                sb.append("        builder.").append(getComponent).append(methodName).append("(new Tags(");
-                                StringTokenizer strtok = new StringTokenizer(attribute.getValue(), " ,;");
-                                boolean first = true;
-                                while (strtok.hasMoreTokens()) {
-                                    if (first) {
-                                        first = false;
-                                    } else {
-                                        sb.append(", ");
-                                    }
-                                    sb.append(findTag(strtok.nextToken()));
-                                    
-                                }
-                                sb.append("));\n");
-                                
-                            } else if (paramType.equals("com.codename1.rad.models.Tag[]")) {
-                                sb.append("        builder.").append(getComponent).append(methodName).append("(new Tag[]{");
-                                StringTokenizer strtok = new StringTokenizer(attribute.getValue(), " ,;");
-                                boolean first = true;
-                                while (strtok.hasMoreTokens()) {
-                                    if (first) {
-                                        first = false;
-                                    } else {
-                                        sb.append(", ");
-                                    }
-                                    sb.append(findTag(strtok.nextToken()));
-                                    
-                                }
-                                sb.append("});\n");
-                                
-                            } else if (paramType.equals("com.codename1.rad.nodes.ActionNode.Category")) {
-                                sb.append("        builder.").append(getComponent).append(methodName).append("(").append(findCategory(attribute.getValue())).append(");\n");
-                            } else if (paramType.equals("com.codename1.rad.nodes.ActionNode.Category[]")) {
-                                sb.append("        builder.").append(getComponent).append(methodName).append("(new ActionNode.Category[]{");
-                                StringTokenizer strtok = new StringTokenizer(attribute.getValue(), " ,;");
-                                boolean first = true;
-                                while (strtok.hasMoreTokens()) {
-                                    if (first) {
-                                        first = false;
-                                    } else {
-                                        sb.append(", ");
-                                    }
-                                    sb.append(findCategory(strtok.nextToken()));
-                                    
-                                }
-                                sb.append("});\n");
-                            } else if (param.asType().getKind() == TypeKind.ARRAY) {
-                                if (paramType.equals("int[]") || paramType.equals("float[]") || paramType.equals("double[]") || paramType.equals("short[]") || paramType.equals("long[]") ||
-                                        paramType.equals("byte[]") || paramType.equals("char[]") || paramType.equals("boolean[]")) {
-                                    sb.append("        builder.").append(getComponent).append(methodName).append("(new").append(paramType).append("{");
-                                    StringTokenizer strtok = new StringTokenizer(attribute.getValue(), " ,;");
-                                    boolean first = true;
-                                    while (strtok.hasMoreTokens()) {
-                                        if (first) {
-                                            first = false;
-                                        } else {
-                                            sb.append(", ");
-                                        }
-                                        sb.append(strtok.nextToken());
-
-                                    }
-                                    sb.append("});\n");
-                                } else if (paramType.equals("java.lang.String[]")) {
-                                    sb.append("        builder.").append(getComponent).append(methodName).append("(new").append(paramType).append("{");
-                                    StringTokenizer strtok = new StringTokenizer(attribute.getValue(), " ,;");
-                                    boolean first = true;
-                                    while (strtok.hasMoreTokens()) {
-                                        if (first) {
-                                            first = false;
-                                        } else {
-                                            sb.append(", ");
-                                        }
-                                        sb.append("\"").append(StringEscapeUtils.escapeJava(strtok.nextToken())).append("\"");
-
-                                    }
-                                    sb.append("});\n");
-                                }
-                            } else {
-                                processingEnv.getMessager().printMessage(Kind.WARNING, "Builder class "+builderClass+" does not have a method corresponding to the parameter "+attribute.getValue()+".  It does have "+builderMethod+", but the parameter type "+paramType+" is not supported for XML builders.  Only String, primitives, boxed, primitives, Tag, Category, and arrayes thereof are supported.", builderTypeEl);
-                            }
-                            
-                                    
-                            
-                        }
-                        
-                        
-                        Optional<Element> buildMethod = (Optional<Element>) processingEnv.getElementUtils().getAllMembers(builderTypeEl).stream()
-                                .filter(mem -> mem.getSimpleName().contentEquals("build")).findAny();
-                        if (!buildMethod.isPresent()) {
-                            processingEnv.getMessager().printMessage(Kind.ERROR, "Builder class "+builder+" has no build() method.", builderTypeEl);
-                            return;
-                        }
-
-                        ExecutableElement buildMethodEl = (ExecutableElement)buildMethod.get();
-                        
-                        
-                        
-                        
-                        NodeList children = e.getChildNodes();
-                        int len = children.getLength();
-                        for (int i=0; i<len; i++) {
-                            org.w3c.dom.Node child = (Node)children.item(i);
-                            if (!(child instanceof org.w3c.dom.Element)) {
-                                continue;
-                            }
-                            org.w3c.dom.Element childEl = (org.w3c.dom.Element)child;
-                            String childElementId = childEl.getAttribute("elementId");
-                            String childBuilder = getBuilderClass(childElementId);
-                            TypeElement childBuilderType = processingEnv.getElementUtils().getTypeElement(childBuilder);
-                            dependentElements.add(childBuilderType);
-                            java.util.Optional<Element> childBuildMethod = (Optional<Element>) processingEnv.getElementUtils().getAllMembers(childBuilderType).stream()
-                                    .filter(mem -> mem.getSimpleName().contentEquals("build")).findAny();
-                            if (!childBuildMethod.isPresent()) {
-                                processingEnv.getMessager().printMessage(Kind.ERROR, "Builder class "+childBuilder+" has no build() method.", childBuilderType);
-                                continue;
-                            }
-                            
-                            ExecutableElement childBuildMethodEl = (ExecutableElement)childBuildMethod.get();
-                            Optional<Element> addMethod = (Optional<Element>)processingEnv.getElementUtils().getAllMembers(builderTypeEl).stream()
-                                    .filter(m -> m.getSimpleName().toString().startsWith("add"))
-                                    .filter(m -> m.getKind() == ElementKind.METHOD)
-                                    .filter(m -> ((ExecutableElement)m).getParameters().size() == 1)
-                                    .filter(m -> isA(childBuildMethodEl.getReturnType(), ((ExecutableElement)m).getParameters().get(0).asType().toString()))
-                                    .findFirst();
-                            
-                            if (!addMethod.isPresent()) {
-                                // No appropriate add method in the builder.
-                                // If the component is a container, then we can probably just the regular addComponent() methods.
-                                if (processingEnv.getTypeUtils().isAssignable(componentTypeEl.asType(), processingEnv.getElementUtils().getTypeElement("com.codename1.ui.Container").asType())) {
-                                    String constraint = childEl.getAttribute("layout-constraint");
-                                    if (constraint == null) {
-                                        sb.append("        builder.getComponent().addComponent(createComponent").append(childElementId).append("());\n");
-                                    } else {
-                                        sb.append("        builder.getComponent().addComponent(builder.parseConstraint(\"").append(StringEscapeUtils.escapeJava(constraint)).append("\", createComponent").append(childElementId).append("());\n");
-                                    }
-                            
-                                } else {
-                                    processingEnv.getMessager().printMessage(Kind.ERROR, "Builder class "+builderClass+" has no addXXX() method that can take the output of the child builder class "+childBuilder+".  The child builder's build() method returns a "+childBuildMethodEl.getReturnType()+" so in order for it to be an elligible child of "+builderClass+", builderClass must have a method named addXXX(param) with param accepting type "+childBuildMethodEl.getReturnType(), builderTypeEl);
-                                    return;
-                                }
-                            } else {
-                                 sb.append("        builder.").append(addMethod.get().getSimpleName()).append("(createComponent").append(childElementId).append("());\n");
-                            }
-                            
-                           
-                            
-                        }
-                        sb.append("        return builder.getComponent();\n");
-                        sb.append("    }\n");
-                        
-                    }
-                    
-                    NodeList children = e.getChildNodes();
-                    int len = children.getLength();
-                    for (int i=0; i<len; i++) {
-                        org.w3c.dom.Node child = (Node)children.item(i);
-                        if (!(child instanceof org.w3c.dom.Element)) {
-                            continue;
-                        }
-                        generate((org.w3c.dom.Element)child);
-                    }
-                }
-            }
-            Generator generator = new Generator();
-            generator.generate(doc.getDocumentElement());
-            
-            String methods = sb.toString();
-            sb.setLength(0);
-            String packageName = "";
-            PackageElement packageEl = processingEnv.getElementUtils().getPackageOf(typeEl);
-            if (packageEl != null) {
-                packageName = packageEl.getQualifiedName().toString();
-                sb.append("package ").append(packageEl.getQualifiedName()).append(";\n");
-            }
-            sb.append("import com.codename1.ui.Component;\n");
-            sb.append("import com.codename1.rad.ui.EntityView;\n");
-            
-            String className = typeEl.getSimpleName().toString();
-            if (className.startsWith("Abstract")) {
-                className = className.substring("Abstract".length());
-            }
-            if (!className.endsWith("Fragment")) {
-                className = className+"Fragment";
-            }
-            if (typeEl.getSimpleName().contentEquals(className)) {
-                className += "Impl";
-            }
-            Map<String,String> tagMap = new HashMap<>();
-            Map<String,String> categoryMap = new HashMap<>();
-            XPath xpath = XPathFactory.newInstance().newXPath();
-            
-            sb.append("public class ").append(className).append(" extends ").append(typeEl.getQualifiedName().toString()).append(" {\n");
-            sb.append("    public ").append(className).append("(EntityView context) {\n");
-            sb.append("        super(context);\n");
-            sb.append("    }\n");
-            sb.append(methods);
-            sb.append("}\n");
-            
-            String fqn = packageName;
-            if (fqn.length() > 0) fqn += ".";
-            fqn += className;
-            JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(fqn, dependentElements.toArray(new Element[dependentElements.size()])); 
-            try (java.io.Writer w = sourceFile.openWriter()) {
-                w.write(sb.toString());
-            }
-            
-            
-            
-        } catch (Exception ex) {
-            processingEnv.getMessager().printMessage(Kind.ERROR, "Parsing XML fragment "+typeEl.getQualifiedName()+".", typeEl);
-            Logger.getLogger(EntityProcessor.class.getName()).log(Level.SEVERE, null, ex);
-            return;
-        }
-    }
-    
-    private boolean isPrimitive(TypeMirror el) {
-        switch (el.getKind()) {
-            case BOOLEAN:
-            case FLOAT:
-            case DOUBLE:
-            case INT:
-            case LONG:
-            case CHAR:
-            case SHORT:
-            case BYTE:
-                return true;
-        }
-        return false;
-    }
-    
-    public boolean processSchemas(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        
-
-        
-        Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
-        for (Element e : annotatedElements) {
-            //createEntityClass(e, roundEnv);
-            
-
-        }
-        
-        return false;
-    }
-    
-    private String getEntityNameFor(TypeElement el) {
-        if (el.getKind() == ElementKind.CLASS && el.getSimpleName().toString().startsWith("Abstract")) {
-            return el.getSimpleName().toString().substring("Abstract".length());
-        } else if (el.getKind() == ElementKind.INTERFACE && el.getSimpleName().toString().startsWith("I")) {
-            return el.getSimpleName().toString().substring(1);
-        } else if (el.getKind() == ElementKind.INTERFACE) {
-            return el.getSimpleName().toString();
-        } else {
-            throw new IllegalArgumentException("TypeElement is not an entity. Classes must begin with Abstract, and Interface must begin with I");
-        }
-    }
-    
-    private PackageElement getPackageElement(Element el) {
-        if (el == null) return null;
-        if (el.getKind() == ElementKind.PACKAGE) return (PackageElement)el;
-        return getPackageElement(el.getEnclosingElement());
-    }
-    
-    
-    
-    private void validateTag(String tag, Element sourceElement) {
-        Element field = findField(tag, sourceElement);
-        if (field == null) {
-            processingEnv.getMessager().printMessage(Kind.ERROR, "The tag "+tag+" could not be found. Be sure that it is available as a public, protected, or package-private static field in this class/interface or a superclass/interface.", sourceElement);
-        }
-        
-    }
-    
-    private Element findField(String name, Element source) {
-        if (source == null || source.getKind() == ElementKind.PACKAGE) {
-            return null;
-        }
-        if (source instanceof TypeElement) {
-            for (Element child : processingEnv.getElementUtils().getAllMembers((TypeElement)source)) {
-
-                if (child.getKind() == ElementKind.FIELD && child.getSimpleName().contentEquals(name)) {
-                    return child;
-                }
-            }
-        }
-        
-        Element parent = source.getEnclosingElement();
-        
-        if (parent != null) {
-            
-            return findField(name, parent);
-        }
-        
-        return null;
-            
-    }
-    
     
     
     private class ExecutionPlan {
@@ -770,47 +102,33 @@ public class EntityProcessor extends AbstractProcessor {
             this.roundEnv = roundEnv;
             
             Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
-            //System.out.println("AnnotatedElements this round : "+annotatedElements);
+
             Set<EntityPlan> plans = new LinkedHashSet<>();
             TypeElement entityView = processingEnv.getElementUtils().getTypeElement("com.codename1.rad.ui.EntityView");
-            TypeElement entityFragment = processingEnv.getElementUtils().getTypeElement("com.codename1.rad.ui.EntityViewFragment");
             TypeElement componentBuilder = processingEnv.getElementUtils().getTypeElement("com.codename1.rad.ui.ComponentBuilder");
             TypeElement component = processingEnv.getElementUtils().getTypeElement("com.codename1.ui.Component");
             for (Element e : annotatedElements) {
                 if (e instanceof TypeElement) {
                     TypeElement typeEl = (TypeElement)e;
-                    
-                    if (processingEnv.getTypeUtils().isAssignable(typeEl.asType(), entityView.asType())) {
+                    //System.out.println("Checking if typeEl "+typeEl+" is an EntityView");
+                    if (isA(typeEl, "com.codename1.rad.ui.EntityView")) {
                         // If this is an EntityView, then we will process this using the EntityView pathway
-                        // Which will try to generate an EntityViewFragment from a template.
+                        // Which will try to generate an EntityView from a template.
+                        //System.out.println("It  IS an entity view");
                         continue;
                         
                     }
-                    if (processingEnv.getTypeUtils().isAssignable(typeEl.asType(), entityFragment.asType())) {
-                        // If this is an EntityView, then we will process this using the EntityView pathway
-                        // Which will try to generate an EntityViewFragment from a template.
-                        continue;
-                        
-                    }
+                    //System.out.println("It is NOT an entityview");
+
                     
                     //if (processingEnv.getTypeUtils().isAssignable(typeEl.asType(), processingEnv.getTypeUtils().getDeclaredType(componentBuilder, component.asType()))) {
                     if (isA(typeEl, "com.codename1.rad.ui.ComponentBuilder")) {
                         // If this is an EntityView, then we will process this using the EntityView pathway
-                        // Which will try to generate an EntityViewFragment from a template.
+                        // Which will try to generate an EntityView from a template.
                         continue;
                         
-                    } else {
-                        System.out.println(typeEl+" is not assignablt to "+componentBuilder.asType());
-                        System.out.println("Superclass is "+typeEl.getSuperclass());
-                        TypeMirror superclass = typeEl.getSuperclass();
-                        if (superclass != null) {
-                            System.out.println("Superclass Element: "+processingEnv.getTypeUtils().asElement(superclass));
-                            if (processingEnv.getTypeUtils().asElement(superclass) != null) {
-                                System.out.println("Interfaces: "+((TypeElement)processingEnv.getTypeUtils().asElement(superclass)).getInterfaces());
-                            }
-                        }
-                        
                     }
+                    //System.out.println("it is NOT a componentBuilder");
                     
                     if (!validate(typeEl)) {
                         return;
@@ -849,7 +167,7 @@ public class EntityProcessor extends AbstractProcessor {
                     processingEnv.getMessager().printMessage(Kind.ERROR, "When using @RAD annotation, class must be abstract", el);
                     return false;
                 }
-                if (!isA(el, "com.codename1.rad.models.Entity", roundEnv)) {
+                if (!isA(el, "com.codename1.rad.models.Entity")) {
                     processingEnv.getMessager().printMessage(Kind.ERROR, "When using @RAD annotation, class must implement Entity.  "+el.getSimpleName()+" does not.", el);
                     return false;
                 }
@@ -867,7 +185,7 @@ public class EntityProcessor extends AbstractProcessor {
                 //    processingEnv.getMessager().printMessage(Kind.ERROR, "When using @RAD annotation, interface must begin with 'I'", el);
                 //    return false;
                 //}
-                if (!isA(el, "com.codename1.rad.models.Entity", roundEnv)) {
+                if (!isA(el, "com.codename1.rad.models.Entity")) {
                     processingEnv.getMessager().printMessage(Kind.ERROR, "When Using @RAD annotation, interface must extends Entity", el);
                     return false;
                 }
@@ -974,11 +292,11 @@ public class EntityProcessor extends AbstractProcessor {
             if (typeStr == null && propType.getQualifiedName().contentEquals("java.lang.Long")) {
                 typeStr = "Long";
             }
-            if (typeStr == null && isA(propType, "com.codename1.rad.models.EntityList", roundEnv)) {
+            if (typeStr == null && isA(propType, "com.codename1.rad.models.EntityList")) {
                 typeStr = "EntityList";
                 //argsPrefix = propType.getQualifiedName()+".class, ";
             }
-            if (typeStr == null && isA(propType, "com.codename1.rad.models.Entity", roundEnv)) {
+            if (typeStr == null && isA(propType, "com.codename1.rad.models.Entity")) {
                 typeStr = "Entity";
                 //argsPrefix = propType.getQualifiedName()+".class, ";
             }
@@ -1047,11 +365,11 @@ public class EntityProcessor extends AbstractProcessor {
             if (typeStr == null && propType.getQualifiedName().contentEquals("java.lang.Long")) {
                 typeStr = "Long";
             }
-            if (typeStr == null && isA(propType, "com.codename1.rad.models.EntityList", roundEnv)) {
+            if (typeStr == null && isA(propType, "com.codename1.rad.models.EntityList")) {
                 typeStr = "";
                 //argsPrefix = propType.getQualifiedName()+".class, ";
             }
-            if (typeStr == null && isA(propType, "com.codename1.rad.models.Entity", roundEnv)) {
+            if (typeStr == null && isA(propType, "com.codename1.rad.models.Entity")) {
                 typeStr = "";
                 //argsPrefix = propType.getQualifiedName()+".class, ";
             }
@@ -1125,11 +443,11 @@ public class EntityProcessor extends AbstractProcessor {
             if (typeStr == null && propType.getQualifiedName().contentEquals("java.lang.Long")) {
                 typeStr = "Long";
             }
-            if (typeStr == null && isA(propType, "com.codename1.rad.models.EntityList", roundEnv)) {
+            if (typeStr == null && isA(propType, "com.codename1.rad.models.EntityList")) {
                 typeStr = "list";
                 argsPrefix = propType.getQualifiedName()+".class, ";
             }
-            if (typeStr == null && isA(propType, "com.codename1.rad.models.Entity", roundEnv)) {
+            if (typeStr == null && isA(propType, "com.codename1.rad.models.Entity")) {
                 typeStr = "entity";
                 argsPrefix = propType.getQualifiedName()+".class, ";
             }
@@ -1298,7 +616,6 @@ public class EntityProcessor extends AbstractProcessor {
                 .build();
         
             try {
-                System.out.println("Generating class "+packageName+".Abstract"+entityName);
                 JavaFileObject entityFile = processingEnv.getFiler().createSourceFile(packageName + ".Abstract"+entityName, entityInterface);
                 try (PrintWriter writer = new PrintWriter(entityFile.openWriter())) {
                     //javaFile.writeTo(System.out);
@@ -1334,129 +651,7 @@ public class EntityProcessor extends AbstractProcessor {
         return true;
     }
 
-    private boolean isEntitySubclass(TypeElement el) {
-        DeclaredType superType = (DeclaredType)el.getSuperclass();
-        if (superType == null) return false;
-        TypeElement superTypeEl = (TypeElement)superType.asElement();
 
-        if (superTypeEl.getQualifiedName().contentEquals(ENTITY_TYPE)) {
-            return true;
-        }
-        return false;
-
-    }
-    
-    private boolean isA(TypeElement el, String qualifiedName) {
-        return isA(el, qualifiedName, null);
-    }
-    
-    private boolean isA(TypeElement el, String qualifiedName, RoundEnvironment roundEnv) {
-        if (el == null) return false;
-        //System.out.println("isA("+el+"): kind="+el.getKind()+", mirrorKind="+el.asType().getKind());
-        TypeMirror mirror = el.asType();
-        
-        //processingEnv.getElementUtils().getTypeElement(qualifiedName);
-        if (processingEnv.getTypeUtils().isAssignable(mirror, processingEnv.getElementUtils().getTypeElement(qualifiedName).asType())) {
-            //System.out.println("We have a match "+el+" is assignable to "+qualifiedName);
-            return true;
-        }
-        
-        //System.out.println("Checking qualified name "+el.getQualifiedName()+" against "+qualifiedName);
-        if (el.getQualifiedName().contentEquals(qualifiedName)) return true;
-        
-        TypeMirror superClass = el.getSuperclass();
-        if (superClass != null) {
-            TypeElement superClassTypeEl = (TypeElement)processingEnv.getTypeUtils().asElement(superClass);
-            
-            if (isA(superClassTypeEl, qualifiedName)) {
-                return true;
-            }
-        }
-        for (TypeMirror i : el.getInterfaces()) {
-            //System.out.println("Checking interface "+i);
-            TypeElement interfaceEl = (TypeElement)processingEnv.getTypeUtils().asElement(i);
-           // System.out.println("as element interface is "+interfaceEl);
-            if (interfaceEl == null) {
-                if (roundEnv != null) {
-                    for (Element autogen : roundEnv.getElementsAnnotatedWith(Autogenerated.class)) {
-                        if (autogen instanceof TypeElement) {
-                            TypeElement autoGenType = (TypeElement)autogen;
-                            if (autoGenType.asType().equals(i)) {
-                                interfaceEl = autoGenType;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            if (isA(interfaceEl, qualifiedName)) {
-                return true;
-            }
-        }
-        return false;
-        
-    }
-    
-    private List<ExecutableElement> getAllTaggedAndAbstractMethods(List<ExecutableElement> out, TypeElement el) {
-        if (out == null) out = new ArrayList<>();
-        final List<ExecutableElement> fout = out;
-        if (el == null) return out;
-        
-        el.getEnclosedElements().stream()
-                .filter(e -> e.getKind() == ElementKind.METHOD)
-                    .filter(e -> e.getAnnotation(RAD.class) != null)
-                    .filter(e -> e.getAnnotation(RAD.class).tag().length > 0)
-                .forEach(e-> {
-                    fout.add((ExecutableElement)e);
-                });
-        getAllTaggedAndAbstractMethods(out,(TypeElement) processingEnv.getTypeUtils().asElement(el.getSuperclass()));
-        for (TypeMirror iface : el.getInterfaces()) {
-            getAllTaggedAndAbstractMethods(out, (TypeElement)processingEnv.getTypeUtils().asElement(iface));
-        }
-        return out;
-    }
-    
-    
-    private String[] extractTags(Element e) {
-        RAD anno = e.getAnnotation(RAD.class);
-        if (anno == null) return new String[0];
-        String[] out = e.getAnnotation(RAD.class).tag();
-        for (int i=0; i<out.length; i++) {
-            validateTag(out[i], e);
-            
-            
-        }
-        return out;
-    }
-    
-    private static String getSimpleName(Element e) {
-        return e.getSimpleName().toString();
-    }
-    
-    
-    private static String[] mergeUnique(String[] s1, String[] s2) {
-        List<String> out = new ArrayList<String>(s1.length + s2.length);
-        for (String s : s1) {
-            if (!out.contains(s)) out.add(s);
-        }
-        for (String s : s2) {
-            if (!out.contains(s)) out.add(s);
-        }
-        return out.toArray(new String[out.size()]);
-    }
-    
-    private static String getPropName(String methodName) {
-        if (methodName.startsWith("get") || methodName.startsWith("set")) {
-            return methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
-        }
-        return null;
-    }
-    
-    
-    private boolean isAutogenerated(TypeElement el) {
-        return el.getAnnotation(Autogenerated.class) != null;
-    }
-    
     
     
     private void createEntityClass(EntityPlan entityPlan, RoundEnvironment roundEnv) {

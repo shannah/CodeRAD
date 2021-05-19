@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.nodes.Node;
 import com.codename1.rad.nodes.ViewNode;
 
@@ -15,5 +16,5 @@ import com.codename1.rad.models.Entity;
  * @author shannah
  */
 public interface EntityViewFactory  {
-    public EntityView createView(Entity entity, ViewNode node);
+    public EntityView createView(@Inject Entity entity, @Inject ViewNode node);
 }

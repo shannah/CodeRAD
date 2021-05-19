@@ -49,6 +49,11 @@ public abstract class Node<T> extends Attribute<T> {
      * Parent node.
      */
     private Node parent;
+
+    public Node() {
+        this(null);
+    }
+
     
     /**
      * Create a new node with given value and provided attributes.

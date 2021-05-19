@@ -7,6 +7,8 @@ package com.codename1.rad.ui;
 
 import static com.codename1.rad.ui.NodeUtilFunctions.buildBottomActionsBar;
 import static com.codename1.rad.ui.NodeUtilFunctions.buildTopActionsBar;
+
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.entityviews.EntityListView;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.FieldNode;
@@ -201,11 +203,11 @@ public class EntityEditor extends Container {
         }
     }
     
-    public EntityEditor(Entity entity, UI uiDescriptor, EntityForm form) {
+    public EntityEditor(@Inject Entity entity, UI uiDescriptor, @Inject EntityForm form) {
         this(entity, uiDescriptor.getRoot(), form);
     }
     
-    public EntityEditor(Entity entity, UI uiDescriptor) {
+    public EntityEditor(@Inject Entity entity, UI uiDescriptor) {
         this(entity, uiDescriptor, null);
     }
   
@@ -217,7 +219,7 @@ public class EntityEditor extends Container {
         this.form = form;
     }
     
-    public EntityEditor(Entity entity, Node rootNode) {
+    public EntityEditor(@Inject Entity entity, @Inject Node rootNode) {
         this(entity, rootNode, null);
     }
     

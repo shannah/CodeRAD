@@ -48,6 +48,7 @@ public interface LoginViewSchema {
     public static final Category loginAction = new Category("loginAction"),
             forgotPasswordAction = new Category("forgotPasswordAction"),
             registerAction = new Category("registerAction"),
+            cancelAction = new Category("cancelAction"),
             topLeftActions = new Category("topLeftActions"),
             topRightActions = new Category("topRightActions");
     

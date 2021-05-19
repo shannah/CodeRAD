@@ -16,6 +16,7 @@
 package com.codename1.rad.propertyviews;
 
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.nodes.FieldNode;
@@ -38,7 +39,7 @@ public class RadioPropertyView extends PropertyView<RadioButton> {
         commit();
     };
     
-    public RadioPropertyView(RadioButton sw, Entity e, FieldNode field) {
+    public RadioPropertyView(@Inject RadioButton sw, @Inject Entity e, @Inject FieldNode field) {
         super(sw, e, field);
     }
     

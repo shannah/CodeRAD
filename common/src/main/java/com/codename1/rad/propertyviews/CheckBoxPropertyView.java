@@ -16,6 +16,7 @@
 package com.codename1.rad.propertyviews;
 
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.nodes.FieldNode;
@@ -38,7 +39,7 @@ public class CheckBoxPropertyView extends PropertyView<CheckBox> {
         commit();
     };
     
-    public CheckBoxPropertyView(CheckBox sw, Entity e, FieldNode field) {
+    public CheckBoxPropertyView(@Inject CheckBox sw, @Inject Entity e, @Inject FieldNode field) {
         super(sw, e, field);
     }
     

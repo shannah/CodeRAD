@@ -17,6 +17,7 @@ package com.codename1.rad.ui.entityviews;
 
 import ca.weblite.shared.components.ComponentImage;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.nodes.Node;
 import com.codename1.rad.nodes.ViewNode;
@@ -46,7 +47,7 @@ public class LabelEntityView extends AbstractEntityView {
     private Property iconProperty, nameProperty;
     private int iconWidth, iconHeight;
     
-    public LabelEntityView(Entity entity, ViewNode node, Label label, int iconWidth, int iconHeight) {
+    public LabelEntityView(@Inject Entity entity, @Inject ViewNode node, @Inject Label label, int iconWidth, int iconHeight) {
         super(entity);
         this.node = node;
         this.label = label;

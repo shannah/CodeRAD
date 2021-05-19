@@ -16,6 +16,7 @@
 package com.codename1.rad.ui.menus;
 
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.Actions;
 import com.codename1.ui.Button;
 import static com.codename1.ui.ComponentSelector.$;
@@ -29,7 +30,7 @@ import com.codename1.rad.models.Entity;
  */
 public class ActionSheet extends Sheet {
     
-    public ActionSheet(Sheet parent, Entity entity, Actions actions) {
+    public ActionSheet(Sheet parent, @Inject Entity entity, @Inject Actions actions) {
         super(parent, "");
         
         

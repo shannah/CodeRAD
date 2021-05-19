@@ -7,6 +7,7 @@ package com.codename1.rad.ui.entityviews;
 
 import ca.weblite.shared.components.CollapsibleHeaderContainer.ScrollableContainer;
 import com.codename1.components.InfiniteScrollAdapter;
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.attributes.ListCellRendererAttribute;
 import com.codename1.rad.controllers.ActionSupport;
 import com.codename1.rad.controllers.ControllerEvent;
@@ -139,7 +140,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
      * @param list The view model to render.
      * @param node Node providing configuration and actions for the view.
      */
-    public EntityListView(T list, ListNode node) {
+    public EntityListView(@Inject T list, @Inject ListNode node) {
         super(list, node == null ? new ListNode() : node);
         node = getViewNode();
         setUIID("EntityListView");
@@ -376,9 +377,10 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
     private Component handleEntityAdded(EntityList.EntityAddedEvent evt, boolean commit) {
         EntityList.EntityAddedEvent eae = (EntityList.EntityAddedEvent)evt;
         Entity e = eae.getEntity();
-        EntityView rowView = renderer.getListCellRendererComponent(this, e, wrapper.getComponentCount(), selection.isSelected(wrapper.getComponentCount(), 0), false);
-        Component cmp = (Component)rowView;
         int index = evt.getIndex();
+        EntityView rowView = renderer.getListCellRendererComponent(this, e, index, selection.isSelected(index, 0), false);
+        Component cmp = (Component)rowView;
+
         
         if (index >= 0 && index < wrapper.getComponentCount()) {
             wrapper.addComponent(index, cmp);
@@ -553,7 +555,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         }
     };
     
-    public EntityListView(T list) {
+    public EntityListView(@Inject T list) {
         this(list, null);
     }
 

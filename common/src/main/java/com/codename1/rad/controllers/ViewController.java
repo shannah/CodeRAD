@@ -6,8 +6,10 @@
 package com.codename1.rad.controllers;
 
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.ui.Activatable;
 import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.ui.Slot;
+import com.codename1.rad.ui.ViewContext;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.events.ActionListener;
@@ -145,11 +147,11 @@ public class ViewController extends Controller {
 
         if (isActivated(cmp)) return;
         cmp.putClientProperty(KEY_ACTIVATED, Boolean.TRUE);
-        if (cmp instanceof Slot) {
+        if (cmp instanceof Activatable) {
             // We activate a slot first using the slot activation.
             // Then we'll propagate our activation call to the slot's
             // children,in case any children have been added.
-            ((Slot)cmp).activate();
+            ((Activatable)cmp).activate();
         }
         if (cmp instanceof Container) {
             Container cnt = (Container)cmp;
@@ -254,5 +256,9 @@ public class ViewController extends Controller {
         return null;
     }
 
+
+    public <T extends Entity> ViewContext<T> createViewContext(Class<T> type, T entity) {
+        return new ViewContext<T>(this, entity);
+    }
 
 }

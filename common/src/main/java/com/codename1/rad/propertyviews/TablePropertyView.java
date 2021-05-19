@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.propertyviews;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.PropertyView;
 import com.codename1.rad.nodes.TableColumns;
 import com.codename1.rad.nodes.FieldNode;
@@ -31,7 +32,7 @@ public class TablePropertyView extends PropertyView<Table> {
         
     };
     
-    public TablePropertyView(Table component, Entity entity, FieldNode field) {
+    public TablePropertyView(@Inject Table component, @Inject Entity entity, @Inject FieldNode field) {
         super(component, entity, field);
     }
     

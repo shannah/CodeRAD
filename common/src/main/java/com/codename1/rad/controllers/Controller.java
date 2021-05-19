@@ -861,8 +861,94 @@ public class Controller implements ActionListener<ControllerEvent> {
 
 
 
+    public static class CreateObjectRequest<T> extends ControllerEvent {
+        private final Class<T> objectType;
+        private T object;
+        private Object[] params;
+
+        public CreateObjectRequest(Object source, Class<T> objectType, Object[] params) {
+            super(source);
+            this.objectType = objectType;
+            this.params = params;
+        }
+
+        public void setObject(T object) {
+            this.object = object;
+            this.consume();
+        }
+
+        public T getObject() {
+            return object;
+        }
+
+        public Object[] getParams() {
+            return params;
+        }
+
+        public Class<T> getObjectType() {
+            return objectType;
+        }
+    }
+
+
+    public static interface ObjectFactory {
+        public <T> T createObject(CreateObjectRequest<T> request);
+    }
+
+
+    private static class ObjectFactoryWrapper<T> implements ActionListener<ControllerEvent> {
+        private Class<T> objectType;
+        private ObjectFactory factory;
+
+        public ObjectFactoryWrapper(Class<T> objectType, ObjectFactory factory) {
+            this.objectType = objectType;
+            this.factory = factory;
+        }
+
+        @Override
+        public void actionPerformed(ControllerEvent _evt) {
+            if (_evt.getClass() == CreateObjectRequest.class) {
+                CreateObjectRequest<T> evt = (CreateObjectRequest<T>)_evt;
+                if (evt.getObjectType() == objectType) {
+                    T object = factory.createObject(evt);
+                    if (object != null) {
+                        evt.setObject(object);
+                    }
+                }
+            }
+
+        }
 
 
 
+
+    }
+
+
+    /**
+     * Registers a factory to create objects of the given type.
+     * @param type
+     * @param factory
+     * @param <T>
+     */
+    public <T> void addObjectFactory(Class<T> type, ObjectFactory factory) {
+        addEventListener(new ObjectFactoryWrapper<T>(type, factory));
+    }
+
+    /**
+     * This will attempt to create an object of the given type using registered factories.  It will pass
+     * the event up the controller hierarchy.
+     * @param type The type of object to create
+     * @param <T>
+     * @return A newly created object of the given type, or null if no factories were registered.
+     */
+    public <T> T createObjectWithFactory(Class<T> type, Object[] params) {
+        CreateObjectRequest<T> request = new CreateObjectRequest<>(this, type, params);
+        dispatchEvent(request);
+        if (request.isConsumed()) {
+            return request.getObject();
+        }
+        return null;
+    }
 
 }

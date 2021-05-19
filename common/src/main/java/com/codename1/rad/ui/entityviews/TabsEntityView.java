@@ -16,6 +16,7 @@
 package com.codename1.rad.ui.entityviews;
 
 import ca.weblite.shared.components.CollapsibleHeaderContainer.ScrollableContainer;
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.attributes.UIID;
 
 import com.codename1.rad.models.EntityList;
@@ -270,7 +271,7 @@ public class TabsEntityView extends AbstractEntityView implements ScrollableCont
     private ViewNode node;
     private Tabs tabs;
     
-    public TabsEntityView(Entity entity, ViewNode node) {
+    public TabsEntityView(@Inject Entity entity, @Inject ViewNode node) {
         super(entity);
         this.node = node;
         initUI();

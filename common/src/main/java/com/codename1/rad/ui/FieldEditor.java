@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.attributes.WidgetType;
 import ca.weblite.shared.components.HelpButton;
@@ -30,7 +31,7 @@ public class FieldEditor extends Container {
     private PropertyView component;
     private boolean built;
 
-    public FieldEditor(Entity entity, FieldNode field) {
+    public FieldEditor(@Inject Entity entity, @Inject FieldNode field) {
         this.entity = entity;
         this.field = field;
     }

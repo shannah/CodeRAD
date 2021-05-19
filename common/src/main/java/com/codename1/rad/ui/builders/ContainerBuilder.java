@@ -23,28 +23,28 @@
  */
 package com.codename1.rad.ui.builders;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.annotations.RAD;
 import com.codename1.rad.ui.AbstractComponentBuilder;
 import com.codename1.rad.ui.EntityView;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
-import com.codename1.ui.layouts.BorderLayout;
-import com.codename1.ui.layouts.BoxLayout;
-import com.codename1.ui.layouts.FlowLayout;
-import com.codename1.ui.layouts.Layout;
+import com.codename1.ui.layouts.*;
+
+import java.util.Map;
 
 /**
  *
  * @author shannah
  */
-@RAD(tag="container")
+@RAD(tag={"container", "border", "x", "y", "flow", "layered", "grid"})
 public class ContainerBuilder extends AbstractComponentBuilder<Container> {
     
     
     
     private String uiid = "Container";
-    public ContainerBuilder(EntityView context) {
-        super(context);
+    public ContainerBuilder(@Inject EntityView context, String tagName, Map<String,String> attributes) {
+        super(context, tagName, attributes);
         
     }
     
@@ -72,7 +72,37 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
     
     @Override
     public Container build() {
-        return new Container();
+        String tagName = getTagName();
+        Layout layout = null;
+        if (tagName != null) {
+            if ("border".equals(tagName)) {
+                layout = new BorderLayout();
+            } else if ("y".equals(tagName)) {
+                layout = BoxLayout.y();
+            } else if ("x".equals(tagName)) {
+                layout = BoxLayout.x();
+            } else if ("flow".equals(tagName)) {
+                layout = new FlowLayout();
+            } else if ("grid".equals(tagName)) {
+                int columns = 2;
+                if (hasAttribute("layout-columns")) {
+                    columns = Integer.parseInt(getAttribute("layout-columns"));
+                }
+                if (hasAttribute("layout-rows")) {
+                    int rows = Integer.parseInt(getAttribute("layout-rows"));
+                    layout = new GridLayout(rows, columns);
+                } else {
+                    layout = new GridLayout(columns);
+                }
+            } else if ("layered".equals(tagName)) {
+                layout = new LayeredLayout();
+            }
+        }
+        if (layout != null) {
+            return new Container(layout);
+        } else {
+            return new Container();
+        }
     }
 
     @Override
@@ -84,5 +114,6 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
         if ("center".equals(constraint)) return BorderLayout.CENTER;
         return null;
     }
+
     
 }

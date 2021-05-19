@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui.entityviews;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.ui.AbstractEntityView;
 import com.codename1.rad.nodes.Node;
 
@@ -23,7 +24,7 @@ import com.codename1.rad.models.Entity;
 public class WrapperEntityView<T extends Entity> extends AbstractEntityView<T> {
     private Component component;
     private Node viewNode;
-    public WrapperEntityView(Component wrapped, T entity, Node viewNode) {
+    public WrapperEntityView(@Inject Component wrapped, @Inject T entity, @Inject Node viewNode) {
         super(entity);
         this.component = wrapped;
         this.viewNode = viewNode;

@@ -6,6 +6,7 @@
 package com.codename1.rad.ui;
 
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.ui.Form;
 import com.codename1.rad.models.Entity;
 
@@ -16,7 +17,7 @@ import com.codename1.rad.models.Entity;
 public class EntityForm extends Form {
     private EntityEditor editor;
     
-    public EntityForm(Entity entity, UI uiDescriptor) {
+    public EntityForm(@Inject Entity entity, UI uiDescriptor) {
         editor = new EntityEditor(entity, uiDescriptor, this);
     }
 }

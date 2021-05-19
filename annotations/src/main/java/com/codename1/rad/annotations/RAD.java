@@ -19,6 +19,20 @@ import java.lang.annotation.Target;
 public @interface RAD {
     public String[] tag() default {};
     public String property() default "";
+
+    /**
+     * When parsing XML fragment files.  The XML tag may be parsed as an Attribute
+     * or a Component.  Default is Component.
+     * @return
+     */
+    public TagType tagType() default TagType.Component;
+
+    /**
+     * When parsing XML fragment files.  The child XML tags can be parsed as Attributes
+     * or Components.  Default is Components.
+     * @return
+     */
+    public TagType childTagType() default TagType.Component;
     
     
 

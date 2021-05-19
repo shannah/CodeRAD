@@ -15,6 +15,7 @@
  */
 package com.codename1.rad.propertyviews;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.models.PropertyChangeEvent;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.ui.PropertyView;
@@ -35,7 +36,7 @@ public class ImageContainerPropertyView extends PropertyView<ImageContainer> {
         update();
     };
     
-    public ImageContainerPropertyView(ImageContainer imgCnt, Entity entity, FieldNode node) {
+    public ImageContainerPropertyView(@Inject ImageContainer imgCnt, @Inject Entity entity, @Inject FieldNode node) {
         super(imgCnt, entity, node);
     }
     
