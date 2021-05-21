@@ -27,6 +27,7 @@ import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.annotations.RAD;
 import com.codename1.rad.ui.AbstractComponentBuilder;
 import com.codename1.rad.ui.EntityView;
+import com.codename1.rad.ui.ViewContext;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.layouts.*;
@@ -43,7 +44,7 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
     
     
     private String uiid = "Container";
-    public ContainerBuilder(@Inject EntityView context, String tagName, Map<String,String> attributes) {
+    public ContainerBuilder(@Inject ViewContext context, String tagName, Map<String,String> attributes) {
         super(context, tagName, attributes);
         
     }

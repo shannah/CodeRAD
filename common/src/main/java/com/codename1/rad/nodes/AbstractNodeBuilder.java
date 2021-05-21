@@ -26,6 +26,7 @@ package com.codename1.rad.nodes;
 import com.codename1.rad.nodes.Node;
 import com.codename1.rad.nodes.NodeBuilder;
 import com.codename1.rad.ui.EntityView;
+import com.codename1.rad.ui.ViewContext;
 import com.codename1.ui.Component;
 
 import java.util.Map;
@@ -35,17 +36,17 @@ import java.util.Map;
  * @author shannah
  */
 public abstract class AbstractNodeBuilder<T extends Node> implements NodeBuilder<T> {
-    private final EntityView context;
+    private final ViewContext context;
     private T node;
     private String tagName;
     private Map<String,String> attributes;
-    protected AbstractNodeBuilder(EntityView context, String tagName, Map<String,String> attributes) {
+    protected AbstractNodeBuilder(ViewContext context, String tagName, Map<String,String> attributes) {
         this.tagName = tagName;
         this.context = context;
         this.attributes = attributes;
     }
     
-    public EntityView getContext() {
+    public ViewContext getContext() {
         return context;
     }
     

@@ -178,10 +178,6 @@ public abstract class BaseProcessor extends AbstractProcessor {
             throw new IllegalArgumentException("Cannot find type "+qualifiedName);
         }
         DeclaredType mirror;
-        if (el.asType() == null) {
-            System.out.println("el.asType() was null for "+el+", "+el.getClass());
-            //System.out.println("el.asType()=" + el.asType());
-        }
         if (superclass.getTypeParameters().size() ==  ((DeclaredType)el.asType()).getTypeArguments().size()) {
             mirror = types().getDeclaredType(superclass, ((DeclaredType) el.asType()).getTypeArguments().toArray(new TypeMirror[0]));
 

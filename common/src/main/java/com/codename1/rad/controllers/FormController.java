@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.ui.Button;
 import com.codename1.ui.CN;
 import com.codename1.ui.Command;
@@ -137,7 +138,7 @@ public class FormController extends ViewController implements Runnable {
         }
     }
     
-    public FormController(Controller parent) {
+    public FormController(@Inject Controller parent) {
         super(parent);
     }
     

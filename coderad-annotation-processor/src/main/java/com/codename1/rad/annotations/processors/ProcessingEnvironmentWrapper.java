@@ -1,6 +1,8 @@
 package com.codename1.rad.annotations.processors;
 
 
+import com.codename1.rad.annotations.Inject;
+
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -46,6 +48,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             }
             if (enclosing != null && enclosing.getKind() == ElementKind.PACKAGE) {
                 ((PackageWrapper)wrap(enclosing)).enclosedElements.add(e);
+
             }
 
         }
@@ -109,7 +112,6 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             }
             if (t instanceof DeclaredType) {
                 if (t instanceof CustomDeclaredType) {
-                    System.out.println("Looking up custom declared type element "+((CustomDeclaredType)t).stringValue);
                     out = elements.getTypeElement(((CustomDeclaredType)t).stringValue);
                 } else {
                     out = ((DeclaredType) t).asElement();
@@ -165,18 +167,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
         @Override
         public boolean isSubtype(TypeMirror t1, TypeMirror t2) {
-            if (t1 instanceof DeclaredType && t2 instanceof DeclaredType) {
-                DeclaredType dt1 = (DeclaredType)t1;
-                DeclaredType dt2 = (DeclaredType)t2;
-                TypeElement te1 = (TypeElement)dt1.asElement();
-                TypeElement te2 = (TypeElement)dt2.asElement();
-                if (te1 != null && te1.getSimpleName().contentEquals("ContainerBuilder") && te2 != null && te2.getSimpleName().contentEquals("ComponentBuilder")) {
-                    //System.out.println("isSubtype("+t1+", "+t2+")? ");
-                    //System.out.println("t1.typeArguments: "+dt1.getTypeArguments());
-                    //System.out.println("t2.typeParameters: "+te1.getTypeParameters());
-                    //System.out.println("Superclass type params: "+((DeclaredType)te1.getSuperclass()).getTypeArguments());
-                }
-            }
+
             if (isSameType(t1, t2)) return true;
 
             if (isNativeMirror(t1) && isNativeMirror(t2)) {
@@ -1096,9 +1087,15 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
     public class CustomVariableElementBuilder extends CustomElementBuilder<CustomVariableElementBuilder, CustomVariableElement> {
         private Object constantValue;
+        private boolean injected;
 
         public CustomVariableElementBuilder constantValue(Object cv) {
             this.constantValue = cv;
+            return this;
+        }
+
+        public CustomVariableElementBuilder injected(boolean injected) {
+            this.injected = injected;
             return this;
         }
 
@@ -1111,7 +1108,16 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
         @Override
         public CustomVariableElement build() {
-            CustomVariableElement out = new CustomVariableElement();
+            CustomVariableElement out = new CustomVariableElement() {
+                @Override
+                public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
+                    if (injected && annotationType.equals(Inject.class)) {
+                       return (A)getInjectAnnotation();
+                    }
+                    return super.getAnnotation(annotationType);
+                }
+
+            };
             decorate(out);
             return out;
         }
@@ -1272,7 +1278,6 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             if (stringValue == null) {
                 throw new IllegalStateException("Cannot build CustomTypeMirrorBuilder without stringValue");
             }
-            System.out.println("Setting stringValue to "+stringValue);
             element.stringValue = stringValue;
         }
         public abstract E build();
@@ -1737,6 +1742,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             simpleName(elements.getName(simpleName));
             modifiers(Modifier.PUBLIC);
             superclass(elements.getTypeElement(packageName+".Abstract"+simpleName).asType());
+            kind(ElementKind.CLASS);
 
             addInterface(createDeclaredType(packageName+"."+simpleName+"Schema"));
             DeclaredType type = createDeclaredType(qualifiedName, createDeclaredType(packageName+"."+simpleName+"Model"));
@@ -1761,6 +1767,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
                     .simpleName(elements.getName("<init>"))
                     .modifiers(Modifier.PUBLIC)
                     .addParameter(new CustomVariableElementBuilder()
+                            .injected(true)
                             .simpleName(elements.getName("context"))
                             .type(types.getDeclaredType(viewContext, createDeclaredType(element.getQualifiedName()+"Model")))
                             .build())
@@ -2071,5 +2078,11 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             if (!isNativeMirror(tm)) return false;
         }
         return true;
+    }
+
+    private Inject getInjectAnnotation() {
+        TypeElement controller = elements.getTypeElement("com.codename1.rad.ui.ViewContext");
+        return controller.getEnclosedElements().stream().filter(e->e.getKind() == ElementKind.CONSTRUCTOR && ((ExecutableElement)e).getParameters().size() > 0)
+                .map(e->((ExecutableElement) e).getParameters().get(0).getAnnotation(Inject.class)).findFirst().orElse(null);
     }
 }

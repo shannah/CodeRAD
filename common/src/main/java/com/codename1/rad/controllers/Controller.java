@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.events.FillSlotEvent;
 
 import com.codename1.rad.models.Attribute;
@@ -103,7 +104,7 @@ public class Controller implements ActionListener<ControllerEvent> {
      * Creates a controller with a given parent controller.
      * @param parent The parent controller of this controller.  
      */
-    public Controller(Controller parent) {
+    public Controller(@Inject Controller parent) {
         this.parent = parent;
 
     }

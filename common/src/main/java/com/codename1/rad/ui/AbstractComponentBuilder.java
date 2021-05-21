@@ -32,17 +32,17 @@ import java.util.Map;
  * @author shannah
  */
 public abstract class AbstractComponentBuilder<T extends Component> implements ComponentBuilder<T> {
-    private final EntityView context;
+    private final ViewContext context;
     private T component;
     private String tagName;
     private Map<String,String> attributes;
-    protected AbstractComponentBuilder(EntityView context, String tagName, Map<String,String> attributes) {
+    protected AbstractComponentBuilder(ViewContext context, String tagName, Map<String,String> attributes) {
         this.tagName = tagName;
         this.context = context;
         this.attributes = attributes;
     }
     
-    public EntityView getContext() {
+    public ViewContext getContext() {
         return context;
     }
     

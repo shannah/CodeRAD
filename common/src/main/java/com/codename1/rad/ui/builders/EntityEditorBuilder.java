@@ -4,10 +4,7 @@ import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.annotations.RAD;
 import com.codename1.rad.models.Attribute;
 import com.codename1.rad.models.AttributeSet;
-import com.codename1.rad.ui.AbstractComponentBuilder;
-import com.codename1.rad.ui.EntityEditor;
-import com.codename1.rad.ui.EntityView;
-import com.codename1.rad.ui.UI;
+import com.codename1.rad.ui.*;
 import com.codename1.ui.Component;
 
 import java.util.ArrayList;
@@ -18,7 +15,7 @@ public class EntityEditorBuilder extends AbstractComponentBuilder {
 
     private ArrayList<Attribute> atts = new ArrayList<Attribute>();
 
-    public EntityEditorBuilder(@Inject EntityView context, String tagName, Map attributes) {
+    public EntityEditorBuilder(@Inject ViewContext context, String tagName, Map attributes) {
         super(context, tagName, attributes);
     }
 
