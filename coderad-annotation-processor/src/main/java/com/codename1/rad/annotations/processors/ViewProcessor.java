@@ -2900,7 +2900,7 @@ public class ViewProcessor extends BaseProcessor {
 
                     }
                     childEl.setAttribute("rad-property", injectableSetter.getSimpleName().toString());
-                    builderClass.setProperty(sb, injectableSetter.getSimpleName().toString(), "java:_tmpProperty", "_builder", setterType.toString());
+                    builderClass.setProperty(sb, injectableSetter.getSimpleName().toString(), "java:_tmpProperty", "_builder", setterType.getParameterTypes().get(0).toString());
 
                 }
                 if (!first) {
@@ -3525,7 +3525,7 @@ public class ViewProcessor extends BaseProcessor {
                 }
                 if (errors[0] != null) return null;
                 String category = el.getAttribute("category");
-                boolean inherit = "true".equalsIgnoreCase(el.getAttribute("inherit"));
+                boolean inherit = !"false".equalsIgnoreCase(el.getAttribute("inherit"));
                 if (category.isEmpty()) {
                     errors[0] = new XMLParseException("bind-action tag missing category attribute.  Tag: "+el, el, null);
                     return null;
@@ -3571,6 +3571,25 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent).append("    Runnable _onUpdate = () -> {\n");
                     indent(sb, indent).append("        com.codename1.rad.ui.DefaultActionViewFactory.update(_fcmp, context.getEntity(), _action);\n");
                     indent(sb, indent).append("    };\n");
+                    indent += 4;
+                    indent(sb, indent).append("com.codename1.ui.events.ActionListener<PropertyChangeEvent> _pce = pcl -> {\n");
+                    indent += 4;
+                    indent(sb, indent).append("_onUpdate.run();\n");
+                    indent -= 4;
+                    indent(sb, indent).append("};\n");
+                    indent(sb, indent).append("Runnable _onBind = () -> {\n");
+                    indent += 4;
+                    indent(sb, indent).append("context.getEntity().addPropertyChangeListener(_pce);\n");
+                    indent -= 4;
+                    indent(sb, indent).append("};\n");
+                    indent(sb, indent).append("Runnable _onUnbind = () -> {\n");
+                    indent += 4;
+                    indent(sb, indent).append("context.getEntity().removePropertyChangeListener(_pce);\n");
+                    indent -= 4;
+                    indent(sb, indent).append("};\n");
+                    indent(sb, indent).append("addBindListener(_onBind);\n");
+                    indent(sb, indent).append("addUnbindListener(_onUnbind);\n");
+                    indent -= 4;
                     indent(sb, indent).append("    if (view instanceof com.codename1.rad.ui.AbstractEntityView) {\n");
                     indent(sb, indent).append("        ((com.codename1.rad.ui.AbstractEntityView)view).addUpdateListener(_onUpdate);\n");
                     indent(sb, indent).append("    } else {\n");
