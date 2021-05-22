@@ -214,7 +214,7 @@ public class ContentType<T> {
         throw new IllegalArgumentException("No supported conversions from "+sourceType+" to "+targetType);
     }
     
-    
+
     
     public static final ContentType<String> Text = new ContentType<String>(new Name("text/plain;java.lang.String"), String.class) {
         
@@ -229,6 +229,9 @@ public class ContentType<T> {
             if (cls == Integer.class) {
                 if (data == null || data.length() == 0) {
                     return (V)(Integer)0;
+                }
+                if (data.startsWith("0x") && data.length() > 2) {
+                    return (V)(Integer)Integer.parseInt(data.substring(2), 16);
                 }
                 return (V)(Integer)Integer.parseInt(data);
             }

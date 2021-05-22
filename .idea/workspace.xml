@@ -23,32 +23,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/beans/Title.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/ButtonListPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/CheckBoxPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/EntityListViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/HTMLComponentPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/ImageContainerPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/LabelPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/PropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/RadioPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/SpanLabelPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/SwitchPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/TablePropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/TextAreaPropertyViewBuilder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/TextFieldPropertyViewBuilder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/BaseProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/BaseProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ProcessingEnvironmentWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ProcessingEnvironmentWrapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/FormController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/FormController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/AbstractNodeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/AbstractNodeBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/AbstractComponentBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/AbstractComponentBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/ContainerBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/ContainerBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/EntityEditorBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/EntityEditorBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/SimpleComponentDecorator.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/SimpleComponentDecorator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/SimpleNodeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/SimpleNodeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/ContentType.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/ContentType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/AbstractEntityView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/AbstractEntityView.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -190,28 +168,28 @@
     </state>
     <state x="-2560" y="-250" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1620656045542" />
     <state x="825" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618523791228" />
-    <state width="2518" height="357" key="GridCell.Tab.0.bottom" timestamp="1621603400239">
+    <state width="2518" height="357" key="GridCell.Tab.0.bottom" timestamp="1621653781984">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="2518" height="357" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621603400239" />
+    <state width="2518" height="357" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621653781984" />
     <state width="1638" height="280" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132475" />
     <state width="2518" height="409" key="GridCell.Tab.0.bottom/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171393" />
-    <state width="2518" height="357" key="GridCell.Tab.0.center" timestamp="1621603400238">
+    <state width="2518" height="357" key="GridCell.Tab.0.center" timestamp="1621653781983">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="2518" height="357" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621603400238" />
+    <state width="2518" height="357" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621653781983" />
     <state width="1638" height="280" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132474" />
     <state width="2518" height="409" key="GridCell.Tab.0.center/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171392" />
-    <state width="2518" height="357" key="GridCell.Tab.0.left" timestamp="1621603400237">
+    <state width="2518" height="357" key="GridCell.Tab.0.left" timestamp="1621653781983">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="2518" height="357" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621603400237" />
+    <state width="2518" height="357" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621653781983" />
     <state width="1638" height="280" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132473" />
     <state width="2518" height="409" key="GridCell.Tab.0.left/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171392" />
-    <state width="2518" height="357" key="GridCell.Tab.0.right" timestamp="1621603400238">
+    <state width="2518" height="357" key="GridCell.Tab.0.right" timestamp="1621653781984">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="2518" height="357" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621603400238" />
+    <state width="2518" height="357" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621653781984" />
     <state width="1638" height="280" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132474" />
     <state width="2518" height="409" key="GridCell.Tab.0.right/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171393" />
     <state width="1105" height="467" key="GridCell.Tab.1.bottom" timestamp="1617710132503">
@@ -259,10 +237,10 @@
     </state>
     <state x="-2154" y="22" key="new project wizard/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621435494975" />
     <state x="406" y="295" width="913" height="579" key="new project wizard/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618842387165" />
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1621607039268">
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1621651211674">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621607039268" />
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621651211674" />
     <state x="517" y="334" width="670" height="490" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619385890360" />
     <state x="443" y="272" width="670" height="430" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1618261010075" />
     <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618847296129" />

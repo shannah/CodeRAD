@@ -10,9 +10,13 @@ import com.codename1.rad.attributes.ViewControllerAttribute;
 import com.codename1.rad.controllers.ViewController;
 import com.codename1.rad.models.*;
 import com.codename1.rad.nodes.Node;
+import com.codename1.ui.CN;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
 import com.codename1.ui.events.ActionListener;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observer;
 
 import static com.codename1.ui.ComponentSelector.$;
@@ -27,6 +31,7 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     private boolean bindOnPropertyChangeEvents = true;
     //private Node node;
     private ViewContext<T> context;
+    private List<Runnable> updateListeners;
     
     
     
@@ -36,8 +41,36 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     // Switching to using Observer pattern instead of property change listeners
     // to reduce noise.
     private Observer observer = (o, arg) -> {
+        if (!CN.isEdt()) {
+            CN.callSerially(()-> {
+                update();
+                if (updateListeners != null && !updateListeners.isEmpty()) {
+                    for (Runnable r : updateListeners) {
+                        r.run();
+                    }
+                }
+            });
+            return;
+        }
         update();
+        if (updateListeners != null && !updateListeners.isEmpty()) {
+            for (Runnable r : updateListeners) {
+                r.run();
+            }
+        }
     };
+
+    public void addUpdateListener(Runnable l) {
+        if (updateListeners == null) {
+            updateListeners = new ArrayList<>();
+        }
+        updateListeners.add(l);
+    }
+
+    public void removeUpdateListener(Runnable l) {
+        if (updateListeners == null) return;
+        updateListeners.remove(l);
+    }
 
     public AbstractEntityView(@Inject ViewContext<T> context) {
         this.context = context;

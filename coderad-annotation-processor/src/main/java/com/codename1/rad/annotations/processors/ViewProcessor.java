@@ -2766,13 +2766,17 @@ public class ViewProcessor extends BaseProcessor {
                     indent += 4;
                     indent(sb, indent).append("class Renderer").append(xmlTag.getAttribute("rad-id")).append(" implements com.codename1.rad.ui.EntityListCellRenderer {\n");
                     indent += 4;
+
                     indent(sb, indent).append("public EntityView getListCellRendererComponent(EntityListView list, Entity value, int index, boolean isSelected, boolean isFocused) {\n");
                     indent += 4;
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowModel = value;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowIndex = index;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowSelected = isSelected;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowFocused = isFocused;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowList = list;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowModel = value;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowIndex = index;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowSelected = isSelected;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowFocused = isFocused;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowList = list;\n");
+                    indent(sb, indent).append("com.codename1.rad.nodes.ViewNode _viewNode = new com.codename1.rad.nodes.ViewNode();\n");
+                    indent(sb, indent).append("_viewNode.setParent(context.getNode());\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowContext = new ViewContext(viewController, rowModel, _viewNode);\n");
                     indent(sb, indent).append("try {\n");
                     indent += 4;
                     for (org.w3c.dom.Element rowTemplate : rowTemplates) {
@@ -2793,9 +2797,13 @@ public class ViewProcessor extends BaseProcessor {
                                 if (rowComponentTypeEl == null) {
                                     continue;
                                 }
-                                indent(sb, indent).append("com.codename1.rad.nodes.ViewNode _viewNode = ").append("new com.codename1.rad.nodes.ViewNode();\n");
-                                indent(sb, indent).append("_viewNode.setParent(context.getNode());\n");
-                                indent(sb, indent).append("return new com.codename1.rad.ui.entityviews.WrapperEntityView(createComponent").append(rowView.getAttribute("rad-id")).append("(), ").append(jenv.rootBuilder.className).append(".this.").append("rowModel, _viewNode);\n");
+
+                                indent(sb, indent).append("Container cnt = new Container(new BorderLayout());\n");
+                                indent(sb, indent).append("cnt.getStyle().stripMarginAndPadding();\n");
+
+                                indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowView = new com.codename1.rad.ui.entityviews.WrapperEntityView(cnt, ").append(jenv.rootBuilder.className).append(".this.").append("rowModel, _viewNode);\n");
+                                indent(sb, indent).append("cnt.add(BorderLayout.CENTER, createComponent").append(rowView.getAttribute("rad-id")).append("());\n");
+                                indent(sb, indent).append("return ").append(jenv.rootBuilder.className).append(".this.rowView;\n");
                                 break;
                             }
                             if (!rowView.hasAttribute("view-model")) {
@@ -2819,6 +2827,8 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowSelected = false;\n");
                     indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowFocused = false;\n");
                     indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowList = null;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowContext = null;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowView = null;\n");
                     indent -= 4;
                     indent(sb, indent).append("}\n"); // finally
 
@@ -3309,8 +3319,9 @@ public class ViewProcessor extends BaseProcessor {
             sb.append(";\n");
 
 
-
             indent(sb, indent).append("Runnable _onUpdate = ()-> {\n");
+            indent += 4;
+            indent(sb, indent).append("try {\n");
             indent += 4;
             String paramType = propertySelector.getPropertyType(true);
             if (propertySelector.isReadable()) {
@@ -3359,9 +3370,36 @@ public class ViewProcessor extends BaseProcessor {
             indent -= 4;
             indent(sb, indent).append("}\n");
             indent -= 4;
+            indent(sb, indent).append("} catch (Exception ex){ex.printStackTrace();}\n");
+            indent -= 4;
             indent(sb, indent).append("};\n");
 
-            indent(sb, indent).append("_onUpdate(_onUpdate);\n");
+            indent(sb, indent).append("if (view instanceof com.codename1.rad.ui.AbstractEntityView) {\n");
+            indent(sb, indent).append("    ((com.codename1.rad.ui.AbstractEntityView)view).addUpdateListener(_onUpdate);\n");
+            indent(sb, indent).append("} else {\n");
+            indent(sb, indent).append("    addUpdateListener(_onUpdate);\n");
+            indent(sb, indent).append("}\n");
+
+            if (!parseAsJava) {
+                indent(sb, indent).append("com.codename1.ui.events.ActionListener<PropertyChangeEvent> _pce = pcl -> {\n");
+                indent += 4;
+                indent(sb, indent).append("_onUpdate.run();\n");
+                indent -= 4;
+                indent(sb, indent).append("};\n");
+                indent(sb, indent).append("Runnable _onBind = () -> {\n");
+                indent += 4;
+                indent(sb, indent).append("_propertySelector.addPropertyChangeListener(_pce);\n");
+                indent -= 4;
+                indent(sb, indent).append("};\n");
+                indent(sb, indent).append("Runnable _onUnbind = () -> {\n");
+                indent += 4;
+                indent(sb, indent).append("_propertySelector.removePropertyChangeListener(_pce);\n");
+                indent -= 4;
+                indent(sb, indent).append("};\n");
+                indent(sb, indent).append("addBindListener(_onBind);\n");
+                indent(sb, indent).append("addUnbindListener(_onUnbind);\n");
+            }
+
             if (propertySelector.isReadable()  && !parseAsJava) {
                 indent(sb, indent).append("Runnable onCommit = () -> {\n");
                 indent += 4;
@@ -3533,7 +3571,11 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent).append("    Runnable _onUpdate = () -> {\n");
                     indent(sb, indent).append("        com.codename1.rad.ui.DefaultActionViewFactory.update(_fcmp, context.getEntity(), _action);\n");
                     indent(sb, indent).append("    };\n");
-                    indent(sb, indent).append("    _onUpdate(_onUpdate);\n");
+                    indent(sb, indent).append("    if (view instanceof com.codename1.rad.ui.AbstractEntityView) {\n");
+                    indent(sb, indent).append("        ((com.codename1.rad.ui.AbstractEntityView)view).addUpdateListener(_onUpdate);\n");
+                    indent(sb, indent).append("    } else {\n");
+                    indent(sb, indent).append("        addUpdateListener(_onUpdate);\n");
+                    indent(sb, indent).append("    }\n");
                 }
 
 
@@ -3636,9 +3678,18 @@ public class ViewProcessor extends BaseProcessor {
                 indent(sb, indent).append("boolean rowFocused = this.rowFocused;\n");
 
                 indent(sb, indent).append("EntityListView rowList = this.rowList;\n");
-                indent(sb, indent).append("ViewNode _node = new ViewNode();\n");
-                indent(sb, indent).append("_node.setParent(rowList.getViewNode());\n");
-                indent(sb, indent).append("ViewContext<").append(rowModelType).append("> context = new ViewContext<>(viewController, rowModel, _node);\n");
+
+                // TODO: This is problematic for sub-nodes of a row-template since each component
+                // will have its own context.  There should be a single context for the whole row.
+                // Needs to create a "stack" of contexts.
+                //indent(sb, indent).append("ViewNode _node = new ViewNode();\n");
+                //indent(sb, indent).append("_node.setParent(rowList.getViewNode());\n");
+                //indent(sb, indent).append("ViewContext<").append(rowModelType).append("> context = new ViewContext<>(viewController, rowModel, _node);\n");
+                indent(sb, indent).append("ViewContext<").append(rowModelType).append("> context = (ViewContext<").append(rowModelType).append(">)this.rowContext;\n");
+                indent(sb, indent).append("ViewContext<").append(rowModelType).append("> rowContext = context;\n");
+                //indent(sb, indent).append("EntityView<").append(rowModelType).append("> rowView = (EntityView<").append(rowModelType).append(">)this.rowView;\n");
+                //indent(sb, indent).append("EntityView<").append(rowModelType).append("> view = rowView;\n");
+
 
             }
 
@@ -3686,6 +3737,17 @@ public class ViewProcessor extends BaseProcessor {
                 sb.append("com.codename1.rad.ui.builders.SimpleComponentDecorator<").append(componentClass.getQualifiedName()).append("> _builder = new com.codename1.rad.ui.builders.SimpleComponentDecorator<").append(componentClass.getQualifiedName()).append(">(_cmp, context, ");
 
                 sb.append("\"").append(StringEscapeUtils.escapeJava(xmlTag.getTagName())).append("\", attributes);\n");
+            }
+
+            if (isInsideRowTemplate() && isA(jenv.findClassThatTagCreates(xmlTag.getTagName()), "com.codename1.rad.ui.EntityView")) {
+                sb.append("if (").append(jenv.rootBuilder.className).append("this.rowView == null) {\n");
+                sb.append("    ").append(jenv.rootBuilder.className).append("this.rowView = (EntityView)_cmp;\n");
+                sb.append("}\n");
+            }
+            if (isInsideRowTemplate()) {
+
+                indent(sb, indent).append("EntityView<").append(rowModelType).append("> view = (EntityView<").append(rowModelType).append(">)").append(jenv.rootBuilder.className).append(".this.rowView;\n");
+                indent(sb, indent).append("EntityView<").append(rowModelType).append("> rowView = view;\n");
             }
 
             writeProperties(sb);
@@ -4230,19 +4292,23 @@ public class ViewProcessor extends BaseProcessor {
             Map<String,String> variables = new HashMap<String,String>();
             indent(sb, indent).append("// Placeholder for the row model when creating EntityListCellRenderer.\n");
             indent(sb, indent).append("// Can access inside <script> tags inside <row-template>\n");
-            indent(sb, indent).append("com.codename1.rad.models.Entity rowModel;\n");
+            indent(sb, indent).append("private com.codename1.rad.models.Entity rowModel;\n");
             indent(sb, indent).append("// Placeholder for the row index when creating EntityListCellRenderer.\n");
             indent(sb, indent).append("// Can access inside <script> tags inside <row-template>\n");
-            indent(sb, indent).append("int rowIndex;\n");
+            indent(sb, indent).append("private int rowIndex;\n");
             indent(sb, indent).append("// Placeholder for the row selected state when creating EntityListCellRenderer.\n");
             indent(sb, indent).append("// Can access inside <script> tags inside <row-template>\n");
-            indent(sb, indent).append("boolean rowSelected;\n");
+            indent(sb, indent).append("private boolean rowSelected;\n");
             indent(sb, indent).append("// Placeholder for the row focused state when creating EntityListCellRenderer.\n");
             indent(sb, indent).append("// Can access inside <script> tags inside <row-template>\n");
-            indent(sb, indent).append("boolean rowFocused;\n");
+            indent(sb, indent).append("private boolean rowFocused;\n");
             indent(sb, indent).append("// Placeholder for the EntityListView when creating EntityListCellRenderer.\n");
             indent(sb, indent).append("// Can access inside <script> tags inside <row-template>\n");
-            indent(sb, indent).append("com.codename1.rad.ui.entityviews.EntityListView rowList;\n");
+            indent(sb, indent).append("private com.codename1.rad.ui.entityviews.EntityListView rowList;\n");
+            indent(sb, indent).append("private EntityView view = this;\n");
+            indent(sb, indent).append("private EntityView rowView;\n");
+            indent(sb, indent).append("private ViewContext rowContext;\n");
+
             forEach(this.rootEl, el -> {
                 if (errors[0] != null) return null;
                 if (el.getTagName().equalsIgnoreCase("var")) {
@@ -4717,18 +4783,40 @@ public class ViewProcessor extends BaseProcessor {
 
             sb.append("    @Override\n");
             sb.append("    public void commit() {}\n");
-            sb.append("    private java.util.List<Runnable> _onUpdate;\n");
-            sb.append("    private void _onUpdate(Runnable runnable) {\n");
-            sb.append("        if (_onUpdate == null) _onUpdate = new java.util.ArrayList<Runnable>();\n");
-            sb.append("        _onUpdate.add(runnable);\n");
-            sb.append("    }\n");
+            //sb.append("    private java.util.List<Runnable> _onUpdate;\n");
+            //sb.append("    private void _onUpdate(Runnable runnable) {\n");
+            //sb.append("        if (_onUpdate == null) _onUpdate = new java.util.ArrayList<Runnable>();\n");
+            //sb.append("        _onUpdate.add(runnable);\n");
+            //sb.append("    }\n");
             sb.append("    @Override\n");
             sb.append("    public void update() {\n");
-            sb.append("        if (_onUpdate != null && !_onUpdate.isEmpty()) {\n");
-            sb.append("            for (Runnable r : _onUpdate) {\n");
-            sb.append("                r.run();\n");
-            sb.append("            }\n");
+            //sb.append("        if (_onUpdate != null && !_onUpdate.isEmpty()) {\n");
+            //sb.append("            for (Runnable r : _onUpdate) {\n");
+            //sb.append("                r.run();\n");
+            //sb.append("            }\n");
+            //sb.append("        }\n");
+            sb.append("    }\n");
+            sb.append("    private java.util.List<Runnable> bindListeners;\n");
+            sb.append("    private java.util.List<Runnable> unbindListeners;\n");
+            sb.append("    @Override\n");
+            sb.append("    protected void bindImpl() {\n");
+            sb.append("        if (bindListeners != null && !bindListeners.isEmpty()) {\n");
+            sb.append("            for (Runnable r : bindListeners) r.run();\n");
             sb.append("        }\n");
+            sb.append("    }\n");
+            sb.append("    private void addBindListener(Runnable r) {\n");
+            sb.append("        if (bindListeners == null) bindListeners = new java.util.ArrayList<>();\n");
+            sb.append("        bindListeners.add(r);\n");
+            sb.append("    }\n");
+            sb.append("    @Override\n");
+            sb.append("    protected void unbindImpl() {\n");
+            sb.append("        if (unbindListeners != null && !unbindListeners.isEmpty()) {\n");
+            sb.append("            for (Runnable r : unbindListeners) r.run();\n");
+            sb.append("        }\n");
+            sb.append("    }\n");
+            sb.append("    private void addUnbindListener(Runnable r) {\n");
+            sb.append("        if (unbindListeners == null) unbindListeners = new java.util.ArrayList<>();\n");
+            sb.append("        unbindListeners.add(r);\n");
             sb.append("    }\n");
             sb.append("    @Override\n");
             sb.append("    public void activate() {\n");
