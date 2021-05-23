@@ -16,6 +16,9 @@ import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.ActionSource;
 import com.codename1.ui.events.ComponentStateChangeEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A controller class that handles application logic for a view.  In most cases a FormController will be sufficient to
  * handle the logic for a form.  Some more complex views may require their own controllers as well, in which case you 
@@ -28,8 +31,35 @@ import com.codename1.ui.events.ComponentStateChangeEvent;
  * @author shannah
  */
 public class ViewController extends Controller {
+
+    public static interface ViewDecorator {
+        public Component decorate(Component view);
+    }
+
+    private List<ViewDecorator> viewDecorators;
+
     private Component view;
     private static final String KEY = "com.codename1.ui.controllers.ViewController";
+
+    public void addViewDecorator(ViewDecorator decorator) {
+        if (viewDecorators == null) viewDecorators = new ArrayList<>();
+        viewDecorators.add(decorator);
+    }
+
+    public void removeViewDecorator(ViewDecorator decorator) {
+        if (viewDecorators == null) return;
+        viewDecorators.remove(decorator);
+    }
+
+
+    protected Component decorateView(Component view) {
+        if (viewDecorators != null && !viewDecorators.isEmpty()) {
+            for (ViewDecorator decorator : viewDecorators) {
+                view = decorator.decorate(view);
+            }
+        }
+        return view;
+    }
     
     /**
      * Event that is fired when a "view" is set in a view controller.
@@ -89,7 +119,6 @@ public class ViewController extends Controller {
     private ActionListener<ComponentStateChangeEvent> stateChangeListener = evt -> {
         if (evt.isInitialized()) {
             initController();
-            initController();
         } else {
             deinitialize();
         }
@@ -122,6 +151,7 @@ public class ViewController extends Controller {
         }
         this.view = view;
         if (this.view != null) {
+            this.view = decorateView(this.view);
             this.view.addStateChangeListener(stateChangeListener);
             if (this.view instanceof EventProducer) {
                 ((EventProducer)this.view).getActionSupport().addActionListener(viewListener);

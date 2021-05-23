@@ -1,6 +1,7 @@
 package com.codename1.rad.ui.builders;
 
 import com.codename1.rad.annotations.Inject;
+import com.codename1.rad.models.Entity;
 import com.codename1.rad.models.Tag;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.nodes.FormNode;
@@ -13,6 +14,7 @@ import java.util.Map;
 public abstract class PropertyViewBuilder<E extends Component> extends AbstractComponentBuilder<PropertyView<E>> {
     protected UIBuilder uiBuilder;
     protected FieldNode fieldNode;
+    protected Entity entity;
 
     protected PropertyViewBuilder(ViewContext context, String tagName, Map<String, String> attributes) {
         super(context, tagName, attributes);
@@ -28,6 +30,16 @@ public abstract class PropertyViewBuilder<E extends Component> extends AbstractC
     }
 
 
+    public PropertyViewBuilder<E> entity(Entity e) {
+        this.entity = e;
+        return this;
+    }
+
+
+    public Entity getEntity() {
+        if (entity != null) return entity;
+        return getContext().getEntity();
+    }
 
 
     @Override

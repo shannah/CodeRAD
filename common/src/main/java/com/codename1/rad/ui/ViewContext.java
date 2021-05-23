@@ -11,6 +11,7 @@ public class ViewContext<T extends Entity> {
     private T entity;
     private ViewController controller;
     private Node node;
+    private EntityView<T> entityView;
 
     public ViewContext(@Inject ViewController controller, @Inject T entity, @Inject Node node) {
         this.entity = entity;
@@ -47,6 +48,15 @@ public class ViewContext<T extends Entity> {
 
     public void setNode(Node node) {
         this.node = node;
+    }
+
+    public void setEntityView(EntityView<T> entityView) {
+        this.entityView = entityView;
+
+    }
+
+    public EntityView<T> getEntityView() {
+        return this.entityView;
     }
 
 

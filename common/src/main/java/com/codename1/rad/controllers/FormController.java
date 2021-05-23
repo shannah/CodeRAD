@@ -92,6 +92,7 @@ public class FormController extends ViewController implements Runnable {
     private String title;
     private String pathName;
 
+
     private ActionListener showListener;
 
     private ActionListener showListener() {
@@ -291,7 +292,7 @@ public class FormController extends ViewController implements Runnable {
             }
             titleBar.add(BorderLayout.CENTER, titleLbl);
             f.add(BorderLayout.NORTH, titleBar);
-            f.add(BorderLayout.CENTER, cmp);
+            f.add(BorderLayout.CENTER, decorateView(cmp));
             f.revalidateLater();
             setView(f);
         }

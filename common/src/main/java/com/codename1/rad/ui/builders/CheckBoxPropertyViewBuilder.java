@@ -28,7 +28,7 @@ public class CheckBoxPropertyViewBuilder extends PropertyViewBuilder<CheckBox> {
         if (fieldNode == null) {
             throw new IllegalStateException("CheckBoxPropertyView requires tag to be set");
         }
-        return new CheckBoxPropertyView(checkBox == null ? new CheckBox() : checkBox, getContext().getEntity(), fieldNode);
+        return new CheckBoxPropertyView(checkBox == null ? new CheckBox() : checkBox, getEntity(), fieldNode);
     }
 
     @Override

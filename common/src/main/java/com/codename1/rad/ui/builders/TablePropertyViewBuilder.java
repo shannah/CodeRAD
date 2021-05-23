@@ -27,7 +27,7 @@ public class TablePropertyViewBuilder extends PropertyViewBuilder<Table> {
         if (fieldNode == null) {
             throw new IllegalStateException("TablePropertyViewBuilder requires a tag attribute to be set");
         }
-        return new TablePropertyView(table, getContext().getEntity(), fieldNode);
+        return new TablePropertyView(table, getEntity(), fieldNode);
     }
 
     @Override

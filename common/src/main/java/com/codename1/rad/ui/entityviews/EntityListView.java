@@ -714,8 +714,6 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         private ActionNode selectAction;
         private ActionNode removeAction;
         private EntityListCellRenderer renderer;
-        private EntityListProvider provider;
-        private Class providerLookup;
         private EntityList model;
         private ListNode node;
         private Node parentNode;
@@ -781,15 +779,6 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
             return this;
         }
 
-        public Builder provider(EntityListProvider provider) {
-            this.provider = provider;
-            return this;
-        }
-
-        public Builder providerLookup(Class lookupClass) {
-            this.providerLookup = lookupClass;
-            return this;
-        }
 
         public Builder model(EntityList model) {
             this.model = model;
@@ -827,9 +816,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
                     addAction == null ? null : UI.actions(ActionCategories.LIST_ADD_ACTION, addAction),
                     removeAction == null ? null : UI.actions(ActionCategories.LIST_REMOVE_ACTION, removeAction),
                     selectAction == null ? null : UI.actions(ActionCategories.LIST_SELECT_ACTION, selectAction),
-                    renderer == null ? null : UI.cellRenderer(renderer),
-                    provider == null ? null : UI.provider(provider),
-                    providerLookup == null ? null : UI.providerLookup(providerLookup)
+                    renderer == null ? null : UI.cellRenderer(renderer)
                     );
 
             return node;

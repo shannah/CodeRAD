@@ -28,7 +28,7 @@ public class TextAreaPropertyViewBuilder extends PropertyViewBuilder<TextArea> {
         if (fieldNode == null) {
             tag(Comment.text);
         }
-        return new TextAreaPropertyView(textArea == null ? new TextArea() : textArea, getContext().getEntity(), fieldNode);
+        return new TextAreaPropertyView(textArea == null ? new TextArea() : textArea, getEntity(), fieldNode);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class ButtonListPropertyViewBuilder extends PropertyViewBuilder<ButtonLis
         if (buttonList == null) {
             throw new IllegalStateException("ButtonListPropertyView requires buttonList to be set");
         }
-        return new ButtonListPropertyView(buttonList, getContext().getEntity(), fieldNode);
+        return new ButtonListPropertyView(buttonList, getEntity(), fieldNode);
     }
 
     @Override

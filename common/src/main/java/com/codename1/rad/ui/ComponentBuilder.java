@@ -33,4 +33,5 @@ public interface ComponentBuilder<T extends Component> {
     public T build();
     public T getComponent();
     public Object parseConstraint(String constraint);
+
 }

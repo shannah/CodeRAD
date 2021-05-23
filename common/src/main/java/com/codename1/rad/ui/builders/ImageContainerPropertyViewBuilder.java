@@ -49,18 +49,18 @@ public class ImageContainerPropertyViewBuilder extends PropertyViewBuilder<Image
         }
         if (imageContainer == null) {
             if (file != null) {
-                imageContainer = ImageContainer.createToFileSystem(fieldNode.getPropertySelector(getContext().getEntity()), file);
+                imageContainer = ImageContainer.createToFileSystem(fieldNode.getPropertySelector(getEntity()), file);
             } else if (storageFile != null) {
-                imageContainer = ImageContainer.createToStorage(fieldNode.getPropertySelector(getContext().getEntity()), storageFile);
+                imageContainer = ImageContainer.createToStorage(fieldNode.getPropertySelector(getEntity()), storageFile);
             } else {
-                imageContainer = ImageContainer.createToStorage(fieldNode.getPropertySelector(getContext().getEntity()));
+                imageContainer = ImageContainer.createToStorage(fieldNode.getPropertySelector(getEntity()));
             }
             if (aspectRatio > 0) {
                 imageContainer.setAspectRatio(aspectRatio);
             }
         }
 
-        return new ImageContainerPropertyView(imageContainer, getContext().getEntity(), fieldNode);
+        return new ImageContainerPropertyView(imageContainer, getEntity(), fieldNode);
     }
 
     @Override

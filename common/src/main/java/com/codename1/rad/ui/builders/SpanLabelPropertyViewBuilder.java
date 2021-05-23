@@ -27,7 +27,7 @@ public class SpanLabelPropertyViewBuilder extends PropertyViewBuilder<SpanLabel>
         if (fieldNode == null) {
             tag(Thing.description);
         }
-        return new SpanLabelPropertyView(spanLabel == null ? new SpanLabel() : spanLabel, getContext().getEntity(), fieldNode);
+        return new SpanLabelPropertyView(spanLabel == null ? new SpanLabel() : spanLabel, getEntity(), fieldNode);
     }
 
     @Override

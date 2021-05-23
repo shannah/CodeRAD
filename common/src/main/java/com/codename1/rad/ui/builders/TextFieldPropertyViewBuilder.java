@@ -28,7 +28,7 @@ public class TextFieldPropertyViewBuilder extends PropertyViewBuilder<TextField>
         if (fieldNode == null) {
             tag(Thing.name);
         }
-        return new TextFieldPropertyView(textField != null ? textField : new TextField(), getContext().getEntity(), fieldNode);
+        return new TextFieldPropertyView(textField != null ? textField : new TextField(), getEntity(), fieldNode);
     }
 
     @Override

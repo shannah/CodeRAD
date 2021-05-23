@@ -28,7 +28,7 @@ public class HTMLComponentPropertyViewBuilder extends PropertyViewBuilder<HTMLCo
         if (fieldNode == null) {
             tag(Thing.description);
         }
-        return new HTMLComponentPropertyView(htmlComponent == null ? new HTMLComponent() : htmlComponent, getContext().getEntity(), fieldNode);
+        return new HTMLComponentPropertyView(htmlComponent == null ? new HTMLComponent() : htmlComponent, getEntity(), fieldNode);
     }
 
     @Override

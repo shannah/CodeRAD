@@ -3263,7 +3263,12 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent);
                     String constraint = childEl.getAttribute("layout-constraint");
                     if (constraint == null || constraint.isEmpty()) {
-                        indent(sb, indent).append("_cmp.addComponent(").append(createCall).append(");\n");
+                        indent(sb, indent).append("{\n");
+                        indent(sb, indent).append("    com.codename1.ui.Component _childCmp = ").append(createCall).append(";\n");
+                        indent(sb, indent).append("    if (_childCmp.getClientProperty(\"RAD_NO_ADD\") == null) {\n");
+                        indent(sb, indent).append("        _cmp.addComponent(").append(createCall).append(");\n");
+                        indent(sb, indent).append("    }\n");
+                        indent(sb, indent).append("}\n");
                     } else {
                         indent(sb, indent).append("_cmp.addComponent(_builder.parseConstraint(\"").append(StringEscapeUtils.escapeJava(constraint)).append("\"), ").append(createCall).append(");\n");
                     }
@@ -3566,7 +3571,7 @@ public class ViewProcessor extends BaseProcessor {
                 }
                 indent(sb, indent).append("    ActionNode _action = __action;\n");
 
-                if (isA(componentClass.typeEl, "com.codename1.ui.Button")) {
+                if (isA(componentClass.typeEl, "com.codename1.ui.Button") || isA(componentClass.typeEl, "com.codename1.components.MultiButton")) {
                     indent(sb, indent).append("    com.codename1.rad.ui.DefaultActionViewFactory.initUI(_fcmp, context.getEntity(), _action);\n");
                     indent(sb, indent).append("    Runnable _onUpdate = () -> {\n");
                     indent(sb, indent).append("        com.codename1.rad.ui.DefaultActionViewFactory.update(_fcmp, context.getEntity(), _action);\n");
@@ -3701,13 +3706,8 @@ public class ViewProcessor extends BaseProcessor {
                 // TODO: This is problematic for sub-nodes of a row-template since each component
                 // will have its own context.  There should be a single context for the whole row.
                 // Needs to create a "stack" of contexts.
-                //indent(sb, indent).append("ViewNode _node = new ViewNode();\n");
-                //indent(sb, indent).append("_node.setParent(rowList.getViewNode());\n");
-                //indent(sb, indent).append("ViewContext<").append(rowModelType).append("> context = new ViewContext<>(viewController, rowModel, _node);\n");
                 indent(sb, indent).append("ViewContext<").append(rowModelType).append("> context = (ViewContext<").append(rowModelType).append(">)this.rowContext;\n");
                 indent(sb, indent).append("ViewContext<").append(rowModelType).append("> rowContext = context;\n");
-                //indent(sb, indent).append("EntityView<").append(rowModelType).append("> rowView = (EntityView<").append(rowModelType).append(">)this.rowView;\n");
-                //indent(sb, indent).append("EntityView<").append(rowModelType).append("> view = rowView;\n");
 
 
             }
@@ -3761,6 +3761,7 @@ public class ViewProcessor extends BaseProcessor {
             if (isInsideRowTemplate() && isA(jenv.findClassThatTagCreates(xmlTag.getTagName()), "com.codename1.rad.ui.EntityView")) {
                 sb.append("if (").append(jenv.rootBuilder.className).append("this.rowView == null) {\n");
                 sb.append("    ").append(jenv.rootBuilder.className).append("this.rowView = (EntityView)_cmp;\n");
+                sb.append("    ").append(jenv.rootBuilder.className).append("this.rowContext.setEntityView((EntityView)_cmp);\n");
                 sb.append("}\n");
             }
             if (isInsideRowTemplate()) {

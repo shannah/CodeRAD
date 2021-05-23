@@ -27,7 +27,7 @@ public class SwitchPropertyViewBuilder extends PropertyViewBuilder<Switch> {
         if (fieldNode == null) {
             throw new IllegalStateException("SwitchPropertyViewBuilder requires a tag to be set");
         }
-        return new SwitchPropertyView(_switch == null ? new Switch() : _switch, getContext().getEntity(), fieldNode);
+        return new SwitchPropertyView(_switch == null ? new Switch() : _switch, getEntity(), fieldNode);
     }
 
     @Override

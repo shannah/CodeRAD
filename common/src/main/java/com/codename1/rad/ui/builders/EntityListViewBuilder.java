@@ -2,24 +2,26 @@ package com.codename1.rad.ui.builders;
 
 import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.annotations.RAD;
+import com.codename1.rad.controllers.ControllerEvent;
 import com.codename1.rad.models.EntityList;
 import com.codename1.rad.models.EntityListProvider;
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.ListNode;
 import com.codename1.rad.nodes.Node;
-import com.codename1.rad.ui.AbstractComponentBuilder;
-import com.codename1.rad.ui.EntityListCellRenderer;
-import com.codename1.rad.ui.EntityView;
-import com.codename1.rad.ui.ViewContext;
+import com.codename1.rad.ui.*;
 import com.codename1.rad.ui.entityviews.EntityListView;
+import com.codename1.ui.events.ActionListener;
 
 import java.util.Map;
+
+import static com.codename1.rad.util.NonNull.with;
 
 @RAD(tag={"entityList", "entityListView"})
 public class EntityListViewBuilder extends AbstractComponentBuilder<EntityListView> {
     private EntityListView.Builder builder = new EntityListView.Builder();
     public EntityListViewBuilder(@Inject ViewContext context, String tagName, Map<String, String> attributes) {
         super(context, tagName, attributes);
+        builder.parentNode(context.getNode());
     }
 
 
@@ -107,12 +109,30 @@ public class EntityListViewBuilder extends AbstractComponentBuilder<EntityListVi
     }
 
     public EntityListViewBuilder provider(@Inject EntityListProvider provider) {
-        builder.provider(provider);
+        ActionNode refreshAction = UI.action();
+        ActionNode loadMoreAction = UI.action();
+        getContext().getController().addActionListener(refreshAction, provider);
+        getContext().getController().addActionListener(loadMoreAction, provider);
+        builder.refreshAction(refreshAction).loadMoreAction(loadMoreAction);
         return this;
     }
 
-    public EntityListViewBuilder providerLookup(Class cls) {
-        builder.providerLookup(cls);
+    public EntityListViewBuilder provider(Class cls) {
+        ActionNode refreshAction = UI.action();
+        ActionNode loadMoreAction = UI.action();
+        ActionListener<ActionNode.ActionNodeEvent> l = evt -> {
+            with(getContext().getController().lookup(cls), EntityListProvider.class, provider -> {
+                provider.actionPerformed(evt);
+            });
+        };
+        getContext().getController().addActionListener(loadMoreAction, l);
+        getContext().getController().addActionListener(refreshAction, l);
+        builder
+                .refreshAction(refreshAction)
+                .loadMoreAction(loadMoreAction)
+        ;
+
+
         return this;
     }
 

@@ -28,7 +28,7 @@ public class LabelPropertyViewBuilder extends PropertyViewBuilder<Label> {
         if (fieldNode == null) {
             tag(Thing.name);
         }
-        return new LabelPropertyView(label == null ? new Label() : label, getContext().getEntity(), fieldNode);
+        return new LabelPropertyView(label == null ? new Label() : label, getEntity(), fieldNode);
     }
 
     @Override
