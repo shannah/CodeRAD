@@ -717,6 +717,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         private EntityList model;
         private ListNode node;
         private Node parentNode;
+        private EntityListViewFactory factory;
 
         public Builder scrollableY(boolean scrollableY) {
             this.scrollableY = scrollableY;
@@ -796,6 +797,12 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         }
 
 
+        public Builder factory(EntityListViewFactory factory) {
+            this.factory = factory;
+            return this;
+        }
+
+
 
         public ListNode buildNode() {
             if (node == null) {
@@ -826,10 +833,16 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
             if (model == null) {
                 model = new EntityList();
             }
-            return new EntityListView(model, buildNode());
+            return factory != null ?
+                    factory.newInstance(model, buildNode()) :
+                    new EntityListView(model, buildNode());
         }
 
 
+    }
+
+    public static interface EntityListViewFactory {
+        public EntityListView newInstance(EntityList model, ListNode node);
     }
 
 

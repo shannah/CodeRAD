@@ -129,6 +129,7 @@ public class EntityType implements Iterable<Property>, EntityFactory {
     
     
     public static EntityFactory getFactory(Class type) {
+
         EntityType info = types.get(type);
         if (info == null) {
             throw new IllegalStateException("Cannot get factory for type "+type+" because "+type+" is not a registered entity type");
@@ -178,7 +179,6 @@ public class EntityType implements Iterable<Property>, EntityFactory {
             
             EntityType et = (EntityType)types.get(type);
             if (et != null) {
-                
                 
                 return et.newInstance();
             }
@@ -346,19 +346,19 @@ public class EntityType implements Iterable<Property>, EntityFactory {
         if (cls == Entity.class || cls == EntityList.class) {
             throw new IllegalArgumentException("Cannot register Entity or EntityList directly.  Must register a subclass");
         }
-        Entity e = null;
-        if (factory != null) {
-            e = factory.createEntity(cls);
-        } else {
-            try {
-                e = (Entity)cls.newInstance();
-                
-            } catch (Throwable t) {
-                throw new IllegalStateException("Failed to register entity type "+cls+" because calling its no-arg constructor failed.  Ensure that either this is a public class with a no-arg constructor, or provide a factory to be able to instantiate this class.  Caused by: "+t.getMessage());
-            }
-        }
-       
         if (et == null) {
+            Entity e = null;
+            if (factory != null) {
+                e = factory.createEntity(cls);
+            } else {
+                try {
+                    e = (Entity)cls.newInstance();
+
+                } catch (Throwable t) {
+                    throw new IllegalStateException("Failed to register entity type "+cls+" because calling its no-arg constructor failed.  Ensure that either this is a public class with a no-arg constructor, or provide a factory to be able to instantiate this class.  Caused by: "+t.getMessage());
+                }
+            }
+
             et = e.getEntity().getEntityType();
         }
         if (et == null) {

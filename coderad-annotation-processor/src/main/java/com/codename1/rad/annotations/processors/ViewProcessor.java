@@ -53,6 +53,30 @@ public class ViewProcessor extends BaseProcessor {
 
     }
 
+    public Set<? extends TypeElement> defer(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        Set<TypeElement> out = new HashSet<>();
+        this.roundEnv = roundEnv;
+        Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
+
+
+
+        // First we process all views with the RAD annoation
+        // This will create Stubs
+        for (Element el : annotatedElements) {
+            if (!(el instanceof TypeElement)) continue;
+            TypeElement typeEl = (TypeElement)el;
+            if (!isA(typeEl, "com.codename1.rad.ui.EntityView")) {
+                continue;
+            }
+
+            out.add(typeEl);
+
+        }
+
+
+        return out;
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         this.roundEnv = roundEnv;
@@ -1132,7 +1156,17 @@ public class ViewProcessor extends BaseProcessor {
          */
         JavaClassProxy findComponentBuilderForTag(String tag) {
             TypeElement builderEl = findComponentBuilderClass(tag);
-            if (builderEl == null) return null;
+            if (builderEl == null) {
+                TypeElement actualTypeEl = findClassBySimpleName(tag);
+                if (isA(actualTypeEl, "com.codename1.rad.ui.entityviews.EntityListView")) {
+                    // We will allow subclasses of EntityListView to use the EntityListViewBuilder
+                    // as their builder.
+                    // They just need to provide a factory for the builder to use for instantiation.
+                    return findComponentBuilderForTag("entityList");
+
+                }
+                return null;
+            }
             return new JavaClassProxy(builderEl, this);
 
         }
@@ -1985,7 +2019,7 @@ public class ViewProcessor extends BaseProcessor {
                 throw new IllegalArgumentException("Cannot get parameter "+paramIndex+" from "+methodEl+" because it only has "+methodEl.getParameters().size()+" parameters");
             }
 
-            return getParameterTypes().get(0);
+            return getParameterTypes().get(paramIndex);
 
         }
 
@@ -2185,9 +2219,9 @@ public class ViewProcessor extends BaseProcessor {
                         }
 
                         if (isArrayParameter(i)) {
-                            appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(").append("_getInjectedArrayParameter(").append(paramType.getQualifiedName()).append(".class))");
+                            appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(").append("_getInjectedArrayParameter(").append(paramType.getQualifiedName()).append(".class, context, viewController))");
                         } else {
-                            appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(").append("_getInjectedParameter(").append(paramType.getQualifiedName()).append(".class))");
+                            appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(").append("_getInjectedParameter(").append(paramType.getQualifiedName()).append(".class, context, viewController))");
                         }
                         continue;
                     }
@@ -2281,9 +2315,9 @@ public class ViewProcessor extends BaseProcessor {
                 }
 
                 if (isArrayParameter(i)) {
-                    appendTo.append(arrayParamPrefix).append("_getInjectedArrayParameter(").append(paramType.getQualifiedName()).append(".class)").append(arrayParamSuffix);
+                    appendTo.append(arrayParamPrefix).append("_getInjectedArrayParameter(").append(paramType.getQualifiedName()).append(".class, context, viewController)").append(arrayParamSuffix);
                 } else {
-                    appendTo.append(arrayParamPrefix).append("_getInjectedParameter(").append(paramType.getQualifiedName()).append(".class)").append(arrayParamSuffix);
+                    appendTo.append(arrayParamPrefix).append("_getInjectedParameter(").append(paramType.getQualifiedName()).append(".class, context, viewController)").append(arrayParamSuffix);
                 }
                 continue;
 
@@ -2719,10 +2753,23 @@ public class ViewProcessor extends BaseProcessor {
                 this.componentClass = new JavaClassProxy(builderMethod.getReturnType(), jenv);
             } else {
                 this.componentClass = componentClass == null ? new JavaClassProxy(builderClass.findMethodProxy("getComponent", 0).getReturnType(), jenv) : componentClass;
+                if (componentClass == null && isA(this.componentClass.typeEl, "com.codename1.rad.ui.entityviews.EntityListView")) {
+                    TypeElement typeEl = jenv.findClassBySimpleName(xmlTag.getTagName());
+                    if (typeEl != null && isA(typeEl, "com.codename1.rad.ui.entityviews.EntityListView")) {
+                        this.componentClass = new JavaClassProxy(typeEl, jenv);
+                    }
+                }
             }
         }
 
 
+        /**
+         * Writes builder properties using the tag attributes and child elements.  This happens before writing the component
+         * properties.
+         *
+         * @param sb
+         * @throws XMLParseException
+         */
         void writeBuilderProperties(StringBuilder sb) throws XMLParseException {
             if (builderClass == null) return;
             String textContent = xmlTag.getTextContent();
@@ -2769,14 +2816,21 @@ public class ViewProcessor extends BaseProcessor {
 
                     indent(sb, indent).append("public EntityView getListCellRendererComponent(EntityListView list, Entity value, int index, boolean isSelected, boolean isFocused) {\n");
                     indent += 4;
+                    indent(sb, indent).append("Entity _old_rowModel = ").append(jenv.rootBuilder.className).append(".this.rowModel;\n");
                     indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowModel = value;\n");
+                    indent(sb, indent).append("int _old_rowIndex = ").append(jenv.rootBuilder.className).append(".this.rowIndex;\n");
                     indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowIndex = index;\n");
+                    indent(sb, indent).append("boolean _old_rowSelected = ").append(jenv.rootBuilder.className).append(".this.rowSelected;\n");
                     indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowSelected = isSelected;\n");
+                    indent(sb, indent).append("boolean _old_rowFocused = ").append(jenv.rootBuilder.className).append(".this.rowFocused;\n");
                     indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowFocused = isFocused;\n");
+                    indent(sb, indent).append("EntityListView _old_rowList = ").append(jenv.rootBuilder.className).append(".this.rowList;\n");
                     indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowList = list;\n");
                     indent(sb, indent).append("com.codename1.rad.nodes.ViewNode _viewNode = new com.codename1.rad.nodes.ViewNode();\n");
                     indent(sb, indent).append("_viewNode.setParent(context.getNode());\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.rowContext = new ViewContext(viewController, rowModel, _viewNode);\n");
+                    indent(sb, indent).append("ViewContext _old_subContext = ").append(jenv.rootBuilder.className).append(".this.subContext;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.subContext = new ViewContext(viewController, rowModel, _viewNode);\n");
+                    indent(sb, indent).append("EntityView _old_rowView = ").append(jenv.rootBuilder.className).append(".this.rowView;\n");
                     indent(sb, indent).append("try {\n");
                     indent += 4;
                     for (org.w3c.dom.Element rowTemplate : rowTemplates) {
@@ -2822,13 +2876,13 @@ public class ViewProcessor extends BaseProcessor {
                     indent -= 4;
                     indent(sb, indent).append("} finally {\n");
                     indent += 4;
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowModel = null;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowIndex = -1;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowSelected = false;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowFocused = false;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowList = null;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowContext = null;\n");
-                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowView = null;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowModel = _old_rowModel;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowIndex = _old_rowIndex;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowSelected = _old_rowSelected;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowFocused = _old_rowFocused;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowList = _old_rowList;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("subContext = _old_subContext;\n");
+                    indent(sb, indent).append(jenv.rootBuilder.className).append(".this.").append("rowView = _old_rowView;\n");
                     indent -= 4;
                     indent(sb, indent).append("}\n"); // finally
 
@@ -2916,6 +2970,10 @@ public class ViewProcessor extends BaseProcessor {
         }
 
 
+        /**
+         * Writes the component properties using attributes and child elements.  This happens after writing the builder properties.
+         * @param sb
+         */
         void writeProperties(StringBuilder sb) {
             String textContent = xmlTag.getTextContent();
             if (textContent != null && !textContent.isEmpty()) {
@@ -3027,7 +3085,7 @@ public class ViewProcessor extends BaseProcessor {
         void writeHrefLink(StringBuilder sb) throws XMLParseException {
             String href = xmlTag.getAttribute("rad-href");
             if (href.isEmpty()) return;
-            org.w3c.dom.Element bindAction = getChildElements(xmlTag).stream().filter(e->e.getTagName().equals("bind-action")).findFirst().orElse(null);
+            org.w3c.dom.Element bindAction = getChildElementsByTagName(xmlTag, "bind-action").stream().findFirst().orElse(null);
             StringBuilder bindScript = new StringBuilder();
             if (bindAction != null) {
                 bindScript.append(bindAction.getTextContent());
@@ -3036,6 +3094,15 @@ public class ViewProcessor extends BaseProcessor {
             if (href.contains("(") && href.endsWith(")")) {
                 explicitParams = href.substring(href.indexOf("("), href.length()-1);
                 href = href.substring(0, href.indexOf("("));
+            }
+            String entitySelector = null;
+            if (href.contains("{") && href.contains("}") && href.indexOf("}") > href.indexOf("{")) {
+                entitySelector = href.substring(href.indexOf("{")+1, href.lastIndexOf("}"));
+                if (entitySelector.isEmpty()) {
+
+                    entitySelector = xmlTag.hasAttribute("rad-href-trigger") ? "event.getEntity()" : "context.getEntity()";
+                }
+                href = href.substring(0, href.indexOf("{")) + href.substring(href.lastIndexOf("}")+1);
             }
             String rel = "child";
             if (href.contains(" ")) {
@@ -3078,11 +3145,12 @@ public class ViewProcessor extends BaseProcessor {
 
             }
 
+            String selectorParam = entitySelector == null ? "" : ", "+entitySelector;
             String paramsString = explicitParams == null ?
-                    (rel.equals("child") ? "{formController}" :
-                            rel.equals("sibling") ? "{parentFormController}" :
-                                    rel.equals("top") ? "{applicationController}" :
-                                            rel.equals("section") ? "{sectionController}" : "{formController}") : "{" + explicitParams.substring(1, explicitParams.length()-1) + "}";
+                    (rel.equals("child") ? "{formController"+selectorParam+"}" :
+                            rel.equals("sibling") ? "{parentFormController"+selectorParam+"}" :
+                                    rel.equals("top") ? "{applicationController"+selectorParam+"}" :
+                                            rel.equals("section") ? "{sectionController"+selectorParam+"}" : "{formController"+selectorParam+"}") : "{" + explicitParams.substring(1, explicitParams.length()-1) + "}";
             paramsString = "new Object[]" + paramsString;
 
             indent(bindScript, indent).append("com.codename1.rad.controllers.FormController _rad_href_controller = (com.codename1.rad.controllers.FormController)getContext().getController().createObjectWithFactory(")
@@ -3122,6 +3190,11 @@ public class ViewProcessor extends BaseProcessor {
                 } else {
                     dummyTag.setAttribute("_0_", "formController");
                 }
+                if (entitySelector != null) {
+                    dummyTag.setAttribute("_1_", entitySelector);
+                }
+
+
             }
 
             if (formControllerTypeEl != null) {
@@ -3133,9 +3206,28 @@ public class ViewProcessor extends BaseProcessor {
                     JavaClassProxy controllerClass = candidateControllerClasses.get(0);
                     indent(bindScript, indent).append("    _rad_href_controller = ");
 
+                    final String fentitySelector = entitySelector;
                     if (explicitParams == null) {
-                        JavaMethodProxy constructor = controllerClass.getBestConstructor(dummyTag);
-                        controllerClass.getBestConstructor(dummyTag).callAsConstructor(bindScript, dummyTag, false);
+                        JavaMethodProxy constructor = controllerClass.getEligibleConstructors(dummyTag).stream().
+                                        filter(m -> fentitySelector == null ? m.getNumParams() <= 1 : true).
+                                        filter(m -> m.getNumParams() == 0 || isA(m.getParameterType(0), "com.codename1.rad.controllers.Controller")).
+                                        sorted((a,b) -> b.getNumParams() - a.getNumParams()).
+                                        findFirst().
+                                        orElse(null);
+
+
+                        if (constructor == null) {
+                            throw new XMLParseException("No suitable constructors found for class "+controllerClass, xmlTag, null);
+                        }
+                        if (dummyTag.hasAttribute("_1_")) {
+                            TypeElement entityParamType = constructor.getParameterType(1);
+                            TypeElement entityParamTypeWrapperType = jenv.lookupClass(entityParamType.getQualifiedName()+"Wrapper");
+                            if (entityParamTypeWrapperType != null) {
+                                dummyTag.setAttribute("_1_", entityParamTypeWrapperType.getQualifiedName()+".wrap("+dummyTag.getAttribute("_1_")+")");
+                            }
+
+                        }
+                        constructor.callAsConstructor(bindScript, dummyTag, false);
                     } else {
                         bindScript.append("new ").append(controllerClass.getQualifiedName()).append(explicitParams);
                     }
@@ -3146,8 +3238,28 @@ public class ViewProcessor extends BaseProcessor {
             indent(bindScript, indent).append("}\n");
             indent(bindScript, indent).append("_rad_href_controller.show();\n");
 
-            if (bindAction == null) {
-                JavaMethodProxy addActionListenerMethod = componentClass.findMethodProxy("addActionListener", 1);
+            if (xmlTag.hasAttribute("rad-href-trigger")) {
+                String triggerCategory = xmlTag.getAttribute("rad-href-trigger");
+                indent(sb, indent).append("{\n");
+                indent += 4;
+                indent(sb, indent).append("com.codename1.rad.nodes.ActionNode _tmp_trigger_action = viewController.getViewNode().getInheritedAction(").append(triggerCategory).append(");\n");
+
+                // We needed to fill in this trigger action when we created the component, since it would need to be added to
+                // node parameter of the view constructor - and, thus, is better added to the view controller.
+                //indent(sb, indent).append("if (_tmp_trigger_action == null) _tmp_trigger_action = com.codename1.rad.nodes.ActionNode.builder().build();\n");
+                indent(sb, indent).append("if (_tmp_trigger_action == null) throw new IllegalStateException(\"Cannot find action for category \"+").append(triggerCategory).append("+\".\");\n");
+                indent(sb, indent).append("viewController.addActionListener(_tmp_trigger_action, event -> {\n");
+                indent += 4;
+                indent(sb, indent).append("if (event.isConsumed()) return;\n");
+                indent(sb, indent).append(reformat(bindScript.toString(), indent));
+                indent -= 4;
+                indent(sb, indent).append("});\n");
+
+                indent -= 4;
+                indent(sb, indent).append("}\n");
+
+            } else if (bindAction == null) {
+                //JavaMethodProxy addActionListenerMethod = componentClass.findMethodProxy("addActionListener", 1);
                 indent(sb, indent).append("_cmp.addActionListener(event -> {\n");
                 indent(sb, indent).append("    if (event.isConsumed()) return;\n");
                 sb.append(bindScript);
@@ -3157,6 +3269,15 @@ public class ViewProcessor extends BaseProcessor {
             }
         }
 
+        private boolean hasViewController;
+        void writeViewController(StringBuilder sb) {
+            org.w3c.dom.Element viewControllerTag = getChildElementByTagName(xmlTag, "view-controller");
+            if (viewControllerTag == null) return;
+            hasViewController = true;
+            String controllerExtends = viewControllerTag.getAttribute("extends");
+            if (controllerExtends.isEmpty()) controllerExtends = "ViewController";
+            indent(sb, indent).append("ViewController viewController = new ").append(controllerExtends).append("(this.viewController);\n");
+        }
 
         void writeChildren(StringBuilder sb) {
             NodeList childNodes = xmlTag.getChildNodes();
@@ -3262,6 +3383,11 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent).append("// Add child component ").append(" with child tag ").append(childEl.getTagName()).append("\n");
                     indent(sb, indent);
                     String constraint = childEl.getAttribute("layout-constraint");
+                    String condition = childEl.getAttribute("rad-condition");
+                    if (!condition.isEmpty()) {
+                        indent(sb, indent).append("if (").append(condition).append(") {\n");
+                        indent += 4;
+                    }
                     if (constraint == null || constraint.isEmpty()) {
                         indent(sb, indent).append("{\n");
                         indent(sb, indent).append("    com.codename1.ui.Component _childCmp = ").append(createCall).append(";\n");
@@ -3271,6 +3397,10 @@ public class ViewProcessor extends BaseProcessor {
                         indent(sb, indent).append("}\n");
                     } else {
                         indent(sb, indent).append("_cmp.addComponent(_builder.parseConstraint(\"").append(StringEscapeUtils.escapeJava(constraint)).append("\"), ").append(createCall).append(");\n");
+                    }
+                    if (!condition.isEmpty()) {
+                        indent -= 4;
+                        indent(sb, indent).append("}\n");
                     }
                     continue;
                 }
@@ -3518,6 +3648,7 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
+
         void writeActionBindings(StringBuilder sb) throws XMLParseException {
             XMLParseException[] errors = new XMLParseException[1];
             // We need to write the href link before the bind-action procesing because it will add content to the bind-action
@@ -3674,6 +3805,23 @@ public class ViewProcessor extends BaseProcessor {
 
             indent(sb, indent).append("private ").append(componentClass.getQualifiedName()).append(" createComponent").append(xmlTag.getAttribute("rad-id")).append("() {\n");
             indent += 4;
+            writeViewController(sb);
+            if (xmlTag.hasAttribute("rad-href-trigger") && xmlTag.hasAttribute("rad-href")) {
+                // This tag has a rad-href with a trigger specified.  We need to make sure that there
+                // is an action defined with this trigger (an Action.Category), and if not, create a dummy
+                // one.
+                indent(sb, indent).append("{\n");
+                indent += 4;
+                String trigger = xmlTag.getAttribute("rad-href-trigger");
+                indent(sb, indent).append("ActionNode _tmp_trigger_action = viewController.getViewNode().getInheritedAction(").append(trigger).append(");\n");
+                indent(sb, indent).append("if (_tmp_trigger_action == null) {\n");
+                indent(sb, indent).append("    viewController.getViewNode().setAttributes(com.codename1.rad.ui.UI.actions(").append(trigger).append(", com.codename1.rad.ui.UI.action()));\n");
+                indent(sb, indent).append("}\n");
+
+                indent -=4;
+                indent(sb, indent).append("}\n");
+
+            }
 
             String rowModelType = "Entity";
             String rowModelTypeWrapper = null;
@@ -3706,8 +3854,8 @@ public class ViewProcessor extends BaseProcessor {
                 // TODO: This is problematic for sub-nodes of a row-template since each component
                 // will have its own context.  There should be a single context for the whole row.
                 // Needs to create a "stack" of contexts.
-                indent(sb, indent).append("ViewContext<").append(rowModelType).append("> context = (ViewContext<").append(rowModelType).append(">)this.rowContext;\n");
-                indent(sb, indent).append("ViewContext<").append(rowModelType).append("> rowContext = context;\n");
+                indent(sb, indent).append("ViewContext<").append(rowModelType).append("> context = (ViewContext<").append(rowModelType).append(">)this.subContext;\n");
+                //indent(sb, indent).append("ViewContext<").append(rowModelType).append("> rowContext = context;\n");
 
 
             }
@@ -3726,6 +3874,73 @@ public class ViewProcessor extends BaseProcessor {
             if (builderClass != null) {
                 indent(sb, indent).append(builderClass.getQualifiedName()).append(" _builder = ").append("new ")
                         .append(builderClass.getQualifiedName()).append("(context, \"").append(StringEscapeUtils.escapeJava(xmlTag.getTagName())).append("\", attributes);\n");
+                if (isA(componentClass.typeEl, "com.codename1.rad.ui.entityviews.EntityListView") &&
+                        !componentClass.typeEl.getQualifiedName().contentEquals("com.codename1.rad.ui.entityviews.EntityListView") &&
+                        builderClass.getQualifiedName().contentEquals("com.codename1.rad.ui.builders.EntityListViewBuilder")
+                ) {
+                    // This is a subclass of EntityListView so we are using the EntityListView builder - but
+                    // it requires that we provide a factory
+                    indent(sb, indent).append("_builder.listViewFactory((listModel, listNode) -> {\n");
+                    indent += 4;
+                    JavaMethodProxy constructor = componentClass.getPublicConstructors().stream().
+                            filter(m -> m.getNumParams() == 2 &&
+                                    isA(m.getParameterType(0), "com.codename1.rad.models.EntityList") &&
+                                    isA(m.getParameterType(1), "com.codename1.rad.nodes.ListNode")).
+                            findFirst().orElse(null);
+                    if (constructor == null) {
+                        constructor = componentClass.getPublicConstructors().stream().
+                                filter(m -> m.getNumParams() == 1 &&
+                                        isA(m.getParameterType(0), "com.codename1.rad.nodes.ListNode")).
+                                findFirst().orElse(null);
+                    }
+                    if (constructor == null) {
+                        constructor = componentClass.getPublicConstructors().stream().
+                                filter(m -> m.getNumParams() == 1 &&
+                                        isA(m.getParameterType(0), "com.codename1.rad.models.EntityList")).
+                                findFirst().orElse(null);
+                    }
+
+                    if (constructor == null) {
+                        throw new XMLParseException("Cannot find suitable constructor for EntityListView subclass "+componentClass+".", xmlTag, null);
+                    }
+                    if (isA(constructor.getParameterType(0), "com.codename1.rad.models.EntityList")) {
+                        String entityListType = constructor.getParameterType(0).getQualifiedName().toString();
+                        indent(sb, indent).append("if (!").append(entityListType).append(".class.isAssignableFrom(listModel.getClass())) {\n");
+                        indent(sb, indent).append("    EntityList tmp = (EntityList) new ").append(entityListType).append("();\n");
+                        indent(sb, indent).append("    for (Object e : listModel) tmp.add((Entity)e);\n");
+                        indent(sb, indent).append("    listModel = (").append(entityListType).append(")tmp;\n");
+                        indent(sb, indent).append("}\n");
+
+                    }
+                    indent(sb, indent).append("return new ").append(componentClass.getQualifiedName()).append("(");
+                    if (constructor.getNumParams() > 0) {
+                        sb.append("(").append(constructor.getParameterType(0).getQualifiedName()).append(")");
+                        if (isA(constructor.getParameterType(0), "com.codename1.rad.models.EntityList")) {
+                            sb.append("listModel");
+                        } else if (isA(constructor.getParameterType(0), "com.codename1.rad.nodes.ListNode")) {
+                            sb.append("listNode");
+                        } else {
+                            throw new XMLParseException("EntityListView subclasses should have public constructor that accepts either an EntityList or ListNode as the first argument.", xmlTag, null);
+                        }
+                    }
+
+                    if (constructor.getNumParams() > 1) {
+                        sb.append(",(").append(constructor.getParameterType(1).getQualifiedName()).append(")");
+                        if (isA(constructor.getParameterType(1), "com.codename1.rad.models.EntityList")) {
+                            sb.append("listModel");
+                        } else if (isA(constructor.getParameterType(1), "com.codename1.rad.nodes.ListNode")) {
+                            sb.append("listNode");
+                        } else {
+                            throw new XMLParseException("EntityListView subclasses should have public constructor that accepts either an EntityList or ListNode as the second argument.", xmlTag, null);
+                        }
+                    }
+
+                    sb.append(");\n");
+
+
+                    indent -= 4;
+                    indent(sb, indent).append("});\n");
+                }
                 writeBuilderProperties(sb);
             } else {
                 //indent(sb, indent).append(builderClass.getQualifiedName()).append(" _builder = null;\n");
@@ -3741,7 +3956,7 @@ public class ViewProcessor extends BaseProcessor {
                 sb.append("\"").append(StringEscapeUtils.escapeJava(xmlTag.getTagName())).append("\", attributes);\n");
 
             } else if (builderClass != null) {
-                sb.append("_builder.getComponent();\n");
+                sb.append("(").append(componentClass.getQualifiedName()).append(")").append("_builder.getComponent();\n");
             } else {
                 // First look for constructor that takes EntityView as parameter
                 JavaMethodProxy constructor = componentClass.getBestConstructor(xmlTag);
@@ -3761,7 +3976,7 @@ public class ViewProcessor extends BaseProcessor {
             if (isInsideRowTemplate() && isA(jenv.findClassThatTagCreates(xmlTag.getTagName()), "com.codename1.rad.ui.EntityView")) {
                 sb.append("if (").append(jenv.rootBuilder.className).append("this.rowView == null) {\n");
                 sb.append("    ").append(jenv.rootBuilder.className).append("this.rowView = (EntityView)_cmp;\n");
-                sb.append("    ").append(jenv.rootBuilder.className).append("this.rowContext.setEntityView((EntityView)_cmp);\n");
+                sb.append("    ").append(jenv.rootBuilder.className).append("this.subContext.setEntityView((EntityView)_cmp);\n");
                 sb.append("}\n");
             }
             if (isInsideRowTemplate()) {
@@ -3786,6 +4001,11 @@ public class ViewProcessor extends BaseProcessor {
 
 
 
+
+
+            if (hasViewController) {
+                indent(sb, indent).append("viewController.setView(_cmp);\n");
+            }
 
             String varName = getVarName();
             if (varName != null) {
@@ -4008,7 +4228,11 @@ public class ViewProcessor extends BaseProcessor {
             ProcessingEnvironmentWrapper.SchemaBuilder schemaBuilder = env.new SchemaBuilder(packageName + "." + className + "Schema");
             ProcessingEnvironmentWrapper.EntityBuilder entityBuilder = env.new EntityBuilder(packageName + "." + className + "Model");
             ProcessingEnvironmentWrapper.EntityImplBuilder entityImplBuilder = env.new EntityImplBuilder(packageName + "." + className + "ModelImpl");
-            ProcessingEnvironmentWrapper.EntityControllerBuilder controllerBuilder = env.new EntityControllerBuilder(packageName + "." + className+"Controller");
+            if (jenv.lookupClass(viewModelType) != null) viewModelType = jenv.lookupClass(viewModelType).getQualifiedName().toString();
+            else if (!viewModelType.contains(".")) {
+                viewModelType = packageName + "." + viewModelType;
+            }
+            ProcessingEnvironmentWrapper.EntityControllerBuilder controllerBuilder = env.new EntityControllerBuilder(packageName + "." + className+"Controller", viewModelType);
             ProcessingEnvironmentWrapper.EntityControllerMarkerBuilder controllerMarkerBuilder = env.new EntityControllerMarkerBuilder(packageName + ".I" + className + "Controller");
             ProcessingEnvironmentWrapper.EntityViewBuilder entityViewBuilder = env.new EntityViewBuilder(packageName + "." + className);
             for (org.w3c.dom.Element defineTag : getChildElementsByTagName(rootEl, "define-tag")) {
@@ -4310,6 +4534,8 @@ public class ViewProcessor extends BaseProcessor {
         private void writeClassVariables(StringBuilder sb) throws XMLParseException {
             XMLParseException errors[] = new XMLParseException[1];
             Map<String,String> variables = new HashMap<String,String>();
+
+
             indent(sb, indent).append("// Placeholder for the row model when creating EntityListCellRenderer.\n");
             indent(sb, indent).append("// Can access inside <script> tags inside <row-template>\n");
             indent(sb, indent).append("private com.codename1.rad.models.Entity rowModel;\n");
@@ -4327,7 +4553,7 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("private com.codename1.rad.ui.entityviews.EntityListView rowList;\n");
             indent(sb, indent).append("private EntityView view = this;\n");
             indent(sb, indent).append("private EntityView rowView;\n");
-            indent(sb, indent).append("private ViewContext rowContext;\n");
+            indent(sb, indent).append("private ViewContext subContext;\n");
 
             forEach(this.rootEl, el -> {
                 if (errors[0] != null) return null;
@@ -4518,7 +4744,7 @@ public class ViewProcessor extends BaseProcessor {
                 indent(sb, indent).append("public ").append(className).append("Controller(@Inject Controller parent, @Inject ").append(viewModelType).append(" viewModel) {\n");
                 indent += 4;
                 indent(sb, indent).append("super(parent);\n");
-                indent(sb, indent).append("this.viewModel = viewModel;\n");
+                indent(sb, indent).append("this.viewModel = viewModel != null ? viewModel : createViewModel();\n");
                 indent -= 4;
                 indent(sb, indent).append("}\n");
                 TypeElement viewModelTypeEl = jenv.lookupClass(viewModelType);
@@ -4853,6 +5079,13 @@ public class ViewProcessor extends BaseProcessor {
             sb.append("        if (lookedUp != null) return lookedUp;\n");
             sb.append("        return null;\n");
             sb.append("    }\n");
+            sb.append("    private <T> T _getInjectedParameter(Class<T> type, ViewContext context, Controller controller) {\n");
+            sb.append("        if (type == Entity.class) return (T)context.getEntity();\n");
+            sb.append("        if (type == EntityView.class) return (T)this;\n");
+            sb.append("        T lookedUp = (T)getContext().getController().lookup(type);\n");
+            sb.append("        if (lookedUp != null) return lookedUp;\n");
+            sb.append("        return null;\n");
+            sb.append("    }\n");
 
             indent -= 4;
             sb.append("}\n");
@@ -5015,7 +5248,9 @@ public class ViewProcessor extends BaseProcessor {
                 }
                 out = elements().getTypeElement(mirror.toString());
                 if (out == null) {
-                    out = elements().getTypeElement(mirror.toString().substring(0, mirror.toString().indexOf("<")));
+                    if (mirror.toString().contains("<")) {
+                        out = elements().getTypeElement(mirror.toString().substring(0, mirror.toString().indexOf("<")));
+                    }
                 }
                 if (out == null) {
                     throw new IllegalArgumentException("Cannot find class "+mirror);

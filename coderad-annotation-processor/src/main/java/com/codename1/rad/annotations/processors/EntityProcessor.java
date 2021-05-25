@@ -11,6 +11,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
+import java.lang.annotation.Annotation;
 import java.util.Set;
 
 import static com.codename1.rad.annotations.processors.ProcessorConstants.*;
@@ -61,6 +62,8 @@ import org.w3c.dom.NodeList;
 public class EntityProcessor extends BaseProcessor {
 
     private RoundEnvironment roundEnv;
+    private Set<Element> deferred = new HashSet<>();
+    private boolean entitiesAddedThisRound;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -70,18 +73,80 @@ public class EntityProcessor extends BaseProcessor {
 
     @Override
     void installTypes(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        ViewProcessor vp = new ViewProcessor(processingEnv);
-        vp.installTypes(annotations, roundEnv);
+        //ViewProcessor vp = new ViewProcessor(processingEnv);
+        //vp.installTypes(annotations, roundEnv);
+
+
     }
+
+
+    private class RoundEnvironmentWrapper implements RoundEnvironment {
+        final RoundEnvironment wrapped;
+        final HashSet<Element> deferred;
+
+        RoundEnvironmentWrapper(RoundEnvironment wrapped, Set<Element> deferred) {
+            this.wrapped = wrapped;
+            this.deferred = new HashSet<>();
+            this.deferred.addAll(deferred);
+        }
+
+
+        @Override
+        public boolean processingOver() {
+            return wrapped.processingOver();
+        }
+
+        @Override
+        public boolean errorRaised() {
+            return wrapped.errorRaised();
+        }
+
+        @Override
+        public Set<? extends Element> getRootElements() {
+            HashSet<Element> out = new HashSet<>();
+            out.addAll(wrapped.getRootElements());
+
+            return out;
+        }
+
+        @Override
+        public Set<? extends Element> getElementsAnnotatedWith(TypeElement a) {
+            HashSet<Element> out = new HashSet<>();
+            out.addAll(wrapped.getElementsAnnotatedWith(a));
+            //deferred.stream().filter(e -> e.getA)
+            return out;
+        }
+
+        @Override
+        public Set<? extends Element> getElementsAnnotatedWith(Class<? extends Annotation> a) {
+            HashSet<Element> out = new HashSet<>();
+            out.addAll(wrapped.getElementsAnnotatedWith(a));
+            out.addAll(deferred.stream().filter(e->e.getAnnotation(a) != null).collect(Collectors.toList()));
+            return out;
+        }
+    }
+
+
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        this.entitiesAddedThisRound = false;
         this.roundEnv = roundEnv;
-        System.out.println( "----------------------STARTING ROUND--------------------");
+
         installTypes(annotations, roundEnv);
         boolean out = processSchemas(annotations, roundEnv);
         out = processEntities(annotations, roundEnv) || out;
-        out = new ViewProcessor(processingEnv).process(annotations, roundEnv) || out;
+        if (entitiesAddedThisRound) {
+
+            deferred.addAll(new ViewProcessor(processingEnv).defer(annotations, roundEnv));
+
+        } else {
+
+            ViewProcessor vp = new ViewProcessor(processingEnv);
+            vp.installTypes(annotations, new RoundEnvironmentWrapper(roundEnv, deferred));
+            out = vp.process(annotations, new RoundEnvironmentWrapper(roundEnv, deferred)) || out;
+            deferred.clear();
+        }
         
         
         return out;
@@ -110,15 +175,15 @@ public class EntityProcessor extends BaseProcessor {
             for (Element e : annotatedElements) {
                 if (e instanceof TypeElement) {
                     TypeElement typeEl = (TypeElement)e;
-                    //System.out.println("Checking if typeEl "+typeEl+" is an EntityView");
+
                     if (isA(typeEl, "com.codename1.rad.ui.EntityView")) {
                         // If this is an EntityView, then we will process this using the EntityView pathway
                         // Which will try to generate an EntityView from a template.
-                        //System.out.println("It  IS an entity view");
+
                         continue;
                         
                     }
-                    //System.out.println("It is NOT an entityview");
+
 
                     
                     //if (processingEnv.getTypeUtils().isAssignable(typeEl.asType(), processingEnv.getTypeUtils().getDeclaredType(componentBuilder, component.asType()))) {
@@ -128,7 +193,7 @@ public class EntityProcessor extends BaseProcessor {
                         continue;
                         
                     }
-                    //System.out.println("it is NOT a componentBuilder");
+
                     
                     if (!validate(typeEl)) {
                         return;
@@ -619,6 +684,7 @@ public class EntityProcessor extends BaseProcessor {
                 JavaFileObject entityFile = processingEnv.getFiler().createSourceFile(packageName + ".Abstract"+entityName, entityInterface);
                 try (PrintWriter writer = new PrintWriter(entityFile.openWriter())) {
                     //javaFile.writeTo(System.out);
+                    entitiesAddedThisRound = true;
                     javaFile.writeTo(writer);
                 }
 
@@ -652,8 +718,8 @@ public class EntityProcessor extends BaseProcessor {
     }
 
 
-    
-    
+
+
     private void createEntityClass(EntityPlan entityPlan, RoundEnvironment roundEnv) {
         
         
@@ -701,7 +767,9 @@ public class EntityProcessor extends BaseProcessor {
                         
                         
                     });
-        
+
+        entityTypeInitializer.addStatement("register("+entityPlan.entityName+"Impl.class, this);");
+        entityTypeInitializer.addStatement("register("+entityPlan.entityName+".class, this, type -> {return new " + entityPlan.entityName+"Impl();});");
         
         TypeSpec entityType = TypeSpec.anonymousClassBuilder("")
                 .superclass(ClassName.get("com.codename1.rad.models", "EntityType"))
@@ -756,6 +824,7 @@ public class EntityProcessor extends BaseProcessor {
             JavaFileObject entityFile = processingEnv.getFiler().createSourceFile(entityPlan.packageName+"."+entityPlan.entityName+"Impl", entityPlan.entityAbstractClass, entityPlan.entityInterface);
             try (PrintWriter writer = new PrintWriter(entityFile.openWriter())) {
                 //javaFile.writeTo(System.out);
+                entitiesAddedThisRound = true;
                 javaFile.writeTo(writer);
             }
             
@@ -852,6 +921,7 @@ public class EntityProcessor extends BaseProcessor {
             JavaFileObject entityFile = processingEnv.getFiler().createSourceFile(entityPlan.packageName+"."+entityPlan.entityName+"Wrapper", entityPlan.entityAbstractClass, entityPlan.entityInterface);
             try (PrintWriter writer = new PrintWriter(entityFile.openWriter())) {
                 //javaFile.writeTo(System.out);
+                entitiesAddedThisRound = true;
                 javaFile.writeTo(writer);
             }
             

@@ -287,6 +287,22 @@ public class ResultParser implements EntityFactory {
         private Tag[] tags;
         private PropertyParserCallback parserCallback;
         private Getter getter;
+        private ResultParser entityParser;
+
+        public PropertyParser(Property property, ResultParser entityParser) {
+            this.property = property;
+            this.entityParser = entityParser;
+        }
+
+        public PropertyParser(Tag tag, ResultParser entityParser) {
+            this.tags = new Tag[]{tag};
+            this.entityParser = entityParser;
+        }
+
+        public PropertyParser(ResultParser entityParser, Tag... tags) {
+            this.tags = tags;
+            this.entityParser = entityParser;
+        }
         
         public PropertyParser(String resultPropertySelector, Getter getter, Property prop, PropertyParserCallback parserCallback) {
             this.resultPropertySelector = resultPropertySelector;
@@ -319,6 +335,23 @@ public class ResultParser implements EntityFactory {
         propertyParsers.add(new PropertyParser(resultPropertySelector, getter, property, parserCallback));
         return this;
     }
+
+    public ResultParser entity(Property property, ResultParser subEntityParser) {
+        propertyParsers.add(new PropertyParser(property, subEntityParser));
+        return this;
+    }
+
+    public ResultParser entity(Tag property, ResultParser subEntityParser) {
+        propertyParsers.add(new PropertyParser(property, subEntityParser));
+        return this;
+    }
+
+    public ResultParser entity(ResultParser subEntityParser, Tag... tags) {
+        propertyParsers.add(new PropertyParser(subEntityParser, tags));
+        return this;
+    }
+
+
     
     /**
      * Add support for parsing a particular property.
@@ -548,6 +581,8 @@ public class ResultParser implements EntityFactory {
                 prop
         );
     }
+
+
     
     /**
      * Adds a string property parser.
@@ -1060,6 +1095,29 @@ public class ResultParser implements EntityFactory {
             }
             if (prop == null) {
                 throw new IOException("Property not found for property selector when parsing selector "+rs);
+            }
+
+            if (propertyParser.entityParser != null) {
+                // This property is an entity, and it will be parsed against the
+                // same row data - not a sub-object in the dataset.
+                if (prop.getContentType().isEntity()) {
+
+                    EntityProperty eProp = (EntityProperty)prop;
+
+                    Class cls = eProp.getRepresentationClass();
+                    Entity e;
+                    try {
+                        e = createEntity(cls);
+                    } catch (Throwable t) {
+                        throw new IOException("Failed to create new entity instance for property "+prop+" of type "+cls);
+                    }
+                    e = propertyParser.entityParser.parseRow(rowResult, e);
+                    rowEntity.getEntity().set(prop, e);
+                } else {
+                    throw new IOException("Property "+prop+" is assigned an EntityParser, but the property is not an entity type.");
+                }
+                continue;
+
             }
             // This is just a simple property selector
             Getter getter = propertyParser.getter;

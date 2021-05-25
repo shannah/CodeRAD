@@ -387,6 +387,12 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             if (element.getKind() == ElementKind.METHOD || element.getKind() == ElementKind.CONSTRUCTOR) {
                 ExecutableElement ee = (ExecutableElement)element;
                 return new RExecutableType() {
+
+                    @Override
+                    public String toString() {
+                        return ""+element.getSimpleName() + getParameterTypes();
+                    }
+
                     List<TypeVariable> typeVariables = new ArrayList<>();
                     @Override
                     public List<? extends TypeVariable> getTypeVariables() {
@@ -1517,6 +1523,21 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             List<TypeMirror> typeArguments = new ArrayList<>(Arrays.asList(_typeArguments));
 
             @Override
+            public String toString() {
+                StringBuilder sb = new StringBuilder();
+                sb.append(type);
+                if (_typeArguments.length > 0) {
+                    sb.append("<");
+                    for (int i=0; i< _typeArguments.length; i++) {
+                        if (i > 0) sb.append(", ");
+                        sb.append(_typeArguments[i]);
+                    }
+                    sb.append(">");
+                }
+                return sb.toString();
+            }
+
+            @Override
             public List<? extends AnnotationMirror> getAnnotationMirrors() {
                 return annotationMirrors;
             }
@@ -1782,13 +1803,16 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
     public class EntityControllerBuilder extends CustomTypeElementBuilder {
 
-        public EntityControllerBuilder(String qualifiedName) {
+        public EntityControllerBuilder(String qualifiedName, String modelType) {
             packageName = extractParentQualifiedName(qualifiedName);
+
             PackageElement pkg = elements.getPackageElement(packageName);
             kind(ElementKind.CLASS);
             String simpleName = toSimpleName(qualifiedName);
             simpleName(elements.getName(simpleName));
             baseName = simpleName.substring(0, simpleName.length() - "Controller".length());
+            if (modelType == null) modelType = packageName + "." +baseName + "Model";
+            this.modelType = modelType;
             qualifiedName(elements.getName(qualifiedName));
             modifiers(Modifier.PUBLIC);
             type(createDeclaredType(qualifiedName.toString()));
@@ -1799,7 +1823,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
         }
 
-        private String packageName, baseName;
+        private String packageName, baseName, modelType;
 
         @Override
         protected CustomTypeElementBuilder decorate(CustomTypeElement element) {
@@ -1824,12 +1848,14 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
                     .receiverType(element.asType())
                     .returnType(element.asType())
                     .addParameter(new CustomVariableElementBuilder()
+                            .injected(true)
                             .simpleName(elements.getName("parent"))
                             .type(elements.getTypeElement("com.codename1.rad.controllers.Controller").asType())
                             .build())
                     .addParameter(new CustomVariableElementBuilder()
+                            .injected(true)
                             .simpleName(elements.getName("entity"))
-                            .type(createDeclaredType(packageName+"."+baseName+"Model"))
+                            .type(createDeclaredType(modelType))
                             .build())
                     .build());
 

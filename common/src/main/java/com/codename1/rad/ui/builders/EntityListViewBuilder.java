@@ -19,6 +19,8 @@ import static com.codename1.rad.util.NonNull.with;
 @RAD(tag={"entityList", "entityListView"})
 public class EntityListViewBuilder extends AbstractComponentBuilder<EntityListView> {
     private EntityListView.Builder builder = new EntityListView.Builder();
+
+
     public EntityListViewBuilder(@Inject ViewContext context, String tagName, Map<String, String> attributes) {
         super(context, tagName, attributes);
         builder.parentNode(context.getNode());
@@ -152,6 +154,10 @@ public class EntityListViewBuilder extends AbstractComponentBuilder<EntityListVi
     }
 
 
+    public EntityListViewBuilder listViewFactory(EntityListView.EntityListViewFactory factory) {
+        builder.factory(factory);
+        return this;
+    }
 
 
     @Override
@@ -163,4 +169,6 @@ public class EntityListViewBuilder extends AbstractComponentBuilder<EntityListVi
     public Object parseConstraint(String constraint) {
         return null;
     }
+
+
 }

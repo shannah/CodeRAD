@@ -623,6 +623,7 @@ public class BaseEntity extends Observable implements Entity  {
             str = str.substring(0, str.indexOf(" "));
         }
         String encodedStr = Base64.encodeNoNewline(str.getBytes());
+        if (encodedStr.length() > 20) encodedStr = encodedStr.substring(0, 20) + str.hashCode();
         
         if (file != null && file.indexOf("%") > 0) {
             file = StringUtil.replaceAll(file, "%", encodedStr);
