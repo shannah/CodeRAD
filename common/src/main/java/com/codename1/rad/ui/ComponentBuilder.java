@@ -24,6 +24,7 @@
 package com.codename1.rad.ui;
 
 import com.codename1.ui.Component;
+import com.codename1.ui.Container;
 
 /**
  *
@@ -33,5 +34,6 @@ public interface ComponentBuilder<T extends Component> {
     public T build();
     public T getComponent();
     public Object parseConstraint(String constraint);
+    public void setParentContainer(Container cnt, Object arg);
 
 }

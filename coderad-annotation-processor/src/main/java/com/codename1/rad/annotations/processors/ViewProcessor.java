@@ -18,8 +18,12 @@ import javax.tools.JavaFileObject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,6 +33,7 @@ public class ViewProcessor extends BaseProcessor {
 
 
     ViewProcessor(ProcessingEnvironment processingEnvironment) {
+        System.out.println("System.getProperties(): " + System.getProperties());
         super.processingEnv = processingEnvironment;
     }
 
@@ -124,6 +129,7 @@ public class ViewProcessor extends BaseProcessor {
             builder.createModelSourceFile();
             builder.createControllerSourceFile();
             builder.createViewSourceFile();
+            builder.createXMLSchemaSourceFile();
         } catch (XMLParseException ex) {
             env().getMessager().printMessage(Diagnostic.Kind.ERROR, ex.getMessage(), typeEl);
             ex.printStackTrace();
@@ -140,7 +146,7 @@ public class ViewProcessor extends BaseProcessor {
     /**
      * Encapsulates the Java environment for the View class.
      */
-    private class JavaEnvironment {
+    public class JavaEnvironment {
 
         final Map<String,TypeElement> tagCache = new HashMap<>();
         final Map<String,TypeElement> lookupClassCache = new HashMap<>();
@@ -170,6 +176,13 @@ public class ViewProcessor extends BaseProcessor {
 
 
 
+        public boolean isA(TypeMirror m, String qualifiedName) {
+            return ViewProcessor.this.isA(m, qualifiedName);
+        }
+
+        public boolean isA(TypeElement e, String qualifiedName) {
+            return ViewProcessor.this.isA(e, qualifiedName);
+        }
 
         void setViewModelType(String type) {
             TypeElement typeEl = lookupClass(type);
@@ -1144,7 +1157,28 @@ public class ViewProcessor extends BaseProcessor {
             while (strtok.hasMoreTokens()) {
                 String nextTok = strtok.nextToken().trim();
                 if (nextTok.isEmpty()) continue;
-                this.imports.add(nextTok);
+                if (nextTok.contains(".") && nextTok.contains(" ")) {
+                    String packageName = nextTok.substring(nextTok.indexOf(" ")+1, nextTok.lastIndexOf("."));
+                    String parentPackage = packageName.contains(".") ? packageName.substring(0, packageName.lastIndexOf(".")+1) : "";
+                    PackageElement packageEl = elements().getPackageElement(parentPackage+"builders");
+                    if (packageEl != null && !packageEl.getEnclosedElements().isEmpty()) {
+                        // Automatically add "builders" sibling package for any package that is already imported.
+                        if (!this.imports.contains("import "+parentPackage+"builders.*")) {
+                            this.imports.add("import " + parentPackage + "builders.*");
+                        }
+                    }
+                    packageEl = elements().getPackageElement(packageName+".builders");
+
+                    if (packageEl != null && !packageEl.getEnclosedElements().isEmpty()) {
+                        // Automatically add "builders" sibling package for any package that is already imported.
+                        if (!this.imports.contains("import "+packageName+".builders.*")) {
+                            this.imports.add("import " + packageName + ".builders.*");
+                        }
+                    }
+                }
+                if (!this.imports.contains(nextTok)) {
+                    this.imports.add(nextTok);
+                }
             }
         }
 
@@ -1607,6 +1641,14 @@ public class ViewProcessor extends BaseProcessor {
                             ((ExecutableElement)e).getParameters().size() == 1).collect(Collectors.toList());
         }
 
+        List<ExecutableElement> findInjectableSetters() {
+            return (List<ExecutableElement>)elements().getAllMembers(typeEl).stream()
+                    .filter(e -> e.getKind() == ElementKind.METHOD &&
+                            ((ExecutableElement)e).getParameters().size() == 1 &&
+                            ((ExecutableElement)e).getParameters().get(0).getAnnotation(Inject.class) != null).
+                            collect(Collectors.toList());
+        }
+
         List<ExecutableElement> findInjectableSettersForType(TypeElement type) {
             return (List<ExecutableElement>)elements().getAllMembers(typeEl).stream()
                     .filter(e -> e.getKind() == ElementKind.METHOD &&
@@ -1719,6 +1761,8 @@ public class ViewProcessor extends BaseProcessor {
             injectableTypes.add("com.codename1.rad.controllers.FormController");
             injectableTypes.add("com.codename1.rad.controllers.AppSectionController");
             injectableTypes.add("com.codename1.rad.controllers.ViewController");
+            injectableTypes.add("com.codename1.rad.nodes.ViewNode");
+            injectableTypes.add("com.codename1.rad.nodes.ListNode");
 
 
 
@@ -2772,12 +2816,42 @@ public class ViewProcessor extends BaseProcessor {
          */
         void writeBuilderProperties(StringBuilder sb) throws XMLParseException {
             if (builderClass == null) return;
+
+            // Look for injected properties
+            for (ExecutableElement setter : builderClass.findInjectableSetters()) {
+                String setterName = setter.getSimpleName().toString();
+                if (hasAttributeIgnoreCase(xmlTag, setterName)) {
+                    continue;
+                }
+                String propName = setterName;
+                if (setterName.startsWith("set")) {
+                    propName = setterName.substring(3);
+                    if (hasAttributeIgnoreCase(xmlTag, propName)) {
+                        continue;
+                    }
+                } else if (hasAttributeIgnoreCase(xmlTag, "set"+propName)) {
+                    continue;
+                }
+                ExecutableType et = (ExecutableType)types().asMemberOf((DeclaredType)builderClass.typeEl.asType(), setter);
+                TypeMirror propertyType = et.getParameterTypes().get(0);
+                indent(sb, indent).append("{\n");
+                indent += 4;
+                indent(sb, indent).append(propertyType).append(" _injectedValue = ").append("_getInjectedParameter(").
+                        append(propertyType.toString()).append(".class, context, viewController);\n");
+                indent(sb, indent).append("if (_injectedValue != null) ").append("_builder.").append(setter.getSimpleName()).append("((").append(propertyType.toString()).append(")_injectedValue);\n");
+                indent -=4;
+                indent(sb, indent).append("}\n");
+
+            }
+
+
             String textContent = xmlTag.getTextContent();
             if (textContent != null && !textContent.isEmpty()) {
                 ExecutableElement setText = builderClass.findSetter("text", "java.lang.String");
                 if (setText != null) {
                     indent(sb, indent);
                     builderClass.setProperty(sb, "text", textContent, "_builder");
+                    sb.append("\n");
                 }
             }
             NamedNodeMap attributes = xmlTag.getAttributes();
@@ -2946,6 +3020,7 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent).append("// Injectable property ").append(injectableSetter.getSimpleName()).append(" being set with tag ").append(childEl.getTagName()).append("\n");
                     indent(sb, indent);
                     if (first) {
+                        // This child may be injected into more than property, but we only create the component once
                         first = false;
                         sb.append("{\n");
                         indent += 4;
@@ -2953,9 +3028,11 @@ public class ViewProcessor extends BaseProcessor {
                         indent(sb, indent).append(type.getQualifiedName()).append(" _tmpProperty = ").append(createCall).append(";\n");
 
                     }
-                    childEl.setAttribute("rad-property", injectableSetter.getSimpleName().toString());
-                    builderClass.setProperty(sb, injectableSetter.getSimpleName().toString(), "java:_tmpProperty", "_builder", setterType.getParameterTypes().get(0).toString());
 
+                    childEl.setAttribute("rad-property", injectableSetter.getSimpleName().toString());
+                    indent(sb, indent);
+                    builderClass.setProperty(sb, injectableSetter.getSimpleName().toString(), "java:_tmpProperty", "_builder", setterType.getParameterTypes().get(0).toString());
+                    sb.append("\n");
                 }
                 if (!first) {
                     // We must have injected this child in at least one property.
@@ -3282,6 +3359,10 @@ public class ViewProcessor extends BaseProcessor {
         void writeChildren(StringBuilder sb) {
             NodeList childNodes = xmlTag.getChildNodes();
             int numChildNodes = childNodes.getLength();
+            if (componentClass.isContainer()) {
+                indent(sb, indent).append("Container _tmp_old_currentContainer = _currentContainer;\n");
+                indent(sb, indent).append("_currentContainer = _cmp;\n");
+            }
             indent(sb, indent).append("// ").append(numChildNodes).append(" child nodes\n");
             for (int i=0; i<numChildNodes; i++) {
                 Node child = childNodes.item(i);
@@ -3381,7 +3462,7 @@ public class ViewProcessor extends BaseProcessor {
                 if (componentClass.isContainer() && jenv.isComponentTag(childEl.getTagName())) {
                     // This is a component tag.  and the parent is a container.  Just add it as a child.
                     indent(sb, indent).append("// Add child component ").append(" with child tag ").append(childEl.getTagName()).append("\n");
-                    indent(sb, indent);
+
                     String constraint = childEl.getAttribute("layout-constraint");
                     String condition = childEl.getAttribute("rad-condition");
                     if (!condition.isEmpty()) {
@@ -3392,7 +3473,7 @@ public class ViewProcessor extends BaseProcessor {
                         indent(sb, indent).append("{\n");
                         indent(sb, indent).append("    com.codename1.ui.Component _childCmp = ").append(createCall).append(";\n");
                         indent(sb, indent).append("    if (_childCmp.getClientProperty(\"RAD_NO_ADD\") == null) {\n");
-                        indent(sb, indent).append("        _cmp.addComponent(").append(createCall).append(");\n");
+                        indent(sb, indent).append("        _cmp.addComponent(_childCmp);\n");
                         indent(sb, indent).append("    }\n");
                         indent(sb, indent).append("}\n");
                     } else {
@@ -3413,14 +3494,9 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent).append("createBean").append(childEl.getAttribute("rad-id")).append("();\n");
                 }
 
-
-
-
-
-
-
-
-
+            }
+            if (componentClass.isContainer()) {
+                indent(sb, indent).append("_currentContainer = _tmp_old_currentContainer;\n");
             }
 
         }
@@ -3874,6 +3950,7 @@ public class ViewProcessor extends BaseProcessor {
             if (builderClass != null) {
                 indent(sb, indent).append(builderClass.getQualifiedName()).append(" _builder = ").append("new ")
                         .append(builderClass.getQualifiedName()).append("(context, \"").append(StringEscapeUtils.escapeJava(xmlTag.getTagName())).append("\", attributes);\n");
+                indent(sb, indent).append("_builder.setParentContainer(_currentContainer, null);\n");
                 if (isA(componentClass.typeEl, "com.codename1.rad.ui.entityviews.EntityListView") &&
                         !componentClass.typeEl.getQualifiedName().contentEquals("com.codename1.rad.ui.entityviews.EntityListView") &&
                         builderClass.getQualifiedName().contentEquals("com.codename1.rad.ui.builders.EntityListViewBuilder")
@@ -4358,6 +4435,7 @@ public class ViewProcessor extends BaseProcessor {
             if (!root.hasAttribute("strict-imports")) {
                 jenv.addImports("import com.codename1.rad.schemas.**;\n");
                 jenv.addImports("import com.codename1.rad.ui.builders.**;\n");
+                jenv.addImports("import ca.weblite.shared.components.*;\n");
                 jenv.addImports("import com.codename1.rad.models.*;\n");
                 jenv.addImports("import com.codename1.rad.nodes.*;\n");
                 jenv.addImports("import com.codename1.rad.ui.entityviews.*;\n");
@@ -4554,6 +4632,7 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("private EntityView view = this;\n");
             indent(sb, indent).append("private EntityView rowView;\n");
             indent(sb, indent).append("private ViewContext subContext;\n");
+            indent(sb, indent).append("private Container _currentContainer;\n");
 
             forEach(this.rootEl, el -> {
                 if (errors[0] != null) return null;
@@ -5008,6 +5087,7 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("this.parentFormController = (this.formController == null || this.formController.getParent() == null) ? null : this.formController.getParent().getFormController();\n");
             indent(sb, indent).append("getAllStyles().stripMarginAndPadding();\n");
             indent(sb, indent).append("setLayout(new BorderLayout());\n");
+            indent(sb, indent).append("_currentContainer = this;\n");
             indent(sb, indent).append("add(BorderLayout.CENTER, ").append("createComponent0());\n");
             indent -= 4;
             indent(sb, indent).append("}\n");
@@ -5072,18 +5152,11 @@ public class ViewProcessor extends BaseProcessor {
             sb.append("        node.setParent(getViewNode());\n");
             sb.append("        return node;\n");
             sb.append("    }\n");
-            sb.append("    private <T> T _getInjectedParameter(Class<T> type) {\n");
-            sb.append("        if (type == Entity.class) return (T)context.getEntity();\n");
-            sb.append("        if (type == EntityView.class) return (T)this;\n");
-            sb.append("        T lookedUp = (T)getContext().getController().lookup(type);\n");
-            sb.append("        if (lookedUp != null) return lookedUp;\n");
-            sb.append("        return null;\n");
-            sb.append("    }\n");
             sb.append("    private <T> T _getInjectedParameter(Class<T> type, ViewContext context, Controller controller) {\n");
-            sb.append("        if (type == Entity.class) return (T)context.getEntity();\n");
-            sb.append("        if (type == EntityView.class) return (T)this;\n");
-            sb.append("        T lookedUp = (T)getContext().getController().lookup(type);\n");
+            sb.append("        T lookedUp = (T)controller.lookup(type);\n");
             sb.append("        if (lookedUp != null) return lookedUp;\n");
+            sb.append("        if (Entity.class.isAssignableFrom(type)) return (T)context.getEntity();\n");
+            sb.append("        if (type.isAssignableFrom(this.getClass())) return (T)this;\n");
             sb.append("        return null;\n");
             sb.append("    }\n");
 
@@ -5122,6 +5195,186 @@ public class ViewProcessor extends BaseProcessor {
 
                 w.write(content);
             }
+
+        }
+
+        public void createXMLSchemaSourceFile() throws XMLParseException, IOException {
+            parse();
+
+            File rootDirectory = new File(System.getProperty("user.dir"));
+            File cn1Settings = new File(rootDirectory, "codenameone_settings.properties");
+            if (!cn1Settings.exists()) {
+                cn1Settings = new File(rootDirectory.getParentFile(), cn1Settings.getName());
+            }
+            if (!cn1Settings.exists()) {
+                cn1Settings = new File(rootDirectory, "common" + File.separator + cn1Settings.getName());
+            }
+            if (!cn1Settings.exists()) {
+                cn1Settings = new File(rootDirectory.getParentFile(), "common" + File.separator + cn1Settings.getName());
+            }
+            if (!cn1Settings.exists()) {
+                throw new IOException("Cannot find Codename One project directory in which to generate XML schemas.");
+            }
+            rootDirectory = cn1Settings.getParentFile();
+
+            File targetDirectory = new File(rootDirectory, "target");
+            if (!targetDirectory.exists()) {
+                throw new IOException("Cannot find target directory.");
+            }
+            File generatedSources = new File(targetDirectory, "generated-sources");
+            File xmlSchemasDirectory = new File(generatedSources, "rad" + File.separator + "xmlSchemas");
+
+            XMLSchemaGenerator viewSchemaGenerator = new XMLSchemaGenerator(env(), jenv, xmlSchemasDirectory, elements().getTypeElement(packageName + "." + className), null);
+            File schemaFile = viewSchemaGenerator.getSchemaFile();
+            String checksum = null;
+            StringBuilder imports = new StringBuilder();
+            for (String importStr : jenv.imports) {
+                imports.append(importStr).append("\n");
+            }
+
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                md.update(imports.toString().getBytes("utf-8"));
+                byte[] digest = md.digest();
+                checksum = Base64.getEncoder().encodeToString(digest);
+            } catch (Exception ex){
+                throw new IOException("Failed to create checksum for imports on "+schemaFile);
+            }
+            if (schemaFile.exists()) {
+
+                String fileContents;
+                try (FileInputStream fis = new FileInputStream(schemaFile)){
+                    byte[] buf = new byte[(int)schemaFile.length()];
+                    fis.read(buf);
+                    fileContents = new String(buf, "utf-8");
+                }
+                if (!fileContents.contains(checksum)) {
+                    // The file imports have changed.  Let's regenerate it.
+                    schemaFile.delete();
+                }
+            }
+
+            if (schemaFile.exists()) {
+                // 2nd check to see if we deleted it the first time
+                return;
+            }
+            viewSchemaGenerator.setChecksum(checksum);
+
+
+
+
+            List<Element> elementList = new ArrayList<>();
+            class ComponentBuilderPair {
+                TypeElement componentClass;
+                TypeElement builderClass;
+                List<String> tagNames = new ArrayList<>();
+            }
+            Map<String,ComponentBuilderPair> tagMap = new HashMap<>();
+            Map<String,ComponentBuilderPair> nameMap = new HashMap<>();
+            for (String importStatement : jenv.imports) {
+                if (importStatement.startsWith("import static")) continue;
+                String importPath = importStatement.substring(importStatement.indexOf(" ")+1);
+
+                if (importStatement.endsWith("*")) {
+                    String packageName = importPath.substring(0, importPath.lastIndexOf("."));
+                    PackageElement packageElement = elements().getPackageElement(packageName);
+                    if (packageName == null) {
+                        continue;
+                    }
+
+                    elementList.addAll(packageElement.getEnclosedElements());
+                    //packageElement.getEnclosedElements()
+                } else {
+                    TypeElement typeEl = elements().getTypeElement(importPath);
+                    if (typeEl != null) {
+                        elementList.add(typeEl);
+                    }
+                }
+            }
+            elementList.forEach(element -> {
+                if (element.getKind() == ElementKind.CLASS) {
+                    TypeElement typeEl = (TypeElement)element;
+                    String tagName = typeEl.getSimpleName().toString().toLowerCase();
+                    if (isA(typeEl, "com.codename1.ui.Component")) {
+
+                        ComponentBuilderPair pair = tagMap.get(tagName);
+                        if (pair == null) {
+                            pair = nameMap.get(typeEl.getQualifiedName().toString());
+                        }
+                        if (pair == null) {
+                            pair = new ComponentBuilderPair();
+                            pair.componentClass = typeEl;
+                            pair.tagNames.add(tagName);
+                            tagMap.put(tagName, pair);
+                            nameMap.put(typeEl.getQualifiedName().toString(), pair);
+                        } else {
+                            if (pair.componentClass == null) {
+                                pair.componentClass = typeEl;
+                                nameMap.put(typeEl.getQualifiedName().toString(), pair);
+                            } else if (!pair.componentClass.getQualifiedName().contentEquals(typeEl.getQualifiedName())) {
+                                // Tag already refers to a different component.
+                            } else {
+                                // Tag already refers to *this* component type.
+                            }
+                        }
+                    } else if (isA(typeEl, "com.codename1.rad.ui.ComponentBuilder")) {
+                        RAD radAnnotation = typeEl.getAnnotation(RAD.class);
+                        if (radAnnotation == null) return;
+                        ComponentBuilderPair pair = nameMap.get(typeEl.getQualifiedName().toString());
+                        ExecutableElement getComponentMethod = (ExecutableElement)elements().getAllMembers(typeEl).stream()
+                                .filter(e->e.getKind() == ElementKind.METHOD && e.getSimpleName().contentEquals("getComponent")).findFirst().orElse(null);
+                        ExecutableType getComponentMethodType = (ExecutableType) types().asMemberOf((DeclaredType)typeEl.asType(), getComponentMethod);
+                        TypeElement componentElement = elements().getTypeElement(getComponentMethodType.getReturnType().toString());
+                        if (pair == null) {
+                            pair = nameMap.get(componentElement.getQualifiedName().toString());
+
+                        }
+
+                        if (pair == null) {
+                            pair = new ComponentBuilderPair();
+                            pair.componentClass = componentElement;
+                            pair.tagNames.add(componentElement.getSimpleName().toString().toLowerCase());
+
+                        }
+
+                        if (pair.builderClass == null) {
+                            pair.builderClass = typeEl;
+                            for (String tag : radAnnotation.tag()) {
+                                if (!pair.tagNames.contains(tag.toLowerCase())) pair.tagNames.add(tag.toLowerCase());
+                            }
+                        } else if (!pair.builderClass.getQualifiedName().contentEquals(typeEl.getQualifiedName())) {
+                            // There is already a builder class
+                            return;
+                        }
+                        List<String> tagsToRemove = new ArrayList<>();
+                        for (String tag : pair.tagNames) {
+                            if (tagMap.containsKey(tag.toLowerCase()) && !tagMap.get(tag.toLowerCase()).equals(pair)) {
+                                // another tag already registered with different pair, so we should remove the tag from this pair.
+                                tagsToRemove.add(tag.toLowerCase());
+                            } else {
+                                tagMap.put(tag, pair);
+                            }
+                        }
+                        pair.tagNames.removeAll(tagsToRemove);
+                        if (!nameMap.containsKey(typeEl.getQualifiedName().toString())) {
+                            nameMap.put(typeEl.getQualifiedName().toString(), pair);
+                        }
+                        if (!nameMap.containsKey(componentElement.getQualifiedName().toString())) {
+                            nameMap.put(componentElement.getQualifiedName().toString(), pair);
+                        }
+                    }
+                }
+            });
+
+            for (Map.Entry<String, ComponentBuilderPair> e : tagMap.entrySet()) {
+                XMLSchemaGenerator xmlSchemaGenerator = new XMLSchemaGenerator(env(), jenv, xmlSchemasDirectory, e.getValue().componentClass, e.getValue().builderClass);
+
+                xmlSchemaGenerator.writeToFile();
+                viewSchemaGenerator.addInclude(xmlSchemaGenerator.getSchemaFile());
+            }
+            // It may have been regenerated in the above generations before adding includes to it.  So we regenerate our target.
+            viewSchemaGenerator.getSchemaFile().delete();
+            viewSchemaGenerator.writeToFile();
 
         }
 
@@ -5402,5 +5655,19 @@ public class ViewProcessor extends BaseProcessor {
         }
         return false;
     }
+
+    private boolean hasAttributeIgnoreCase(org.w3c.dom.Element el, String attName) {
+        NamedNodeMap attributes = el.getAttributes();
+        int len = attributes.getLength();
+        for (int i=0; i<len; i++) {
+            Attr attr = (Attr)attributes.item(i);
+            if (attName.equalsIgnoreCase(attr.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
 }

@@ -115,6 +115,18 @@ public abstract class Node<T> extends Attribute<T> {
         }
         return this;
     }
+
+    /**
+     * Checks if this node's canonical node is the same as some other node's canonical node.
+     * @param otherNode
+     * @return
+     * @see #getCanonicalNode() 
+     * @see #setProxying(Node) 
+     */
+    public boolean isSameNode(Node otherNode) {
+        if (otherNode == null) return false;
+        return getCanonicalNode() == otherNode.getCanonicalNode();
+    }
     
     /**
      * Gets an iterator for iterating up the proxy chain.  If this is not a proxy node

@@ -12,6 +12,7 @@ import static com.codename1.ui.CN.addNetworkErrorListener;
 import static com.codename1.ui.CN.getCurrentForm;
 import static com.codename1.ui.CN.updateNetworkThreadCount;
 
+import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
 
@@ -145,6 +146,7 @@ public class ApplicationController extends Controller {
          * The current form of the application at the time that the StartEvent was fired.
          */
         private Form currentForm;
+        private boolean showingForm;
 
         public StartEvent() {
 
@@ -152,6 +154,19 @@ public class ApplicationController extends Controller {
 
         public StartEvent(Form currentForm) {
             this.currentForm = currentForm;
+        }
+
+        /**
+         * A flag to set when showing a form to prevent other event listeners from trying to also show a form.
+         *
+         * @param showing
+         */
+        public void setShowingForm(boolean showing) {
+            this.showingForm = showing;
+        }
+
+        public boolean isShowingForm() {
+            return showingForm;
         }
 
         /**
@@ -198,5 +213,13 @@ public class ApplicationController extends Controller {
                 currentFormController = fse.getSourceFormController();
             });
         }
+    }
+
+    public static ApplicationController getApplicationController(Component source) {
+        return ViewController.getViewController(source).getApplicationController();
+    }
+
+    public static ApplicationController getApplicationController(ActionEvent event) {
+        return ViewController.getViewController(event).getApplicationController();
     }
 }

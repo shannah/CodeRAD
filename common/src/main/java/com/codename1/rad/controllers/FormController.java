@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.controllers;
 
+import ca.weblite.shared.components.CollapsibleHeaderContainer;
 import com.codename1.rad.annotations.Inject;
 import com.codename1.ui.Button;
 import com.codename1.ui.CN;
@@ -91,6 +92,7 @@ public class ChatFormController extends FormController {
 public class FormController extends ViewController implements Runnable {
     private String title;
     private String pathName;
+    private boolean addTitleBar = true;
 
 
     private ActionListener showListener;
@@ -182,7 +184,15 @@ public class FormController extends ViewController implements Runnable {
     public String getTitle() {
         return title;
     }
-    
+
+    public void setAddTitleBar(boolean add) {
+        this.addTitleBar = add;
+    }
+
+    public boolean isAddTitleBar() {
+        return addTitleBar;
+    }
+
     
     Label titleLbl;
     
@@ -258,6 +268,20 @@ public class FormController extends ViewController implements Runnable {
 
                }
             };
+
+            boolean hasTitle = !addTitleBar;
+            if (!hasTitle) {
+                for (Component c : $("*", cmp).add(cmp, true)) {
+                    if (c instanceof CollapsibleHeaderContainer) {
+                        hasTitle = true;
+                        break;
+                    }
+                    if ("Title".equals(c)) {
+                        hasTitle = true;
+                        break;
+                    }
+                }
+            }
             f.addShowListener(showListener());
             f.getToolbar().hideToolbar();
             Container titleBar = new Container(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
@@ -291,7 +315,7 @@ public class FormController extends ViewController implements Runnable {
                 titleLbl.setText(title);
             }
             titleBar.add(BorderLayout.CENTER, titleLbl);
-            f.add(BorderLayout.NORTH, titleBar);
+            if (!hasTitle) f.add(BorderLayout.NORTH, titleBar);
             f.add(BorderLayout.CENTER, decorateView(cmp));
             f.revalidateLater();
             setView(f);
@@ -452,6 +476,14 @@ public class FormController extends ViewController implements Runnable {
             startControllerInternal();
             show();
         }
+    }
+
+    public static FormController getFormController(Component source) {
+        return ViewController.getViewController(source).getFormController();
+    }
+
+    public static FormController getFormController(ActionEvent event) {
+        return ViewController.getViewController(event).getFormController();
     }
 
     

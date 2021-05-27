@@ -74,7 +74,9 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
 
     public AbstractEntityView(@Inject ViewContext<T> context) {
         this.context = context;
-        context.setEntityView(this);
+        if (context.getEntityView() == null) {
+            context.setEntityView(this);
+        }
         T entity = context.getEntity();
         if (entity == null) {
             throw new IllegalArgumentException("AbstractEntityView requires non-null entity, but received null");
@@ -240,4 +242,6 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     public ViewContext<T> getContext() {
         return context;
     }
+
+
 }

@@ -24,6 +24,7 @@
 package com.codename1.rad.ui;
 
 import com.codename1.ui.Component;
+import com.codename1.ui.Container;
 
 import java.util.Map;
 
@@ -36,12 +37,18 @@ public abstract class AbstractComponentBuilder<T extends Component> implements C
     private T component;
     private String tagName;
     private Map<String,String> attributes;
+    private Container parentContainer;
     protected AbstractComponentBuilder(ViewContext context, String tagName, Map<String,String> attributes) {
         this.tagName = tagName;
         this.context = context;
         this.attributes = attributes;
     }
-    
+
+    @Override
+    public void setParentContainer(Container cnt, Object arg) {
+        this.parentContainer = cnt;
+    }
+
     public ViewContext getContext() {
         return context;
     }
@@ -69,6 +76,18 @@ public abstract class AbstractComponentBuilder<T extends Component> implements C
 
     public boolean hasAttribute(String name) {
         return attributes.containsKey(name);
+    }
+
+    /**
+     * Marks the given component so that it won't be added to the parent container.
+     * @param cmp
+     */
+    public static void doNotAddToParentContainer(Component cmp) {
+        cmp.putClientProperty("RAD_NO_ADD", true);
+    }
+
+    public Container getParentContainer() {
+        return parentContainer;
     }
 
 }

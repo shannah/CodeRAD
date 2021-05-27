@@ -142,11 +142,15 @@ public class CollapsibleHeaderContainer extends Container {
     }
     
     private boolean pressed;
-    private boolean dragging;
-    private int startDragX, startDragY, startSlidePos;
+    ;
+    private int startDragY, startSlidePos;
     
     private ActionListener formPressListener = new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
+            if (Display.getInstance().isScrollWheeling()) {
+                pressed = false;
+                return;
+            }
             Container currentScroller = verticalScroller;
             if (currentScroller instanceof ScrollableContainer) {
                 currentScroller = ((ScrollableContainer)currentScroller).getVerticalScroller();
@@ -154,7 +158,9 @@ public class CollapsibleHeaderContainer extends Container {
             if (!currentScroller.isScrollableY()) {
                 return;
             }
+
             Form f = CN.getCurrentForm();
+
             if (f != null) {
                 Component cmp = f.getComponentAt(evt.getX(), evt.getY());
                 if (!pressed && cmp != currentScroller && !currentScroller.contains(cmp)) {
@@ -163,7 +169,6 @@ public class CollapsibleHeaderContainer extends Container {
             }
             if (evt.getEventType() == ActionEvent.Type.PointerPressed) {
                 pressed = true;
-                startDragX = evt.getX();
                 startDragY = evt.getY();
                 startSlidePos = slidePos;
             } else if (ActionEvent.Type.PointerDrag == evt.getEventType()) {
@@ -177,7 +182,7 @@ public class CollapsibleHeaderContainer extends Container {
                         startDragY = evt.getY();
                         slidePos = Math.max(0, Math.min(slidePos + diffY, titleBar.getPreferredH()));
                         evt.consume();
-                        revalidateLater();
+                        revalidateWithAnimationSafety();
                     }
                 } else {
                     // dragging up
@@ -185,10 +190,10 @@ public class CollapsibleHeaderContainer extends Container {
                         startDragY = evt.getY();
                         slidePos = Math.max(0, Math.min(slidePos + diffY, titleBar.getPreferredH()));
                         evt.consume();
-                        revalidateLater();
+                        revalidateWithAnimationSafety();
                     }
                 }
-            } else if (ActionEvent.Type.PointerReleased == evt.getEventType()) {
+            } else if (ActionEvent.Type.PointerReleased == evt.getEventType() || ActionEvent.Type.DragFinished == evt.getEventType()) {
                 if (!pressed) {
                     return;
                 }
@@ -215,9 +220,38 @@ public class CollapsibleHeaderContainer extends Container {
 
         }
     };
+    private long lastPullToRefresh;
     
     public CollapsibleHeaderContainer(Container titleBar, Container body, Container verticalScroller) {
         $(this).addTags("CollapsibleHeaderContainer");
+        Container currentScroller = verticalScroller;
+        if (currentScroller instanceof ScrollableContainer) {
+            currentScroller = ((ScrollableContainer)currentScroller).getVerticalScroller();
+        }
+        if (!currentScroller.isScrollableY()) {
+            currentScroller.setScrollableY(true);
+        }
+        Container fCurrentScroller = currentScroller;
+
+        currentScroller.addScrollListener((int scrollX, int scrollY, int oldscrollX, int oldscrollY)->{
+            if (fCurrentScroller.getClientProperty("$pullToRelease") != null) {
+                lastPullToRefresh = System.currentTimeMillis();
+                return;
+            }
+            if (System.currentTimeMillis() - lastPullToRefresh < 500 ) {
+                // Wait after a pull-to-refresh before adjusting the header because
+                // the scroll to refresh will do some scrolling that we want to ignore.
+                return;
+            }
+            int deltaY = scrollY - oldscrollY;
+            if (deltaY > 0 && slidePos >= 0) {
+                slidePos = Math.max(0, slidePos - deltaY);
+            } else if (deltaY < 0 && slidePos < titleBar.getPreferredH()) {
+                slidePos = Math.min(titleBar.getPreferredH(), slidePos - deltaY);
+            }
+            if (deltaY != 0) revalidateWithAnimationSafety();
+
+        });
         int paddingTop = Display.getInstance().getDisplaySafeArea(safeArea).getY() + CN.convertToPixels(1f);
         if (titleBar.getStyle().getPaddingTop() != paddingTop) {
             titleBar.getStyle().setPaddingUnitTop(Style.UNIT_TYPE_PIXELS);
@@ -238,9 +272,10 @@ public class CollapsibleHeaderContainer extends Container {
         super.initComponent();
         form = getComponentForm();
         if (form != null) {
-            form.addPointerPressedListener(formPressListener);
-            form.addPointerDraggedListener(formPressListener);
-            form.addPointerReleasedListener(formPressListener);
+            //form.addPointerPressedListener(formPressListener);
+            //form.addPointerDraggedListener(formPressListener);
+            //form.addPointerReleasedListener(formPressListener);
+            //form.addDragFinishedListener(formPressListener);
         }
         
     }
@@ -248,10 +283,10 @@ public class CollapsibleHeaderContainer extends Container {
     @Override
     protected void deinitialize() {
         if (form != null) {
-            form.removePointerPressedListener(formPressListener);
-            form.removePointerDraggedListener(formPressListener);
-            form.removePointerReleasedListener(formPressListener);
-            form = null;
+            //form.removePointerPressedListener(formPressListener);
+            //form.removePointerDraggedListener(formPressListener);
+            //form.removePointerReleasedListener(formPressListener);
+            //form = null;
         }
         super.deinitialize();
     }

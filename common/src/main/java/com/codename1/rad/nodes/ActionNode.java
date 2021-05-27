@@ -193,6 +193,19 @@ public class ActionNode extends Node implements Proxyable {
     public ActionNode(Attribute... atts) {
         super(null, atts);
     }
+
+    public void setActionTag(Tag tag) {
+        setAttributes(tag);
+    }
+
+    public Tag getActionTag() {
+        return (Tag)this.findAttribute(Tag.class);
+    }
+
+    public boolean containsActionTag(Tag tag) {
+        if (tag == null) return false;
+        return tag.equals(getActionTag());
+    }
     
     
     /**
@@ -925,6 +938,11 @@ public class ActionNode extends Node implements Proxyable {
             action.addActionListener(l);
             return this;
         }
+
+        public Builder tag(Tag tag) {
+            action.setActionTag(tag);
+            return this;
+        }
         
         public Builder addAfterActionCallback(AfterActionCallback callback) {
             action.addAfterActionCallback(callback);
@@ -935,6 +953,9 @@ public class ActionNode extends Node implements Proxyable {
             action.setAttributes(overwrite, UI.condition(test));
             return this;
         }
+
+
+
         
         public ActionNode build() {
             return action;

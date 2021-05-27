@@ -12,6 +12,7 @@ import com.codename1.rad.ui.Slot;
 import com.codename1.rad.ui.ViewContext;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
+import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.ActionSource;
 import com.codename1.ui.events.ComponentStateChangeEvent;
@@ -244,6 +245,10 @@ public class ViewController extends Controller {
         
         
         return null;
+    }
+
+    public static ViewController getViewController(ActionEvent evt) {
+        return getViewController(evt.getComponent());
     }
     
     /**

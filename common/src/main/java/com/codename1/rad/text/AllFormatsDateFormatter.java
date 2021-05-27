@@ -43,11 +43,13 @@ public class AllFormatsDateFormatter implements DateFormatter {
 
     @Override
     public String format(Date date) {
+        if (date == null) return "";
         return outputFormat.format(date);
     }
 
     @Override
     public Date parse(String date) throws ParseException {
+        if (date == null) return new Date();
         for (DateFormat fmt : dateFormats) {
             try {
                 return fmt.parse(date);
@@ -82,6 +84,7 @@ public class AllFormatsDateFormatter implements DateFormatter {
     
     @Override
     public Date parse(String source) throws ParseException {
+        if (source == null) return new Date();
         if ( convertTimezone ){
             int len = source.length();
             if ( len >= 6 ){
