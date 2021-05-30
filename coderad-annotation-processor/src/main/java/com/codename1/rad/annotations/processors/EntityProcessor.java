@@ -127,9 +127,11 @@ public class EntityProcessor extends BaseProcessor {
     }
 
 
-
+    private int roundNum = 1;
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        env().nextRound();
+        long startTime = System.currentTimeMillis();
         this.entitiesAddedThisRound = false;
         this.roundEnv = roundEnv;
 
@@ -148,7 +150,11 @@ public class EntityProcessor extends BaseProcessor {
             deferred.clear();
         }
         
-        
+        startTime = System.currentTimeMillis() - startTime;
+        if (startTime > 10) {
+            System.out.println("CodeRAD Annotation Processor round "+roundNum+" took " + startTime + " milliseconds");
+        }
+        roundNum++;
         return out;
     }
     

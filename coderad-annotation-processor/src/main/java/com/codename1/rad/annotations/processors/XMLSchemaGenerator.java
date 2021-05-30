@@ -65,6 +65,27 @@ public class XMLSchemaGenerator {
         return new File(rootDirectory, path + ".xsd");
     }
 
+    private String toCamelCase(String str) {
+        int lowerCaseIndex = -1;
+        int len = str.length();
+        for (int i=0; i<len; i++) {
+            if (Character.isLowerCase(str.charAt(i))) {
+                lowerCaseIndex = i;
+                break;
+            }
+        }
+        if(lowerCaseIndex < 0) {
+            // No lowercase found.  Change full string to lowercase.
+            return str.toLowerCase();
+        } else if (lowerCaseIndex == 0) {
+            // First character is lower case.  We're good.
+            return str;
+        } else {
+            // First character was capital but next was lowercase.  Just lc the first char.
+            return str.substring(0, lowerCaseIndex).toLowerCase() + str.substring(lowerCaseIndex);
+        }
+    }
+
     public StringBuilder writeSchema(StringBuilder sb) {
         sb.append("<?xml version=\"1.0\"?>\n");
         sb.append("<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n");
@@ -73,8 +94,8 @@ public class XMLSchemaGenerator {
 
         Set<String> tagNames = new HashSet<String>();
 
-        String tagName0 = javaClass.getSimpleName().toString();
-        tagName0 = tagName0.substring(0, 1).toLowerCase() + ((tagName0.length() > 1) ? tagName0.substring(1) : "");
+        String tagName0 = toCamelCase(javaClass.getSimpleName().toString());
+
         tagNames.add(tagName0);
         if (builderClass != null) {
             RAD radAnnotation = builderClass.getAnnotation(RAD.class);

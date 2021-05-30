@@ -22,9 +22,7 @@ public class CollapsibleSideBarContainerBuilder extends AbstractComponentBuilder
 
 
 
-    public CollapsibleSideBarContainerBuilder sidebar(@Inject SidebarContent sidebar) {
-        return sidebar((Component)sidebar);
-    }
+    
 
     public CollapsibleSideBarContainerBuilder sidebar(@Inject Component sidebar) {
         if (this.sidebar != null || Objects.equals(sidebar, getContext().getEntityView())) return this;

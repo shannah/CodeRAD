@@ -2,6 +2,7 @@ package com.codename1.rad.annotations.processors;
 
 
 import com.codename1.rad.annotations.Inject;
+import com.codename1.rad.annotations.RAD;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
+    private int roundNum = 0;
     public static interface RElement extends Element{}
     public static interface RTypeElement extends RElement, TypeElement {}
     public static interface RTypeMirror extends TypeMirror {}
@@ -33,8 +35,40 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
     private Map<String,CustomTypeElement> typeMap = new HashMap<>();
     private Map<String,PackageWrapper> packageMap = new HashMap<>();
+    // Maps qualified name in all lowercase to corresponding TypeElement
+    private Map<String,TypeElement> lcTypeMap = new HashMap<>();
+
+    public Map<String,TypeElementHelper> typeHelperMap = new HashMap<>();
+
+    public class TypeElementHelper {
+        private List<ExecutableElement> publicConstructors = new ArrayList<>();
+
+        public List<ExecutableElement> getPublicConstructors() {
+            return publicConstructors;
+        }
+    }
 
 
+    public TypeElementHelper getTypeElementHelper(TypeElement typeElement) {
+        if (!typeHelperMap.containsKey(typeElement.getQualifiedName().toString())) {
+            TypeElementHelper helper = new TypeElementHelper();
+            helper.publicConstructors.addAll(
+                    (List<ExecutableElement>)elements.getAllMembers(typeElement).stream().
+                            filter(e->e.getKind() == ElementKind.CONSTRUCTOR && e.getModifiers().contains(Modifier.PUBLIC)).
+                            collect(Collectors.toList())
+            );
+            typeHelperMap.put(typeElement.getQualifiedName().toString(), helper);
+
+        }
+        return typeHelperMap.get(typeElement.getQualifiedName().toString());
+    }
+
+    /**
+     * Increments round number.  Used for updating indexes and caches.
+     */
+    public void nextRound() {
+        roundNum++;
+    }
 
 
     public void addTypes(CustomTypeElement... types) {
@@ -47,6 +81,9 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
                 }
             }
             if (enclosing != null && enclosing.getKind() == ElementKind.PACKAGE) {
+                if (e.getKind() == ElementKind.INTERFACE || e.getKind() == ElementKind.CLASS) {
+                    ((PackageWrapper)wrap(enclosing)).addToIndex((TypeElement)e);
+                }
                 ((PackageWrapper)wrap(enclosing)).enclosedElements.add(e);
 
             }
@@ -478,8 +515,13 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             if (out == null) {
                 out = typeMap.get(name.toString());
             }
+            if (out != null) {
+                lcTypeMap.put(name.toString().toLowerCase(), out);
+            }
             return out;
         }
+
+
 
         @Override
         public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValuesWithDefaults(AnnotationMirror a) {
@@ -1881,16 +1923,180 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
         }
     }
 
+    private class InnerClassIndex {
+        // Maps relative qualified name of inner classes (lower case) to TypeElement of inner class.
+        private Map<String,TypeElement> lcInnerClassMap = new HashMap<>();
+
+    }
+
     public class PackageWrapper implements RElement, PackageElement {
         private final Name qualifiedName;
         private TypeMirror type;
         private List<Element> enclosedElements = new ArrayList<>();
 
+        private int indexUpdateRound =-1;
+
+
+        // Maps tag name to list of enclosed TypeElements with that tag.
+        private Map<String, List<TypeElement>> tagMap = new HashMap<>();
+
+        // Set of simple names that have already been indexed in tagMap.
+        private Set<String> indexed = new HashSet<>();
+
+        private Map<String,TypeElement> lcTypeMap = new HashMap<>();
+
+        // Maps qualified name of class to list of all subtypes (classes and interfaces) in this package.
+        private Map<String,Set<TypeElement>> subTypeInfo = new HashMap<>();
+
+        // Maps lowercase simple name of class to a class Index of its inner classes.
+        private Map<String,InnerClassIndex> lcInnerClassIndex = new HashMap<>();
+
         private PackageElement wrapped() {
             return ((ElementsWrapper)elements).wrapped.getPackageElement(qualifiedName);
         }
 
+        public void updateIndex() {
+            if (roundNum <= indexUpdateRound) {
+                return;
+            }
+            indexUpdateRound = roundNum;
+            for (Element el : getEnclosedElements()) {
+                if (el.getKind() == ElementKind.CLASS || el.getKind() == ElementKind.INTERFACE) {
+                    addToIndex((TypeElement)el);
+                }
+            }
+        }
 
+        private void updateInnerClassIndexFor(String simpleName) {
+            updateIndex();
+            TypeElement enclosingClass = getEnclosedTypeIgnoreCase(simpleName);
+            if (enclosingClass == null) return;
+            InnerClassIndex index = lcInnerClassIndex.get(simpleName.toString().toLowerCase());
+            if (index == null) {
+                index = new InnerClassIndex();
+                for (TypeElement innerTypeEl : (List<TypeElement>)enclosingClass.getEnclosedElements().stream().filter(e->e.getKind() == ElementKind.INTERFACE || e.getKind() == ElementKind.CLASS).collect(Collectors.toList())) {
+                    if (innerTypeEl.getSimpleName().length() == 0) continue;
+                    String key = innerTypeEl.getQualifiedName().toString().substring(enclosingClass.getQualifiedName().length()+1);
+                    key = key.toLowerCase();
+                    index.lcInnerClassMap.put(key, innerTypeEl);
+                }
+                boolean foundNew = !index.lcInnerClassMap.isEmpty();
+                while (foundNew) {
+                    foundNew = false;
+                    List<TypeElement> toCheck = new ArrayList<TypeElement>(index.lcInnerClassMap.values());
+                    for (TypeElement innerTypeEl : toCheck) {
+                        for (TypeElement innerInnerTypeEl : (List<TypeElement>)innerTypeEl.getEnclosedElements().stream().filter(e->e.getKind() == ElementKind.INTERFACE || e.getKind() == ElementKind.CLASS).collect(Collectors.toList())) {
+                            if (innerTypeEl.getSimpleName().length() == 0) continue;
+                            String key = innerInnerTypeEl.getQualifiedName().toString().substring(enclosingClass.getQualifiedName().length()+1);
+                            key = key.toLowerCase();
+                            if (!index.lcInnerClassMap.containsKey(key)) {
+                                index.lcInnerClassMap.put(key, innerInnerTypeEl);
+                                foundNew = true;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+
+
+        public TypeElement getEnclosedTypeIgnoreCase(CharSequence simpleName) {
+            updateIndex();
+            String nameStr = simpleName.toString();
+            if (nameStr.contains(".")) {
+                // this is an inner class.
+                String enclosingClassSimpleName = nameStr.substring(0, nameStr.indexOf("."));
+                if (!lcTypeMap.containsKey(enclosingClassSimpleName.toLowerCase())) {
+                    return null;
+                }
+                String innerClassRelativeQualifiedName = nameStr.substring(enclosingClassSimpleName.length()+1);
+                updateInnerClassIndexFor(enclosingClassSimpleName);
+                return lcInnerClassIndex.get(enclosingClassSimpleName.toLowerCase()).lcInnerClassMap.get(innerClassRelativeQualifiedName.toLowerCase());
+
+            }
+            return lcTypeMap.get(simpleName.toString().toLowerCase());
+        }
+
+
+        public void addToIndex(TypeElement el) {
+            if (indexed.contains(el.getSimpleName().toString())) return;
+            indexed.add(el.getSimpleName().toString());
+            lcTypeMap.put(el.getSimpleName().toString().toLowerCase(), el);
+            RAD anno = el.getAnnotation(RAD.class);
+            if (anno != null) {
+                for (String tag : anno.tag()) {
+                    String lcTag = tag.toLowerCase();
+                    List<TypeElement> tagList = tagMap.get(lcTag);
+                    if (tagList == null) {
+                        tagList = new ArrayList<>();
+                        tagMap.put(lcTag, tagList);
+                    }
+                    tagList.add(el);
+                }
+            }
+
+            // Update the supertype indices for this type.
+            Set<TypeElement> allSupertypes = new HashSet<>();
+            boolean foundNew = false;
+            for (TypeMirror typeMirror : types.directSupertypes(el.asType())) {
+                TypeElement typeEl = (TypeElement) types.asElement(typeMirror);
+                if (typeEl != null) {
+                    if (!allSupertypes.contains(typeEl)) {
+                        foundNew = true;
+                        allSupertypes.add(typeEl);
+                    }
+                }
+            }
+            while (foundNew) {
+                foundNew = false;
+                Set<TypeElement> roundSupertypes = new HashSet<>(allSupertypes);
+                for (TypeElement supertypeEl : roundSupertypes) {
+                    for (TypeMirror typeMirror : types.directSupertypes(supertypeEl.asType())) {
+                        TypeElement typeEl = (TypeElement) types.asElement(typeMirror);
+                        if (typeEl != null) {
+                            if (!allSupertypes.contains(typeEl)) {
+                                foundNew = true;
+                                allSupertypes.add(typeEl);
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (TypeElement supertype : allSupertypes) {
+
+                Set<TypeElement> subtypes = subTypeInfo.get(supertype.getQualifiedName().toString());
+                if (subtypes == null) {
+                    subtypes = new HashSet<>();
+                    subTypeInfo.put(supertype.getQualifiedName().toString(), subtypes);
+                }
+                if (!subtypes.contains(el)) {
+                    subtypes.add(el);
+                }
+            }
+        }
+
+        public List<TypeElement> getSubtypesOf(TypeElement typeElement) {
+            updateIndex();
+
+            Set<TypeElement> subtypes = subTypeInfo.get(typeElement.getQualifiedName().toString());
+
+            if (subtypes == null) {
+                return Collections.EMPTY_LIST;
+            } else {
+                return new ArrayList<>(subtypes);
+            }
+        }
+
+        public List<TypeElement> getEnclosedTypeElementsWithTag(String tag) {
+            updateIndex();
+            String lcTag = tag.toLowerCase();
+            List<TypeElement> out = tagMap.get(lcTag);
+            if (out == null) out = Collections.EMPTY_LIST;
+            return out;
+        }
 
         public PackageWrapper(Name qualifiedName) {
             this.qualifiedName = qualifiedName;

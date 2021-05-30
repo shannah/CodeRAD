@@ -3,6 +3,7 @@ package com.codename1.rad.annotations.processors;
 import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.annotations.RAD;
 
+import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
@@ -27,13 +28,42 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ViewProcessor extends BaseProcessor {
+    private static final boolean ENABLE_INDEX = false;
     private RoundEnvironment roundEnv;
+    private Map<Class,Object> cache = new HashMap<>();
+    private Map<TypeElement,EntityViewBuilder> roundEntityViewBuilders = new HashMap<>();
+
+    private class RoundCache {
+        Map<String, Boolean> isComponent = new HashMap<>();
+        Map<String, Boolean> isContainer = new HashMap<>();
+        Map<String, Boolean> isEntityView = new HashMap<>();
+        Map<String, Boolean> isNode = new HashMap<>();
+
+    }
+
+
+    private void clearRoundCache() {
+        cache.remove(RoundCache.class);
+    }
+
+    private RoundCache roundCache() {
+        RoundCache out = (RoundCache)cache.get(RoundCache.class);
+        if (out == null) {
+            out = new RoundCache();
+            cache.put(RoundCache.class, out);
+        }
+        return out;
+    }
+
+
+
 
 
     ViewProcessor(ProcessingEnvironment processingEnvironment) {
-        System.out.println("System.getProperties(): " + System.getProperties());
+
         super.processingEnv = processingEnvironment;
     }
 
@@ -48,7 +78,7 @@ public class ViewProcessor extends BaseProcessor {
         for (Element el : annotatedElements) {
             if (!(el instanceof TypeElement)) continue;
             TypeElement typeEl = (TypeElement)el;
-            if (!isA(typeEl, "com.codename1.rad.ui.EntityView")) {
+            if (!isEntityView(typeEl)) {
                 continue;
             }
 
@@ -56,6 +86,46 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
+    }
+
+    public boolean isEntityView(TypeElement el) {
+        if (el == null) return false;
+        Boolean isEntityView = (Boolean)roundCache().isEntityView.get(el.getQualifiedName().toString());
+        if (isEntityView == null) {
+            isEntityView = isA(el, "com.codename1.rad.ui.EntityView");
+            roundCache().isEntityView.put(el.getQualifiedName().toString(), isEntityView);
+        }
+        return isEntityView;
+    }
+
+    public boolean isComponent(TypeElement el) {
+        if (el == null) return false;
+        Boolean isComponent = (Boolean)roundCache().isComponent.get(el.getQualifiedName().toString());
+        if (isComponent == null) {
+            isComponent = isA(el, "com.codename1.ui.Component");
+            roundCache().isComponent.put(el.getQualifiedName().toString(), isComponent);
+        }
+        return isComponent;
+    }
+
+    public boolean isContainer(TypeElement el) {
+        if (el == null) return false;
+        Boolean isContainer = (Boolean)roundCache().isContainer.get(el.getQualifiedName().toString());
+        if (isContainer == null) {
+            isContainer = isA(el, "com.codename1.ui.Container");
+            roundCache().isContainer.put(el.getQualifiedName().toString(), isContainer);
+        }
+        return isContainer;
+    }
+
+    public boolean isNode(TypeElement el) {
+        if (el == null) return false;
+        Boolean isNode = (Boolean)roundCache().isNode.get(el.getQualifiedName().toString());
+        if (isNode == null) {
+            isNode = isA(el, "com.codename1.rad.nodes.Node");
+            roundCache().isNode.put(el.getQualifiedName().toString(), isNode);
+        }
+        return isNode;
     }
 
     public Set<? extends TypeElement> defer(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -70,7 +140,7 @@ public class ViewProcessor extends BaseProcessor {
         for (Element el : annotatedElements) {
             if (!(el instanceof TypeElement)) continue;
             TypeElement typeEl = (TypeElement)el;
-            if (!isA(typeEl, "com.codename1.rad.ui.EntityView")) {
+            if (!isEntityView(typeEl)) {
                 continue;
             }
 
@@ -85,6 +155,7 @@ public class ViewProcessor extends BaseProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         this.roundEnv = roundEnv;
+        clearRoundCache();
         Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
 
 
@@ -94,7 +165,7 @@ public class ViewProcessor extends BaseProcessor {
         for (Element el : annotatedElements) {
             if (!(el instanceof TypeElement)) continue;
             TypeElement typeEl = (TypeElement)el;
-            if (!isA(typeEl, "com.codename1.rad.ui.EntityView")) {
+            if (!isEntityView(typeEl)) {
                 continue;
             }
 
@@ -103,14 +174,27 @@ public class ViewProcessor extends BaseProcessor {
         }
 
 
+        //roundEntityViewBuilders.clear();
         return true;
     }
 
 
 
+    private EntityViewBuilder entityViewBuilderForType(TypeElement el) {
+        if (true) return new EntityViewBuilder(el);
+        EntityViewBuilder out = roundEntityViewBuilders.get(el);
+        if (out == null) {
+            out = new EntityViewBuilder(el);
+            roundEntityViewBuilders.put(el, out);
+        }
+        return out;
+    }
+
+
     private void installTypes(TypeElement typeEl) {
         try {
-            EntityViewBuilder builder = new EntityViewBuilder(typeEl);
+
+            EntityViewBuilder builder = entityViewBuilderForType(typeEl);
             builder.installTypes((ProcessingEnvironmentWrapper) processingEnv);
         } catch (XMLParseException ex) {
             env().getMessager().printMessage(Diagnostic.Kind.ERROR, ex.getMessage(), typeEl);
@@ -123,7 +207,7 @@ public class ViewProcessor extends BaseProcessor {
 
     private void processFragment(TypeElement typeEl) {
         try {
-            EntityViewBuilder builder = new EntityViewBuilder(typeEl);
+            EntityViewBuilder builder = entityViewBuilderForType(typeEl);
             builder.createSchemaSourceFile();
             builder.createControllerMarkerInterfaceSourceFile();
             builder.createModelSourceFile();
@@ -147,6 +231,129 @@ public class ViewProcessor extends BaseProcessor {
      * Encapsulates the Java environment for the View class.
      */
     public class JavaEnvironment {
+        private Map<String,JavaClassProxy> javaClassProxyMap = new HashMap<>();
+
+        private class ClassIndex {
+
+            // FQNs of Component classes
+            private Set<String> componentIndex = new HashSet<>();
+
+            // FQNs of Container classes
+            private Set<String> containerIndex = new HashSet<>();
+
+            // FQNs of Component Builder classes
+            private Set<String> componentBuilderIndex = new HashSet<>();
+            // Maps Component class to Builder class
+            private Map<String, TypeElement> componentBuilderMap = new HashMap<>();
+
+            // Maps Tags to Component classes.
+            private Map<String, TypeElement> tagToComponentMap = new HashMap<>();
+
+
+        }
+
+        public JavaClassProxy newJavaClassProxy(String qualifiedName) throws ClassNotFoundException {
+            if (!javaClassProxyMap.containsKey(qualifiedName)) {
+                JavaClassProxy proxy = new JavaClassProxy(qualifiedName, this);
+                javaClassProxyMap.put(qualifiedName, proxy);
+            }
+            return javaClassProxyMap.get(qualifiedName);
+        }
+
+        public JavaClassProxy newJavaClassProxy(TypeElement typeElement) {
+            String qualifiedName = typeElement.getQualifiedName().toString();
+            if (!javaClassProxyMap.containsKey(qualifiedName)) {
+                JavaClassProxy proxy = new JavaClassProxy(typeElement, this);
+                javaClassProxyMap.put(qualifiedName, proxy);
+            }
+            return javaClassProxyMap.get(qualifiedName);
+        }
+
+
+        private boolean buildingIndex = false;
+        public void buildIndex() {
+            if (!ENABLE_INDEX) return;
+
+            cache.clear();
+            buildingIndex = true;
+            ClassIndex classIndex = new ClassIndex();
+            List<TypeElement> typeElements = new ArrayList<>();
+            for (String importDirective : imports) {
+                if (!importDirective.contains(" ")) {
+                    continue;
+                }
+                importDirective = importDirective.substring(importDirective.indexOf(" ")+1);
+                if (importDirective.contains(" ")) {
+                    continue;
+                }
+
+                if (importDirective.endsWith("*")) {
+                    String packageName = importDirective.substring(0, importDirective.lastIndexOf("."));
+                    PackageElement packageElement = elements().getPackageElement(packageName);
+                    if (packageElement != null && !packageElement.getEnclosedElements().isEmpty()) {
+                        for (Element child : packageElement.getEnclosedElements()) {
+                            if (child.getKind() == ElementKind.CLASS || child.getKind() == ElementKind.INTERFACE) {
+                                typeElements.add((TypeElement)child);
+                            }
+                        }
+                    }
+                } else {
+                    TypeElement typeElement = lookupClass(importDirective);
+                    if (typeElement != null) {
+                        typeElements.add(typeElement);
+                    }
+                }
+
+
+            }
+            for (TypeElement typeElement : (List<TypeElement>)typeElements) {
+                if (isComponent(typeElement)) {
+                    classIndex.componentIndex.add(typeElement.getQualifiedName().toString());
+                    if (!classIndex.tagToComponentMap.containsKey(typeElement.getSimpleName().toString().toLowerCase())) {
+                        classIndex.tagToComponentMap.put(typeElement.getSimpleName().toString().toLowerCase(), typeElement);
+                    }
+                    if (isA(typeElement, "com.codename1.ui.Container")) {
+                        classIndex.containerIndex.add(typeElement.getQualifiedName().toString());
+                    }
+                }
+                if (isA(typeElement, "com.codename1.rad.ui.ComponentBuilder") &&
+                        typeElement.getAnnotation(RAD.class) != null &&
+                        !typeElement.getModifiers().contains(Modifier.ABSTRACT) &&
+                        typeElement.getKind() == ElementKind.CLASS &&
+                        typeElement.getModifiers().contains(Modifier.PUBLIC)
+                ) {
+                    classIndex.componentBuilderIndex.add(typeElement.getQualifiedName().toString());
+                    ExecutableElement getComponentMethodElement = (ExecutableElement)elements().getAllMembers(typeElement).
+                            stream().
+                            filter(e->e.getKind() == ElementKind.METHOD && e.getSimpleName().contentEquals("getComponent") && ((ExecutableElement)e).getParameters().isEmpty()).
+                            findFirst().
+                            orElse(null);
+                    if (getComponentMethodElement != null) {
+                        ExecutableType getComponentMethodType =  (ExecutableType)types().asMemberOf((DeclaredType)typeElement.asType(), getComponentMethodElement);
+                        TypeElement componentType = lookupClass(getComponentMethodType.getReturnType().toString());
+                        if (componentType != null) {
+                            classIndex.componentBuilderMap.put(componentType.getQualifiedName().toString(), typeElement);
+                            for (String tag : typeElement.getAnnotation(RAD.class).tag()) {
+                                if (!classIndex.tagToComponentMap.containsKey(tag.toLowerCase())) {
+                                    classIndex.tagToComponentMap.put(tag.toLowerCase(), componentType);
+                                }
+                            }
+                            if (!classIndex.tagToComponentMap.containsKey(componentType.getSimpleName().toString().toLowerCase())) {
+                                classIndex.tagToComponentMap.put(componentType.getSimpleName().toString().toLowerCase(), componentType);
+                            }
+                        }
+                    }
+
+
+
+                }
+            }
+            cache.put(ClassIndex.class, classIndex);
+            buildingIndex = false;
+
+
+        }
+
 
         final Map<String,TypeElement> tagCache = new HashMap<>();
         final Map<String,TypeElement> lookupClassCache = new HashMap<>();
@@ -192,7 +399,7 @@ public class ViewProcessor extends BaseProcessor {
                 typeEl = lookupClass("com.codename1.rad.models.Entity");
             }
 
-            this.viewModelType = new JavaClassProxy(typeEl, this);
+            this.viewModelType = newJavaClassProxy(typeEl);
         }
 
 
@@ -286,38 +493,22 @@ public class ViewProcessor extends BaseProcessor {
 
 
 
+
+        // TODO: Make this more efficient (using index) so we don't need to crawl full import path to look for a match.
         private List<JavaClassProxy> findInstantiatableClassesAssignableTo(PackageElement _contextPackage, org.w3c.dom.Element xmlTag, String... types) {
             final PackageElement contextPackage = wrap(_contextPackage);
             List<TypeElement> candidates = new ArrayList<TypeElement>();
             for (String importPath : imports) {
-                if (importPath.startsWith("import ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                if (importPath.startsWith("static ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                boolean glob = importPath.endsWith("*");
-
-                boolean deep = importPath.endsWith("**");
-                if (glob) {
-                    importPath = importPath.substring(0, importPath.lastIndexOf("."));
-                }
-
-                TypeElement matchingType = elements().getTypeElement(importPath);
-
-
-                if (matchingType != null) {
-                    if (!glob) {
-                        candidates.addAll(findClassesAssignableTo(new ArrayList<TypeElement>(), matchingType, types));
-                    } else {
-                        candidates.addAll(findInnerClassesAssignableTo(new ArrayList<TypeElement>(), matchingType, types));
-                    }
-
-                } else {
-                    PackageElement pkg = elements().getPackageElement(importPath);
+                importPath = importPath.substring(importPath.indexOf(" ")+1);
+                if (importPath.contains(" ")) continue;
+                if (importPath.endsWith(".*")) {
+                    PackageElement pkg = elements().getPackageElement(importPath.substring(0, importPath.lastIndexOf(".")));
                     candidates.addAll(findClassesAssignableTo(new ArrayList<TypeElement>(), pkg, types));
-
-
+                } else {
+                    TypeElement matchingType = elements().getTypeElement(importPath);
+                    if (matchingType != null) {
+                        candidates.addAll(findClassesAssignableTo(new ArrayList<TypeElement>(), matchingType, types));
+                    }
                 }
             }
 
@@ -330,7 +521,7 @@ public class ViewProcessor extends BaseProcessor {
 
             List<JavaClassProxy> candidateProxies = new ArrayList<>();
             for (TypeElement el : candidates) {
-                candidateProxies.add(new JavaClassProxy(el, this));
+                candidateProxies.add(newJavaClassProxy(el));
             }
             if (xmlTag != null) {
                 candidateProxies = candidateProxies.stream().filter(p -> p.getBestConstructor(xmlTag) != null).collect(Collectors.toList());
@@ -361,20 +552,25 @@ public class ViewProcessor extends BaseProcessor {
         }
 
         private List<TypeElement> findClassesAssignableTo(List<TypeElement> out, PackageElement root, String... types) {
-            root = wrap(root);
-            for (TypeElement e : (List<TypeElement>)root.getEnclosedElements().stream().filter(e->e.getKind() == ElementKind.INTERFACE || e.getKind() == ElementKind.CLASS).collect(Collectors.toList())) {
-                findClassesAssignableTo(out, e, types);
+            ProcessingEnvironmentWrapper.PackageWrapper wrapper = (ProcessingEnvironmentWrapper.PackageWrapper) wrap(root);
+            Set<TypeElement> outSet = new HashSet<>();
+            boolean first = true;
+            for (String fqn : types) {
+                TypeElement typeEl = elements().getTypeElement(fqn);
+                if (typeEl == null) continue;
+                if (first) {
+                    first = false;
+
+                    outSet.addAll(wrapper.getSubtypesOf(typeEl));
+                } else {
+                    outSet.retainAll(wrapper.getSubtypesOf(typeEl));
+                }
             }
-            return out;
+            return new ArrayList<>(outSet);
+
         }
 
-        private List<TypeElement> findInnerClassesAssignableTo(List<TypeElement> out, TypeElement root, String... types) {
 
-            for (TypeElement e : (List<TypeElement>)root.getEnclosedElements().stream().filter(e->e.getKind() == ElementKind.INTERFACE || e.getKind() == ElementKind.CLASS).collect(Collectors.toList())) {
-                findClassesAssignableTo(out, e, types);
-            }
-            return out;
-        }
 
         /**
          * Writes Java import statements to the string buffer.
@@ -427,12 +623,12 @@ public class ViewProcessor extends BaseProcessor {
          */
         boolean isComponentTag(String tagName) {
             TypeElement el = findClassThatTagCreates(tagName);
-            return el != null && (isA(el, "com.codename1.ui.Component"));
+            return el != null && (isComponent(el));
         }
 
         boolean isNodeTag(String tagName, boolean inNodeContext) {
             TypeElement el = findClassThatTagCreates(tagName, inNodeContext ? "com.codename1.rad.nodes.Node" : null);
-            return el != null && (isA(el, "com.codename1.rad.nodes.Node"));
+            return el != null && (isNode(el));
         }
 
 
@@ -443,9 +639,10 @@ public class ViewProcessor extends BaseProcessor {
          * @return True if the tag name will produce a java.ui.Container or subclass.
          */
         boolean isContainerTag(String tagName) {
+
             TypeElement el = findClassThatTagCreates(tagName);
 
-            if (el != null && isA(el, "com.codename1.ui.Container")) return true;
+            if (el != null && isContainer(el)) return true;
 
             return false;
         }
@@ -453,6 +650,8 @@ public class ViewProcessor extends BaseProcessor {
         TypeElement findClassThatTagCreates(String tag) {
             return findClassThatTagCreates(tag, null);
         }
+
+
 
         /**
          * Given a tag name, this returns the TypeElement for the class that it would create.  It does this by
@@ -462,17 +661,25 @@ public class ViewProcessor extends BaseProcessor {
          * @return
          */
         TypeElement findClassThatTagCreates(String tag, String isa) {
-            if (isa == null && tagCache.containsKey(tag)) {
-                return tagCache.get(tag);
+            String tagKey = tag + ":" + isa;
+            tagKey = tagKey.toLowerCase();
+            if (tagCache.containsKey(tagKey)) {
+                return tagCache.get(tagKey);
             }
             if (isa == null || isa.equals("com.codename1.ui.Component")) {
+                if (!buildingIndex) {
+                    ClassIndex index = (ClassIndex)cache.get(ClassIndex.class);
+                    if (index != null) {
+                        return index.tagToComponentMap.get(tag.toLowerCase());
+                    }
+
+                }
                 JavaClassProxy builderClass = findComponentBuilderForTag(tag);
                 if (builderClass != null) {
                     TypeElement el = builderClass.findMethodProxy("getComponent", 0).getReturnType();
                     if (el != null) {
-                        if (isa == null) {
-                            tagCache.put(tag, el);
-                        }
+                        tagCache.put(tagKey, el);
+
                         return el;
                     }
 
@@ -485,9 +692,8 @@ public class ViewProcessor extends BaseProcessor {
                 if (builderClass != null) {
                     TypeElement el = builderClass.findMethodProxy("getNode", 0).getReturnType();
                     if (el != null) {
-                        if (isa == null) {
-                            tagCache.put(tag, el);
-                        }
+                        tagCache.put(tagKey, el);
+
                         return el;
                     }
 
@@ -496,9 +702,8 @@ public class ViewProcessor extends BaseProcessor {
 
             TypeElement cls = findClassBySimpleName(tag, isa);
             if (cls != null) {
-                if (isa == null) {
-                    tagCache.put(tag, cls);
-                }
+                tagCache.put(tagKey, cls);
+
                 return cls;
             }
 
@@ -527,22 +732,41 @@ public class ViewProcessor extends BaseProcessor {
                 if (importPath.startsWith("import ")) {
                     importPath = importPath.substring(importPath.indexOf(" ")+1);
                 }
-                if (importPath.startsWith("static ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
+                if (importPath.contains(" ")) {
+                    continue;
                 }
-                if (importPath.endsWith("*")) {
-                    importPath = importPath.substring(0, importPath.lastIndexOf("."));
-                }
-                typeEl = elements().getTypeElement( importPath + "." + className);
-                if (typeEl != null) {
-                    lookupClassCache.put(className, typeEl);
-                    return typeEl;
+
+                if (importPath.endsWith(".*")) {
+                    PackageElement pkg = elements().getPackageElement(importPath.substring(0, importPath.lastIndexOf(".")));
+                    if (pkg != null) {
+                        ProcessingEnvironmentWrapper.PackageWrapper pkgWrap = (ProcessingEnvironmentWrapper.PackageWrapper)wrap(pkg);
+                        TypeElement el = pkgWrap.getEnclosedTypeIgnoreCase(className);
+                        if (el != null) {
+                            return el;
+                        }
+
+                    }
+                } else {
+
+                    TypeElement el = elements().getTypeElement(importPath);
+                    if (el != null) {
+                        if (className.equalsIgnoreCase(el.getSimpleName().toString())) {
+                            return el;
+                        } else if (className.startsWith(el.getSimpleName() + ".")) {
+                            el = elements().getTypeElement(el.getQualifiedName() + className.substring(className.indexOf(".")));
+                            if (el != null) {
+                                return el;
+                            }
+                        }
+                    }
+
                 }
 
             }
 
             return null;
         }
+
 
         /**
          * Searches a package for a class with the matching simple name.  Search is case insensitive.
@@ -625,387 +849,59 @@ public class ViewProcessor extends BaseProcessor {
         }
 
         /**
-         * Gets a TypeElement for a class with the given simple name (CASE SENSITIVE!!)
+         * Gets a TypeElement for a class with the given simple name (CASE INSENSITIVE!!)
          * @param name
          * @return
          */
         TypeElement findClassBySimpleName(String name, String isa) {
-            if (isa == null && simpleNameClassCache.containsKey(name)) {
-                return simpleNameClassCache.get(name);
+            String key = name.toLowerCase() + ":" + isa;
+            if (simpleNameClassCache.containsKey(key)) {
+                return simpleNameClassCache.get(key);
             }
             for (String importPath : imports) {
-                if (importPath.startsWith("import ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                if (importPath.startsWith("static ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                boolean glob = importPath.endsWith("*");
+                importPath = importPath.substring(importPath.indexOf(" ")+1);
+                if (importPath.contains(" ")) continue;
+                if (importPath.endsWith(".*")) {
+                    String packageName = importPath.substring(0, importPath.lastIndexOf("."));
+                    PackageElement pkg = elements().getPackageElement(packageName);
+                    pkg = wrap(pkg);
 
-                boolean deep = importPath.endsWith("**");
-                if (glob) {
-                    importPath = importPath.substring(0, importPath.lastIndexOf("."));
-                }
+                    TypeElement builder = ((ProcessingEnvironmentWrapper.PackageWrapper)pkg).getEnclosedTypeIgnoreCase(name);
+                    if (builder != null && isa != null && !isA(builder, isa)) {
+                        builder = null;
+                    }
 
-                TypeElement matchingType = elements().getTypeElement(importPath);
-
-                if (matchingType != null) {
-
-                    TypeElement builder = findClassBySimpleName(matchingType, name, glob, deep, isa);
                     if (builder != null) {
-                        if (isa == null) {
-                            simpleNameClassCache.put(name, builder);
-                        }
+                        simpleNameClassCache.put(key, builder);
                         return builder;
                     }
-
                 } else {
-                    PackageElement pkg = elements().getPackageElement(importPath);
-                    pkg = wrap(pkg);
-                    TypeElement builder = findClassBySimpleName(pkg, name, deep, isa);
-                    if (builder != null) {
-                        if (isa == null) {
-                            simpleNameClassCache.put(name, builder);
-                        }
-                        return builder;
-                    }
 
+                    TypeElement matchingType = elements().getTypeElement(importPath);
+
+                    if (matchingType != null && matchingType.getSimpleName().toString().equalsIgnoreCase(name)) {
+
+                        TypeElement builder = matchingType;
+                        if (builder != null && isa != null && !isA(builder, isa)) {
+                            builder = null;
+                        }
+                        if (builder != null) {
+                            simpleNameClassCache.put(key, builder);
+                            return builder;
+                        }
+
+                    }
                 }
+
             }
             return null;
         }
 
-
-        /**
-         * Finds the builder class that is used to build components for the given tag.
-         *
-         * Builder classes are associated with tags via the RAD annotation, with the {@literal tag} attribute
-         * specifying the tag name.
-         * @param searchRoot The package to search.
-         * @param tagName The tag name.
-         * @param deep Whether to also look through inner classes.
-         * @return The matching builder class, or null if none is found.
-         */
-        TypeElement findComponentBuilderClass(PackageElement searchRoot, String tagName, boolean deep) {
-            searchRoot = wrap(searchRoot);
-            List<TypeElement> innerClasses = (List<TypeElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.CLASS || e.getKind() == ElementKind.INTERFACE).collect(Collectors.toList());
-            for (TypeElement el : innerClasses) {
-                TypeElement found = findComponentBuilderClass(el, tagName, false, false);
-                if (found != null) {
-                    return found;
-                }
-
-            }
-            if (deep) {
-                for (TypeElement el : innerClasses) {
-                    TypeElement found = findComponentBuilderClass(el, tagName, true, true);
-                    if (found != null) {
-                        return found;
-                    }
-
-                }
-                List<PackageElement> subPackages = (List<PackageElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.PACKAGE).collect(Collectors.toList());
-                for (PackageElement pkg : subPackages) {
-                    pkg = wrap(pkg);
-                    TypeElement found = findComponentBuilderClass(pkg, tagName, deep);
-                    if (found != null) {
-                        return found;
-                    }
-                }
-            }
-            return null;
-        }
-
-        TypeElement findNodeBuilderClass(PackageElement searchRoot, String tagName, boolean deep) {
-            searchRoot = wrap(searchRoot);
-            List<TypeElement> innerClasses = (List<TypeElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.CLASS || e.getKind() == ElementKind.INTERFACE).collect(Collectors.toList());
-            for (TypeElement el : innerClasses) {
-                TypeElement found = findNodeBuilderClass(el, tagName, false, false);
-                if (found != null) {
-                    return found;
-                }
-
-            }
-            if (deep) {
-                for (TypeElement el : innerClasses) {
-                    TypeElement found = findNodeBuilderClass(el, tagName, true, true);
-                    if (found != null) {
-                        return found;
-                    }
-
-                }
-                List<PackageElement> subPackages = (List<PackageElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.PACKAGE).collect(Collectors.toList());
-                for (PackageElement pkg : subPackages) {
-                    pkg = wrap(pkg);
-                    TypeElement found = findNodeBuilderClass(pkg, tagName, deep);
-                    if (found != null) {
-                        return found;
-                    }
-                }
-            }
-            return null;
-        }
-
-
-        JavaMethodProxy findBuilderMethod(org.w3c.dom.Element domElement, String requiredType) {
-            for (String importPath : imports) {
-                if (importPath.startsWith("import ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                if (importPath.startsWith("static ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                boolean glob = importPath.endsWith("*");
-
-                boolean deep = importPath.endsWith("**");
-                if (glob) {
-                    importPath = importPath.substring(0, importPath.lastIndexOf("."));
-                }
-
-                TypeElement matchingType = elements().getTypeElement(importPath);
-
-                if (matchingType != null) {
-
-                    JavaMethodProxy match =  findBuilderMethod(matchingType, domElement, requiredType);
-                    if (match != null) return match;
-
-
-                } else {
-                    PackageElement pkg = elements().getPackageElement(importPath);
-                    pkg = wrap(pkg);
-                    JavaMethodProxy match = findBuilderMethod(pkg, domElement, requiredType);
-                    if (match != null) {
-                        return match;
-                    }
-
-                }
-            }
-            return null;
-
-        }
-
-        JavaMethodProxy findBuilderMethod(PackageElement searchRoot, org.w3c.dom.Element domElement, String requiredType) {
-            if (searchRoot == null) return null;
-            searchRoot = wrap(searchRoot);
-            String tagName = domElement.getTagName();
-            List<TypeElement> classes;
-            if (tagName.contains(".")) {
-                String className = tagName.substring(0, tagName.indexOf("."));
-                classes = (List<TypeElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.CLASS && className.equalsIgnoreCase(e.getSimpleName().toString()))
-                        .collect(Collectors.toList());
-            } else {
-                classes = (List<TypeElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.CLASS)
-                        .collect(Collectors.toList());
-            }
-            for (TypeElement cls : classes) {
-                JavaMethodProxy candidate = findBuilderMethod(cls, domElement, requiredType);
-                if (candidate != null) {
-                    return candidate;
-                }
-            }
-            return null;
-        }
-
-        /**
-         * Finds a static builder method matching the given dom element.  To match the dom element, the method name
-         * must match the tag name, and the parameter names of the method must have corresponding parameters in the
-         * attributes.
-         *
-         * @param searchRoot
-         * @param domElement
-         * @param requiredType
-         * @return
-         */
-        JavaMethodProxy findBuilderMethod(TypeElement searchRoot, org.w3c.dom.Element domElement, String requiredType) {
-            String tagName = domElement.getTagName();
-            String methodName = tagName;
-            if (methodName.contains(".")) methodName = methodName.substring(methodName.indexOf(".")+1);
-            String className = null;
-            if (tagName.contains(".")) {
-                className = tagName.substring(0, tagName.indexOf("."));
-            }
-            if (className != null && !className.equalsIgnoreCase(searchRoot.getSimpleName().toString())) {
-                return null;
-            }
-            final String fMethodName = methodName;
-            List<ExecutableElement> candidates = (List<ExecutableElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.METHOD && e.getModifiers().contains(Modifier.STATIC) && e.getSimpleName().toString().equalsIgnoreCase(fMethodName))
-                    .collect(Collectors.toList());
-
-            if (candidates.isEmpty()) return null;
-
-            ExecutableElement bestCandidate = null;
-            NamedNodeMap attributes = domElement.getAttributes();
-            outer: for (ExecutableElement candidate : candidates) {
-                List<String> paramNames = new ArrayList<String>();
-                List<? extends VariableElement> params = candidate.getParameters();
-                ExecutableType candidateType = (ExecutableType)types().asMemberOf((DeclaredType)searchRoot.asType(), candidate);
-                List<? extends TypeMirror> paramTypes = candidateType.getParameterTypes();
-                int paramIndex = -1;
-                for (VariableElement p : params) {
-                    paramIndex++;
-                    String attName = p.getSimpleName().toString();
-                    TypeMirror paramType = paramTypes.get(paramIndex);
-                    if (isA(paramType, "com.codename1.rad.models.Entity")) {
-
-                        if (domElement.hasAttribute("view-model")) {
-                            // The element specifies an explicit view-model attribute
-                            // that we can use for this parameter.
-                            continue;
-                        }
-
-                        if  (!isA(paramType, "com.codename1.rad.models.EntityList")) {
-
-                            // For entity parameters we may be able to just derive the parameter
-                            // from the entity for the current view.
-
-                            // First the obvious case where the view's model type could be passed directly.
-                            if (isA(viewModelType.typeEl, paramTypes.get(paramIndex).toString())) {
-                                continue;
-                            }
-
-                            // Next, inquire if there is a wrapper for the specified type that we can use.
-                            TypeElement wrapperType = lookupClass(paramType.toString() + "Wrapper");
-                            if (wrapperType != null) {
-                                continue;
-                            }
-                        }
-
-
-                    }
-
-                    if (paramType.toString().equalsIgnoreCase("com.codename1.rad.nodes.Node") || isA(paramType, "com.codename1.rad.nodes.ViewNode")) {
-                        // For Node and ViewNode subclasses, we should be able to just create a child node of the current node.
-                        // and use that.
-                        continue;
-                    }
-
-                    if (isA(paramType, "com.codename1.rad.nodes.ListNode")) {
-                        // List nodes we would need an explicit node parameter
-                        boolean foundMatch = false;
-                        for (org.w3c.dom.Element childEl : getChildElements(domElement)) {
-                            TypeElement childElClass = findClassThatTagCreates(childEl.getTagName());
-                            if (childElClass != null && isA(childElClass, "com.codename1.rad.nodes.ListNode")) {
-                                foundMatch = true;
-                                break;
-                            }
-                        }
-                        if (foundMatch) {
-                            continue;
-                        }
-                    }
-
-
-                    // For other attributes we look for an explicit xml attribute
-                    // The _attname_ notation is used to explicitly specify that this attribute should
-                    // be used as a parameter rather than as a property.
-                    if (!domElement.hasAttribute(attName) && !domElement.hasAttribute("_"+attName+"_")) {
-                        continue outer;
-                    }
+        private Map<String, Boolean> tagHasComponentBuilder = new HashMap<>();
+        private Map<String, TypeElement> tagComponentBuilderClass = new HashMap<>();
 
 
 
-                }
-
-                // If we are this far, then this candidate has at least the correct named parameters
-                TypeMirror returnTypeMirror = candidate.getReturnType();
-
-                if (returnTypeMirror.getKind() != TypeKind.DECLARED) {
-                    continue;
-                }
-                if (requiredType != null && !isA(returnTypeMirror, requiredType)) {
-                    continue;
-                }
-                if (bestCandidate == null || bestCandidate.getParameters().size() < candidate.getParameters().size()) {
-                    bestCandidate = candidate;
-                }
-
-            }
-
-            if (bestCandidate != null) {
-                JavaClassProxy proxy = new JavaClassProxy(searchRoot, this);
-                JavaMethodProxy methodProxy = new JavaMethodProxy(proxy, bestCandidate);
-                return methodProxy;
-            }
-            return null;
-
-        }
-
-        /**
-         * Finds a builder class that is registered to handle the given tag name.
-         * @param searchRoot The class to search in.  If glob is null, and this class is a match for the query, then it, itself,
-         *                   will be returned.
-         * @param tagName The tag name to search for.
-         * @param glob If true, then inner classes will also be searched, but the searchRoot will not be considered as a candidate.
-         * @param deep If true, then inner classes will also be search, and their inner classes, recursively.
-         * @return Matching TypeElement or null if none is found
-         */
-        TypeElement findComponentBuilderClass(TypeElement searchRoot, String tagName, boolean glob, boolean deep) {
-            if (!glob) {
-
-                RAD annotation = searchRoot.getAnnotation(RAD.class);
-
-                if (annotation != null && isA(searchRoot, "com.codename1.rad.ui.ComponentBuilder")) {
-
-                    for (String annoTag : annotation.tag()) {
-                        if (annoTag.equalsIgnoreCase(tagName)) {
-                            return searchRoot;
-                        }
-                    }
-                }
-            }
-            if (glob || deep) {
-                List<TypeElement> innerClasses = (List<TypeElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.CLASS && e.getModifiers().contains(Modifier.STATIC)).collect(Collectors.toList());
-                for (TypeElement child : innerClasses) {
-                    //  We first do a shallow search
-                    TypeElement found = findComponentBuilderClass(child, tagName, false, false);
-                    if (found != null) {
-                        return found;
-                    }
-                    // Then we do a deep search.
-                    // This make sure that a shallow match takes a higher priority than a deep one.
-                    if (deep) {
-                        found = findComponentBuilderClass(child, tagName, true, true);
-                        if (found != null) {
-                            return found;
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        TypeElement findNodeBuilderClass(TypeElement searchRoot, String tagName, boolean glob, boolean deep) {
-            if (!glob) {
-
-                RAD annotation = searchRoot.getAnnotation(RAD.class);
-                if (annotation != null && isA(searchRoot, "com.codename1.rad.nodes.NodeBuilder")) {
-                    for (String annoTag : annotation.tag()) {
-                        if (annoTag.equalsIgnoreCase(tagName)) {
-                            return searchRoot;
-                        }
-                    }
-                }
-            }
-            if (glob || deep) {
-                List<TypeElement> innerClasses = (List<TypeElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.CLASS && e.getModifiers().contains(Modifier.STATIC)).collect(Collectors.toList());
-                for (TypeElement child : innerClasses) {
-                    //  We first do a shallow search
-                    TypeElement found = findNodeBuilderClass(child, tagName, false, false);
-                    if (found != null) {
-                        return found;
-                    }
-                    // Then we do a deep search.
-                    // This make sure that a shallow match takes a higher priority than a deep one.
-                    if (deep) {
-                        found = findNodeBuilderClass(child, tagName, true, true);
-                        if (found != null) {
-                            return found;
-                        }
-                    }
-                }
-            }
-            return null;
-        }
 
         /**
          * Finds the builder class that is registered to handle the given tag name.
@@ -1013,136 +909,107 @@ public class ViewProcessor extends BaseProcessor {
          * @return A TypeElement for a builder class, or null if none is found.
          */
         TypeElement findComponentBuilderClass(String tagName) {
+            String lcTagName = tagName.toLowerCase();
+            Boolean hasComponentBuilder = tagHasComponentBuilder.get(lcTagName);
+            if (hasComponentBuilder != null && !hasComponentBuilder) {
+                return null;
+            }
+            TypeElement cached = tagComponentBuilderClass.get(lcTagName);
+            if (cached != null) return cached;
+
+            TypeElement out = _findComponentBuilderClass(tagName);
+            if (out == null) {
+                tagHasComponentBuilder.put(lcTagName, false);
+                return null;
+            } else {
+                tagHasComponentBuilder.put(lcTagName, true);
+                tagComponentBuilderClass.put(lcTagName, out);
+                return out;
+            }
+        }
+        TypeElement _findComponentBuilderClass(String tagName) {
             List<String> deepSearches = new ArrayList<String>(0);
             for (String importPath : imports) {
-                if (importPath.startsWith("import ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
+                importPath = importPath.substring(importPath.indexOf(" ")+1);
+                if (importPath.contains(" ")) {
+                    continue;
                 }
-                if (importPath.startsWith("static ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                boolean glob = importPath.endsWith("*");
-
-                boolean deep = importPath.endsWith("**");
-                if (glob) {
-                    importPath = importPath.substring(0, importPath.lastIndexOf("."));
-                }
-
-                TypeElement matchingType = elements().getTypeElement(importPath);
-
-                if (matchingType != null) {
-                    TypeElement builder = findComponentBuilderClass(matchingType, tagName, glob, false);
-                    if (builder != null) {
-                        return builder;
-                    } else if (deep){
-                        deepSearches.add(importPath);
-                    }
-
-                } else {
-                    PackageElement pkg = elements().getPackageElement(importPath);
+                if (importPath.endsWith(".*")) {
+                    // It's a package
+                    PackageElement pkg = elements().getPackageElement(importPath.substring(0, importPath.lastIndexOf(".")));
                     if (pkg != null) {
-                        TypeElement builder = findComponentBuilderClass(pkg, tagName, false);
-                        if (builder != null) {
-                            return builder;
-                        } else if (deep) {
-                            deepSearches.add(importPath);
+                        ProcessingEnvironmentWrapper.PackageWrapper pkgWrap = (ProcessingEnvironmentWrapper.PackageWrapper)wrap(pkg);
+                        for (TypeElement el : pkgWrap.getEnclosedTypeElementsWithTag(tagName)) {
+                            if (isA(el, "com.codename1.rad.ui.ComponentBuilder")) {
+                                return el;
+                            }
                         }
                     }
-
-                }
-            }
-
-            for (String importPath : deepSearches) {
-                TypeElement matchingType = elements().getTypeElement(importPath);
-
-                if (matchingType != null) {
-
-                    TypeElement builder = findComponentBuilderClass(matchingType, tagName, true, true);
-                    if (builder != null) {
-                        return builder;
-                    } else {
-                        deepSearches.add(importPath);
-                    }
-
                 } else {
-                    PackageElement pkg = elements().getPackageElement(importPath);
-                    TypeElement builder = findComponentBuilderClass(pkg, tagName, true);
-                    if (builder != null) {
-                        return builder;
+                    TypeElement el = elements().getTypeElement(importPath);
+                    if (el != null && isA(el, "com.codename1.rad.ui.ComponentBuilder")) {
+                        return el;
                     }
-
                 }
+
             }
+
+
             return null;
 
         }
+
+        private Map<String, Boolean> tagHasNodeBuilder = new HashMap<>();
+        private Map<String, TypeElement> tagNodeBuilderClass = new HashMap<>();
         /**
          * Finds the builder class that is registered to handle the given tag name.
          * @param tagName The tag name,
          * @return A TypeElement for a builder class, or null if none is found.
          */
         TypeElement findNodeBuilderClass(String tagName) {
+            String lcTagName = tagName.toLowerCase();
+            Boolean hasNodeBuilder = tagHasNodeBuilder.get(lcTagName);
+            if (hasNodeBuilder != null && !hasNodeBuilder) {
+                return null;
+            }
+            TypeElement cached = tagNodeBuilderClass.get(lcTagName);
+            if (cached != null) return cached;
+
+            TypeElement out = _findNodeBuilderClass(tagName);
+            if (out == null) {
+                tagHasNodeBuilder.put(lcTagName, false);
+                return null;
+            } else {
+                tagHasNodeBuilder.put(lcTagName, true);
+                tagNodeBuilderClass.put(lcTagName, out);
+                return out;
+            }
+        }
+        TypeElement _findNodeBuilderClass(String tagName) {
             List<String> deepSearches = new ArrayList<String>(0);
             for (String importPath : imports) {
-                if (importPath.startsWith("import ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                if (importPath.startsWith("static ")) {
-                    importPath = importPath.substring(importPath.indexOf(" ")+1);
-                }
-                boolean glob = importPath.endsWith("*");
-
-                boolean deep = importPath.endsWith("**");
-                if (glob) {
-                    importPath = importPath.substring(0, importPath.lastIndexOf("."));
-                }
-
-                TypeElement matchingType = elements().getTypeElement(importPath);
-
-                if (matchingType != null) {
-
-                    TypeElement builder = findNodeBuilderClass(matchingType, tagName, glob, false);
-                    if (builder != null) {
-                        return builder;
-                    } else if (deep){
-                        deepSearches.add(importPath);
-                    }
-
-                } else {
-                    PackageElement pkg = elements().getPackageElement(importPath);
+                importPath = importPath.substring(importPath.indexOf(" ")+1);
+                if (importPath.contains(" ")) continue;
+                if (importPath.endsWith(".*")) {
+                    PackageElement pkg = elements().getPackageElement(importPath.substring(0, importPath.lastIndexOf(".")));
                     if (pkg != null) {
-                        TypeElement builder = findNodeBuilderClass(pkg, tagName, false);
-                        if (builder != null) {
-                            return builder;
-                        } else if (deep) {
-                            deepSearches.add(importPath);
+                        ProcessingEnvironmentWrapper.PackageWrapper pkgWrap = (ProcessingEnvironmentWrapper.PackageWrapper)wrap(pkg);
+                        for (TypeElement el : pkgWrap.getEnclosedTypeElementsWithTag(tagName)) {
+                            if (isA(el, "com.codename1.rad.nodes.NodeBuilder")) {
+                                return el;
+                            }
                         }
                     }
-
-                }
-            }
-
-            for (String importPath : deepSearches) {
-                TypeElement matchingType = elements().getTypeElement(importPath);
-
-                if (matchingType != null) {
-
-                    TypeElement builder = findNodeBuilderClass(matchingType, tagName, true, true);
-                    if (builder != null) {
-                        return builder;
-                    } else {
-                        deepSearches.add(importPath);
-                    }
-
                 } else {
-                    PackageElement pkg = elements().getPackageElement(importPath);
-                    TypeElement builder = findNodeBuilderClass(pkg, tagName, true);
-                    if (builder != null) {
-                        return builder;
+                    TypeElement matchingType = elements().getTypeElement(importPath);
+                    if (matchingType != null && isA(matchingType, "com.codename1.rad.nodes.NodeBuilder")) {
+                        return matchingType;
                     }
-
                 }
+
             }
+
+
             return null;
 
         }
@@ -1201,17 +1068,322 @@ public class ViewProcessor extends BaseProcessor {
                 }
                 return null;
             }
-            return new JavaClassProxy(builderEl, this);
+            return newJavaClassProxy(builderEl);
 
         }
         JavaClassProxy findNodeBuilderForTag(String tag) {
             TypeElement builderEl = findNodeBuilderClass(tag);
             if (builderEl == null) return null;
-            return new JavaClassProxy(builderEl, this);
+            return newJavaClassProxy(builderEl);
 
         }
 
 
+        /**
+         * Some types are too generic to try to get via lookup.  This checks a type to see if it can be injected via lookup.
+         *
+         * @param type
+         * @return
+         */
+        boolean isTypeInjectableViaLookup(TypeElement type) {
+            String name = type.getQualifiedName().toString();
+            return !name.equals("com.codename1.rad.models.Entity") &&
+                    !name.equals("com.codename1.rad.models.BaseEntity") &&
+                    !name.equals("com.codename1.rad.models.EntityList") &&
+                    !isA(type, "com.codename1.rad.ui.ViewContext") &&
+                    !name.startsWith("java.") &&
+                    !name.startsWith("javax.") &&
+                    !name.startsWith("com.codename1.rad.ui.EntityView") &&
+                    !name.startsWith("com.codename1.rad.ui.entityviews.EntityListView") &&
+                    !name.startsWith("com.codename1.rad.ui.AbstractEntityView") &&
+                    !name.startsWith("com.codename1.rad.nodes.Node") &&
+                    !name.startsWith("com.codename1.rad.nodes.ViewNode") &&
+                    !name.startsWith("com.codename1.rad.nodes.ListNode") &&
+                    !name.startsWith("com.codename1.rad.models.Attribute") &&
+                    !name.startsWith("com.codename1.rad.models.Tag") &&
+                    !name.startsWith("com.codename1.rad.controllers.") &&
+                    !name.startsWith("com.codename1.ui.");
+
+        }
+
+        /**
+         * Formats an attribute for the given parameter type.  String parameters are treated as strings by default, and
+         * thus are quoted.  Other parameters are passed straight through.  Use java: and string: prefix to be explicit.
+         * @param value
+         * @param paramType
+         * @return
+         */
+        String quoteString(String value, TypeElement paramType) {
+            if (value.startsWith("java:")) return value.substring(value.indexOf(":")+1);
+            if (isA(paramType, "java.lang.String")) {
+                if (value.startsWith("string:")) value = value.substring(value.indexOf(":")+1);
+                return '"' + StringEscapeUtils.escapeJava(value) + '"';
+            } else {
+                if (value.startsWith("string:")) return '"' + StringEscapeUtils.escapeJava(value.substring(value.indexOf(":")+1)) + '"';
+                return value;
+            }
+        }
+
+        /**
+         * Writes injected value using only what is in the current context.  This doesn't try to use explicit parameters, or
+         * lookups.  This is used by {@link #writeInjectedValue(StringBuilder, TypeElement, org.w3c.dom.Element, String, boolean)}
+         * @param appendTo
+         * @param paramType
+         * @param tagContext
+         * @param defaultValue
+         */
+        void writeInjectedValueFromContext(StringBuilder appendTo, TypeElement paramType, org.w3c.dom.Element tagContext, String defaultValue) {
+            boolean isArray = paramType.asType().getKind() == TypeKind.ARRAY;
+            TypeElement componentType = isArray ? (TypeElement)((DeclaredType)((ArrayType)paramType).getComponentType()).asElement() : paramType;
+            boolean isEntity = isA(componentType, "com.codename1.rad.models.Entity");
+            boolean isComponent = !isEntity && isA(componentType, "com.codename1.ui.Component");
+            boolean isNode = !isEntity && !isComponent && isA(componentType, "com.codename1.rad.nodes.Node");
+            TypeElement entityWrapperClass = null;
+            if (isEntity && !componentType.getQualifiedName().contentEquals("com.codename1.rad.models.Entity") &&
+                    !componentType.getQualifiedName().contentEquals("com.codename1.rad.models.EntityList")) {
+                entityWrapperClass = lookupClass(componentType.getQualifiedName()+"Wrapper");
+            }
+            if (isEntity) {
+                // It it is an entity and we are using injection, then we can use the
+                // entity from the current context
+                if (entityWrapperClass != null) {
+                    appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(");
+                }
+                if (tagContext.hasAttribute("view-model")) {
+                    appendTo.append(tagContext.getAttribute("view-model"));
+                } else {
+                    appendTo.append("context.getEntity()");
+                }
+                if (entityWrapperClass != null) {
+                    appendTo.append(")");
+                }
+            } else if (isNode) {
+                JavaClassProxy paramTypeProxy = newJavaClassProxy(componentType);
+                if (paramTypeProxy.typeEl.getModifiers().contains(Modifier.ABSTRACT)) {
+                    paramTypeProxy =  newJavaClassProxy(lookupClass("com.codename1.rad.nodes.ViewNode"));
+
+                }
+                JavaMethodProxy nodeConstructor = paramTypeProxy.getBestConstructor(tagContext.getOwnerDocument().createElement(paramTypeProxy.getSimpleName()));
+                if (nodeConstructor == null) {
+                    throw new IllegalArgumentException("Cannot find suitable constructor for class "+paramTypeProxy.getQualifiedName()+" in order to inject property into tag "+tagContext.getTagName());
+                }
+
+                appendTo.append("_setParent(").append(paramTypeProxy.getQualifiedName()).append(".class, ");
+                nodeConstructor.callAsConstructor(appendTo, tagContext.getOwnerDocument().createElement(paramTypeProxy.getSimpleName()), false);
+                appendTo.append(")");
+
+            } else if (componentType.getQualifiedName().contentEquals("com.codename1.rad.controllers.ApplicationController")) {
+                appendTo.append("applicationController");
+            } else if (componentType.getQualifiedName().contentEquals("com.codename1.rad.controllers.FormController")) {
+                appendTo.append("formController");
+            } else if (componentType.getQualifiedName().contentEquals("com.codename1.rad.controllers.ViewController")) {
+                appendTo.append("context.getController()");
+            } else if (componentType.getQualifiedName().contentEquals("com.codename1.rad.controllers.Controller")) {
+                appendTo.append("context.getController()");
+            } else if (isA(componentType, "com.codename1.rad.ui.ViewContext")) {
+
+                JavaClassProxy paramClass = newJavaClassProxy(componentType);
+                // Look for a child xml tag that matches this type to use as our injected context
+
+
+                // there were no tags for this view context, so we'll create one
+                org.w3c.dom.Element vcTag = tagContext.getOwnerDocument().createElement(paramType.getQualifiedName().toString());
+                List<org.w3c.dom.Element> nodeChildren = getChildrenOfType(tagContext, "com.codename1.rad.nodes.Node");
+                nodeChildren.addAll(getChildrenOfType(tagContext, "com.codename1.rad.models.Entity"));
+                nodeChildren.addAll(getChildrenOfType(tagContext, "com.codename1.rad.controllers.Controller"));
+                for (org.w3c.dom.Element nodeChild : nodeChildren) {
+                    if (nodeChild.hasAttribute("rad-property")) {
+                        // Don't copy nodes that are explicit parameters and arguments
+                        // We only want nodes that might be used for injection
+                        continue;
+                    }
+                    vcTag.appendChild(nodeChild.cloneNode(true));
+                }
+                tagContext.appendChild(vcTag);
+
+                if (tagContext.hasAttribute("view-model")) {
+                    vcTag.setAttribute("view-model", tagContext.getAttribute("view-model"));
+                }
+
+
+                JavaMethodProxy contextConstructor = paramClass.getBestConstructor(vcTag);
+                if (contextConstructor == null) {
+                    StringBuilder err = new StringBuilder();
+                    err.append("Type variables of "+paramClass.typeEl+": "+paramClass.typeEl.getTypeParameters()).append("\n");
+                    for (TypeParameterElement tpe : paramClass.typeEl.getTypeParameters()) {
+                        err.append("Bounds:").append(tpe.getBounds()).append("\n");
+                    }
+                    err.append("Found constructors:\n");
+
+                    for (JavaMethodProxy cnst : paramClass.getPublicConstructors()) {
+
+                        err.append(cnst.methodEl).append("\n");
+                        err.append("Type variables of ").append(cnst.methodEl).append(":").append(cnst.executableType().getTypeVariables()).append("\n");
+                        err.append("Parameter types: ").append(cnst.getParameterTypes()).append("\n");
+
+                    }
+                    throw new IllegalArgumentException("Failed to find constructor for  tag "+vcTag);
+
+                }
+                contextConstructor.callAsConstructor(appendTo, vcTag, false);
+
+
+            } else {
+                appendTo.append(defaultValue);
+            }
+
+        }
+
+        /**
+         * Writes a value of either a parameter or a property.
+         * @param appendTo
+         * @param paramType The parameter type.
+         * @param tagContext The XML tag.
+         * @param propertyName The property name.  For parameters, should be 0, 1, 2, 3, etc...
+         * @param useInjection Whether to use injection if the value isn't specified explicitly.
+         */
+        void writeInjectedValue(StringBuilder appendTo, TypeElement paramType, org.w3c.dom.Element tagContext, String propertyName, boolean useInjection) {
+            String lcPropertyName = propertyName == null ? null : propertyName.toLowerCase();
+
+            String attributeName = Character.isDigit(propertyName.charAt(0)) ? "_"+propertyName+"_" : propertyName;
+            Map<String,String> lcAttributes = new HashMap<>();
+            forEachAttribute(tagContext, attr -> {
+                lcAttributes.put(attr.getName().toLowerCase(), attr.getValue());
+                return null;
+            });
+            String arrayParamPrefix = "";
+            String arrayParamSuffix = "";
+            boolean isArray = paramType.asType().getKind() == TypeKind.ARRAY;
+            TypeElement componentType = isArray ? (TypeElement)((DeclaredType)((ArrayType)paramType).getComponentType()).asElement() : paramType;
+            if (isArray) {
+                arrayParamPrefix = "new "+paramType+"[]{";
+                arrayParamSuffix = "}";
+            }
+            boolean useLookup = useInjection && isTypeInjectableViaLookup(componentType);
+            boolean isEntity = isA(componentType, "com.codename1.rad.models.Entity");
+            boolean isComponent = !isEntity && isA(componentType, "com.codename1.ui.Component");
+            boolean isNode = !isEntity && !isComponent && isA(componentType, "com.codename1.rad.nodes.Node");
+
+            TypeElement entityWrapperClass = null;
+            if (isEntity && !componentType.getQualifiedName().contentEquals("com.codename1.rad.models.Entity") &&
+                    !componentType.getQualifiedName().contentEquals("com.codename1.rad.models.EntityList")) {
+                entityWrapperClass = lookupClass(componentType.getQualifiedName()+"Wrapper");
+            }
+
+            if (lcAttributes.containsKey(attributeName.toLowerCase())) {
+
+                // Case 1:  Property name is explicitly set in the XML tag.
+                if (useLookup) {
+                    if (isArray) {
+                        appendTo.append("nonNullEntries(").append(arrayParamPrefix).append("context.getController().lookup(").append(componentType.getQualifiedName()).append(".class)").append(arrayParamSuffix).append(", ");
+                    } else {
+                        appendTo.append("nonNull(context.getController().lookup(").append(componentType.getQualifiedName()).append(".class), ");
+                    }
+                }
+                if (entityWrapperClass != null) {
+                    appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(");
+                }
+                appendTo.append(quoteString(lcAttributes.get(attributeName.toLowerCase()), componentType));
+                if (entityWrapperClass != null) {
+                    appendTo.append(")");
+                }
+                if (useLookup) {
+                    appendTo.append(")");
+                }
+                return;
+            }
+
+
+            // Case 2: Property Name is not set in attributes
+            // Then we look to the child XML tags, and, in special cases, the context's entity.
+            Stream<org.w3c.dom.Element> childStream = getChildElements(tagContext).stream().
+                    filter(e->!e.hasAttribute("rad-used-for")).
+                    filter(e->propertyName.equalsIgnoreCase(e.getAttribute("rad-property")) || useInjection && !e.hasAttribute("rad-property")).
+                    filter(e-> {
+                        if (propertyName.equalsIgnoreCase(e.getAttribute("rad-property"))) return true;
+                        Element el = findClassThatTagCreates(e.getTagName(), componentType.getQualifiedName().toString());
+                        return el != null;
+                    });
+            if (isArray) {
+
+                List<org.w3c.dom.Element> childElements = childStream.collect(Collectors.toList());
+                if (useLookup) {
+                    // If we area allowed to use a lookup for this, then we're prefer the lookup, but fall back
+                    // to the values provided.
+                    appendTo.append("nonNullEntries(").append(arrayParamPrefix).append("viewController.lookup(").append(componentType.getQualifiedName()).append(".class)").append(arrayParamSuffix).append(", ");
+                }
+                appendTo.append(arrayParamPrefix);
+                if (!childElements.isEmpty()) {
+                    for (org.w3c.dom.Element childElement : childElements) {
+                        childElement.setAttribute("rad-property", propertyName);
+                        childElement.setAttribute("rad-used-for", propertyName);
+                        if (entityWrapperClass != null) {
+                            appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(");
+                        }
+                        if (isComponent) {
+                            appendTo.append("createComponent").append(childElement.getAttribute("rad-id")).append("()");
+                        } else if (isNode) {
+
+                            appendTo.append("_setParent(").append(componentType.getQualifiedName()).append(".class, ").append("createNode").append(childElement.getAttribute("rad-id")).append("())");
+                        } else {
+                            appendTo.append("createBean").append(childElement.getAttribute("rad-id")).append("()");
+                        }
+                        if (entityWrapperClass != null) {
+                            appendTo.append(")");
+                        }
+
+
+                    }
+                } else if (!useInjection) {
+                    // Is not using injection it will just be an empty array here so no output
+                } else {
+                    // None were explicitly defined, so we will try to pull the value from the current context.
+                    writeInjectedValueFromContext(appendTo, paramType, tagContext, "");
+                }
+                appendTo.append(arrayParamSuffix);
+                if (useLookup) {
+                    appendTo.append(")");
+                }
+                return;
+
+            }
+
+
+
+            org.w3c.dom.Element childElement = childStream.
+                    findFirst().orElse(null);
+            if (useLookup) {
+                appendTo.append("nonNull(context.getController().lookup(").append(componentType.getQualifiedName()).append(".class), ");
+
+            }
+            if (childElement != null) {
+                childElement.setAttribute("rad-property", propertyName);
+                childElement.setAttribute("rad-used-for", propertyName);
+                if (entityWrapperClass != null) {
+                    appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(");
+                }
+                if (isComponent(paramType)) {
+                    appendTo.append("createComponent").append(childElement.getAttribute("rad-id")).append("()");
+                } else if (isNode(paramType)) {
+
+                    appendTo.append("_setParent(").append(paramType.getQualifiedName()).append(".class, ").append("createNode").append(childElement.getAttribute("rad-id")).append("())");
+                } else {
+                    appendTo.append("createBean").append(childElement.getAttribute("rad-id")).append("()");
+                }
+                if (entityWrapperClass != null) {
+                    appendTo.append(")");
+                }
+
+            } else if (!useInjection) {
+                appendTo.append("null");
+            } else {
+                writeInjectedValueFromContext(appendTo, paramType, tagContext, "null");
+            }
+            if (useLookup) {
+                appendTo.append(")");
+            }
+
+        }
 
 
     }
@@ -1319,7 +1491,7 @@ public class ViewProcessor extends BaseProcessor {
             if (classProxyType == null) {
                 throw new IllegalStateException("Cannot determine class proxy type for property selector from the parent.  Looking for "+parent.getPropertyType(false));
             }
-            this.classProxy = new JavaClassProxy(classProxyType, parent.classProxy.env);
+            this.classProxy = parent.classProxy.env.newJavaClassProxy(classProxyType);
         }
         JavaPropertySelector(JavaClassProxy classProxy, String selector) {
             this(classProxy, selector, "java.lang.String");
@@ -1549,6 +1721,8 @@ public class ViewProcessor extends BaseProcessor {
         OTHER
     }
 
+
+
     /**
      * Encapsulates a Java Class with some convenience methods.  Wraps a TypeElement, but adds the context of a {@link JavaEnvironment}.
      */
@@ -1565,9 +1739,9 @@ public class ViewProcessor extends BaseProcessor {
 
         JavaClassType getClassType() {
             if (classType == null) {
-                if (isA(typeEl, "com.codename1.ui.Component")) classType = JavaClassType.COMPONENT;
+                if (ViewProcessor.this.isComponent(typeEl)) classType = JavaClassType.COMPONENT;
                 else if (isA(typeEl, "com.codename1.rad.models.Entity")) classType = JavaClassType.ENTITY;
-                else if (isA(typeEl, "com.codename1.rad.models.Node")) classType = JavaClassType.NODE;
+                else if (ViewProcessor.this.isNode(typeEl)) classType = JavaClassType.NODE;
                 else classType = JavaClassType.OTHER;
             }
             return classType;
@@ -1629,20 +1803,32 @@ public class ViewProcessor extends BaseProcessor {
             this.typeEl = typeEl;
         }
 
+        private List<ExecutableElement> setters = null;
+        private List<ExecutableElement> getters = null;
+
+        List<ExecutableElement> findSetters() {
+            if (setters == null) {
+                setters = (List<ExecutableElement>) findMethods().stream()
+                        .filter(e -> e.getKind() == ElementKind.METHOD &&
+                                ((ExecutableElement) e).getParameters().size() == 1).collect(Collectors.toList());
+            }
+            return setters;
+        }
+
         /**
          * Finds setter methods for the given property.
          * @param propertyName
          * @return
          */
         List<ExecutableElement> findSetters(String propertyName) {
-            return  (List<ExecutableElement>)elements().getAllMembers(typeEl).stream()
-                    .filter(e -> e.getKind() == ElementKind.METHOD &&
+
+            return  (List<ExecutableElement>)findSetters().stream().filter(e -> e.getKind() == ElementKind.METHOD &&
                             (e.getSimpleName().toString().equalsIgnoreCase(propertyName) || e.getSimpleName().toString().equalsIgnoreCase("set"+propertyName)) &&
                             ((ExecutableElement)e).getParameters().size() == 1).collect(Collectors.toList());
         }
 
         List<ExecutableElement> findInjectableSetters() {
-            return (List<ExecutableElement>)elements().getAllMembers(typeEl).stream()
+            return (List<ExecutableElement>)findSetters().stream()
                     .filter(e -> e.getKind() == ElementKind.METHOD &&
                             ((ExecutableElement)e).getParameters().size() == 1 &&
                             ((ExecutableElement)e).getParameters().get(0).getAnnotation(Inject.class) != null).
@@ -1650,7 +1836,7 @@ public class ViewProcessor extends BaseProcessor {
         }
 
         List<ExecutableElement> findInjectableSettersForType(TypeElement type) {
-            return (List<ExecutableElement>)elements().getAllMembers(typeEl).stream()
+            return (List<ExecutableElement>)findSetters().stream()
                     .filter(e -> e.getKind() == ElementKind.METHOD &&
                             ((ExecutableElement)e).getParameters().size() == 1 &&
                             ((ExecutableElement)e).getParameters().get(0).getAnnotation(Inject.class) != null &&
@@ -1658,11 +1844,14 @@ public class ViewProcessor extends BaseProcessor {
         }
 
         List<ExecutableElement> findGetters(String propertyName) {
-            return  (List<ExecutableElement>)elements().getAllMembers(typeEl).stream()
-                    .filter(e -> e.getKind() == ElementKind.METHOD &&
-                            (e.getSimpleName().toString().equalsIgnoreCase(propertyName) || e.getSimpleName().toString().equalsIgnoreCase("get"+propertyName) || e.getSimpleName().toString().equalsIgnoreCase("is"+propertyName)) &&
-                            (((ExecutableElement)e).getParameters().size() == 0) &&
-                            ((ExecutableElement)e).getReturnType().getKind() != TypeKind.VOID).collect(Collectors.toList());
+            if (getters == null) {
+                getters = (List<ExecutableElement>)findMethods().stream()
+                        .filter(e -> e.getKind() == ElementKind.METHOD &&
+                                (e.getSimpleName().toString().equalsIgnoreCase(propertyName) || e.getSimpleName().toString().equalsIgnoreCase("get"+propertyName) || e.getSimpleName().toString().equalsIgnoreCase("is"+propertyName)) &&
+                                (((ExecutableElement)e).getParameters().size() == 0) &&
+                                ((ExecutableElement)e).getReturnType().getKind() != TypeKind.VOID).collect(Collectors.toList());
+            }
+            return getters;
         }
 
         /**
@@ -1695,6 +1884,14 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
+        List<ExecutableElement> methods = null;
+        List<ExecutableElement> findMethods() {
+            if (methods == null) {
+                methods = (List<ExecutableElement>)elements().getAllMembers(typeEl).stream()
+                        .filter(e -> e.getKind() == ElementKind.METHOD).collect(Collectors.toList());
+            }
+            return methods;
+        }
         /**
          * Finds method matching query.
          * @param methodName The method name.
@@ -1702,6 +1899,7 @@ public class ViewProcessor extends BaseProcessor {
          * @return ExecutableElement for matching method, or null.
          */
         ExecutableElement findMethod(String methodName, int numParams) {
+
             return (ExecutableElement) elements().getAllMembers(typeEl).stream()
                     .filter(e -> e.getKind() == ElementKind.METHOD &&
                             methodName.equalsIgnoreCase(e.getSimpleName().toString()) &&
@@ -1739,9 +1937,7 @@ public class ViewProcessor extends BaseProcessor {
 
         List<JavaMethodProxy> getPublicConstructors() {
             List<JavaMethodProxy> out = new ArrayList<JavaMethodProxy>();
-            List<ExecutableElement> constructors = (List<ExecutableElement>)elements().getAllMembers(typeEl).stream()
-                    .filter(e -> e.getKind() == ElementKind.CONSTRUCTOR && e.getModifiers().contains(Modifier.PUBLIC)).collect(Collectors.toList());
-            for (ExecutableElement el : constructors) {
+            for (ExecutableElement el : env().getTypeElementHelper(typeEl).getPublicConstructors()) {
                 out.add(new JavaMethodProxy(this, el));
             }
             return out;
@@ -1749,7 +1945,6 @@ public class ViewProcessor extends BaseProcessor {
 
         List<JavaMethodProxy> getEligibleConstructors(org.w3c.dom.Element xmlTag) {
             List<JavaMethodProxy> out = new ArrayList<JavaMethodProxy>();
-            Set<String> namedParams = extractNamedParameters(xmlTag).stream().map(String::toLowerCase).collect(Collectors.toSet());
             Set<Integer> indexedParams = extractIndexedParameters(xmlTag);
             List<String> injectableTypes = new ArrayList<String>();
             injectableTypes.add("com.codename1.rad.ui.EntityView");
@@ -1772,9 +1967,7 @@ public class ViewProcessor extends BaseProcessor {
                 for (String paramName : constructor.getParameterNames()) {
                     index++;
                     TypeElement paramType = constructor.getParameterType(index);
-                    if (namedParams.contains(paramName.toLowerCase())) {
-                        continue;
-                    }
+
                     if (indexedParams.contains(index)) {
                         continue;
                     }
@@ -1990,7 +2183,7 @@ public class ViewProcessor extends BaseProcessor {
         }
 
         public boolean isContainer() {
-            return isComponent() && isA(typeEl, "com.codename1.ui.Container");
+            return isComponent() && ViewProcessor.this.isContainer(typeEl);
         }
 
 
@@ -2137,6 +2330,8 @@ public class ViewProcessor extends BaseProcessor {
         }
 
 
+
+
         void writeCallParams(StringBuilder appendTo, org.w3c.dom.Element xmlTag, boolean allowNull) {
             List<String> paramNames = getParameterNames();
             List<TypeElement> paramTypes = getParameterTypes();
@@ -2149,255 +2344,17 @@ public class ViewProcessor extends BaseProcessor {
                     appendTo.append(", ");
                 }
 
-                // Order of precedence:
-                // 1. _attname_=attval
-                // 2. attname=attval
-                // 3. if entity, view-model=attval
-                // 4. if entity and not entity list, getEntity() (use the view's entity)
-                // 5. if viewcontext, construct a view context from the current context.
-                // 6. if entityview, use this
-                // 7. if ...
-                String paramName = paramNames.get(i);
-                TypeElement paramType = paramTypes.get(i);
+                classProxy.env.writeInjectedValue(appendTo, getParameterType(i), xmlTag, String.valueOf(i), isParameterInjectable(i));
 
-                if (paramType == null) {
-                    throw new IllegalArgumentException("Cannot find parameter type for "+paramName+" in tag "+xmlTag);
-                }
-                if (isArrayParameter(i)) {
-                    arrayParamPrefix = "new "+paramType+"[]{";
-                    arrayParamSuffix = "}";
-                }
-                boolean isEntity = isA(paramType, "com.codename1.rad.models.Entity");
-                TypeElement entityWrapperClass = null;
-                if (isEntity && !paramType.getQualifiedName().contentEquals("com.codename1.rad.models.Entity") && !paramType.getQualifiedName().contentEquals("com.codename1.rad.models.EntityList")) {
-                    entityWrapperClass = classProxy.env.lookupClass(paramType.getQualifiedName()+"Wrapper");
-
-                }
-
-
-                org.w3c.dom.Element childElementParam = null;
-                for (org.w3c.dom.Element child : getChildElements(xmlTag)) {
-                    String childParam = child.getAttribute("rad-param");
-                    if (childParam.equalsIgnoreCase(paramName) || (!childParam.isEmpty() && Character.isDigit(childParam.charAt(0)))) {
-                        try {
-                            if (Integer.parseInt(childParam) == i) {
-                                childElementParam = child;
-                                break;
-                            }
-                        } catch (NumberFormatException nfe){}
-                    }
-
-                }
-
-                if (childElementParam != null) {
-                    if (isA(paramType, "com.codename1.ui.Component")) {
-                        appendTo.append(arrayParamPrefix).append("createComponent").append(childElementParam.getAttribute("rad-id")).append("()").append(arrayParamSuffix);
-                    } else if (isA(paramType, "com.codename1.ui.Node")) {
-
-                        appendTo.append(arrayParamPrefix).append("_setParent(").append(paramType.getQualifiedName()).append(".class, ").append("createNode").append(childElementParam.getAttribute("rad-id")).append("())").append(arrayParamSuffix);
-                    } else {
-                        appendTo.append(arrayParamPrefix).append("createBean").append(childElementParam.getAttribute("rad-id")).append("()").append(arrayParamSuffix);
-                    }
-                    continue;
-                }
-                if (xmlTag.hasAttribute("_"+paramName+"_")) {
-                    appendTo.append(formatParamValue(i, xmlTag.getAttribute("_" + paramName + "_")));
-                    continue;
-                } else if (xmlTag.hasAttribute("_"+i+"_")) {
-                    appendTo.append(formatParamValue(i, xmlTag.getAttribute("_" + i + "_")));
-                    continue;
-                }
-
-
-                if (!isParameterInjectable(i)) {
-                    throw new IllegalArgumentException("Cannot generate call parameters for tag "+xmlTag.getTagName()+" because the parameter "+paramName+" is not injectable and there is no suitable XML attribute or child element that can be used to fill it.");
-                }
-
-
-
-                if (isEntity) {
-
-                    if (xmlTag.hasAttribute("view-model")) {
-                        appendTo.append(arrayParamPrefix).append(formatParamValue(i, xmlTag.getAttribute("view-model"))).append(arrayParamSuffix);
-                        continue;
-                    }
-
-
-                    if (paramType.getQualifiedName() == null) {
-                        throw new IllegalStateException("Parameter "+paramName+" of tag "+xmlTag+" does not seem to have a qualified name: "+paramType);
-                    }
-                    List<org.w3c.dom.Element> entityChildren = classProxy.env.getChildrenOfType(xmlTag, paramType.getQualifiedName().toString());
-                    if (!entityChildren.isEmpty()) {
-                        for (org.w3c.dom.Element entityChild : entityChildren) {
-                            if (entityChild.hasAttribute("rad-param") || entityChild.hasAttribute("rad-property")) {
-                                // Don't use entities that were explicitly assigned to parameters and properties for injection
-                                continue;
-                            }
-                            // With entities, we usually use an interface, but the convention is to generate an implementation
-                            // class for it with a no-arg constructor.
-                            appendTo.append(arrayParamPrefix).append("createBean").append(entityChild.getAttribute("rad-id")).append("()").append(arrayParamSuffix);
-                            entityChild.setAttribute("rad-param", paramName); // So we don't double dip
-                            continue paramloop;
-                        }
-                    }
-
-
-                    if (entityWrapperClass != null) {
-
-                        // If there is an entity wrapper class then we are more flexible on the types of entities we can
-                        // use here.  Look through the child tags again to see if there are any entities that are unassigned
-                        // that can be used.
-                        entityChildren = classProxy.env.getChildrenOfType(xmlTag, "com.codename1.rad.models.Entity");
-                        if (!entityChildren.isEmpty()) {
-                            for (org.w3c.dom.Element entityChild : entityChildren) {
-                                if (entityChild.hasAttribute("rad-param") || entityChild.hasAttribute("rad-property")) {
-                                    // Don't use entities that were explicitly assigned to parameters and properties for injection
-                                    continue;
-                                }
-                                // With entities, we usually use an interface, but the convention is to generate an implementation
-                                // class for it with a no-arg constructor.
-                                appendTo.append(arrayParamPrefix).append(entityWrapperClass.getQualifiedName()).append(".wrap(createBean").append(entityChild.getAttribute("rad-id")).append("())").append(arrayParamSuffix);
-                                entityChild.setAttribute("rad-param", paramName); // So we don't double dip
-                                continue paramloop;
-                            }
-                        }
-
-                        if (isArrayParameter(i)) {
-                            appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(").append("_getInjectedArrayParameter(").append(paramType.getQualifiedName()).append(".class, context, viewController))");
-                        } else {
-                            appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(").append("_getInjectedParameter(").append(paramType.getQualifiedName()).append(".class, context, viewController))");
-                        }
-                        continue;
-                    }
-                }
-
-                if (isA(paramType, "com.codename1.rad.nodes.Node")) {
-                    // For Node types, we need to create a child node.
-                    List<org.w3c.dom.Element> candidateChildren = classProxy.env.getChildrenOfType(xmlTag, paramType.getQualifiedName().toString());
-                    for (org.w3c.dom.Element candidateChild : candidateChildren) {
-                        if (candidateChild.hasAttribute("rad-param") || candidateChild.hasAttribute("rad-property")) {
-                            // IF this has a rad-param or rad-property attribute, then it is not for injection
-                            // it is assigned to some explicit purpose.
-                            continue;
-                        }
-
-                        appendTo.append(arrayParamPrefix).append("_setParent(").append(paramType.getQualifiedName()).append(".class, ").append("createNode").append(candidateChild.getAttribute("rad-id")).append("())").append(arrayParamSuffix);
-                        continue paramloop;
-                    }
-
-                    JavaClassProxy paramTypeProxy = new JavaClassProxy(paramType, classProxy.env);
-                    if (paramTypeProxy.typeEl.getModifiers().contains(Modifier.ABSTRACT)) {
-                        paramTypeProxy = new JavaClassProxy(classProxy.env.lookupClass("com.codename1.rad.nodes.ViewNode"), classProxy.env);
-
-                    }
-                    JavaMethodProxy nodeConstructor = paramTypeProxy.getBestConstructor(xmlTag.getOwnerDocument().createElement(paramTypeProxy.getSimpleName()));
-                    if (nodeConstructor == null) {
-                        throw new IllegalArgumentException("Cannot find suitable constructor for class "+paramTypeProxy.getQualifiedName()+" in order to inject argument "+paramName+" into tag "+xmlTag.getTagName());
-                    }
-
-                    appendTo.append(arrayParamPrefix).append("_setParent(").append(paramTypeProxy.getQualifiedName()).append(".class, ");
-                    nodeConstructor.callAsConstructor(appendTo, xmlTag.getOwnerDocument().createElement(paramTypeProxy.getSimpleName()), false);
-                    appendTo.append(")").append(arrayParamSuffix);
-                    continue;
-                }
-
-                if (isA(paramType, "com.codename1.rad.ui.ViewContext")) {
-                    JavaClassProxy paramClass = new JavaClassProxy(paramType, classProxy.env);
-                    // Look for a child xml tag that matches this type to use as our injected context
-                    List<org.w3c.dom.Element> vcTags = classProxy.env.getChildrenOfType(xmlTag, paramType.getQualifiedName().toString());
-                    if (vcTags.isEmpty()) {
-                        // there were no tags for this view context, so we'll create one
-                        org.w3c.dom.Element vcTag = xmlTag.getOwnerDocument().createElement(paramType.getQualifiedName().toString());
-                        List<org.w3c.dom.Element> nodeChildren = classProxy.env.getChildrenOfType(xmlTag, "com.codename1.rad.nodes.Node");
-                        nodeChildren.addAll(classProxy.env.getChildrenOfType(xmlTag, "com.codename1.rad.models.Entity"));
-                        nodeChildren.addAll(classProxy.env.getChildrenOfType(xmlTag, "com.codename1.rad.controllers.Controller"));
-                        for (org.w3c.dom.Element nodeChild : nodeChildren) {
-                            if (nodeChild.hasAttribute("rad-param") || nodeChild.hasAttribute("rad-property")) {
-                                // Don't copy nodes that are explicit parameters and arguments
-                                // We only want nodes that might be used for injection
-                                continue;
-                            }
-                            vcTag.appendChild(nodeChild.cloneNode(true));
-                        }
-                        xmlTag.appendChild(vcTag);
-
-                        if (xmlTag.hasAttribute("view-model")) {
-                            vcTag.setAttribute("view-model", xmlTag.getAttribute("view-model"));
-                        }
-                        vcTags.add(vcTag);
-
-                    }
-                    JavaMethodProxy contextConstructor = paramClass.getBestConstructor(vcTags.get(0));
-                    if (contextConstructor == null) {
-                        StringBuilder err = new StringBuilder();
-                        err.append("Type variables of "+paramClass.typeEl+": "+paramClass.typeEl.getTypeParameters()).append("\n");
-                        for (TypeParameterElement tpe : paramClass.typeEl.getTypeParameters()) {
-                            err.append("Bounds:").append(tpe.getBounds()).append("\n");
-                        }
-                        err.append("Found constructors:\n");
-
-                        for (JavaMethodProxy cnst : paramClass.getPublicConstructors()) {
-
-                            err.append(cnst.methodEl).append("\n");
-                            err.append("Type variables of ").append(cnst.methodEl).append(":").append(cnst.executableType().getTypeVariables()).append("\n");
-                            err.append("Parameter types: ").append(cnst.getParameterTypes()).append("\n");
-
-                        }
-                        err.append("Type Variables of : "+methodEl+":" + executableType().getTypeVariables()).append("\n");
-                        throw new IllegalArgumentException("Failed to find constructor for parameter "+paramClass.getQualifiedName()+" using tag "+vcTags.get(0)
-                                +".\n  The parameter was  "+methodEl.getParameters().get(i)+" and type was "+methodEl.getParameters().get(i).asType() + ".\n"
-                                +"The method was "+methodEl+"\n"
-                                +err
-                        );
-                    }
-                    appendTo.append(arrayParamPrefix);
-                    contextConstructor.callAsConstructor(appendTo, vcTags.get(0), false);
-                    appendTo.append(arrayParamSuffix);
-                    continue;
-
-
-                }
-
-                if (isArrayParameter(i)) {
-                    appendTo.append(arrayParamPrefix).append("_getInjectedArrayParameter(").append(paramType.getQualifiedName()).append(".class, context, viewController)").append(arrayParamSuffix);
-                } else {
-                    appendTo.append(arrayParamPrefix).append("_getInjectedParameter(").append(paramType.getQualifiedName()).append(".class, context, viewController)").append(arrayParamSuffix);
-                }
-                continue;
 
             }
 
 
         }
 
-        private String formatParamValue(int index, String value) {
-            String paramName = getParameterNames().get(index);
-            TypeElement paramType = getParameterType(index);
-            boolean isEntity = isA(paramType, "com.codename1.rad.models.Entity");
-            boolean treatAsString = paramType.getQualifiedName().contentEquals("java.lang.String");
-            if (value.startsWith("java:")) {
-                treatAsString = false;
-                value = value.substring(value.indexOf(":")+1);
-            } else if (value.startsWith("string:")) {
-                treatAsString = true;
-                value = value.substring(value.indexOf(":")+1);
-            }
-            if (treatAsString) value = '"' + StringEscapeUtils.escapeJava(value) + '"';
-            TypeElement entityWrapperClass = null;
-            if (isEntity && !paramType.getQualifiedName().contentEquals("com.codename1.rad.models.Entity") && !paramType.getQualifiedName().contentEquals("com.codename1.rad.models.EntityList")) {
-                entityWrapperClass = classProxy.env.lookupClass(paramType.getQualifiedName()+"Wrapper");
 
 
-            }
-            if (isEntity) {
-                if (entityWrapperClass != null) {
-                    return entityWrapperClass.getQualifiedName()+".wrap("+value+")";
-                } else {
-                    return value;
-                }
-            }
-            return value;
-        }
+
     }
 
     private class JavaBuilder {
@@ -2457,20 +2414,20 @@ public class ViewProcessor extends BaseProcessor {
         JavaBeanBuilder(org.w3c.dom.Element xmlTag, JavaEnvironment jenv, JavaClassProxy beanClass) throws ClassNotFoundException{
             this.xmlTag = xmlTag;
             this.jenv = jenv;
-            this.beanClass = beanClass == null ? new JavaClassProxy(jenv.findClassThatTagCreates(xmlTag.getTagName()), jenv) : beanClass;
+            this.beanClass = beanClass == null ? jenv.newJavaClassProxy(jenv.findClassThatTagCreates(xmlTag.getTagName())) : beanClass;
             if (beanClass.typeEl.getKind() == ElementKind.INTERFACE) {
                 // Check if there is an implementation that we can use instead
                 if (beanClass.getQualifiedName().equals("com.codename1.rad.models.Entity")) {
                     // Translate <entity> to baseEntity
                     TypeElement implementationClass = jenv.lookupClass("com.codename1.rad.models.BaseEntity");
                     if (implementationClass != null && isA(implementationClass, beanClass.typeEl.getQualifiedName().toString())) {
-                        beanClass = new JavaClassProxy(implementationClass, jenv);
+                        beanClass = jenv.newJavaClassProxy(implementationClass);
                     }
                 } else {
 
                     TypeElement implementationClass = jenv.lookupClass(beanClass.typeEl.getQualifiedName() + "Impl");
                     if (implementationClass != null && isA(implementationClass, beanClass.typeEl.getQualifiedName().toString())) {
-                        beanClass = new JavaClassProxy(implementationClass, jenv);
+                        beanClass = jenv.newJavaClassProxy(implementationClass);
                     }
                 }
             }
@@ -2487,7 +2444,10 @@ public class ViewProcessor extends BaseProcessor {
             JavaMethodProxy constructor = beanClass.getBestConstructor(xmlTag);
 
             if (constructor == null) {
-                throw new XMLParseException("Cannot find suitable constructor to build tag "+xmlTag.getTagName()+" with class "+beanClass.typeEl.getQualifiedName(), xmlTag, null);
+                System.out.println("Bean class: "+beanClass.typeEl);
+                System.out.println("XML tag: "+xmlTag);
+                System.out.println("Class that tag creates: "+jenv.findClassThatTagCreates(xmlTag.getTagName()));
+                throw new XMLParseException("["+this.jenv.rootBuilder.className+"] Cannot find suitable constructor to build tag "+xmlTag.getTagName()+" with class beanClass "+beanClass.typeEl.getQualifiedName(), xmlTag, null);
             }
             constructor.callAsConstructor(sb, xmlTag, false);
             sb.append(";\n");
@@ -2557,6 +2517,7 @@ public class ViewProcessor extends BaseProcessor {
                     continue;
                 }
                 org.w3c.dom.Element childEl = (org.w3c.dom.Element)child;
+                if (childEl.hasAttribute("rad-used-for")) continue;
                 String propertyName = childEl.getAttribute("rad-property");
                 String childId = childEl.getAttribute("rad-id");
 
@@ -2616,13 +2577,13 @@ public class ViewProcessor extends BaseProcessor {
         JavaNodeBuilder(org.w3c.dom.Element xmlTag, JavaEnvironment jenv, JavaClassProxy builderClass, JavaClassProxy nodeClass) throws ClassNotFoundException{
             this.xmlTag = xmlTag;
             this.jenv = jenv;
-            this.builderMethod = jenv.findBuilderMethod(xmlTag, "com.codename1.rad.nodes.Node");
+            this.builderMethod = null;//jenv.findBuilderMethod(xmlTag, "com.codename1.rad.nodes.Node");
 
             this.builderClass = builderClass;
             if (builderMethod != null) {
-                this.nodeClass = new JavaClassProxy(builderMethod.getReturnType(), jenv);
+                this.nodeClass = jenv.newJavaClassProxy(builderMethod.getReturnType());
             } else {
-                this.nodeClass = nodeClass == null ? new JavaClassProxy(builderClass.findMethodProxy("getNode", 0).getReturnType(), jenv) : nodeClass;
+                this.nodeClass = nodeClass == null ? jenv.newJavaClassProxy(builderClass.findMethodProxy("getNode", 0).getReturnType()) : nodeClass;
             }
         }
 
@@ -2726,6 +2687,7 @@ public class ViewProcessor extends BaseProcessor {
                     continue;
                 }
                 org.w3c.dom.Element childEl = (org.w3c.dom.Element)child;
+                if (childEl.hasAttribute("rad-used-for")) continue;
                 String propertyName = childEl.getAttribute("rad-property");
                 String childId = childEl.getAttribute("rad-id");
 
@@ -2790,17 +2752,17 @@ public class ViewProcessor extends BaseProcessor {
         JavaComponentBuilder(org.w3c.dom.Element xmlTag, JavaEnvironment jenv, JavaClassProxy builderClass, JavaClassProxy componentClass) throws ClassNotFoundException{
             this.xmlTag = xmlTag;
             this.jenv = jenv;
-            this.builderMethod = jenv.findBuilderMethod(xmlTag, "com.codename1.ui.Component");
+            this.builderMethod = null;//jenv.findBuilderMethod(xmlTag, "com.codename1.ui.Component");
 
             this.builderClass = builderClass;
             if (builderMethod != null) {
-                this.componentClass = new JavaClassProxy(builderMethod.getReturnType(), jenv);
+                this.componentClass = jenv.newJavaClassProxy(builderMethod.getReturnType());
             } else {
-                this.componentClass = componentClass == null ? new JavaClassProxy(builderClass.findMethodProxy("getComponent", 0).getReturnType(), jenv) : componentClass;
+                this.componentClass = componentClass == null ? jenv.newJavaClassProxy(builderClass.findMethodProxy("getComponent", 0).getReturnType()) : componentClass;
                 if (componentClass == null && isA(this.componentClass.typeEl, "com.codename1.rad.ui.entityviews.EntityListView")) {
                     TypeElement typeEl = jenv.findClassBySimpleName(xmlTag.getTagName());
                     if (typeEl != null && isA(typeEl, "com.codename1.rad.ui.entityviews.EntityListView")) {
-                        this.componentClass = new JavaClassProxy(typeEl, jenv);
+                        this.componentClass = jenv.newJavaClassProxy(typeEl);
                     }
                 }
             }
@@ -2815,12 +2777,19 @@ public class ViewProcessor extends BaseProcessor {
          * @throws XMLParseException
          */
         void writeBuilderProperties(StringBuilder sb) throws XMLParseException {
+            // First we look for setters with @Inject and try to fill them.
+            // Then We See if tag has text content and a setText() setter and set the text.
+            // Then we go through child elements with rad-property attribute and set
+            // properties accordingly.
+
             if (builderClass == null) return;
 
+            Set<String> propertiesInjected = new HashSet<>();
             // Look for injected properties
             for (ExecutableElement setter : builderClass.findInjectableSetters()) {
                 String setterName = setter.getSimpleName().toString();
                 if (hasAttributeIgnoreCase(xmlTag, setterName)) {
+                    // No need for injection of this property... we will hit it with explicit properties
                     continue;
                 }
                 String propName = setterName;
@@ -2832,12 +2801,18 @@ public class ViewProcessor extends BaseProcessor {
                 } else if (hasAttributeIgnoreCase(xmlTag, "set"+propName)) {
                     continue;
                 }
+                if (propertiesInjected.contains(propName.toLowerCase())) {
+                    continue;
+                }
+                propertiesInjected.add(propName.toLowerCase());
                 ExecutableType et = (ExecutableType)types().asMemberOf((DeclaredType)builderClass.typeEl.asType(), setter);
                 TypeMirror propertyType = et.getParameterTypes().get(0);
                 indent(sb, indent).append("{\n");
                 indent += 4;
-                indent(sb, indent).append(propertyType).append(" _injectedValue = ").append("_getInjectedParameter(").
-                        append(propertyType.toString()).append(".class, context, viewController);\n");
+
+                indent(sb, indent).append(propertyType).append(" _injectedValue = ");
+                jenv.writeInjectedValue(sb, (TypeElement)((DeclaredType)propertyType).asElement(), xmlTag, propName, true);
+                sb.append(";\n");
                 indent(sb, indent).append("if (_injectedValue != null) ").append("_builder.").append(setter.getSimpleName()).append("((").append(propertyType.toString()).append(")_injectedValue);\n");
                 indent -=4;
                 indent(sb, indent).append("}\n");
@@ -2847,6 +2822,7 @@ public class ViewProcessor extends BaseProcessor {
 
             String textContent = xmlTag.getTextContent();
             if (textContent != null && !textContent.isEmpty()) {
+
                 ExecutableElement setText = builderClass.findSetter("text", "java.lang.String");
                 if (setText != null) {
                     indent(sb, indent);
@@ -2867,6 +2843,10 @@ public class ViewProcessor extends BaseProcessor {
                     // this is a parameter for the constructor or static builder method.  Do not treat is as a property.
                     continue;
                 }
+                if (propertiesInjected.contains(name.toLowerCase())) {
+                    continue;
+                }
+                propertiesInjected.add(name.toLowerCase());
                 indent(sb, indent);
                 sb.append("// ").append(name).append("=").append(value).append("\n");
                 indent(sb, indent);
@@ -2975,12 +2955,13 @@ public class ViewProcessor extends BaseProcessor {
             for (org.w3c.dom.Element childEl : getChildElements(xmlTag)) {
 
                 String propertyName = childEl.getAttribute("rad-property");
+
                 String childId = childEl.getAttribute("rad-id");
                 TypeElement type = jenv.findClassThatTagCreates(childEl.getTagName());
                 String createCall = "createBean";
-                if (isA(type, "com.codename1.ui.Component")) {
+                if (isComponent(type)) {
                     createCall = "createComponent";
-                } else if (isA(type, "com.codename1.rad.nodes.Node")) {
+                } else if (isNode(type)) {
                     createCall = "createNode";
                 }
                 createCall += childId + "()";
@@ -2988,19 +2969,22 @@ public class ViewProcessor extends BaseProcessor {
 
 
 
-                if (childEl.getTagName().contains("-") || childEl.hasAttribute("rad-param")) {
+                if (childEl.getTagName().contains("-")) {
                     continue;
                 }
 
                 if (propertyName != null && !propertyName.isEmpty()) {
+                    if (propertiesInjected.contains(propertyName.toLowerCase())) {
+                        continue;
+                    }
+
                     ExecutableElement setter = builderClass.findSetter(propertyName);
                     ExecutableType setterType = (ExecutableType)types().asMemberOf((DeclaredType)builderClass.typeEl.asType(), setter);
                     TypeMirror propertyType = setterType.getParameterTypes().get(0);
                     if (propertyName.contains(".") || setter == null) {
-                        // The builder class would have already handled this when setting its properties.
                         continue;
                     }
-
+                    propertiesInjected.add(propertyName.toLowerCase());
                     indent(sb, indent).append("// Set property ").append(propertyName).append(" with child tag ").append(childEl.getTagName()).append("\n");
                     indent(sb, indent);
                     builderClass.setProperty(sb, propertyName, "java:"+createCall, "_builder", propertyType.toString());
@@ -3008,40 +2992,7 @@ public class ViewProcessor extends BaseProcessor {
                     continue;
                 }
 
-                boolean first = true;
 
-                for (ExecutableElement injectableSetter : builderClass.findInjectableSettersForType(type)) {
-                    if (createCall.startsWith("createBean") && !jenv.rootBuilder.containsBeanBuilderFor(type.getQualifiedName())) {
-                        // Yes it's a bean, but we have no bean builder for it.
-                        continue;
-                    }
-                    ExecutableType setterType = (ExecutableType)types().asMemberOf((DeclaredType)builderClass.typeEl.asType(), injectableSetter);
-                    TypeMirror propertyType = setterType.getParameterTypes().get(0);
-                    indent(sb, indent).append("// Injectable property ").append(injectableSetter.getSimpleName()).append(" being set with tag ").append(childEl.getTagName()).append("\n");
-                    indent(sb, indent);
-                    if (first) {
-                        // This child may be injected into more than property, but we only create the component once
-                        first = false;
-                        sb.append("{\n");
-                        indent += 4;
-
-                        indent(sb, indent).append(type.getQualifiedName()).append(" _tmpProperty = ").append(createCall).append(";\n");
-
-                    }
-
-                    childEl.setAttribute("rad-property", injectableSetter.getSimpleName().toString());
-                    indent(sb, indent);
-                    builderClass.setProperty(sb, injectableSetter.getSimpleName().toString(), "java:_tmpProperty", "_builder", setterType.getParameterTypes().get(0).toString());
-                    sb.append("\n");
-                }
-                if (!first) {
-                    // We must have injected this child in at least one property.
-                    // Close the block and skip to next child element
-                    indent -= 4;
-                    indent(sb, indent).append("}\n");
-
-                    continue;
-                }
 
             }
         }
@@ -3093,16 +3044,16 @@ public class ViewProcessor extends BaseProcessor {
             }
 
             for (org.w3c.dom.Element childEl : getChildElements(xmlTag)) {
-                if (childEl.getTagName().contains("-") || childEl.hasAttribute("rad-param")) {
+                if (childEl.getTagName().contains("-")) {
                     continue;
                 }
                 String propertyName = childEl.getAttribute("rad-property");
                 String childId = childEl.getAttribute("rad-id");
                 TypeElement type = jenv.findClassThatTagCreates(childEl.getTagName());
                 String createCall = "createBean";
-                if (isA(type, "com.codename1.ui.Component")) {
+                if (isComponent(type)) {
                     createCall = "createComponent";
-                } else if (isA(type, "com.codename1.rad.nodes.Node")) {
+                } else if (isNode(type)) {
                     createCall = "createNode";
                 }
                 createCall += childId + "()";
@@ -3160,6 +3111,7 @@ public class ViewProcessor extends BaseProcessor {
          * @param sb
          */
         void writeHrefLink(StringBuilder sb) throws XMLParseException {
+
             String href = xmlTag.getAttribute("rad-href");
             if (href.isEmpty()) return;
             org.w3c.dom.Element bindAction = getChildElementsByTagName(xmlTag, "bind-action").stream().findFirst().orElse(null);
@@ -3201,7 +3153,7 @@ public class ViewProcessor extends BaseProcessor {
                 }
             }
 
-            if (formControllerTypeEl != null && isA(formControllerTypeEl, "com.codename1.rad.ui.EntityView")) {
+            if (formControllerTypeEl != null && isEntityView(formControllerTypeEl)) {
                 // This is a view class
                 // let's try to look up the default controller for it.
                 TypeElement markerControllerInterface = jenv.lookupClass("I"+formControllerTypeEl.getSimpleName()+"Controller");
@@ -3275,7 +3227,9 @@ public class ViewProcessor extends BaseProcessor {
             }
 
             if (formControllerTypeEl != null) {
+
                 List<JavaClassProxy> candidateControllerClasses = jenv.findInstantiatableClassesAssignableTo(packageElement, dummyTag, "com.codename1.rad.controllers.FormController", formControllerTypeEl.getQualifiedName().toString());
+
                 if (candidateControllerClasses.isEmpty()) {
                    throw new XMLParseException("Cannot find any instantiatable FormController classes that can be assigned to " + formControllerTypeEl.getQualifiedName() + ".  Referenced in rad-href attribute of " + xmlTag, xmlTag, null);
 
@@ -3344,6 +3298,7 @@ public class ViewProcessor extends BaseProcessor {
             } else {
                 bindAction.setTextContent(bindScript.toString());
             }
+
         }
 
         private boolean hasViewController;
@@ -3371,7 +3326,7 @@ public class ViewProcessor extends BaseProcessor {
                 }
                 org.w3c.dom.Element childEl = (org.w3c.dom.Element)child;
                 //String propertyName = childEl.getAttribute("rad-property");
-                if (childEl.hasAttribute("rad-property") || childEl.hasAttribute("rad-param")) {
+                if (childEl.hasAttribute("rad-property") || childEl.hasAttribute("rad-used-for")) {
                     continue;
                 }
 
@@ -3445,9 +3400,9 @@ public class ViewProcessor extends BaseProcessor {
 
                 // See if there are any injected properties that this would fit into
                 String createCall = "createBean";
-                if (isA(type, "com.codename1.ui.Component")) {
+                if (isComponent(type)) {
                     createCall = "createComponent";
-                } else if (isA(type, "com.codename1.rad.nodes.Node")) {
+                } else if (isNode(type)) {
                     createCall = "createNode";
                 }
                 createCall += childId + "()";
@@ -3824,30 +3779,8 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
-        private List<String> getConstructorParamNames() {
-            List<String> out = new ArrayList<String>();
-            forEachAttribute(xmlTag, attr -> {
-                if (attr.getName().startsWith("_") && attr.getName().endsWith("_")) {
-                    out.add(attr.getName().substring(1, attr.getName().length()-1));
-                }
-                return null;
-            });
-            for (org.w3c.dom.Element child : getChildElements(xmlTag)) {
-                if (child.hasAttribute("rad-param")) {
-                    out.add(child.getAttribute("rad-param"));
-                }
-            }
-            return out;
-        }
-        private List<String> getConstructorNamedParams() {
-            List<String> out = new ArrayList<String>();
-            for (String pname : getConstructorParamNames()) {
-                if (!Character.isDigit(pname.charAt(0))) {
-                    out.add(pname);
-                }
-            }
-            return out;
-        }
+
+
 
 
 
@@ -4050,7 +3983,7 @@ public class ViewProcessor extends BaseProcessor {
                 sb.append("\"").append(StringEscapeUtils.escapeJava(xmlTag.getTagName())).append("\", attributes);\n");
             }
 
-            if (isInsideRowTemplate() && isA(jenv.findClassThatTagCreates(xmlTag.getTagName()), "com.codename1.rad.ui.EntityView")) {
+            if (isInsideRowTemplate() && isEntityView(jenv.findClassThatTagCreates(xmlTag.getTagName()))) {
                 sb.append("if (").append(jenv.rootBuilder.className).append("this.rowView == null) {\n");
                 sb.append("    ").append(jenv.rootBuilder.className).append("this.rowView = (EntityView)_cmp;\n");
                 sb.append("    ").append(jenv.rootBuilder.className).append("this.subContext.setEntityView((EntityView)_cmp);\n");
@@ -4301,6 +4234,7 @@ public class ViewProcessor extends BaseProcessor {
          * @throws XMLParseException
          */
         private void installTypes(ProcessingEnvironmentWrapper env) throws XMLParseException {
+
             parse();
             ProcessingEnvironmentWrapper.SchemaBuilder schemaBuilder = env.new SchemaBuilder(packageName + "." + className + "Schema");
             ProcessingEnvironmentWrapper.EntityBuilder entityBuilder = env.new EntityBuilder(packageName + "." + className + "Model");
@@ -4407,16 +4341,22 @@ public class ViewProcessor extends BaseProcessor {
                     }
                 }
             }
-            env.addTypes(
+            List<ProcessingEnvironmentWrapper.CustomTypeElement> types = new ArrayList<>(Arrays.asList(
                     schemaBuilder.build(),
                     entityBuilder.build(),
                     entityImplBuilder.build(),
-                    controllerBuilder.build(),
                     controllerMarkerBuilder.build(),
+                    controllerBuilder.build(),
+
                     entityViewBuilder.build()
+            ));
+            env.addTypes(
+                    (ProcessingEnvironmentWrapper.CustomTypeElement[])types.toArray(new ProcessingEnvironmentWrapper.CustomTypeElement[types.size()])
             );
-
-
+            JavaEnvironment.ClassIndex index = (JavaEnvironment.ClassIndex)cache.get(JavaEnvironment.ClassIndex.class);
+            if (index != null) {
+                index.componentIndex.add(types.get(5).getQualifiedName().toString());
+            }
 
 
 
@@ -4432,9 +4372,11 @@ public class ViewProcessor extends BaseProcessor {
 
             jenv.addImports("import " + packageName+".*;");
             // Now add the default imports
+            jenv.addImports("import static com.codename1.rad.util.NonNull.nonNull;");
+            jenv.addImports("import static com.codename1.rad.util.NonNull.nonNullEntries;");
             if (!root.hasAttribute("strict-imports")) {
-                jenv.addImports("import com.codename1.rad.schemas.**;\n");
-                jenv.addImports("import com.codename1.rad.ui.builders.**;\n");
+                jenv.addImports("import com.codename1.rad.schemas.*;\n");
+                jenv.addImports("import com.codename1.rad.ui.builders.*;\n");
                 jenv.addImports("import ca.weblite.shared.components.*;\n");
                 jenv.addImports("import com.codename1.rad.models.*;\n");
                 jenv.addImports("import com.codename1.rad.nodes.*;\n");
@@ -4450,6 +4392,7 @@ public class ViewProcessor extends BaseProcessor {
                 jenv.addImports("import com.codename1.rad.ui.ViewContext;\n");
                 jenv.addImports("import com.codename1.rad.ui.EntityView;\n");
 
+
             }
 
         }
@@ -4459,6 +4402,7 @@ public class ViewProcessor extends BaseProcessor {
         private boolean parsed;
         private void parse() throws XMLParseException {
             if (parsed) return;
+
             parsed = true;
             org.w3c.dom.Document doc;
 
@@ -4489,6 +4433,7 @@ public class ViewProcessor extends BaseProcessor {
             }
 
             parse(doc.getDocumentElement());
+
         }
 
         private void setViewModelType(String viewModelType) {
@@ -4507,96 +4452,110 @@ public class ViewProcessor extends BaseProcessor {
                     return null;
                 }
 
-                String tagName = el.getTagName();
-                if (rootEl == null) {
-                    rootEl = el;
-                    loadImports(el);
+                Runnable runnable = () -> {
+                    String tagName = el.getTagName();
+                    if (rootEl == null) {
+                        rootEl = el;
+                        loadImports(el);
+
+                        jenv.buildIndex();
 
 
-                    if (el.hasAttribute("rad-model")) {
-                        setViewModelType(el.getAttribute("rad-model"));
-                    } else {
-                        setViewModelType(className+"Model");
+                        if (el.hasAttribute("rad-model")) {
+                            setViewModelType(el.getAttribute("rad-model"));
+                        } else {
+                            setViewModelType(className + "Model");
 
-                    }
-                    viewImplements = className+"Schema";
-                    if (el.hasAttribute("rad-implements")) {
-                        viewImplements += ", " + el.getAttribute("rad-implements");
-                    }
-
-
-
-
-
-                }
-                if (!tagName.contains("-") && jenv.isComponentTag(tagName)) {
-                    JavaClassProxy builderClass = jenv.findComponentBuilderForTag(tagName);
-                    if (builderClass != null) {
-                        try {
-                            JavaComponentBuilder componentBuilder = new JavaComponentBuilder(el, jenv, builderClass, null);
-                            componentBuilders.add(componentBuilder);
-                        } catch (ClassNotFoundException cnfe) {
-                            XMLParseException ex = new XMLParseException("Failed to find component class for builder "+builderClass.getQualifiedName()+" while processing tag "+tagName, el, cnfe);
-                            errors[0] = ex;
-                            return null;
                         }
-                    } else {
-                        TypeElement componentTypeEl = jenv.findClassThatTagCreates(tagName);
-                        try {
-                            if (componentTypeEl != null) {
-                                JavaClassProxy componentClassProxy = new JavaClassProxy(componentTypeEl, jenv);
-                                JavaComponentBuilder componentBuilder = new JavaComponentBuilder(el, jenv, null, componentClassProxy);
+                        viewImplements = className + "Schema";
+                        if (el.hasAttribute("rad-implements")) {
+                            viewImplements += ", " + el.getAttribute("rad-implements");
+                        }
+
+
+                    }
+                    if (tagName.equalsIgnoreCase("import")) {
+                        return;
+                    }
+
+                    if (!tagName.contains("-") && jenv.isComponentTag(tagName)) {
+
+
+                        JavaClassProxy builderClass = jenv.findComponentBuilderForTag(tagName);
+
+                        if (builderClass != null) {
+                            try {
+
+                                JavaComponentBuilder componentBuilder = new JavaComponentBuilder(el, jenv, builderClass, null);
                                 componentBuilders.add(componentBuilder);
-                            } else {
-                                throw new ClassNotFoundException();
-                            }
-                        } catch (ClassNotFoundException cnfe) {
-                            XMLParseException ex = new XMLParseException("Failed to find component class for tag "+tagName, el, cnfe);
-                            errors[0] = ex;
-                            return null;
-                        }
-                    }
 
-                } else if (!tagName.contains("-")){
-                    TypeElement beanClass = jenv.findClassThatTagCreates(tagName);
-                    if (beanClass != null) {
-                        try {
-                            beanBuilders.add(new JavaBeanBuilder(el, jenv, new JavaClassProxy(beanClass, jenv)));
-                        } catch (ClassNotFoundException cnfe) {
-                            XMLParseException ex = new XMLParseException("Failed to find bean class for tag "+tagName, el, cnfe);
-                            errors[0] = ex;
-                            return null;
-                        }
-                    }
-                }
-                if (!tagName.contains("-") && jenv.isNodeTag(tagName, true)) {
-                    JavaClassProxy builderClass = jenv.findNodeBuilderForTag(tagName);
-                    if (builderClass != null) {
-                        try {
-                            JavaNodeBuilder nodeBuilder = new JavaNodeBuilder(el, jenv, builderClass, null);
-                            nodeBuilders.add(nodeBuilder);
-                        } catch (ClassNotFoundException cnfe) {
-                            XMLParseException ex = new XMLParseException("Failed to find node class for builder "+builderClass.getQualifiedName()+" while processing tag "+tagName, el, cnfe);
-                            errors[0] = ex;
-                            return null;
-                        }
-                    } else {
-                        TypeElement nodeTypeEl = jenv.findClassThatTagCreates(tagName, "com.codename1.rad.nodes.Node");
-                        try {
-                            if (nodeTypeEl != null) {
-                                JavaClassProxy nodeClassProxy = new JavaClassProxy(nodeTypeEl, jenv);
-                                JavaNodeBuilder nodeBuilder = new JavaNodeBuilder(el, jenv, null, nodeClassProxy);
-                                nodeBuilders.add(nodeBuilder);
-                            } else {
-                                throw new ClassNotFoundException();
+                            } catch (ClassNotFoundException cnfe) {
+                                XMLParseException ex = new XMLParseException("Failed to find component class for builder " + builderClass.getQualifiedName() + " while processing tag " + tagName, el, cnfe);
+                                errors[0] = ex;
+                                return ;
                             }
-                        } catch (ClassNotFoundException cnfe) {
-                            XMLParseException ex = new XMLParseException("Failed to find node class for tag "+tagName, el, cnfe);
-                            errors[0] = ex;
-                            return null;
+                        } else {
+
+                            TypeElement componentTypeEl = jenv.findClassThatTagCreates(tagName);
+
+                            try {
+                                if (componentTypeEl != null) {
+                                    JavaClassProxy componentClassProxy = jenv.newJavaClassProxy(componentTypeEl);
+                                    JavaComponentBuilder componentBuilder = new JavaComponentBuilder(el, jenv, null, componentClassProxy);
+                                    componentBuilders.add(componentBuilder);
+                                } else {
+                                    throw new ClassNotFoundException();
+                                }
+                            } catch (ClassNotFoundException cnfe) {
+                                XMLParseException ex = new XMLParseException("Failed to find component class for tag " + tagName, el, cnfe);
+                                errors[0] = ex;
+                                return ;
+                            }
+                        }
+                        return;
+
+                    } else if (!tagName.contains("-")) {
+                        TypeElement beanClass = jenv.findClassThatTagCreates(tagName);
+                        if (beanClass != null) {
+                            try {
+                                beanBuilders.add(new JavaBeanBuilder(el, jenv, jenv.newJavaClassProxy(beanClass)));
+                            } catch (ClassNotFoundException cnfe) {
+                                XMLParseException ex = new XMLParseException("Failed to find bean class for tag " + tagName, el, cnfe);
+                                errors[0] = ex;
+                                return ;
+                            }
                         }
                     }
-                }
+                    if (!tagName.contains("-") && jenv.isNodeTag(tagName, true)) {
+                        JavaClassProxy builderClass = jenv.findNodeBuilderForTag(tagName);
+                        if (builderClass != null) {
+                            try {
+                                JavaNodeBuilder nodeBuilder = new JavaNodeBuilder(el, jenv, builderClass, null);
+                                nodeBuilders.add(nodeBuilder);
+                            } catch (ClassNotFoundException cnfe) {
+                                XMLParseException ex = new XMLParseException("Failed to find node class for builder " + builderClass.getQualifiedName() + " while processing tag " + tagName, el, cnfe);
+                                errors[0] = ex;
+                                return ;
+                            }
+                        } else {
+                            TypeElement nodeTypeEl = jenv.findClassThatTagCreates(tagName, "com.codename1.rad.nodes.Node");
+                            try {
+                                if (nodeTypeEl != null) {
+                                    JavaClassProxy nodeClassProxy = jenv.newJavaClassProxy(nodeTypeEl);
+                                    JavaNodeBuilder nodeBuilder = new JavaNodeBuilder(el, jenv, null, nodeClassProxy);
+                                    nodeBuilders.add(nodeBuilder);
+                                } else {
+                                    throw new ClassNotFoundException();
+                                }
+                            } catch (ClassNotFoundException cnfe) {
+                                XMLParseException ex = new XMLParseException("Failed to find node class for tag " + tagName, el, cnfe);
+                                errors[0] = ex;
+                                return ;
+                            }
+                        }
+                    }
+                };
+                runnable.run();
 
                 return null;
             });
@@ -4678,7 +4637,7 @@ public class ViewProcessor extends BaseProcessor {
                             // and parameters that take this type.
                             TypeElement injectableType = jenv.lookupClass(type);
                             if (injectableType != null) {
-                                injectableTypes.put(name, new JavaClassProxy(injectableType, jenv));
+                                injectableTypes.put(name, jenv.newJavaClassProxy(injectableType));
                             }
                         }
                         variables.put(name, type);
@@ -5057,6 +5016,7 @@ public class ViewProcessor extends BaseProcessor {
 
 
         private void writeViewClass(StringBuilder sb) throws XMLParseException {
+
             indent(sb, indent).append("package ").append(packageName).append(";\n");
             sb.append("import com.codename1.rad.annotations.*;\n");
             sb.append("import com.codename1.rad.controllers.*;\n");
@@ -5091,6 +5051,7 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("add(BorderLayout.CENTER, ").append("createComponent0());\n");
             indent -= 4;
             indent(sb, indent).append("}\n");
+
 
             for (JavaComponentBuilder component : componentBuilders) {
                 component.indent = indent;
@@ -5154,9 +5115,15 @@ public class ViewProcessor extends BaseProcessor {
             sb.append("    }\n");
             sb.append("    private <T> T _getInjectedParameter(Class<T> type, ViewContext context, Controller controller) {\n");
             sb.append("        T lookedUp = (T)controller.lookup(type);\n");
+
             sb.append("        if (lookedUp != null) return lookedUp;\n");
+            sb.append("        if (type == ViewContext.class) return (T)context;\n");
             sb.append("        if (Entity.class.isAssignableFrom(type)) return (T)context.getEntity();\n");
             sb.append("        if (type.isAssignableFrom(this.getClass())) return (T)this;\n");
+            sb.append("        if (type.isAssignableFrom(controller.getClass())) return (T)controller;\n");
+            sb.append("        if (type.isAssignableFrom(FormController.class)) return (T)formController;\n");
+            sb.append("        if (type.isAssignableFrom(ApplicationController.class)) return (T)applicationController;\n");
+            sb.append("        if (type.isAssignableFrom(ViewController.class)) return (T)viewController;\n");
             sb.append("        return null;\n");
             sb.append("    }\n");
 
@@ -5295,7 +5262,7 @@ public class ViewProcessor extends BaseProcessor {
                 if (element.getKind() == ElementKind.CLASS) {
                     TypeElement typeEl = (TypeElement)element;
                     String tagName = typeEl.getSimpleName().toString().toLowerCase();
-                    if (isA(typeEl, "com.codename1.ui.Component")) {
+                    if (isComponent(typeEl)) {
 
                         ComponentBuilderPair pair = tagMap.get(tagName);
                         if (pair == null) {
@@ -5579,37 +5546,11 @@ public class ViewProcessor extends BaseProcessor {
         }
     }
 
-    /**
-     * Extracts named parameters from the given element.  Named parameters can be specified both with
-     * attributes of the form _paramName_="..."  (i.e. the attribute name starts and ends with an underscore),
-     * and with child elements with attribute rad-param="paramName". In both cases paramName cannot begin with a digit.
-     * @param element
-     * @return
-     */
-    private static Set<String> extractNamedParameters(org.w3c.dom.Element element) {
-        Set<String> out = new HashSet<String>();
-        forEachAttribute(element, attr -> {
-            String name = attr.getName();
-            if (name.startsWith("_") && name.endsWith("_") && name.length() > 2 && !Character.isDigit(name.charAt(1))) {
-                out.add(name.substring(1, name.length()-1));
-            }
-            return null;
-        });
-        forEachChild(element, child -> {
-            if (child.hasAttribute("rad-param")) {
-                String name = child.getAttribute("rad-param");
-                if (name.length() > 0 && !Character.isDigit(name.charAt(0))) {
-                    out.add(name);
-                }
-            }
-            return null;
-        });
-        return out;
-    }
+
 
     /**
      * Extracts the indexed parameters from element.  Indexed parameter are specified both by attributes
-     * of the form _N_="..." where N is an integer, and via child elements with attribute rad-param="N" where N is an
+     * of the form _N_="..." where N is an integer, and via child elements with attribute rad-property="N" where N is an
      * integer.  These parameters are used when calling the constructor that is created by this tag.
      * @param element An element to check.
      * @return
@@ -5626,8 +5567,8 @@ public class ViewProcessor extends BaseProcessor {
             return null;
         });
         forEachChild(element, child -> {
-            if (child.hasAttribute("rad-param")) {
-                String name = child.getAttribute("rad-param");
+            if (child.hasAttribute("rad-property")) {
+                String name = child.getAttribute("rad-property");
                 if (name.length() > 0 && Character.isDigit(name.charAt(0))) {
                     try {
                         out.add(Integer.parseInt(name));

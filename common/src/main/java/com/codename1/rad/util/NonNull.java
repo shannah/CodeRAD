@@ -6,7 +6,10 @@ public class NonNull {
     public static <T> T nonNull(T o, T defaultVal) {
         return o == null ? defaultVal : (T)o;
     }
-
+    public static <T> T[] nonNullEntries(T[] o, T[] defaultVal) {
+        if (o == null || o.length == 0 || o[0] == null) return defaultVal;
+        return o;
+    }
     public static <T> boolean with(Object o, Class<T> type, SuccessCallback<T> callback) {
         if (o == null || type == null) return false;
         if (type.isAssignableFrom(o.getClass())) {
