@@ -163,6 +163,9 @@ public class ViewController extends Controller {
 
             activate(this.view);
             dispatchEvent(new DidSetViewEvent(this, this.view));
+            if (viewDecorators != null && !viewDecorators.isEmpty()) {
+                viewDecorators.clear();
+            }
         }
     }
 
