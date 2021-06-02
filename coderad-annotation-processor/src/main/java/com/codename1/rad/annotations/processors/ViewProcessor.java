@@ -5146,6 +5146,27 @@ public class ViewProcessor extends BaseProcessor {
         }
 
 
+        private String toCamelCase(String str) {
+            int lowerCaseIndex = -1;
+            int len = str.length();
+            for (int i=0; i<len; i++) {
+                if (Character.isLowerCase(str.charAt(i))) {
+                    lowerCaseIndex = i;
+                    break;
+                }
+            }
+            if(lowerCaseIndex < 0) {
+                // No lowercase found.  Change full string to lowercase.
+                return str.toLowerCase();
+            } else if (lowerCaseIndex == 0) {
+                // First character is lower case.  We're good.
+                return str;
+            } else {
+                // First character was capital but next was lowercase.  Just lc the first char.
+                return str.substring(0, lowerCaseIndex).toLowerCase() + str.substring(lowerCaseIndex);
+            }
+        }
+
 
         public void createViewSourceFile() throws XMLParseException, IOException {
             parse();
@@ -5271,7 +5292,7 @@ public class ViewProcessor extends BaseProcessor {
                         if (pair == null) {
                             pair = new ComponentBuilderPair();
                             pair.componentClass = typeEl;
-                            pair.tagNames.add(tagName);
+                            pair.tagNames.add(toCamelCase(typeEl.getSimpleName().toString()));
                             tagMap.put(tagName, pair);
                             nameMap.put(typeEl.getQualifiedName().toString(), pair);
                         } else {
@@ -5300,29 +5321,33 @@ public class ViewProcessor extends BaseProcessor {
                         if (pair == null) {
                             pair = new ComponentBuilderPair();
                             pair.componentClass = componentElement;
-                            pair.tagNames.add(componentElement.getSimpleName().toString().toLowerCase());
+                            pair.tagNames.add(toCamelCase(componentElement.getSimpleName().toString()));
+                            nameMap.put(componentElement.getQualifiedName().toString(), pair);
+                            tagMap.put(componentElement.getSimpleName().toString(), pair);
 
                         }
 
                         if (pair.builderClass == null) {
                             pair.builderClass = typeEl;
                             for (String tag : radAnnotation.tag()) {
-                                if (!pair.tagNames.contains(tag.toLowerCase())) pair.tagNames.add(tag.toLowerCase());
+                                if (!pair.tagNames.contains(tag)) pair.tagNames.add(tag);
                             }
-                        } else if (!pair.builderClass.getQualifiedName().contentEquals(typeEl.getQualifiedName())) {
-                            // There is already a builder class
+                        } else {
+
                             return;
                         }
                         List<String> tagsToRemove = new ArrayList<>();
                         for (String tag : pair.tagNames) {
                             if (tagMap.containsKey(tag.toLowerCase()) && !tagMap.get(tag.toLowerCase()).equals(pair)) {
                                 // another tag already registered with different pair, so we should remove the tag from this pair.
-                                tagsToRemove.add(tag.toLowerCase());
+                                tagsToRemove.add(toCamelCase(tag));
                             } else {
-                                tagMap.put(tag, pair);
+                                tagMap.put(tag.toLowerCase(), pair);
                             }
                         }
-                        pair.tagNames.removeAll(tagsToRemove);
+                        if (!tagsToRemove.isEmpty()) {
+                            pair.tagNames.removeAll(tagsToRemove);
+                        }
                         if (!nameMap.containsKey(typeEl.getQualifiedName().toString())) {
                             nameMap.put(typeEl.getQualifiedName().toString(), pair);
                         }
@@ -5332,12 +5357,43 @@ public class ViewProcessor extends BaseProcessor {
                     }
                 }
             });
+            Map<String,TypeElement> tags = new HashMap<String,TypeElement>();
 
             for (Map.Entry<String, ComponentBuilderPair> e : tagMap.entrySet()) {
-                XMLSchemaGenerator xmlSchemaGenerator = new XMLSchemaGenerator(env(), jenv, xmlSchemasDirectory, e.getValue().componentClass, e.getValue().builderClass);
 
+                for (String tagName : e.getValue().tagNames) {
+                    if (!tags.containsKey(tagName)) {
+
+                        tags.put(tagName, e.getValue().componentClass);
+                    }
+                }
+            }
+
+            viewSchemaGenerator.setAllTags(tags);
+            viewSchemaGenerator.setWriteElements(true);
+            Set<TypeElement> dependentClasses = new HashSet<>();
+            Set<TypeElement> usedClasses = new HashSet<>();
+            for (Map.Entry<String, ComponentBuilderPair> e : tagMap.entrySet()) {
+                if (usedClasses.contains(e.getValue().componentClass)) {
+                    continue;
+                }
+                dependentClasses.addAll(getParentsOf(e.getValue().componentClass));
+                usedClasses.add(e.getValue().componentClass);
+                XMLSchemaGenerator xmlSchemaGenerator = new XMLSchemaGenerator(env(), jenv, xmlSchemasDirectory, e.getValue().componentClass, e.getValue().builderClass);
                 xmlSchemaGenerator.writeToFile();
                 viewSchemaGenerator.addInclude(xmlSchemaGenerator.getSchemaFile());
+
+                //if (xmlSchemaGenerator.getSchemaFile().equals(viewSchemaGenerator.getSchemaFile())) continue;
+                //viewSchemaGenerator.addSubGenerator(xmlSchemaGenerator);
+
+            }
+            dependentClasses.removeAll(usedClasses);
+            for (TypeElement cls : dependentClasses) {
+                XMLSchemaGenerator xmlSchemaGenerator = new XMLSchemaGenerator(env(), jenv, xmlSchemasDirectory, cls, null);
+                xmlSchemaGenerator.setPartialSchema(true);
+                xmlSchemaGenerator.writeToFile();
+                viewSchemaGenerator.addInclude(xmlSchemaGenerator.getSchemaFile());
+
             }
             // It may have been regenerated in the above generations before adding includes to it.  So we regenerate our target.
             viewSchemaGenerator.getSchemaFile().delete();
@@ -5345,6 +5401,20 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
+        private Set<TypeElement> getParentsOf(TypeElement typeEl) {
+            Set<TypeElement> out = new HashSet<>();
+            while (typeEl != null) {
+                TypeMirror parentType = (TypeMirror)typeEl.getSuperclass();
+                if (parentType == null || parentType.getKind() != TypeKind.DECLARED) break;
+                typeEl = (TypeElement)((DeclaredType)parentType).asElement();
+                if (typeEl == null) {
+                    break;
+                }
+                if (out.contains(typeEl)) break;
+                out.add(typeEl);
+            }
+            return out;
+        }
 
 
         public void createModelSourceFile() throws XMLParseException, IOException {

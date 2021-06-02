@@ -1,0 +1,12 @@
+= What's New in CodeRAD 2.0
+
+CodeRAD2 makes it easier than ever to develop native apps for iOS and Android.
+It introduces a revolutionary new approach to application development that combines well-established patterns (e.g. MVC, Declarative UI) with Codename One's extensive component library.
+
+==  Features
+
+. New declarative DSL for developing views
+. Dependency Injection
+. Entity class generation using new `@RAD` annotation
+.
+
