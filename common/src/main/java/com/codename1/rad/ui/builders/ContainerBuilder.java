@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @author shannah
  */
-@RAD(tag={"container", "border", "x", "y", "flow", "layered", "grid"})
+@RAD(tag={"container", "border", "x", "y", "flow", "layered", "grid", "center"})
 public class ContainerBuilder extends AbstractComponentBuilder<Container> {
     
     
@@ -59,6 +59,10 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
             return layout(BoxLayout.x());
         } else if ("flow".equals(lcLayout)) {
             return layout(new FlowLayout());
+        } else if ("center".equals(lcLayout)) {
+            return layout(new FlowLayout(Component.CENTER));
+        } else if ("layered".equals(lcLayout)) {
+            return layout(new LayeredLayout());
         } else {
             throw new IllegalArgumentException("Layout "+layout+" not supported by ContainerBuilder");
         }
@@ -76,15 +80,15 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
         String tagName = getTagName();
         Layout layout = null;
         if (tagName != null) {
-            if ("border".equals(tagName)) {
+            if ("border".equalsIgnoreCase(tagName)) {
                 layout = new BorderLayout();
-            } else if ("y".equals(tagName)) {
+            } else if ("y".equalsIgnoreCase(tagName)) {
                 layout = BoxLayout.y();
-            } else if ("x".equals(tagName)) {
+            } else if ("x".equalsIgnoreCase(tagName)) {
                 layout = BoxLayout.x();
-            } else if ("flow".equals(tagName)) {
+            } else if ("flow".equalsIgnoreCase(tagName)) {
                 layout = new FlowLayout();
-            } else if ("grid".equals(tagName)) {
+            } else if ("grid".equalsIgnoreCase(tagName)) {
                 int columns = 2;
                 if (hasAttribute("layout-columns")) {
                     columns = Integer.parseInt(getAttribute("layout-columns"));
@@ -95,8 +99,10 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
                 } else {
                     layout = new GridLayout(columns);
                 }
-            } else if ("layered".equals(tagName)) {
+            } else if ("layered".equalsIgnoreCase(tagName)) {
                 layout = new LayeredLayout();
+            } else if ("center".equalsIgnoreCase(tagName)) {
+                layout = new FlowLayout(Component.CENTER);
             }
         }
         if (layout != null) {
@@ -108,6 +114,12 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
 
     @Override
     public Object parseConstraint(String constraint) {
+        if (getTagName().equalsIgnoreCase("layered")) {
+            Container cnt = getComponent();
+            LayeredLayout ll = (LayeredLayout)cnt.getLayout();
+            return ll.createConstraint(constraint);
+
+        }
         if ("north".equals(constraint)) return BorderLayout.NORTH;
         if ("south".equals(constraint)) return BorderLayout.SOUTH;
         if ("east".equals(constraint)) return BorderLayout.EAST;

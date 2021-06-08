@@ -93,6 +93,7 @@ public class FormController extends ViewController implements Runnable {
     private String title;
     private String pathName;
     private boolean addTitleBar = true;
+    private Component titleComponent;
 
 
     private ActionListener showListener;
@@ -180,9 +181,16 @@ public class FormController extends ViewController implements Runnable {
         }
         
     }
+
+
     
     public String getTitle() {
         return title;
+    }
+
+    public void setTitleComponent(Component cmp) {
+        this.titleComponent = cmp;
+
     }
 
     public void setAddTitleBar(boolean add) {
@@ -309,12 +317,16 @@ public class FormController extends ViewController implements Runnable {
                 titleBar.add(BorderLayout.EAST, done);
             }
 
-            titleLbl = new Label();
-            titleLbl.setUIID("Title");
-            if (title != null) {
-                titleLbl.setText(title);
+            if (titleComponent != null) {
+                titleBar.add(BorderLayout.CENTER, titleComponent);
+            } else {
+                titleLbl = new Label();
+                titleLbl.setUIID("Title");
+                if (title != null) {
+                    titleLbl.setText(title);
+                }
+                titleBar.add(BorderLayout.CENTER, titleLbl);
             }
-            titleBar.add(BorderLayout.CENTER, titleLbl);
             if (!hasTitle) f.add(BorderLayout.NORTH, titleBar);
             f.add(BorderLayout.CENTER, decorateView(cmp));
             f.revalidateLater();
@@ -486,6 +498,53 @@ public class FormController extends ViewController implements Runnable {
         return ViewController.getViewController(event).getFormController();
     }
 
+
+    /**
+     * Clones a form controller and replaces it.  The provided FormController must implement {@link CloneableFormController}.
+     * @param controller The controller to clone and replace.
+     * @param <T> The type of FormController
+     * @return The new FormController.  show() method would already have been called.
+     */
+    public static <T extends FormController> T cloneAndReplace(T controller) {
+        if (controller instanceof CloneableFormController) {
+            return (T)((CloneableFormController)controller).cloneAndReplace();
+        }
+        throw new RuntimeException("The provided form doesn't implement CloneableFormController so it can't be cloned and replaced.");
+    }
+
+    /**
+     * Tries to {@link #cloneAndReplace(FormController)} the current FormController
+     * @return True if it succeeds.  False if it fails.  It will fail either the current form doesn't have a form controller,
+     * or there is no current form.
+     */
+    public static boolean tryCloneAndReplaceCurrentForm() {
+        Form currentForm = CN.getCurrentForm();
+        if (currentForm == null) {
+            return false;
+        }
+        ViewController bc = ViewController.getViewController(currentForm);
+        if (bc == null) return false;
+
+        FormController fc = bc.getFormController();
+        if (fc == null) return false;
+
+        try {
+            cloneAndReplace(fc);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    /**
+     * Interface that can be implemented by FormController subclasses that support Cloning and replacing themselves.  This
+     * Functionality is mostly useful for Hot reload in the simulator, which is currently experimental and requires the use
+     * of Hotswap agent.
+     * @param <T> The type of FormController to clone.
+     */
+    public static interface CloneableFormController<T extends FormController> {
+        public T cloneAndReplace();
+    }
 
 
     

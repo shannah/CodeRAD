@@ -211,7 +211,8 @@ public class XMLSchemaGenerator {
                     indent += 2;
 
                 } else {
-                    indent(sb, indent).append("<xs:complexType name=\"").append(complexTypeName).append("\">\n");
+                    String mixed = extensionBase != null ? "" : " mixed=\"true\"";
+                    indent(sb, indent).append("<xs:complexType name=\"").append(complexTypeName).append("\"").append(mixed).append(">\n");
                     indent += 2;
 
                     if (extensionBase != null) {
@@ -220,7 +221,7 @@ public class XMLSchemaGenerator {
                         indent(sb, indent).append("<xs:extension base=\"").append(extensionBase).append("\">\n");
                         indent += 2;
                     } else {
-                        indent(sb, indent).append("<xs:sequence><xs:any minOccurs=\"0\"/></xs:sequence>");
+                        indent(sb, indent).append("<xs:sequence><xs:any minOccurs=\"0\" maxOccurs=\"unbounded\" processContents=\"lax\"/></xs:sequence>");
                         indent(sb, indent).append("<xs:attribute name=\"layout-constraint\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-implements\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-href\" type=\"xs:string\"/>\n");
@@ -241,6 +242,9 @@ public class XMLSchemaGenerator {
                             // Could be a setter
                             String methodName = methodEl.getSimpleName().toString();
                             String propertyName = methodName;
+
+
+
                             if (clazz == javaClass && !methodName.startsWith("set")) {
                                 continue;
                             }
@@ -264,9 +268,28 @@ public class XMLSchemaGenerator {
                                 indent(sb, indent).append("<xs:attribute name=\"").append("bind-" + propertyName).append("\" type=\"xs:string\"/>\n");
                             }
 
+                        } else if (clazz == javaClass && methodEl.getParameters().size() == 0 && methodEl.getSimpleName().toString().startsWith("get")) {
+                            ExecutableType methodType = (ExecutableType) processingEnvironment.getTypeUtils().asMemberOf((DeclaredType) clazz.asType(), methodEl);
+                            String propertyName = toCamelCase(methodEl.getSimpleName().toString().substring(3));
+
+                            if (env.isA(methodType.getReturnType(), "com.codename1.ui.plaf.Style")) {
+                                TypeElement retType = processingEnvironment.getElementUtils().getTypeElement("com.codename1.ui.plaf.Style");
+                                for (Element subMember : processingEnvironment.getElementUtils().getAllMembers(retType)) {
+                                    String subMethodName = subMember.getSimpleName().toString();
+                                    if (subMember.getKind() != ElementKind.METHOD) continue;
+                                    if (!subMethodName.startsWith("set")) continue;
+                                    if (((ExecutableElement)subMember).getParameters().size() != 1) continue;
+
+                                    indent(sb, indent).append("<xs:attribute name=\"").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"xs:string\"/>\n");
+                                    indent(sb, indent).append("<xs:attribute name=\"bind-").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"xs:string\"/>\n");
+                                }
+                            }
+
+
                         }
                     }
                 }
+
                 if (clazz == builderClass || extensionBase != null) {
                     indent -= 2;
                     indent(sb, indent).append("</xs:extension>\n");
@@ -324,6 +347,12 @@ public class XMLSchemaGenerator {
             indent(sb, indent).append("    <xs:attribute name=\"type\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("  </xs:complexType>\n");
             indent(sb, indent).append("</xs:element>\n");
+            indent(sb, indent).append("<xs:element name=\"use-taglib\">\n");
+            indent(sb, indent).append("  <xs:complexType>\n");
+            indent(sb, indent).append("    <xs:attribute name=\"package\" type=\"xs:string\"/>\n");
+            indent(sb, indent).append("    <xs:attribute name=\"class\" type=\"xs:string\"/>\n");
+            indent(sb, indent).append("  </xs:complexType>\n");
+            indent(sb, indent).append("</xs:element>\n");
             indent(sb, indent).append("<xs:element name=\"define-property\">\n");
             indent(sb, indent).append("  <xs:complexType>\n");
             indent(sb, indent).append("    <xs:attribute name=\"name\" type=\"xs:string\"/>\n");
@@ -346,7 +375,7 @@ public class XMLSchemaGenerator {
             indent(sb, indent).append("<xs:element name=\"define-slot\">\n");
             indent(sb, indent).append("  <xs:complexType>\n");
             indent(sb, indent).append("    <xs:sequence>\n");
-            indent(sb, indent).append("      <xs:any minOccurs=\"0\" maxOccurs=\"1\"/>\n");
+            indent(sb, indent).append("      <xs:any minOccurs=\"0\" maxOccurs=\"1\" />\n");
             indent(sb, indent).append("    </xs:sequence>\n");
             indent(sb, indent).append("    <xs:attribute name=\"id\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("  </xs:complexType>\n");
@@ -357,6 +386,14 @@ public class XMLSchemaGenerator {
             indent(sb, indent).append("      <xs:any minOccurs=\"0\" maxOccurs=\"1\"/>\n");
             indent(sb, indent).append("    </xs:sequence>\n");
             indent(sb, indent).append("    <xs:attribute name=\"id\" type=\"xs:string\"/>\n");
+            indent(sb, indent).append("  </xs:complexType>\n");
+            indent(sb, indent).append("</xs:element>\n");
+            indent(sb, indent).append("<xs:element name=\"row-template\">\n");
+            indent(sb, indent).append("  <xs:complexType>\n");
+            indent(sb, indent).append("    <xs:sequence>\n");
+            indent(sb, indent).append("      <xs:any minOccurs=\"0\" maxOccurs=\"1\"/>\n");
+            indent(sb, indent).append("    </xs:sequence>\n");
+            indent(sb, indent).append("    <xs:attribute name=\"case\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("  </xs:complexType>\n");
             indent(sb, indent).append("</xs:element>\n");
 

@@ -3,6 +3,7 @@ package com.codename1.rad.annotations.processors;
 import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.annotations.RAD;
 
+import com.codename1.rad.annotations.TagLib;
 import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Attr;
@@ -2165,6 +2166,10 @@ public class ViewProcessor extends BaseProcessor {
                 String enumConstant = enumValues.stream().filter(s -> s.equalsIgnoreCase(fValue)).findFirst().orElse(null);
                 if (enumConstant != null) {
                     value = parameterType.getQualifiedName() + "." + enumConstant;
+                } else if (isScalar(value)) {
+                    value = formatScalarAsArgumentValue(value);
+                } else if (paramType.getQualifiedName().contentEquals("com.codename1.ui.Font") && isFontLiteral(value)) {
+                    value = formatFontAsArgumentValue(value);
                 }
 
 
@@ -2187,6 +2192,131 @@ public class ViewProcessor extends BaseProcessor {
         }
 
 
+    }
+
+    private boolean isFontLiteral(String value) {
+        if (value == null) return false;
+        if ("small".equalsIgnoreCase(value) || "medium".equalsIgnoreCase(value) || "large".equalsIgnoreCase(value)) return true;
+        if (value.length() > 0) {
+            if (Character.isDigit(value.charAt(0))) {
+                return true;
+            }
+            if (value.startsWith("native:")) {
+                return true;
+            }
+            //if (value.startsWith("ttf:")) {
+            //    return true;
+            //}
+        }
+
+        return false;
+
+    }
+
+    private String formatFontAsArgumentValue(String value) {
+        if (value.equalsIgnoreCase("small")) {
+            return "com.codename1.ui.Font.createSystemFont(com.codename1.ui.Font.FACE_SYSTEM, com.codename1.ui.Font.STYLE_PLAIN, com.codename1.ui.Font.SIZE_SMALL)";
+        } else if (value.equalsIgnoreCase("medium")) {
+            return "com.codename1.ui.Font.createSystemFont(com.codename1.ui.Font.FACE_SYSTEM, com.codename1.ui.Font.STYLE_PLAIN, com.codename1.ui.Font.SIZE_MEDIUM)";
+        } else if (value.equalsIgnoreCase("large")) {
+            return "com.codename1.ui.Font.createSystemFont(com.codename1.ui.Font.FACE_SYSTEM, com.codename1.ui.Font.STYLE_PLAIN, com.codename1.ui.Font.SIZE_MEDIUM)";
+        } else if (value.contains("native:")) {
+            int startPos = value.indexOf("native:");
+            int endPos = value.indexOf(" ", startPos);
+            if (endPos < 0) {
+                endPos = value.length();
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("com.codename1.ui.Font.createTrueTypeFont(");
+
+            switch (value.substring(startPos, endPos).toLowerCase()) {
+                case "native:mainthin": sb.append("CN.NATIVE_MAIN_THIN"); break;
+                case "native:mainlight": sb.append("CN.NATIVE_MAIN_LIGHT"); break;
+                case "native:mainregular": sb.append("CN.NATIVE_MAIN_REGULAR"); break;
+                case "native:mainbold": sb.append("CN.NATIVE_MAIN_BOLD"); break;
+                case "native:mainblack": sb.append("CN.NATIVE_MAIN_BLACK");break;
+                default:
+                    env().getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to parse font literal "+value+".  native fonts must be one of native:MainThin, native:MainLight, native:MainRegular, native:MainBold, native:MainBlack");
+                    sb.append("CN.FONT_NATIVE_MAIN_REGULAR");
+            }
+
+            String sizeStr = extractEmbeddedScalar(value);
+            if (sizeStr == null) {
+                sizeStr = "1rem";
+            }
+            sb.append(", ").append(formatScalarAsArgumentValue(sizeStr)).append("/CN.convertToPixels(1f))");
+
+
+
+            return sb.toString();
+        }
+        return value;
+    }
+
+    private String extractEmbeddedScalar(String value) {
+        StringTokenizer strtok = new StringTokenizer(value, " ");
+        while (strtok.hasMoreTokens()) {
+            String tok = strtok.nextToken();
+            if (isScalar(tok)) {
+                return tok;
+            }
+        }
+        return null;
+    }
+
+    private boolean isScalar(String value) {
+        if (value == null) return false;
+        int len = 0;
+        if (value.endsWith("vmin") || value.endsWith("vmax")) {
+            len = value.length() - 4;
+        } else if (value.endsWith("rem")) {
+            len = value.length() - 3;
+        } else if (value.endsWith("mm") || value.endsWith("px") || value.endsWith("vh") || value.endsWith("vw") || value.endsWith("em")) {
+            len = value.length() - 2;
+
+        } else if (value.endsWith("%")) {
+            len = value.length()-1;
+        } else {
+            return false;
+        }
+        for (int i=0; i<len; i++) {
+            char c = value.charAt(i);
+            if (Character.isDigit(c) || c == '.') {
+                continue;
+            }
+            return false;
+        }
+        return true;
+
+    }
+
+    private String formatScalarAsArgumentValue(String scalar) {
+        if (!isScalar(scalar)) return scalar;
+        if (scalar.endsWith("vmin")) {
+            return "(int)Math.round(((float)"+scalar.substring(0, scalar.length()-4)+")/100f * Math.min(CN.getDisplayWidth(), CN.getDisplayHeight()))";
+        }
+        if (scalar.endsWith("vmax")) {
+            return "(int)Math.round(((float)"+scalar.substring(0, scalar.length()-4)+")/100f * Math.max(CN.getDisplayWidth(), CN.getDisplayHeight()))";
+        }
+        if (scalar.endsWith("vw")) {
+            return "(int)Math.round(((float)"+scalar.substring(0, scalar.length()-2)+")/100f * CN.getDisplayWidth())";
+        }
+        if (scalar.endsWith("vh")) {
+            return "(int)Math.round(((float)"+scalar.substring(0, scalar.length()-2)+")/100f * CN.getDisplayHeight())";
+        }
+        if (scalar.endsWith("mm")) {
+            return "(int)Math.round(CN.convertToPixels((float)" + scalar.substring(0, scalar.length()-2)+"))";
+        }
+        if (scalar.endsWith("px")) {
+            return scalar.substring(0, scalar.length()-2);
+        }
+        if (scalar.endsWith("rem")) {
+            return "(int)Math.round("+scalar.substring(0, scalar.length()-3) + " * com.codename1.ui.Font.getDefaultFont().getHeight())";
+        }
+        if (scalar.endsWith("em")) {
+            return "(int)Math.round("+scalar.substring(0, scalar.length()-3) + " * ((_cmp.getStyle() != null && _cmp.getStyle().getFont() != null) ? _cmp.getStyle().getFont().getHeight() : com.codename1.ui.Font.getDefaultFont().getHeight()))";
+        }
+        return scalar;
     }
 
     private class JavaMethodProxy {
@@ -2470,23 +2600,66 @@ public class ViewProcessor extends BaseProcessor {
 
         void writeProperties(StringBuilder sb) {
 
+            if (beanClass != null) {
+                Set<String> propertiesInjected = new HashSet<>();
+                // Look for injected properties
+                for (ExecutableElement setter : beanClass.findInjectableSetters()) {
+                    String setterName = setter.getSimpleName().toString();
+                    if (hasAttributeIgnoreCase(xmlTag, setterName)) {
+                        // No need for injection of this property... we will hit it with explicit properties
+                        continue;
+                    }
+                    String propName = setterName;
+                    if (setterName.startsWith("set")) {
+                        propName = setterName.substring(3);
+                        if (hasAttributeIgnoreCase(xmlTag, propName)) {
+                            continue;
+                        }
+                    } else if (hasAttributeIgnoreCase(xmlTag, "set" + propName)) {
+                        continue;
+                    }
+                    if (propertiesInjected.contains(propName.toLowerCase())) {
+                        continue;
+                    }
+                    propertiesInjected.add(propName.toLowerCase());
+                    ExecutableType et = (ExecutableType) types().asMemberOf((DeclaredType) beanClass.typeEl.asType(), setter);
+                    TypeMirror propertyType = et.getParameterTypes().get(0);
+                    indent(sb, indent).append("{\n");
+                    indent += 4;
+
+                    indent(sb, indent).append(propertyType).append(" _injectedValue = ");
+                    jenv.writeInjectedValue(sb, (TypeElement) ((DeclaredType) propertyType).asElement(), xmlTag, propName, true);
+                    sb.append(";\n");
+                    indent(sb, indent).append("if (_injectedValue != null) ").append("_bean.").append(setter.getSimpleName()).append("((").append(propertyType.toString()).append(")_injectedValue);\n");
+                    indent -= 4;
+                    indent(sb, indent).append("}\n");
+
+                }
+            }
+
             String textContent = xmlTag.getTextContent();
-            if (textContent != null && !textContent.isEmpty()) {
+            if (textContent != null && !textContent.trim().isEmpty()) {
                 ExecutableElement setText = beanClass != null ? beanClass.findSetter("text", "java.lang.String") : null;
 
 
 
                 if (setText != null) {
                     indent(sb, indent);
-                    beanClass.setProperty(sb, "text", textContent, "_bean");
+                    beanClass.setProperty(sb, "text", textContent.trim(), "_bean");
                     sb.append("\n");
                 }
             }
 
             NamedNodeMap attributes = xmlTag.getAttributes();
             int len = attributes.getLength();
+            List<Attr> attributesList = new ArrayList<>();
+
             for (int i=0; i<len; i++) {
-                Attr attr = (Attr)attributes.item(i);
+                Attr attr = (Attr) attributes.item(i);
+                attributesList.add(attr);
+            }
+            Collections.sort(attributesList, new AttributeComparator());
+            for(Attr attr : attributesList) {
                 String name = attr.getName();
                 if (name.startsWith("_") && name.endsWith("_")) {
                     // this is a parameter for the constructor or static builder method.  Do not treat is as a property.
@@ -2648,8 +2821,14 @@ public class ViewProcessor extends BaseProcessor {
         void writeProperties(StringBuilder sb) {
             NamedNodeMap attributes = xmlTag.getAttributes();
             int len = attributes.getLength();
+            List<Attr> attributesList = new ArrayList<>();
+
             for (int i=0; i<len; i++) {
-                Attr attr = (Attr)attributes.item(i);
+                Attr attr = (Attr) attributes.item(i);
+                attributesList.add(attr);
+            }
+            Collections.sort(attributesList, new AttributeComparator());
+            for(Attr attr : attributesList) {
                 String name = attr.getName();
                 String value = attr.getValue();
                 if (name.contains("-")) {
@@ -2821,12 +3000,12 @@ public class ViewProcessor extends BaseProcessor {
 
 
             String textContent = xmlTag.getTextContent();
-            if (textContent != null && !textContent.isEmpty()) {
+            if (textContent != null && !textContent.trim().isEmpty()) {
 
                 ExecutableElement setText = builderClass.findSetter("text", "java.lang.String");
                 if (setText != null) {
                     indent(sb, indent);
-                    builderClass.setProperty(sb, "text", textContent, "_builder");
+                    builderClass.setProperty(sb, "text", textContent.trim(), "_builder");
                     sb.append("\n");
                 }
             }
@@ -3004,20 +3183,27 @@ public class ViewProcessor extends BaseProcessor {
          */
         void writeProperties(StringBuilder sb) {
             String textContent = xmlTag.getTextContent();
-            if (textContent != null && !textContent.isEmpty()) {
+            if (textContent != null && !textContent.trim().isEmpty()) {
                 ExecutableElement  setText = componentClass.findSetter("text", "java.lang.String");
 
 
 
                 if (setText != null) {
                     indent(sb, indent);
-                    componentClass.setProperty(sb, "text", textContent, "_cmp");
+                    componentClass.setProperty(sb, "text", textContent.trim(), "_cmp");
                 }
             }
             NamedNodeMap attributes = xmlTag.getAttributes();
             int len = attributes.getLength();
+            List<Attr> attributesList = new ArrayList<>();
+
             for (int i=0; i<len; i++) {
-                Attr attr = (Attr)attributes.item(i);
+                Attr attr = (Attr) attributes.item(i);
+                attributesList.add(attr);
+            }
+            Collections.sort(attributesList, new AttributeComparator());
+            for(Attr attr : attributesList) {
+
                 String name = attr.getName();
                 String value = attr.getValue();
                 if (name.contains("-")) {
@@ -4366,7 +4552,45 @@ public class ViewProcessor extends BaseProcessor {
             forEach(root, el -> {
                 if (el.getTagName().equalsIgnoreCase("import")) {
                     jenv.addImports(el.getTextContent());
+                } else if (el.getTagName().equalsIgnoreCase("use-taglib")) {
+                    String packageName = el.getAttribute("package");
+                    String className = el.getAttribute("class");
+                    if (className.isEmpty() && packageName.isEmpty()) {
+                        env().getMessager().printMessage(Diagnostic.Kind.ERROR, "use-taglib tag requires either the 'class' or 'package' attribute.");
+                        return null;
+                    }
+                    if (!className.isEmpty()) {
+                        TypeElement typeEl = elements().getTypeElement(className);
+                        if (typeEl == null) {
+                            env().getMessager().printMessage(Diagnostic.Kind.ERROR, "use-taglib tag failed to resolve class "+className+".");
+                            return null;
+                        }
+                        TagLib tagLib = typeEl.getAnnotation(TagLib.class);
+                        if (tagLib == null) {
+                            env().getMessager().printMessage(Diagnostic.Kind.ERROR, "use-taglib specified class name "+className+" is not a TagLib.");
+                            return null;
+                        }
+                        for (String imprt : tagLib.imports()) {
+                            jenv.addImports(imprt);
+                        }
+                        return null;
+                    }
+                    if (!packageName.isEmpty()) {
+                        PackageElement pkg = elements().getPackageElement(packageName);
+                        if (pkg == null) {
+                            env().getMessager().printMessage(Diagnostic.Kind.ERROR, "use-taglib failed to resolve package "+packageName);
+                            return null;
+                        }
+                        for (Element child : pkg.getEnclosedElements().stream().filter(e->e.getAnnotation(TagLib.class) != null).collect(Collectors.toList())) {
+                            TagLib tagLib = child.getAnnotation(TagLib.class);
+                            for (String imprt : tagLib.imports()) {
+                                jenv.addImports(imprt);
+                            }
+                        }
+                        return null;
+                    }
                 }
+
                 return null;
             });
 
@@ -4758,7 +4982,7 @@ public class ViewProcessor extends BaseProcessor {
             if (formControllerTags.getLength() > 0) formControllerTag = (org.w3c.dom.Element)formControllerTags.item(0);
 
             String parentController = formControllerTag == null || !formControllerTag.hasAttribute("extends") ? "FormController" : formControllerTag.getAttribute("extends");
-            String ifaces = "I" + className + "Controller";
+            String ifaces = "I" + className + "Controller, FormController.CloneableFormController<" + className + "Controller>";
             if (formControllerTag != null && formControllerTag.hasAttribute("implements")) {
                 ifaces += ", " + formControllerTag.getAttribute("implements");
             }
@@ -4809,6 +5033,12 @@ public class ViewProcessor extends BaseProcessor {
                 indent(sb, indent).append("    return new ").append(_(viewModelClassEl.getQualifiedName().toString())).append("();\n");
 
 
+                indent(sb, indent).append("}\n");
+                indent(sb, indent).append("@Override\n");
+                indent(sb, indent).append("public ").append(className).append("Controller cloneAndReplace() {\n");
+                indent(sb, indent).append("    ").append(className).append("Controller out = new ").append(className).append("Controller(getParent(), viewModel);\n");
+                indent(sb, indent).append("    out.show();\n");
+                indent(sb, indent).append("    return out;\n");
                 indent(sb, indent).append("}\n");
 
             }
@@ -5186,10 +5416,22 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
+        private File findPom(File startingPoint) {
+            if (startingPoint == null) return null;
+            if (startingPoint.isDirectory()) {
+                File pom = new File(startingPoint, "pom.xml");
+                if (pom.exists()) return pom;
+                return findPom(startingPoint.getParentFile());
+            } else {
+                return findPom(startingPoint.getParentFile());
+            }
+        }
+
+
         public void createXMLSchemaSourceFile() throws XMLParseException, IOException {
             parse();
 
-            File rootDirectory = new File(System.getProperty("user.dir"));
+            File rootDirectory = findPom(new File(System.getProperty("user.dir"))).getParentFile();
             File cn1Settings = new File(rootDirectory, "codenameone_settings.properties");
             if (!cn1Settings.exists()) {
                 cn1Settings = new File(rootDirectory.getParentFile(), cn1Settings.getName());
@@ -5680,5 +5922,34 @@ public class ViewProcessor extends BaseProcessor {
     }
 
 
+
+    private class AttributeComparator implements Comparator<Attr> {
+
+        @Override
+        public int compare(Attr o1, Attr o2) {
+            int diff = score(o1) - score(o2);
+            if (diff == 0) {
+                return o1.getName().compareTo(o2.getName());
+            } else {
+                return diff;
+            }
+
+        }
+
+        private int score(Attr attribute) {
+            String name = attribute.getName();
+            if (name.equalsIgnoreCase("materialIcon")) {
+                return 500;
+            }
+            if (name.toLowerCase().contains("uiid")) {
+                return 10;
+            }
+            if (name.toLowerCase().contains("style")) {
+                return 20;
+            }
+            return 250;
+
+        }
+    }
 
 }

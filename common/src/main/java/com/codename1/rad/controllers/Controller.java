@@ -703,6 +703,11 @@ public class Controller implements ActionListener<ControllerEvent> {
         addActions(category, actions.toArray());
     }
 
+    public void addAction(ActionNode.Category category, ActionNode action, ActionListener<ActionNodeEvent> l) {
+        addActions(category, action);
+        addActionListener(action, l);
+    }
+
 
     /**
      * Gets the first action matching the given category that is registered on this controller

@@ -6,6 +6,8 @@
 package com.codename1.rad.controllers;
 
 import com.codename1.ui.Component;
+import com.codename1.ui.Dialog;
+import com.codename1.ui.Form;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.ActionSource;
