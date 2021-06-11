@@ -44,6 +44,18 @@ public abstract class Node<T> extends Attribute<T> {
     protected final Map<ViewProperty,ViewPropertyParameter> viewParameters = new HashMap<>();
     
     protected final Map<ActionNode.Category,ActionsNode> actions = new HashMap<>();
+
+    public void copyAttributes(Node target) {
+        for (Attribute att : attributes) {
+            target.setAttributes(att);
+        }
+    }
+
+    public void copyAttributesIfNotExists(Node target) {
+        for (Attribute att : attributes) {
+            target.setAttributesIfNotExists(att);
+        }
+    }
     
     /**
      * Parent node.

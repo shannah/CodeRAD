@@ -3,37 +3,43 @@ package com.codename1.rad.ui.entityviews;
 import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.nodes.ActionNode;
-import com.codename1.rad.schemas.Action;
 import com.codename1.rad.ui.AbstractEntityView;
 import com.codename1.rad.ui.Actions;
-import com.codename1.rad.ui.UI;
 import com.codename1.rad.ui.ViewContext;
 import com.codename1.rad.ui.menus.ActionSheet;
 import com.codename1.rad.ui.menus.PopupActionsMenu;
 import com.codename1.ui.CN;
+import com.codename1.ui.FontImage;
 import com.codename1.ui.layouts.BorderLayout;
-import com.codename1.ui.layouts.Layout;
-
-import java.util.Objects;
 
 public class Buttons extends AbstractEntityView {
     private ActionNode.Category actionCategory;
-    private String buttonUiid = "Button";
 
-    private boolean requiresRefresh;
+    private ActionNode.Builder actionTemplate = ActionNode.builder();
+    private ActionNode.Builder overflowActionTemplate = ActionNode.builder();
+    private ActionNode.Builder overflowButtonAction = ActionNode.builder();
+    
+    
+
+    private boolean requiresRefresh = true;
     private int limit = -1;
     private OverflowMenuStyle overflowMenuStyle = OverflowMenuStyle.ActionSheet;
     private boolean built = false;
 
+    /**
+     * Enum defining how a Buttons component should handle overflow actions.
+     */
     public static enum OverflowMenuStyle {
         ActionSheet,
         PopupMenu,
         None
     }
 
+
+
     public Buttons(@Inject ViewContext context) {
         super(context);
-
+        requiresRefresh = true;
     }
 
     @Override
@@ -49,7 +55,19 @@ public class Buttons extends AbstractEntityView {
 
     }
 
+    public ActionNode.Builder getActionTemplate() {
+        return actionTemplate;
+    }
 
+    public ActionNode.Builder getOverflowActionTemplate() {
+        return overflowActionTemplate;
+    }
+
+    public ActionNode.Builder getOverflowButtonAction() {
+        return overflowButtonAction;
+    }
+
+   
     private void rebuild() {
         built = true;
         requiresRefresh = false;
@@ -81,13 +99,15 @@ public class Buttons extends AbstractEntityView {
             }
             actions = tempActions;
             if (overflowActions.size() > 0) {
-                ActionNode overflowAction = new ActionNode();
+                ActionNode overflowAction = overflowButtonAction.icon(FontImage.MATERIAL_MORE_HORIZ).build();
                 // Try to match the UIID of the other actions
                 if (uiid != null) {
                     overflowAction.setAttributes(uiid);
                 }
+
                 overflowAction.setParent(getViewNode());
                 final Actions fOverflowActions = overflowActions;
+                overflowActions.copyAttributesIfNotExists(overflowActionTemplate.build());
 
                 overflowAction.addActionListener(e -> {
                     e.consume();
@@ -99,7 +119,8 @@ public class Buttons extends AbstractEntityView {
 
         }
 
-        actions.setAttributesIfNotSet(UI.uiid(buttonUiid));
+
+        actions.copyAttributesIfNotExists(actionTemplate.build());
         actions.addToContainer(this, getEntity());
         revalidateWithAnimationSafety();
     }
@@ -116,17 +137,7 @@ public class Buttons extends AbstractEntityView {
         return actionCategory;
     }
 
-    public void setButtonUiid(String uiid) {
-        if (!Objects.equals(uiid, buttonUiid)) {
-            this.buttonUiid = uiid;
-            requiresRefresh = true;
-        }
 
-    }
-
-    public String getButtonUiid() {
-        return buttonUiid;
-    }
 
     public void setOverflowMenuStyle(OverflowMenuStyle style) {
         if (overflowMenuStyle != style) {
@@ -166,6 +177,7 @@ public class Buttons extends AbstractEntityView {
 
             case PopupMenu: {
                 PopupActionsMenu menu = new PopupActionsMenu(overflowActions, getEntity(), getComponentAt(getComponentCount()-1));
+                
                 menu.showPopupDialog(getComponentAt(getComponentCount()-1));
                 break;
             }

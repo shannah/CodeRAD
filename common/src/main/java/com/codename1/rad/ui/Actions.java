@@ -147,5 +147,17 @@ public class Actions implements Iterable<ActionNode> {
     public int indexOf(ActionNode action) {
         return actions.indexOf(action);
     }
+
+    public void copyAttributes(ActionNode source) {
+        for (ActionNode n : this) {
+            source.copyAttributes(n);
+        }
+    }
+
+    public void copyAttributesIfNotExists(ActionNode source) {
+        for (ActionNode n : this) {
+            source.copyAttributesIfNotExists(n);
+        }
+    }
     
 }

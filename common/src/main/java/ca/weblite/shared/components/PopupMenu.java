@@ -94,7 +94,7 @@ public class PopupMenu extends InteractionDialog {
 
     @Override
     public void showPopupDialog(Component c) {
-        super.showPopupDialog(c); //To change body of generated methods, choose Tools | Templates.
+        super.showPopupDialog(c);
     }
     
     public PopupMenu addCommand(Component component) {

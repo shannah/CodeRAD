@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class XMLSchemaGenerator {
     private ViewProcessor.JavaEnvironment env;
@@ -191,6 +192,7 @@ public class XMLSchemaGenerator {
 
 
             Set<String> attributeNames = new HashSet<>();
+            Set<TypeElement> enumTypes = new HashSet<>();
             for (TypeElement clazz : new TypeElement[]{javaClass, builderClass}) {
                 if (clazz == null) {
                     // The builder class is null
@@ -223,6 +225,7 @@ public class XMLSchemaGenerator {
                     } else {
                         indent(sb, indent).append("<xs:sequence><xs:any minOccurs=\"0\" maxOccurs=\"unbounded\" processContents=\"lax\"/></xs:sequence>");
                         indent(sb, indent).append("<xs:attribute name=\"layout-constraint\" type=\"xs:string\"/>\n");
+                        indent(sb, indent).append("<xs:attribute name=\"rad-transition\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-implements\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-href\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-href-trigger\" type=\"xs:string\"/>\n");
@@ -231,6 +234,7 @@ public class XMLSchemaGenerator {
                         indent(sb, indent).append("<xs:attribute name=\"rad-model\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-var\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-property\" type=\"xs:string\"/>\n");
+                        indent(sb, indent).append("<xs:attribute name=\"rad-condition\" type=\"xs:string\"/>\n");
 
                     }
                 }
@@ -263,7 +267,24 @@ public class XMLSchemaGenerator {
                             propertyName = toCamelCase(propertyName);
                             if (attributeNames.contains(propertyName.toLowerCase())) continue;
                             attributeNames.add(propertyName.toLowerCase());
-                            indent(sb, indent).append("<xs:attribute name=\"").append(propertyName).append("\" type=\"xs:string\"/>\n");
+                            TypeMirror paramTypeMirror = methodEl.getParameters().get(0).asType();
+                            List<String> enumValues = null;
+                            TypeElement parameterType = null;
+                            if (paramTypeMirror.getKind() == TypeKind.DECLARED) {
+                                parameterType = (TypeElement)((DeclaredType)paramTypeMirror).asElement();
+                                enumValues =
+                                        parameterType.getEnclosedElements().stream()
+                                                .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
+                                                .map(Object::toString)
+                                                .collect(Collectors.toList());
+                            }
+
+                            String type = "xs:string";
+                            if (enumValues != null && !enumValues.isEmpty()) {
+                                type = parameterType.getQualifiedName().toString().replace('.', '_');
+                                enumTypes.add(parameterType);
+                            }
+                            indent(sb, indent).append("<xs:attribute name=\"").append(propertyName).append("\" type=\"").append(type).append("\"/>\n");
                             if (clazz == javaClass) {
                                 indent(sb, indent).append("<xs:attribute name=\"").append("bind-" + propertyName).append("\" type=\"xs:string\"/>\n");
                             }
@@ -271,16 +292,35 @@ public class XMLSchemaGenerator {
                         } else if (clazz == javaClass && methodEl.getParameters().size() == 0 && methodEl.getSimpleName().toString().startsWith("get")) {
                             ExecutableType methodType = (ExecutableType) processingEnvironment.getTypeUtils().asMemberOf((DeclaredType) clazz.asType(), methodEl);
                             String propertyName = toCamelCase(methodEl.getSimpleName().toString().substring(3));
+                            if (env.isA(methodType.getReturnType(), "com.codename1.ui.plaf.Style") || env.isA(methodType.getReturnType(), "com.codename1.rad.nodes.ActionNode.Builder")) {
 
-                            if (env.isA(methodType.getReturnType(), "com.codename1.ui.plaf.Style")) {
-                                TypeElement retType = processingEnvironment.getElementUtils().getTypeElement("com.codename1.ui.plaf.Style");
+                                TypeElement retType = (TypeElement)((DeclaredType)methodType.getReturnType()).asElement();//processingEnvironment.getElementUtils().getTypeElement("com.codename1.ui.plaf.Style");
+
                                 for (Element subMember : processingEnvironment.getElementUtils().getAllMembers(retType)) {
                                     String subMethodName = subMember.getSimpleName().toString();
                                     if (subMember.getKind() != ElementKind.METHOD) continue;
                                     if (!subMethodName.startsWith("set")) continue;
                                     if (((ExecutableElement)subMember).getParameters().size() != 1) continue;
 
-                                    indent(sb, indent).append("<xs:attribute name=\"").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"xs:string\"/>\n");
+
+                                    List<String> enumValues = null;
+                                    TypeElement parameterType = null;
+                                    TypeMirror parameterTypeMirror = ((ExecutableElement)subMember).getParameters().get(0).asType();
+                                    if (parameterTypeMirror.getKind() == TypeKind.DECLARED) {
+                                        parameterType = (TypeElement) ((DeclaredType)parameterTypeMirror).asElement();
+                                        enumValues =
+                                                parameterType.getEnclosedElements().stream()
+                                                        .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
+                                                        .map(Object::toString)
+                                                        .collect(Collectors.toList());
+                                    }
+                                    String type = "xs:string";
+                                    if (enumValues != null && !enumValues.isEmpty()) {
+                                        type = parameterType.toString().replace('.', '_');
+                                        enumTypes.add(parameterType);
+                                    }
+
+                                    indent(sb, indent).append("<xs:attribute name=\"").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"").append(type).append("\"/>\n");
                                     indent(sb, indent).append("<xs:attribute name=\"bind-").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"xs:string\"/>\n");
                                 }
                             }
@@ -303,6 +343,21 @@ public class XMLSchemaGenerator {
                 indent(sb, indent).append("</xs:complexType>\n");
 
 
+            }
+            for (TypeElement enumType : enumTypes) {
+                indent(sb, indent).append("<xs:simpleType name=\"").append(enumType.getQualifiedName().toString().replace('.', '_')).append("\">\n");
+                indent(sb, indent).append("  <xs:restriction base=\"xs:string\">\n");
+
+                List<String> enumValues =
+                        enumType.getEnclosedElements().stream()
+                                .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
+                                .map(Object::toString)
+                                .collect(Collectors.toList());
+                for (String enumVal : enumValues) {
+                    indent(sb, indent).append("    <xs:enumeration value=\"").append(enumVal).append("\" />\n");
+                }
+                indent(sb, indent).append("  </xs:restriction>\n");
+                indent(sb, indent).append("</xs:simpleType>\n");
             }
 
             for (XMLSchemaGenerator subGenerator : subGenerators) {

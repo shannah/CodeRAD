@@ -511,6 +511,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
         @Override
         public TypeElement getTypeElement(CharSequence name) {
 
+
             TypeElement out = wrapped.getTypeElement(name);
             if (out == null) {
                 out = typeMap.get(name.toString());

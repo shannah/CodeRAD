@@ -37,6 +37,11 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
     
     private ActionListener<PropertyChangeEvent> pcl = pce -> {
         update();
+        if (updateListeners != null && !updateListeners.isEmpty()) {
+            for (Runnable r : updateListeners) {
+                r.run();
+            }
+        }
     };
     // Switching to using Observer pattern instead of property change listeners
     // to reduce noise.

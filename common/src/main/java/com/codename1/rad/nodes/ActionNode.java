@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.nodes;
 
+import com.codename1.rad.controllers.Controller;
 import com.codename1.rad.models.*;
 import com.codename1.rad.ui.*;
 import com.codename1.rad.attributes.ActionStyleAttribute;
@@ -773,6 +774,8 @@ public class ActionNode extends Node implements Proxyable {
         }
         return l.getValue();
     }
+
+
     
     /**
      * Gets the label text for this action with the given entity used as the context.
@@ -873,67 +876,85 @@ public class ActionNode extends Node implements Proxyable {
             action.setAttributes(overwrite, UI.label(label));
             return this;
         }
+
+        public void setLabel(String label) {label(label);}
         
         public Builder uiid(String uiid) {
             action.setAttributes(overwrite, UI.uiid(uiid));
             return this;
         }
+        public void setUiid(String uiid) {uiid(uiid);}
         
         public Builder icon(String text) {
             action.setAttributes(overwrite, UI.icon(text));
             return this;
         }
+        public void setIcon(String text){icon(text);}
 
         public Builder name(String text) {
             action.setAttributes(overwrite, new Property.Name(text));
             return this;
         }
+        public void setName(String text){name(text);}
         
         public Builder icon(char materialIcon) {
             action.setAttributes(overwrite, UI.icon(materialIcon));
             return this;
         }
+        public void setMaterialIcon(char materialIcon){icon(materialIcon);}
         
         public Builder icon(Image icon) {
             action.setAttributes(overwrite, UI.icon(icon));
             return this;
         }
+        public void setImageIcon(Image icon){icon(icon);}
         
         public Builder icon(StringProvider provider) {
             action.setAttributes(overwrite, UI.icon(provider));
             return this;
         }
+        public void setIconProvider(StringProvider provider) {icon(provider);}
         
         public Builder icon(String text, StringProvider provider) {
             action.setAttributes(overwrite, UI.icon(text, provider));
             return this;
         }
+
+
         
         public Builder iconRenderer(EntityImageRenderer renderer) {
             action.setAttributes(overwrite, UI.iconRenderer(renderer));
             return this;
         }
+
+        public void setIconRenderer(EntityImageRenderer renderer){iconRenderer(renderer);}
         
         public Builder iconRenderer(PropertyImageRenderer renderer) {
             action.setAttributes(overwrite, UI.iconRenderer(renderer));
             return this;
         }
         
-        public Builder iconUIid(String uiid) {
+        public Builder iconUiid(String uiid) {
             action.setAttributes(overwrite, UI.iconUiid(uiid));
             
             return this;
         }
+
+        public void setIconUiid(String uiid){ iconUiid(uiid);}
         
         public Builder selectedCondition(EntityTest test) {
             action.setAttributes(overwrite, UI.selectedCondition(test));
             return this;
         }
+
+        public void setSelectedCondition(EntityTest test){selectedCondition(test);}
         
         public Builder enabledCondition(EntityTest test) {
             action.setAttributes(overwrite, UI.enabledCondition(test));
             return this;
         }
+
+        public void setEnabledCondition(EntityTest test){enabledCondition(test);}
         public Builder addActionListener(ActionListener l) {
             action.addActionListener(l);
             return this;
@@ -943,19 +964,68 @@ public class ActionNode extends Node implements Proxyable {
             action.setActionTag(tag);
             return this;
         }
+
+        public void setActionTag(Tag tag) {tag(tag);}
         
         public Builder addAfterActionCallback(AfterActionCallback callback) {
             action.addAfterActionCallback(callback);
             return this;
         }
+
+        public void setAfterActionCallback(AfterActionCallback callback){ addAfterActionCallback(callback);}
         
         public Builder condition(EntityTest test) {
             action.setAttributes(overwrite, UI.condition(test));
             return this;
         }
 
+        public void setCondition(EntityTest test){condition(test);}
+
+        public Builder badge(String badge) {
+            action.setAttributes(UI.badge(badge));
+            return this;
+        }
+
+        public void setBadge(String badge){ badge(badge);}
+
+        public Builder badge(StringProvider stringProvider) {
+            action.setAttributes(UI.badge(null, stringProvider));
+            return this;
+        }
+
+        public void setBadgeProvider(StringProvider badgeProvider) {
+            badge(badgeProvider);
+        }
+
+        public Builder badge(String badgeText, StringProvider provider) {
+            action.setAttributes(UI.badge(badgeText, provider));
+            return this;
+        }
+
+        public Builder badgeUIID(String uiid) {
+            action.setAttributes(UI.badgeUiid(uiid));
+            return this;
+        }
+
+        public void setBadgeUIID(String uiid) {
+            badgeUIID(uiid);
+        }
+
+        public Builder actionStyle(ActionStyle style) {
+            action.setAttributes(UI.actionStyle(style));
+            return this;
+
+        }
+
+        public void setActionStyle(ActionStyle style) {
+            actionStyle(style);
+        }
 
 
+        public Builder addToController(Controller controller, Category category, ActionListener<ActionNodeEvent> listener) {
+            controller.addAction(category, build(), listener);
+            return this;
+        }
         
         public ActionNode build() {
             return action;

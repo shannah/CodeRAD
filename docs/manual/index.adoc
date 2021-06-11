@@ -11,8 +11,6 @@ include::preface.adoc[]
 
 include::introduction.adoc[]
 
-include::installation.adoc[]
-
 include::getting-started.adoc[]
 
 include::controllers.adoc[]

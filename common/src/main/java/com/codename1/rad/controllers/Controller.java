@@ -708,6 +708,10 @@ public class Controller implements ActionListener<ControllerEvent> {
         addActionListener(action, l);
     }
 
+    public void addAction(ActionNode.Category category, ActionListener<ActionNodeEvent>l) {
+        addAction(category, ActionNode.builder().build(), l);
+    }
+
 
     /**
      * Gets the first action matching the given category that is registered on this controller

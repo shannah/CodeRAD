@@ -778,6 +778,7 @@ public class EntityProcessor extends BaseProcessor {
         entityTypeInitializer.addStatement("register("+entityPlan.entityName+".class, this, type -> {return new " + entityPlan.entityName+"Impl();});");
         
         TypeSpec entityType = TypeSpec.anonymousClassBuilder("")
+
                 .superclass(ClassName.get("com.codename1.rad.models", "EntityType"))
                 //.addModifiers(Modifier.STATIC, Modifier.PUBLIC, Modifier.FINAL)
                 .addInitializerBlock(entityTypeInitializer.build())

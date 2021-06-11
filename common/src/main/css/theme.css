@@ -1,1 +1,9 @@
 /* CSS file for filechooser */
+
+PopupMenu {
+    cn1-derive: PopupDialog;
+}
+
+PopupMenuContent {
+    cn1-derive: PopupContentPane;
+}

@@ -748,7 +748,6 @@ public class ViewProcessor extends BaseProcessor {
 
                     }
                 } else {
-
                     TypeElement el = elements().getTypeElement(importPath);
                     if (el != null) {
                         if (className.equalsIgnoreCase(el.getSimpleName().toString())) {
@@ -3717,8 +3716,25 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("if (!java.util.Objects.equals(_newVal, _oldVal)) {\n");
             indent += 4;
             indent(sb, indent);
-            propertySelector.setProperty(sb, "_fcmp", "_newVal");
-            sb.append("\n");
+            Transition t = null;
+            if (xmlTag.hasAttribute("rad-transition")) {
+                Transitions transitions = Transitions.parse(xmlTag.getAttribute("rad-transition"));
+                t = transitions.get(propName);
+            }
+            if (t != null && propName.equalsIgnoreCase("uiid") && t.getDurationMs() > 0) {
+                sb.append("{com.codename1.ui.animations.ComponentAnimation _anim = _fcmp.createStyleAnimation(_newVal, ").append(t.getDurationMs()).append("); com.codename1.ui.AnimationManager _animMgr = _fcmp.getAnimationManager(); ");
+                sb.append("if (_animMgr != null) _animMgr.addAnimation(_anim);}\n");
+            } else {
+                propertySelector.setProperty(sb, "_fcmp", "_newVal");
+
+
+                sb.append("\n");
+                if (t != null) {
+                    indent(sb, indent);
+                    t.writeTransition(sb, "_fcmp");
+                }
+                sb.append("\n");
+            }
             indent -= 4;
             indent(sb, indent).append("}\n");
             indent -= 4;
@@ -5949,6 +5965,100 @@ public class ViewProcessor extends BaseProcessor {
             }
             return 250;
 
+        }
+    }
+
+
+    public static class Transitions {
+        private Map<String,Transition> transitions = new HashMap<>();
+
+        public static Transitions parse(String transitionString) {
+            Transitions out = new Transitions();
+            StringTokenizer strtok = new StringTokenizer(transitionString, ",");
+            while (strtok.hasMoreTokens()) {
+                String nextTok = strtok.nextToken();
+                if (nextTok.trim().isEmpty()) continue;
+                Transition t = Transition.parse(nextTok);
+                out.transitions.put(t.property, t);
+            }
+            return out;
+        }
+
+        public Transition get(String property) {
+
+            Transition out = transitions.get(property);
+            if (out == null) {
+                out = transitions.get("all");
+            }
+            return out;
+        }
+
+    }
+
+    public static class Transition {
+        private Double delay, duration;
+        private String property;
+        private String timingFunction;
+
+
+        public static Transition parse(String transitionString) {
+            Transition out = new Transition();
+            StringTokenizer strtok = new StringTokenizer(transitionString, " ");
+            while (strtok.hasMoreTokens()) {
+                String nextTok = strtok.nextToken();
+                if (nextTok.trim().isEmpty()) {
+                    continue;
+                }
+                if (out.property == null) {
+                    out.property = nextTok.trim();
+                    continue;
+                }
+                if (out.duration == null) {
+                    String durationStr = nextTok.trim();
+                    String unit = durationStr.endsWith("ms") ? "ms" : durationStr.endsWith("s") ? "s" : null;
+                    if (unit == null) throw new IllegalArgumentException("Failed to parse transition string "+transitionString+".  Duration "+durationStr+" had invalid time unit. Expecting 's' or 'ms'");
+                    durationStr = durationStr.substring(0, durationStr.length() - unit.length());
+
+                    out.duration = Double.parseDouble(durationStr);
+                    if ("s".equals(unit)) out.duration *= 1000;
+                    continue;
+                }
+                if (out.timingFunction == null) {
+                    out.timingFunction = nextTok.trim();
+                    continue;
+                }
+                if (out.delay == null) {
+                    String delayStr = nextTok.trim();
+                    String unit = delayStr.endsWith("ms") ? "ms" : delayStr.endsWith("s") ? "s" : null;
+                    if (unit == null) throw new IllegalArgumentException("Failed to parse transition string "+transitionString+".  Delay "+delayStr+" had invalid time unit. Expecting 's' or 'ms'");
+                    delayStr = delayStr.substring(0, delayStr.length() - unit.length());
+
+                    out.delay = Double.parseDouble(delayStr);
+                    if ("s".equals(unit)) out.delay *= 1000;
+
+                    continue;
+                }
+            }
+
+            return out;
+        }
+
+        public void writeTransition(StringBuilder sb, String componentVariable) {
+
+
+            if ((duration == null || duration == 0 ) && (delay == null || delay == 0)) {
+                sb.append("revalidateLater();\n");
+            } else if (duration == null || duration == 0 ) {
+                sb.append("CN.setTimeout(").append(delay.intValue()).append(", () -> revalidateLater());\n");
+            } else if (delay == null || delay == 0) {
+                sb.append(componentVariable).append(".getParent().").append("animateLayout(").append(duration.intValue()).append(");\n");
+            } else {
+                sb.append("CN.setTimeout(").append(delay.intValue()).append(", () -> animateLayout(").append(duration.intValue()).append(");\n");
+            }
+        }
+
+        public int getDurationMs() {
+            return (duration == null) ? 0 : duration.intValue();
         }
     }
 

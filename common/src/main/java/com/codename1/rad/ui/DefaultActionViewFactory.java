@@ -78,6 +78,10 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                 repaint = true;
             }
         }
+        if (!action.isTextStyle() && !"".equals(btn.getText().trim())) {
+            btn.setText("");
+            repaint = true;
+        }
 
         if (action.getUIID() != null) {
             String currUiid = btn.getUIID();
@@ -170,8 +174,13 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                 btn.setTextLines(newTextVal.trim());
                 repaint = true;
             }
-
-
+        }
+        if (!action.isTextStyle() && !"".equals(btn.getTextLines().trim())) {
+            btn.setTextLine1("");
+            btn.setTextLine2("");
+            btn.setTextLine3("");
+            btn.setTextLine4("");
+            repaint = true;
         }
 
         if (action.getUIID() != null) {
@@ -252,6 +261,9 @@ public class DefaultActionViewFactory implements ActionViewFactory {
         
         if (action.getLabel() != null && text) {
             button.setText(action.getLabel().getValue(entity.getEntity()));
+        }
+        if (!text && button.getText().length() > 0) {
+            button.setText("");
         }
         
         if (action.getImageIcon() != null && includeIcon) {
@@ -412,6 +424,9 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                         button.setTextPosition(LEFT);
                 }
             }
+        }
+        if (!text) {
+            button.setText("");
         }
 
 
