@@ -164,6 +164,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
         @Override
         public boolean isSameType(TypeMirror t1, TypeMirror t2) {
+            if (t1 == null || t2 == null) return false;
             if (isNativeMirror(t1) && isNativeMirror(t2)) {
                 try {
                     return wrapped.isSameType(t1, t2);
@@ -204,7 +205,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
         @Override
         public boolean isSubtype(TypeMirror t1, TypeMirror t2) {
-
+            if (t1 == null || t2 == null) return false;
             if (isSameType(t1, t2)) return true;
 
             if (isNativeMirror(t1) && isNativeMirror(t2)) {

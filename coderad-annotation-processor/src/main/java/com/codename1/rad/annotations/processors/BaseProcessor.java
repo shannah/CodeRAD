@@ -34,6 +34,9 @@ public abstract class BaseProcessor extends AbstractProcessor {
     abstract void installTypes(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv);
 
     boolean isA(TypeMirror mirror, String fqn) {
+        if (mirror == null) {
+            throw new IllegalArgumentException("isA() received null type argument.  isA requires a non-null value for its mirror type");
+        }
         TypeElement superclass = elements().getTypeElement(fqn);
         if (superclass == null) {
             throw new IllegalArgumentException("Cannot find class "+fqn);

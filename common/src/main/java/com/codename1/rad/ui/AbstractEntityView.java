@@ -158,9 +158,9 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         if (bindCount == 1) {
             if (bindOnPropertyChangeEvents) {
                 context.getEntity().getEntity().addPropertyChangeListener(pcl);
-            } else {
-                context.getEntity().getEntity().addObserver(observer);
             }
+            context.getEntity().getEntity().addObserver(observer);
+
             bindImpl();
         }
     }
@@ -185,10 +185,10 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
             unbindImpl();
             if (bindOnPropertyChangeEvents) {
                 context.getEntity().getEntity().removePropertyChangeListener(pcl);
-            } else {
-                
-                context.getEntity().getEntity().deleteObserver(observer);
             }
+                
+            context.getEntity().getEntity().deleteObserver(observer);
+
            
         }
     }

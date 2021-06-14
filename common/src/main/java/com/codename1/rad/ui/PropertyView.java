@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.ui;
 
+import com.codename1.rad.annotations.RADDoc;
 import com.codename1.rad.attributes.UIID;
 import com.codename1.rad.nodes.FieldNode;
 import com.codename1.rad.models.Property;
@@ -114,7 +115,10 @@ public abstract class PropertyView<T extends Component> extends Container implem
      */
     protected abstract void unbindImpl();
     
-    
+
+    @RADDoc(
+            generateSubattributeHints = true
+    )
     public T getComponent() {
         return component;
     }

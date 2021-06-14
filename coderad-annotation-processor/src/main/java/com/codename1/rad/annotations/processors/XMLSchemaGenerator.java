@@ -1,6 +1,7 @@
 package com.codename1.rad.annotations.processors;
 
 import com.codename1.rad.annotations.RAD;
+import com.codename1.rad.annotations.RADDoc;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
@@ -141,6 +142,12 @@ public class XMLSchemaGenerator {
     public StringBuilder writeSchema(StringBuilder sb) throws IOException {
         return writeSchema(sb, true);
     }
+
+    private File getAttributeGroupFile(AttributeGroup group) {
+        return new File(getCommonDir(), "target" + File.separator + "generated-sources" + File.separator + "rad" + File.separator + "xmlSchemas" + File.separator + group.prefix + "-" + group.type + "-" + group.depth + ".attgroup.xml");
+    }
+
+    private Set<TypeElement> enumTypes = new HashSet<>();
     public StringBuilder writeSchema(StringBuilder sb, boolean writeHeader) throws IOException {
         if (writeHeader) {
             sb.append("<?xml version=\"1.0\"?>\n");
@@ -158,13 +165,73 @@ public class XMLSchemaGenerator {
                 byte[] bytes = new byte[(int)includeFile.length()];
                 fis.read(bytes);
                 content = new String(bytes, "UTF-8");
+
+
             }
+            content = content.trim();
+            if (content.startsWith("====\n")) {
+                // There is head matter
+                int headMatterEndPos = content.indexOf("====\n", 5);
+                if (headMatterEndPos < 0) {
+                    throw new IOException("Invalid content found in file "+includeFile+".  Found head matter with no end separator.");
+                }
+                String headMatter = content.substring(5, headMatterEndPos+5).trim();
+                content = content.substring(headMatterEndPos+5).trim();
+                if (content.startsWith("<?xml")) {
+                    content = content.substring(content.indexOf("?>")+2).trim();
+                }
 
-            //indent(sb, indent).append("<xs:include schemaLocation=\"file://").append(includeFile.getAbsolutePath()).append("\"/>\n");
+                StringTokenizer strtok = new StringTokenizer(headMatter, "\n");
+                while (strtok.hasMoreTokens()) {
+                    String nextTok = strtok.nextToken().trim();
+                    if (nextTok.startsWith("requireAttributeGroup ")) {
+                        String attGroupCoords = nextTok.substring(nextTok.indexOf(" ")+1);
+                        String prefix = attGroupCoords.substring(0, attGroupCoords.indexOf(":"));
+                        String type = attGroupCoords.substring(prefix.length()+1, attGroupCoords.indexOf(":", prefix.length()+1));
+                        String depth = attGroupCoords.substring(attGroupCoords.lastIndexOf(":")+1);
 
-            indent(sb, indent).append(content.substring(content.indexOf("?>")+2)).append("\n");
+                        File attgroupFile = getAttributeGroupFile(new AttributeGroup(prefix, type, Integer.parseInt(depth)));
+                        if (!attgroupFile.exists()) {
+                            throw new IOException("Cannot find attribute group file at "+attgroupFile+" required by "+includeFile+" while processing schema for "+javaClass);
+
+                        }
+                        try (FileInputStream fis = new FileInputStream(attgroupFile)) {
+                            byte[] bytes = new byte[(int)attgroupFile.length()];
+                            fis.read(bytes);
+                            String tmp = new String(bytes, "UTF-8").trim();
+                            if (tmp.startsWith("<?xml")) {
+                                tmp = tmp.substring(tmp.indexOf("?>")+2).trim();
+                            }
+                            content = tmp + "\n" + content;
+                        }
+                    } else if (nextTok.startsWith("require ")) {
+                        TypeElement requiredType = processingEnvironment.getElementUtils().getTypeElement(nextTok.substring(nextTok.indexOf(" ")+1).trim());
+                        if (requiredType != null) {
+                            File requiredTypeFile = getClassSchemaFile(requiredType);
+                            if (!requiredTypeFile.exists()) {
+                                throw new IOException("Cannot find type schema "+requiredTypeFile+" required by "+includeFile+" while processing schema for "+javaClass);
+                            }
+                            try (FileInputStream fis = new FileInputStream(requiredTypeFile)) {
+                                byte[] bytes = new byte[(int)requiredTypeFile.length()];
+                                fis.read(bytes);
+                                String tmp = new String(bytes, "UTF-8").trim();
+                                if (tmp.startsWith("<?xml")) {
+                                    tmp = tmp.substring(tmp.indexOf("?>")+2).trim();
+                                }
+                                content =  tmp + "\n" + content;
+                            }
+
+                        }
+
+                    }
+                }
+
+            }
+            indent(sb, indent).append(content).append("\n");
+
 
         }
+
         if (!writeElements) {
             //Set<String> tagNames = new HashSet<String>();
 
@@ -183,7 +250,22 @@ public class XMLSchemaGenerator {
             }
             if (superType != null) {
                 extensionBase = superType.getQualifiedName().toString().replace('.', '_');
-                parentMembers.addAll(processingEnvironment.getElementUtils().getAllMembers(superType));
+                final TypeElement fSuperType = superType;
+                final DeclaredType fDeclaredSuperType = (DeclaredType)fSuperType.asType();
+                processingEnvironment.getElementUtils().getAllMembers(superType).forEach(e -> {
+                    if (e.getKind() == ElementKind.METHOD && e.getSimpleName().toString().startsWith("get")) {
+                        TypeMirror tm = processingEnvironment.getTypeUtils().asMemberOf(fDeclaredSuperType, e);
+                        if (tm.getKind() == TypeKind.EXECUTABLE) {
+                            ExecutableType methodMirror = (ExecutableType)tm;
+                            TypeMirror methodReturnType = methodMirror.getReturnType();
+                            if (methodReturnType.getKind() == TypeKind.TYPEVAR || methodReturnType.getKind() == TypeKind.WILDCARD) {
+                                return;
+                            }
+                        }
+                    }
+                    parentMembers.add(e);
+                });
+                //parentMembers.addAll(processingEnvironment.getElementUtils().getAllMembers(superType));
             }
 
             //indent(sb, indent).append("<xs:element  name=\"").append(tagName).append("\">\n");
@@ -192,7 +274,7 @@ public class XMLSchemaGenerator {
 
 
             Set<String> attributeNames = new HashSet<>();
-            Set<TypeElement> enumTypes = new HashSet<>();
+
             for (TypeElement clazz : new TypeElement[]{javaClass, builderClass}) {
                 if (clazz == null) {
                     // The builder class is null
@@ -290,38 +372,59 @@ public class XMLSchemaGenerator {
                             }
 
                         } else if (clazz == javaClass && methodEl.getParameters().size() == 0 && methodEl.getSimpleName().toString().startsWith("get")) {
+                            boolean useAttributeGroups = true;
+
+
+
                             ExecutableType methodType = (ExecutableType) processingEnvironment.getTypeUtils().asMemberOf((DeclaredType) clazz.asType(), methodEl);
                             String propertyName = toCamelCase(methodEl.getSimpleName().toString().substring(3));
-                            if (env.isA(methodType.getReturnType(), "com.codename1.ui.plaf.Style") || env.isA(methodType.getReturnType(), "com.codename1.rad.nodes.ActionNode.Builder")) {
 
-                                TypeElement retType = (TypeElement)((DeclaredType)methodType.getReturnType()).asElement();//processingEnvironment.getElementUtils().getTypeElement("com.codename1.ui.plaf.Style");
+                            if (methodType != null && methodType.getReturnType() != null) {
+                                if (env.isA(methodType.getReturnType(), "com.codename1.ui.plaf.Style")
+                                        || env.isA(methodType.getReturnType(), "com.codename1.rad.nodes.ActionNode.Builder")
+                                        || (methodEl.getAnnotation(RADDoc.class) != null && methodEl.getAnnotation(RADDoc.class).generateSubattributeHints() && methodType.getReturnType().getKind() == TypeKind.DECLARED)
+                                ) {
+                                    TypeMirror retTypeMirror = methodType.getReturnType();
 
-                                for (Element subMember : processingEnvironment.getElementUtils().getAllMembers(retType)) {
-                                    String subMethodName = subMember.getSimpleName().toString();
-                                    if (subMember.getKind() != ElementKind.METHOD) continue;
-                                    if (!subMethodName.startsWith("set")) continue;
-                                    if (((ExecutableElement)subMember).getParameters().size() != 1) continue;
+                                    if (retTypeMirror.getKind() == TypeKind.DECLARED) {
+                                        TypeElement retType = (TypeElement) ((DeclaredType) retTypeMirror).asElement();//processingEnvironment.getElementUtils().getTypeElement("com.codename1.ui.plaf.Style");
+
+                                        if (useAttributeGroups) {
+                                            indent(sb, indent).append("<xs:attributeGroup ref=\"").append(getAttributeGroupName((DeclaredType)retTypeMirror, propertyName+".", 3)).append("\" />\n");
+                                            addRequiredAttributeGroup(new AttributeGroup(propertyName+".", retType.getQualifiedName().toString(), 3));
+
+                                        } else {
+
+                                            for (Element subMember : processingEnvironment.getElementUtils().getAllMembers(retType)) {
+                                                String subMethodName = subMember.getSimpleName().toString();
+                                                if (subMember.getKind() != ElementKind.METHOD) continue;
+                                                if (!subMethodName.startsWith("set")) continue;
+                                                if (((ExecutableElement) subMember).getParameters().size() != 1)
+                                                    continue;
 
 
-                                    List<String> enumValues = null;
-                                    TypeElement parameterType = null;
-                                    TypeMirror parameterTypeMirror = ((ExecutableElement)subMember).getParameters().get(0).asType();
-                                    if (parameterTypeMirror.getKind() == TypeKind.DECLARED) {
-                                        parameterType = (TypeElement) ((DeclaredType)parameterTypeMirror).asElement();
-                                        enumValues =
-                                                parameterType.getEnclosedElements().stream()
-                                                        .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
-                                                        .map(Object::toString)
-                                                        .collect(Collectors.toList());
+                                                List<String> enumValues = null;
+                                                TypeElement parameterType = null;
+                                                TypeMirror parameterTypeMirror = ((ExecutableElement) subMember).getParameters().get(0).asType();
+                                                if (parameterTypeMirror.getKind() == TypeKind.DECLARED) {
+                                                    parameterType = (TypeElement) ((DeclaredType) parameterTypeMirror).asElement();
+                                                    enumValues =
+                                                            parameterType.getEnclosedElements().stream()
+                                                                    .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
+                                                                    .map(Object::toString)
+                                                                    .collect(Collectors.toList());
+                                                }
+                                                String type = "xs:string";
+                                                if (enumValues != null && !enumValues.isEmpty()) {
+                                                    type = parameterType.toString().replace('.', '_');
+                                                    enumTypes.add(parameterType);
+                                                }
+
+                                                indent(sb, indent).append("<xs:attribute name=\"").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"").append(type).append("\"/>\n");
+                                                indent(sb, indent).append("<xs:attribute name=\"bind-").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"xs:string\"/>\n");
+                                            }
+                                        }
                                     }
-                                    String type = "xs:string";
-                                    if (enumValues != null && !enumValues.isEmpty()) {
-                                        type = parameterType.toString().replace('.', '_');
-                                        enumTypes.add(parameterType);
-                                    }
-
-                                    indent(sb, indent).append("<xs:attribute name=\"").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"").append(type).append("\"/>\n");
-                                    indent(sb, indent).append("<xs:attribute name=\"bind-").append(propertyName).append(".").append(toCamelCase(subMethodName.toString().substring(3))).append("\" type=\"xs:string\"/>\n");
                                 }
                             }
 
@@ -365,7 +468,9 @@ public class XMLSchemaGenerator {
             }
         }
 
+
         if (writeElements) {
+
             indent(sb, indent).append("<xs:element name=\"script\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("<xs:element name=\"import\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("<xs:element name=\"view-model\">\n");
@@ -425,6 +530,7 @@ public class XMLSchemaGenerator {
             indent(sb, indent).append("    <xs:attribute name=\"value\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("    <xs:attribute name=\"lookup\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("    <xs:attribute name=\"name\" type=\"xs:string\"/>\n");
+            indent(sb, indent).append("    <xs:attribute name=\"type\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("  </xs:complexType>\n");
             indent(sb, indent).append("</xs:element>\n");
             indent(sb, indent).append("<xs:element name=\"define-slot\">\n");
@@ -463,10 +569,194 @@ public class XMLSchemaGenerator {
 
         if (writeElements) {
             indent -= 2;
+
+
             indent(sb, indent).append("</xs:schema>\n");
+        } else {
+            boolean includeHeadmatter = !requiredAttributeGroups.isEmpty() || !enumTypes.isEmpty();
+            StringBuilder headMatter = includeHeadmatter ? new StringBuilder() : null;
+            if (includeHeadmatter) {
+
+                headMatter.append("====\n");
+            }
+            if (!requiredAttributeGroups.isEmpty()) {
+
+                HashSet<AttributeGroup> currentRound = new HashSet<>(requiredAttributeGroups);
+                while (!currentRound.isEmpty()) {
+                    for (AttributeGroup group : currentRound) {
+                        headMatter.append("requireAttributeGroup ").append(group.prefix).append(":").append(group.type).append(":").append(group.depth).append("\n");
+                        File attGroupFile = getAttributeGroupFile(group);
+                        if (!attGroupFile.exists()) {
+                            StringBuilder attGroupContent = new StringBuilder();
+                            writeAttributeGroup(attGroupContent, (DeclaredType) env.lookupClass(group.type).asType(), group.prefix, group.depth);
+                            attGroupFile.getParentFile().mkdirs();
+                            try (FileOutputStream fos = new FileOutputStream(attGroupFile)) {
+                                fos.write(attGroupContent.toString().getBytes("UTF-8"));
+                            }
+                        }
+                        writtenAttributeGroups.add(group);
+                    }
+                    currentRound.clear();
+                    currentRound.addAll(requiredAttributeGroups);
+                    currentRound.removeAll(writtenAttributeGroups);
+                }
+
+            }
+
+            if (!enumTypes.isEmpty()) {
+                for (TypeElement enumType : enumTypes) {
+                    headMatter.append("require ").append(enumType.getQualifiedName()).append("\n");
+                    File enumSchemaFile = getClassSchemaFile(enumType);
+                    if (!enumSchemaFile.exists()) {
+                        enumSchemaFile.getParentFile().mkdirs();
+                        StringBuilder enumSchemaContent = new StringBuilder();
+                        writeEnumType(enumSchemaContent, enumType);
+                        try (FileOutputStream fos = new FileOutputStream(enumSchemaFile)) {
+                            fos.write(enumSchemaContent.toString().getBytes("UTF-8"));
+                        }
+
+                    }
+                }
+            }
+
+            if (includeHeadmatter) {
+                headMatter.append("====\n");
+                sb.insert(0, headMatter);
+            }
+
         }
         return sb;
 
+    }
+
+    private File getClassSchemaFile(TypeElement enumType) {
+        return new File(getCommonDir(), "target" + File.separator + "generated-sources" + File.separator + "rad" + File.separator + "xmlSchemas" + File.separator + enumType.getQualifiedName().toString().replace('.', File.separatorChar) + ".xsd");
+    }
+    private void writeEnumType(StringBuilder sb, TypeElement enumType) {
+        indent(sb, indent).append("<xs:simpleType name=\"").append(enumType.getQualifiedName().toString().replace('.', '_')).append("\">\n");
+        indent(sb, indent).append("  <xs:restriction base=\"xs:string\">\n");
+
+        List<String> enumValues =
+                enumType.getEnclosedElements().stream()
+                        .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
+                        .map(Object::toString)
+                        .collect(Collectors.toList());
+        for (String enumVal : enumValues) {
+            indent(sb, indent).append("    <xs:enumeration value=\"").append(enumVal).append("\" />\n");
+        }
+        indent(sb, indent).append("  </xs:restriction>\n");
+        indent(sb, indent).append("</xs:simpleType>\n");
+    }
+
+    private class AttributeGroup {
+        private String prefix;
+        private String type;
+        private int depth;
+
+        public AttributeGroup(String prefix, String type, int depth) {
+            this.prefix = prefix;
+            this.type = type;
+            this.depth = depth;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            AttributeGroup that = (AttributeGroup) o;
+            return depth == that.depth &&
+                    prefix.equals(that.prefix) &&
+                    type.equals(that.type);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(prefix, type, depth);
+        }
+    }
+
+
+    private String getAttributeGroupName(DeclaredType type, String prefix, int depth) {
+        TypeElement typeEl = (TypeElement)type.asElement();
+        return prefix.replace('.', '_') + "-" + typeEl.getQualifiedName().toString().replace('.', '_') + "-" + depth;
+    }
+
+    private void writeAttributeGroup(StringBuilder sb, DeclaredType type, String prefix, int depth) {
+        TypeElement typeEl = (TypeElement)type.asElement();
+        String groupName = getAttributeGroupName(type, prefix, depth);
+        indent(sb, indent).append("<xs:attributeGroup name=\"").append(groupName).append("\">\n");
+        indent += 2;
+
+        processingEnvironment.getElementUtils().getAllMembers(typeEl).forEach(el -> {
+            if (el.getKind() != ElementKind.METHOD) return;
+            ExecutableElement methodEl = (ExecutableElement)el;
+            TypeMirror mirror = processingEnvironment.getTypeUtils().asMemberOf(type, methodEl);
+            if (mirror.getKind() != TypeKind.EXECUTABLE) return;
+
+            ExecutableType methodType = (ExecutableType)mirror;
+
+
+
+            if (methodEl.getSimpleName().toString().startsWith("set") && methodEl.getParameters().size() == 1 && methodEl.getReturnType().getKind() == TypeKind.VOID && ((ExecutableElement) el).getEnclosingElement().equals(typeEl)) {
+                // This is a setter
+                String propertyName = methodEl.getSimpleName().toString().substring(3);
+
+                if (propertyName.isEmpty()) return;
+                propertyName = toCamelCase(propertyName);
+                TypeMirror paramTypeMirror = methodType.getParameterTypes().get(0);
+                List<String> enumValues = null;
+                TypeElement parameterType = null;
+                if (paramTypeMirror.getKind() == TypeKind.DECLARED) {
+                    parameterType = (TypeElement)((DeclaredType)paramTypeMirror).asElement();
+                    enumValues =
+                            parameterType.getEnclosedElements().stream()
+                                    .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
+                                    .map(Object::toString)
+                                    .collect(Collectors.toList());
+                }
+
+                String typeAttStr = "xs:string";
+                if (enumValues != null && !enumValues.isEmpty()) {
+                    typeAttStr = parameterType.getQualifiedName().toString().replace('.', '_');
+                    enumTypes.add(parameterType);
+                }
+                indent(sb, indent).append("<xs:attribute name=\"").append(prefix).append(propertyName).append("\" type=\"").append(typeAttStr).append("\"/>\n");
+                indent(sb, indent).append("<xs:attribute name=\"bind-").append(prefix).append(propertyName).append("\" type=\"").append("xs:string").append("\"/>\n");
+                return;
+            }
+
+            if (depth > 0 && methodEl.getSimpleName().toString().startsWith("get") && methodEl.getParameters().size() == 0 && methodType.getReturnType().getKind() == TypeKind.DECLARED && ((ExecutableElement) el).getEnclosingElement().equals(typeEl)) {
+                String propertyName = methodEl.getSimpleName().toString().substring(3);
+
+                if (propertyName.isEmpty()) return;
+                propertyName = toCamelCase(propertyName);
+                DeclaredType returnType = (DeclaredType)methodType.getReturnType();
+                RADDoc radDoc = methodEl.getAnnotation(RADDoc.class);
+                TypeElement returnTypeEl = (TypeElement)((returnType.asElement().getKind() == ElementKind.CLASS || returnType.asElement().getKind() == ElementKind.INTERFACE) ? returnType.asElement() : null);
+                if (returnTypeEl != null && ((radDoc != null && radDoc.generateSubattributeHints()) || returnTypeEl.getQualifiedName().contentEquals("com.codename1.ui.plaf.Style") || env.isA(returnType, "com.codename1.rad.nodes.ActionNode.Builder"))) {
+                    indent(sb, indent).append("<xs:attributeGroup ref=\"").append(getAttributeGroupName(returnType, prefix + propertyName + ".", depth-1)).append("\"/>\n");
+                    addRequiredAttributeGroup(new AttributeGroup(prefix + propertyName + ".", ((TypeElement)returnTypeEl).getQualifiedName().toString(), depth-1));
+                }
+            }
+
+        });
+
+        List<TypeMirror> superTypes = new ArrayList<>();
+        if (typeEl.getSuperclass() != null) superTypes.add(typeEl.getSuperclass());
+        superTypes.forEach(superMirror -> {
+            if (superMirror.getKind() == TypeKind.DECLARED) {
+                DeclaredType superType = (DeclaredType)superMirror;
+                Element superTypeEl = superType.asElement();
+                if (superTypeEl == null) return;
+                if (superTypeEl.getKind() == ElementKind.CLASS || superTypeEl.getKind() == ElementKind.INTERFACE) {
+                    indent(sb, indent).append("<xs:attributeGroup ref=\"").append(getAttributeGroupName(superType, prefix, depth)).append("\"/>\n");
+                    addRequiredAttributeGroup(new AttributeGroup(prefix, ((TypeElement)superTypeEl).getQualifiedName().toString(), depth));
+                }
+            }
+        });
+
+        indent -= 2;
+        indent(sb, indent).append("</xs:attributeGroup>\n");
     }
 
     private StringBuilder indent(StringBuilder sb, int indent) {
@@ -474,5 +764,16 @@ public class XMLSchemaGenerator {
         return sb;
     }
 
+
+    private void addRequiredAttributeGroup(AttributeGroup group) {
+        if (writtenAttributeGroups.contains(group)) return;
+        requiredAttributeGroups.add(group);
+    }
+
+
+
+
+    private Set<AttributeGroup> requiredAttributeGroups = new HashSet<>();
+    private Set<AttributeGroup> writtenAttributeGroups = new HashSet<>();
 
 }

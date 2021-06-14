@@ -31,6 +31,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.w3c.dom.Node.ELEMENT_NODE;
+import static org.w3c.dom.Node.TEXT_NODE;
+
 public class ViewProcessor extends BaseProcessor {
     private static final boolean ENABLE_INDEX = false;
     private RoundEnvironment roundEnv;
@@ -2636,8 +2639,8 @@ public class ViewProcessor extends BaseProcessor {
                 }
             }
 
-            String textContent = xmlTag.getTextContent();
-            if (textContent != null && !textContent.trim().isEmpty()) {
+            String textContent = getTextContent(xmlTag);
+            if (textContent != null && !textContent.isEmpty()) {
                 ExecutableElement setText = beanClass != null ? beanClass.findSetter("text", "java.lang.String") : null;
 
 
@@ -2998,7 +3001,7 @@ public class ViewProcessor extends BaseProcessor {
             }
 
 
-            String textContent = xmlTag.getTextContent();
+            String textContent = getTextContent(xmlTag);
             if (textContent != null && !textContent.trim().isEmpty()) {
 
                 ExecutableElement setText = builderClass.findSetter("text", "java.lang.String");
@@ -3181,8 +3184,8 @@ public class ViewProcessor extends BaseProcessor {
          * @param sb
          */
         void writeProperties(StringBuilder sb) {
-            String textContent = xmlTag.getTextContent();
-            if (textContent != null && !textContent.trim().isEmpty()) {
+            String textContent = getTextContent(xmlTag);
+            if (textContent != null && !textContent.isEmpty()) {
                 ExecutableElement  setText = componentClass.findSetter("text", "java.lang.String");
 
 
@@ -3302,7 +3305,7 @@ public class ViewProcessor extends BaseProcessor {
             org.w3c.dom.Element bindAction = getChildElementsByTagName(xmlTag, "bind-action").stream().findFirst().orElse(null);
             StringBuilder bindScript = new StringBuilder();
             if (bindAction != null) {
-                bindScript.append(bindAction.getTextContent());
+                bindScript.append(getTextContent(bindAction));
             }
             String explicitParams = null;
             if (href.contains("(") && href.endsWith(")")) {
@@ -3908,7 +3911,7 @@ public class ViewProcessor extends BaseProcessor {
                 JavaMethodProxy addListenerMethod = componentClass.findMethodProxy("add" + trigger + "listener", 1);
                 indent(sb, indent).append("{\n");
                 indent += 4;
-                String defaultHandler = el.getTextContent();
+                String defaultHandler = getTextContent(el);
 
                 String inheritedStr = inherit ? "Inherited" : "";
                 indent(sb, indent).append("ActionNode __action = getViewNode().get").append(inheritedStr).append("Action(").append(category).append(");\n");
@@ -4318,7 +4321,7 @@ public class ViewProcessor extends BaseProcessor {
         int len = children.getLength();
         for (int i=0; i<len; i++) {
             Node n = (Node)children.item(i);
-            if (n instanceof org.w3c.dom.Element) {
+            if (n.getNodeType() == ELEMENT_NODE) {
 
                 org.w3c.dom.Element childEl = (org.w3c.dom.Element)n;
                 out.add(childEl);
@@ -4327,12 +4330,34 @@ public class ViewProcessor extends BaseProcessor {
         return out;
     }
 
+    private static String getTextContent(org.w3c.dom.Element root) {
+        if (getDescendantTextContent(root).isEmpty()) {
+            return root.getTextContent().trim();
+        } else {
+            return "";
+        }
+    }
+
+    private static String getDescendantTextContent(org.w3c.dom.Element root) {
+        StringBuilder out = new StringBuilder();
+        NodeList children = root.getChildNodes();
+        int len = children.getLength();
+        for (int i=0; i<len; i++) {
+            Node n = (Node)children.item(i);
+            if (n.getNodeType() == ELEMENT_NODE) {
+                out.append(n.getTextContent()).append(" ");
+            }
+        }
+        return out.toString().trim();
+    }
+
+
     private static List<org.w3c.dom.Element> getDescendantElements(List<org.w3c.dom.Element> out, org.w3c.dom.Element root) {
         NodeList children = root.getChildNodes();
         int len = children.getLength();
         for (int i=0; i<len; i++) {
             Node n = (Node)children.item(i);
-            if (n instanceof org.w3c.dom.Element) {
+            if (n.getNodeType() == ELEMENT_NODE) {
 
                 org.w3c.dom.Element childEl = (org.w3c.dom.Element)n;
                 out.add(childEl);

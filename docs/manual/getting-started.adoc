@@ -893,7 +893,10 @@ As an example, let's add a button that is enabled _only_ when the model's _email
 <button bind-enabled="java:!getEntity().isEmpty(UserProfile.email)">Save</button>
 ----
 
+TIP: The _bind-*_ attributes, by default expect their values to be references to a tag (e.g. `UserProfile.email`), but you can alternatively provide a Java expression prefixed with `java:`.
+
 You will notice, now, that if you delete the content of the _email_ text field on the form, the _Save_ button becomes disabled.  If you start typing again, the button will become enabled again.
+
 
 
 

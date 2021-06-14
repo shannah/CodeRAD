@@ -23,64 +23,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/about-page-xml-new-file-prompt.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/about-us-page.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/action-overridden-in-controller.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/action-style-dropdown.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/action-style-icon-bottom.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/action-style-icon-left.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/action-style-icon-only.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/action-style-icon-right.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/action-style-icon-top.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/bound-user-profile-page.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/buttons-action-sheet.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/buttons-boxlayout-y.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/buttons-limit-2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/buttons-more-button.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/buttons-tag.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/component-inspector-label-details.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/component-inspector-menu.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/dialog-show-you-clicked-me.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/enable-hot-reload.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/grid-layout-buttons.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/hello-world-blue.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/hello-world-in-simulator.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/hello-world-main-class-project-inspector.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/hello-world-with-button.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/intellij-new-package-models.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/intellij-new-package.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/intellij-new-view-xml-file.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/intellij-run-button.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/intellij-starter-project.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/radlabel-bound-to-same-property-as-radtextfield.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/simulator-fun-with-components.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/simulator-hello-world-custom-uiid.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/simulator-hello-world-red.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/start-page-about-us-button.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/starter-app-rad-views-hierarchy.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/theme-css-project-inspector.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/user-profile-page.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/manual/images/xml-attribute-style-fgColor-typehints.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/annotations/src/main/java/com/codename1/rad/annotations/RADDoc.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/EntitySupport.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/EntityProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/EntityProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/BaseProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/BaseProcessor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ProcessingEnvironmentWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ProcessingEnvironmentWrapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/XMLSchemaGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/XMLSchemaGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/common/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/css/theme.css" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/css/theme.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/ca/weblite/shared/components/PopupMenu.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/ca/weblite/shared/components/PopupMenu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/coderad-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ca/weblite/shared/components/CollapsibleHeaderContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/ca/weblite/shared/components/CollapsibleHeaderContainer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/ActionNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/ActionNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/Node.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/Node.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ControllerEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ControllerEvent.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/AbstractEntityView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/AbstractEntityView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/DefaultActionViewFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/DefaultActionViewFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/Buttons.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/Buttons.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/PropertyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/PropertyView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/manual/getting-started.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual/getting-started.adoc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/manual/index.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual/index.adoc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/manual/installation.adoc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/manual/introduction.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual/introduction.adoc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -222,28 +178,28 @@
     </state>
     <state x="-2560" y="-250" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623329356364" />
     <state x="825" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618523791228" />
-    <state width="2518" height="301" key="GridCell.Tab.0.bottom" timestamp="1623433354055">
+    <state width="2518" height="301" key="GridCell.Tab.0.bottom" timestamp="1623696321447">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="2518" height="301" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623433354055" />
+    <state width="2518" height="301" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623696321447" />
     <state width="1638" height="280" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132475" />
     <state width="2518" height="409" key="GridCell.Tab.0.bottom/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171393" />
-    <state width="2518" height="301" key="GridCell.Tab.0.center" timestamp="1623433354054">
+    <state width="2518" height="301" key="GridCell.Tab.0.center" timestamp="1623696321446">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="2518" height="301" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623433354054" />
+    <state width="2518" height="301" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623696321446" />
     <state width="1638" height="280" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132474" />
     <state width="2518" height="409" key="GridCell.Tab.0.center/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171392" />
-    <state width="2518" height="301" key="GridCell.Tab.0.left" timestamp="1623433354053">
+    <state width="2518" height="301" key="GridCell.Tab.0.left" timestamp="1623696321446">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="2518" height="301" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623433354053" />
+    <state width="2518" height="301" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623696321446" />
     <state width="1638" height="280" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132473" />
     <state width="2518" height="409" key="GridCell.Tab.0.left/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171392" />
-    <state width="2518" height="301" key="GridCell.Tab.0.right" timestamp="1623433354054">
+    <state width="2518" height="301" key="GridCell.Tab.0.right" timestamp="1623696321447">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="2518" height="301" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623433354054" />
+    <state width="2518" height="301" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623696321447" />
     <state width="1638" height="280" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132474" />
     <state width="2518" height="409" key="GridCell.Tab.0.right/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171393" />
     <state width="1105" height="467" key="GridCell.Tab.1.bottom" timestamp="1617710132503">
@@ -271,14 +227,14 @@
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state x="1054" y="544" key="chooseDestDirectoryDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618835935567" />
-    <state x="-1819" y="334" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1622043588997">
+    <state x="-1819" y="334" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1623686130317">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1819" y="334" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1622043588997" />
-    <state x="-1745" y="216" width="1066" height="755" key="find.popup" timestamp="1623157413185">
+    <state x="-1819" y="334" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623686130317" />
+    <state x="-1745" y="216" width="1066" height="755" key="find.popup" timestamp="1623521571178">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1745" y="216" width="1066" height="755" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623157413185" />
+    <state x="-1745" y="216" width="1066" height="755" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623521571178" />
     <state x="535" y="361" width="699" height="547" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619386220903" />
     <state x="815" y="489" width="1065" height="754" key="find.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618414094499" />
     <state width="600" height="428" key="javadoc.popup" timestamp="1619876204348">
@@ -291,10 +247,10 @@
     </state>
     <state x="-2154" y="22" key="new project wizard/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621435494975" />
     <state x="406" y="295" width="913" height="579" key="new project wizard/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618842387165" />
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1623433339884">
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1623695106143">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623433339884" />
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623695106143" />
     <state x="517" y="334" width="670" height="490" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619385890360" />
     <state x="443" y="272" width="670" height="430" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1618261010075" />
     <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618847296129" />

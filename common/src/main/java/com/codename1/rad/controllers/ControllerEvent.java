@@ -72,6 +72,10 @@ public class ControllerEvent extends ActionEvent {
     }
 
     public ViewController getViewController() {
+        Object source = getSource();
+        if (source instanceof Controller) {
+            return ((Controller)source).getViewController();
+        }
         Component cmp = getComponent();
         if (cmp == null) {
             return null;

@@ -217,6 +217,16 @@ public class Controller implements ActionListener<ControllerEvent> {
         }
         return null;
     }
+
+    public ViewController getViewController() {
+        if (this instanceof ViewController) {
+            return (ViewController) this;
+        }
+        if (parent != null) {
+            return parent.getViewController();
+        }
+        return null;
+    }
     
     /**
      * Gets the section controller for the current controller context.  This will walk up the 

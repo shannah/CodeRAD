@@ -249,7 +249,12 @@ public class CollapsibleHeaderContainer extends Container {
             } else if (deltaY < 0 && slidePos < titleBar.getPreferredH()) {
                 slidePos = Math.min(titleBar.getPreferredH(), slidePos - deltaY);
             }
-            if (deltaY != 0) revalidateWithAnimationSafety();
+            if (deltaY != 0) {
+                CN.callSerially(()->{
+                    revalidateWithAnimationSafety();
+                });
+
+            }
 
         });
         int paddingTop = Display.getInstance().getDisplaySafeArea(safeArea).getY() + CN.convertToPixels(1f);
