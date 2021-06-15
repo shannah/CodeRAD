@@ -308,6 +308,7 @@ public class XMLSchemaGenerator {
                         indent(sb, indent).append("<xs:sequence><xs:any minOccurs=\"0\" maxOccurs=\"unbounded\" processContents=\"lax\"/></xs:sequence>");
                         indent(sb, indent).append("<xs:attribute name=\"layout-constraint\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-transition\" type=\"xs:string\"/>\n");
+                        indent(sb, indent).append("<xs:attribute name=\"rad-leadComponent\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-implements\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-href\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-href-trigger\" type=\"xs:string\"/>\n");

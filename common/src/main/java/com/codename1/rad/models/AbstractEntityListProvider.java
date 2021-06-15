@@ -35,4 +35,9 @@ public abstract class AbstractEntityListProvider implements EntityListProvider {
             }
         }
     }
+
+    @Override
+    public Request createRequest(RequestType type) {
+        return new Request(type);
+    }
 }

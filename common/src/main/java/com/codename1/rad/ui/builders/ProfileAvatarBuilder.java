@@ -7,6 +7,7 @@ import com.codename1.rad.nodes.ViewNode;
 import com.codename1.rad.ui.UI;
 import com.codename1.rad.ui.ViewContext;
 import com.codename1.rad.ui.entityviews.ProfileAvatarView;
+import com.codename1.ui.CN;
 
 import java.util.Map;
 
@@ -16,12 +17,12 @@ public class ProfileAvatarBuilder extends AbstractEntityViewBuilder<ProfileAvata
     private float size = 5f;
     private Tag nameTag, iconTag;
 
-    protected ProfileAvatarBuilder(ViewContext context, String tagName, Map<String, String> attributes) {
+    public ProfileAvatarBuilder(ViewContext context, String tagName, Map<String, String> attributes) {
         super(context, tagName, attributes);
     }
 
-    public ProfileAvatarBuilder size(float size) {
-        this.size = size;
+    public ProfileAvatarBuilder size(int size) {
+        this.size = size/(float)CN.convertToPixels(1f);
         return this;
     }
 

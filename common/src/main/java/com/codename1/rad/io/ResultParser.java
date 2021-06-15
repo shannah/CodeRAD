@@ -15,6 +15,7 @@
  */
 package com.codename1.rad.io;
 
+import com.codename1.io.JSONParser;
 import com.codename1.io.Log;
 import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
@@ -28,9 +29,10 @@ import com.codename1.rad.models.EntityType;
 import com.codename1.rad.models.Property;
 import com.codename1.rad.models.Tag;
 import com.codename1.xml.Element;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+
+
+import java.io.*;
+import com.codename1.io.CharArrayReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -1061,7 +1063,26 @@ public class ResultParser implements EntityFactory {
     public Entity parseJSON(String json, Entity dest) throws IOException {
         return parseRow(Result.fromContent(json, Result.JSON), dest);
     }
-    
+
+    public EntityList parseJSON(String json, EntityList dest, EntityType rowType) throws IOException {
+        return parseJSON(new CharArrayReader(json.toCharArray()), dest, rowType);
+    }
+
+    public EntityList parseJSON(InputStream json, EntityList dest, EntityType rowType) throws IOException {
+        return parseJSON(new InputStreamReader(json, "UTF-8"), dest, rowType);
+    }
+
+    public EntityList parseJSON(Reader json, EntityList dest, EntityType rowType) throws IOException {
+        JSONParser jsonParser = new JSONParser();
+        Map result = jsonParser.parseJSON(json);
+        List list = (List)result.get("root");
+        dest.setRowType(entityType);
+        parse(list, dest);
+        return dest;
+    }
+
+
+
     public Entity parseJSON(InputStream json, Entity dest) throws IOException {
         return parseRow(Result.fromContent(json, Result.JSON), dest);
     }

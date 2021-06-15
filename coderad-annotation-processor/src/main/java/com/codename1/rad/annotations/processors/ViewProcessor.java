@@ -1276,6 +1276,7 @@ public class ViewProcessor extends BaseProcessor {
             if (lcAttributes.containsKey(attributeName.toLowerCase())) {
 
                 // Case 1:  Property name is explicitly set in the XML tag.
+                /*
                 if (useLookup) {
                     if (isArray) {
                         appendTo.append("nonNullEntries(").append(arrayParamPrefix).append("context.getController().lookup(").append(componentType.getQualifiedName()).append(".class)").append(arrayParamSuffix).append(", ");
@@ -1283,6 +1284,8 @@ public class ViewProcessor extends BaseProcessor {
                         appendTo.append("nonNull(context.getController().lookup(").append(componentType.getQualifiedName()).append(".class), ");
                     }
                 }
+
+                 */
                 if (entityWrapperClass != null) {
                     appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(");
                 }
@@ -1290,9 +1293,9 @@ public class ViewProcessor extends BaseProcessor {
                 if (entityWrapperClass != null) {
                     appendTo.append(")");
                 }
-                if (useLookup) {
-                    appendTo.append(")");
-                }
+                //if (useLookup) {
+                //    appendTo.append(")");
+                //}
                 return;
             }
 
@@ -1310,7 +1313,7 @@ public class ViewProcessor extends BaseProcessor {
             if (isArray) {
 
                 List<org.w3c.dom.Element> childElements = childStream.collect(Collectors.toList());
-                if (useLookup) {
+                if (useLookup && childElements.isEmpty()) {
                     // If we area allowed to use a lookup for this, then we're prefer the lookup, but fall back
                     // to the values provided.
                     appendTo.append("nonNullEntries(").append(arrayParamPrefix).append("viewController.lookup(").append(componentType.getQualifiedName()).append(".class)").append(arrayParamSuffix).append(", ");
@@ -1344,7 +1347,7 @@ public class ViewProcessor extends BaseProcessor {
                     writeInjectedValueFromContext(appendTo, paramType, tagContext, "");
                 }
                 appendTo.append(arrayParamSuffix);
-                if (useLookup) {
+                if (useLookup && childElements.isEmpty()) {
                     appendTo.append(")");
                 }
                 return;
@@ -1355,7 +1358,7 @@ public class ViewProcessor extends BaseProcessor {
 
             org.w3c.dom.Element childElement = childStream.
                     findFirst().orElse(null);
-            if (useLookup) {
+            if (useLookup && childElement == null) {
                 appendTo.append("nonNull(context.getController().lookup(").append(componentType.getQualifiedName()).append(".class), ");
 
             }
@@ -1382,7 +1385,7 @@ public class ViewProcessor extends BaseProcessor {
             } else {
                 writeInjectedValueFromContext(appendTo, paramType, tagContext, "null");
             }
-            if (useLookup) {
+            if (useLookup && childElement == null) {
                 appendTo.append(")");
             }
 
@@ -3734,7 +3737,11 @@ public class ViewProcessor extends BaseProcessor {
                 sb.append("\n");
                 if (t != null) {
                     indent(sb, indent);
-                    t.writeTransition(sb, "_fcmp");
+                    boolean animateParent = true;
+                    if ("layout".equalsIgnoreCase(propName)) {
+                        animateParent = false;
+                    }
+                    t.writeTransition(sb, "_fcmp", animateParent);
                 }
                 sb.append("\n");
             }
@@ -3814,7 +3821,7 @@ public class ViewProcessor extends BaseProcessor {
                     sb.append("setDate");
                 } else {
 
-                    XMLParseException ex = new XMLParseException("Failed to create binding for attribute "+attName+" in tag "+xmlTag+" because the property type "+param.asType()+" is not supported for bindings.", xmlTag, null);
+                    XMLParseException ex = new XMLParseException("Failed to create binding for attribute "+attName+" in tag "+xmlTag+" because the property type "+param.asType()+" is not supported for bindings. If binding to a java expression, rememver to prefix attribute value with 'java:'", xmlTag, null);
                     ex.attributeName = attName;
                     ex.attributeValue = attValue;
                     throw ex;
@@ -4189,9 +4196,9 @@ public class ViewProcessor extends BaseProcessor {
             }
 
             if (isInsideRowTemplate() && isEntityView(jenv.findClassThatTagCreates(xmlTag.getTagName()))) {
-                sb.append("if (").append(jenv.rootBuilder.className).append("this.rowView == null) {\n");
-                sb.append("    ").append(jenv.rootBuilder.className).append("this.rowView = (EntityView)_cmp;\n");
-                sb.append("    ").append(jenv.rootBuilder.className).append("this.subContext.setEntityView((EntityView)_cmp);\n");
+                sb.append("if (").append(jenv.rootBuilder.className).append(".this.rowView == null) {\n");
+                sb.append("    ").append(jenv.rootBuilder.className).append(".this.rowView = (EntityView)_cmp;\n");
+                sb.append("    ").append(jenv.rootBuilder.className).append(".this.subContext.setEntityView((EntityView)_cmp);\n");
                 sb.append("}\n");
             }
             if (isInsideRowTemplate()) {
@@ -4225,6 +4232,17 @@ public class ViewProcessor extends BaseProcessor {
             String varName = getVarName();
             if (varName != null) {
                 indent(sb, indent).append(varName).append(" = ").append("_cmp;\n");
+            }
+
+            if (xmlTag.hasAttribute("rad-leadComponent")) {
+                indent(sb, indent).append("{\n");
+                indent += 4;
+                indent(sb, indent).append("com.codename1.ui.ComponentSelector _leadComponentSelector = com.codename1.ui.ComponentSelector.select(\"").append(StringEscapeUtils.escapeJava(xmlTag.getAttribute("rad-leadComponent"))).append("\", _cmp);\n");
+                indent(sb, indent).append("if (!_leadComponentSelector.isEmpty()) {\n");
+                indent(sb, indent).append("    _cmp.setLeadComponent(_leadComponentSelector.asComponent());\n");
+                indent(sb, indent).append("}\n");
+                indent -= 4;
+                indent(sb, indent).append("}\n");
             }
             indent(sb, indent).append("return _cmp;\n");
             indent -= 4;
@@ -6068,17 +6086,17 @@ public class ViewProcessor extends BaseProcessor {
             return out;
         }
 
-        public void writeTransition(StringBuilder sb, String componentVariable) {
+        public void writeTransition(StringBuilder sb, String componentVariable, boolean layoutParent) {
 
-
+            String getParent = layoutParent ? "getParent()." : "";
             if ((duration == null || duration == 0 ) && (delay == null || delay == 0)) {
                 sb.append("revalidateLater();\n");
             } else if (duration == null || duration == 0 ) {
                 sb.append("CN.setTimeout(").append(delay.intValue()).append(", () -> revalidateLater());\n");
             } else if (delay == null || delay == 0) {
-                sb.append(componentVariable).append(".getParent().").append("animateLayout(").append(duration.intValue()).append(");\n");
+                sb.append(componentVariable).append(".").append(getParent).append("animateLayout(").append(duration.intValue()).append(");\n");
             } else {
-                sb.append("CN.setTimeout(").append(delay.intValue()).append(", () -> animateLayout(").append(duration.intValue()).append(");\n");
+                sb.append("CN.setTimeout(").append(delay.intValue()).append(", () -> ").append(componentVariable).append(".").append(getParent).append("animateLayout(").append(duration.intValue()).append(");\n");
             }
         }
 

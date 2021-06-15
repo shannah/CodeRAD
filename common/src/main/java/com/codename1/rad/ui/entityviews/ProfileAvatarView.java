@@ -517,7 +517,7 @@ public class ProfileAvatarView extends AbstractEntityView {
         if (getEntity() != null) {
             
 
-            if (iconProp != null) {
+            if (iconProp != null && !getEntity().isEmpty(iconProp)) {
                 int sizePx = CN.convertToPixels(sizeMM);
                 Image img = getEntity().getEntity().createImageToStorage(iconProp, 
                         EncodedImage.createFromImage(label.getIcon().fill(sizePx, sizePx), false), 

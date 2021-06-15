@@ -897,6 +897,318 @@ TIP: The _bind-*_ attributes, by default expect their values to be references to
 
 You will notice, now, that if you delete the content of the _email_ text field on the form, the _Save_ button becomes disabled.  If you start typing again, the button will become enabled again.
 
+In this example we bound the _enabled_ property of _Button_ so that it would be updated whenever the model is changed.  You aren't limited to the _enabled_ property though.  You can bind on any property you like.  You can even bind on sub-properties, e.g.:
+
+[source,xml]
+----
+<button bind-style.fgColor="java:getEntity().isEmpty(UserProfile.email) ? 0xff0000 : 0x0">Save</button>
+----
+
+In the above example, the button text will be red when the email field is empty, and black otherwise.
+
+=== Transitions
+
+By default, changes to bound properties take effect immediately upon property change.  For example, if you bind the _visible_ property of a label, then it will instantly appear when the value changes to true, and instantly disappear when the value changes to false.  Interfaces feel _better_ when changes are animated.
+
+The _rad-transition_ attribute allows you to specify how transitions are handled on property bindings.  Attributes that work particularly well with transitions are ones that change the size or layout of a component.
+
+The following example binds the "layout" attribute on a container so that if the user enters "flow" into the text field, the layout will change to a _FlowLayout_, and for any other value, the layout will be _BoxLayout.Y_:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<border xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>Start Page</title>
+
+    <!-- Define a tag for the layout property.
+            This will add a property to the auto-generated view model class.
+    -->
+    <define-tag name="layout"/>
+
+    <!-- A text field that is bound to the "layout" property
+            As user types, it updates the "layout" property of the view model. -->
+    <radTextField tag="layout"  layout-constraint="north"/>
+
+    <!-- A Container with initial layout BoxLayout.Y.
+        We bind the "layout" property to a java expression that will set layout
+        to FlowLayout if the model's "layout" property is the string "flow", and
+        BoxLayout.Y otherwise.
+
+        The rad-transition="layout 1s" attribute will cause changes to the "layout" property
+        to be animated with a duration of 1s for each transition.
+    -->
+    <y bind-layout='java:"flow".equals(getEntity().getText(layout)) ? new FlowLayout() : BoxLayout.y()'
+       rad-transition="layout 1s"
+       layout-constraint="center"
+    >
+        <label>Label 1</label>
+        <label>Label 2</label>
+        <label>Label 3</label>
+        <label>Label 4</label>
+        <label>Label 5</label>
+        <button>Button 1</button>
+
+    </y>
+
+</border>
+----
+
+If you run the above example, it will begin with rendering the labels vertically in a _BoxLayout.Y_ layout as shown below:
+
+image::images/rad-transition-boxlayout-state.png[]
+
+If you type the word "flow" into the textfield, it will instantly (upon the "w" keystroke) start animating a change to a flow layout, the final result shown below:
+
+image::images/rad-transition-flow-state.png[]
+
+.A video clip of this transition
+video::vY60zLo6f5E[youtube, width=440, height=800]
+
+.Implicit View Models
+****
+If you don't specify the model class to use for your view using the `rad-model` attribute (see the _UserProfilePage_ example), it will use an _implicit_ view model - meaning that the annotation processor generates a view model for this view automatically.  In such cases, it will generate properties on the view model to correspond _tag definitions_ in the view.
+
+In the above _transition_ example, we defined a tag named "layout" using the the _define-tag_ tag:
+
+[source,xml]
+----
+<define-tag name="layout"/>
+----
+
+This resulted in our view model having a property named "layout", which is assigned this "layout" tag.  We then bound the text field to this property using:
+
+[source,xml]
+----
+<radTextField tag="layout"/>
+----
+
+And we referenced it in the binding expression for the _layout_ parameter of the `<y>` container:
+
+[source,xml]
+----
+<y bind-layout='java:"flow".equals(getEntity().getText(layout)) ? new FlowLayout() : BoxLayout.y()'>...</y>
+----
+
+Let's unpack that expression a little bit:
+
+The part that refers to our "layout" tag is:
+
+[source,java]
+----
+getEntity().getText(layout))
+----
+
+`getEntity()` gets the view model of this view, which is an instance of our _implicit_ view model.  The `getText(layout)` method gets the value of the `layout` tag (which we defined above in the `<define-tag>` tag) as a string.
+
+****
+
+
+==== Supported Properties
+
+Currently transitions don't work with every property.  Transitions are primarily useful only for properties that change the size or layout of the view.  For example, currently if you add a transition to a binding on the "text" property of a label, the text itself will change _instantly_, but if the bounds of the new text is different than the old text, you will see the text bounds grow or shrink according to the transition.
+
+Style animations are also supported on the "uiid" property, so that changes to colors, font sizes, padding etc, will transition smoothly when the _uiid_ is changed.  Currently style attributes (e.g. _style.fgColor_) won't use transitions, but this will be added soon.
+
+
+=== Entity Lists
+
+So far our examples have involved only views of _single_ models.  Most apps involve _list_ views where multiple models are rendered on a single view.  E.g. In mail apps that include a list of messages, each row of the list corresponds to a distinct _message_ model.  CodeRAD's `<entityList>` tag provides rich support for these kinds of views.
+
+To demonstrate this, let's create a view with an entityList.  The contents of this view are as follows:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" ?>
+<border xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>Entity List Sample</title>
+    <entityList layout-constraint="center"
+        provider="com.example.myapp.providers.SampleListProvider.class"
+    />
+</border>
+----
+
+This defines a view with single entityList.  The _provider_ attribute specifies the class will provide data to this view.  We need to implement this class _and_ add a lookup to an instance of it in the controller.
+
+The following is a sample provider implementation:
+
+[source,java]
+----
+package com.example.myapp.providers;
+
+import com.codename1.rad.models.AbstractEntityListProvider;
+import com.codename1.rad.models.EntityList;
+import com.example.myapp.models.UserProfile;
+import com.example.myapp.models.UserProfileImpl;
+
+public class SampleListProvider extends AbstractEntityListProvider {
+
+    @Override
+    public Request getEntities(Request request) {
+        EntityList out = new EntityList();
+        {
+            UserProfile profile = new UserProfileImpl();
+            profile.setName("Steve Hannah");
+            profile.setEmail("steve@example.com");
+            out.add(profile);
+        }
+        {
+            UserProfile profile = new UserProfileImpl();
+            profile.setName("Shai Almog");
+            profile.setEmail("shai@example.com");
+            out.add(profile);
+        }
+        {
+            UserProfile profile = new UserProfileImpl();
+            profile.setName("Chen Fishbein");
+            profile.setEmail("chen@example.com");
+            out.add(profile);
+        }
+        request.complete(out);
+        return request;
+    }
+
+}
+
+----
+
+Our provider extends `AbstractEntityListProvider` and needs to implement at least the _getEntities()_ method.  For most real-world use-cases you'll need to override the `createRequest()` method, but we'll reserve discussion of that for later.
+
+`getEntities()` is triggered whenever the entity list is requesting data.  The _request_ parameter may include details about which entities the list would like to receive.  Out of the box, there two basic request types: _REFRESH_ and _LOAD_MORE_.  A _REFRESH_ request is triggered when the list if first displayed, and whenever the user does a "Pull to refresh" action on the list view.  A _LOAD_MORE_ request is triggered when the user scrolls to the bottom of the list.
+
+You can use the `Request.setNextRequest()` method to provide details about the current cursor position, so that the next _LOAD_MORE_ request will know where to "start".
+
+One last thing, before we fire up the simulator:  We need to add a lookup to an instance of our provider.  The best place to register lookups is in the `onStartController()` method of the controller.  In your _MyRadApp_'s `onStartController()` method, add the following:
+
+[source,java]
+----
+addLookup(new SampleListProvider());
+----
+
+Now, when you launch the simulator, you will see something like the following:
+
+image::images/sample-list-view.png[]
+
+==== List Row Renderers
+
+I'll be the first to admit that our list looks a little plain.  Let's spice it up a bit by customizing its row renderer.  We will tell the list view how to render the rows of the list by providing a `<row-template>` as shown below:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" ?>
+<border xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>Entity List Sample</title>
+    <entityList layout-constraint="center"
+                provider="com.example.myapp.providers.SampleListProvider.class"
+    >
+        <row-template>
+            <border uiid="SampleListRow">
+                <profileAvatar size="1.5rem" layout-constraint="west"/>
+                <radLabel tag="Person.name" layout-constraint="center"
+                    component.style.font="native:MainRegular 1rem"
+                          component.style.marginLeft="1rem"
+                />
+            </border>
+        </row-template>
+    </entityList>
+</border>
+
+----
+
+Let's unpack this snippet so we can see what is going on.  The `<row-template>` tag directs its parent `<entityList>` tag to use its _child_ container as a row template.  The `<border>` tag inside the `<row-template>`, then will be duplicated for each row of the list.
+
+Inside this `<row-template>` tag, the _context_ is changed so that the _model_ is the row model, rather than the model of the the parent view class.  Therefore property and entity views like `<radLabel>` and `<profileAvatar>` will use the row's entity object as its model.  Notice that the `<radLabel>` component is bound to the _Person.name_ tag, so it will bind to the corresponding property of the row.
+
+TIP: This example used the `Person.name` tag whereas we could have used the `UserProfile.name` tag here.  Since we defined the `UserProfile.name` tag as being equal to `Person.name` inside the `UserProfile` interface, these are equivalent.  I generally prefer to reference the more generic schema tags (e.g. From the `Thing` and `Person` schemas) in my views to make them more easily portable between projects.
+
+The `<profileAvatar>` tag is a handy component that will display an avatar for the entity.  This will check to see if the entity has any properties with the `Thing.thumbnailUrl` tag, and display that image if found.  Otherwise it will render an image of the first letter of the name (I.e. the value of a property with the `Thing.name` tag).  For the `size` parameter we specify "1.5rem", which means that we want the avatar to be 1.5 times the height of the default font.
+
+One last thing, before we fire up the simulator.  The `<border>` tag in the row template has `uiid="SampleListRow"`, which refers to a style that needs to be defined in the CSS stylesheet.  Add the following snippet to the common/src/main/css/theme.css file:
+
+[source, css]
+----
+SampleListRow {
+    background-color: white;
+    border:none;
+    border-bottom: 0.5pt solid #ccc;
+    padding: 0.7rem;
+}
+----
+
+Now, if you start the simulator, it should show you something like the following:
+
+image::images/row-template-sample.png[]
+
+
+==== Responding to List Row Events
+
+Suppose we want the app to navigate to a UserProfile form for the selected user, when the user clicks on one of the rows of the list.
+
+The simplest way to achieve this is to add a button to our row-template as follows:
+
+[source,xml]
+----
+<button layout-constraint="east"
+    rad-href="#UserProfilePage{}">Show Profile</button>
+----
+
+The `{}` at the end of the _rad-href_ URL is a short-hand for the "current entity", and in this context the current entity is the one corresponding to the list row.  This would be the same as `#UserProfilePage{context.getEntity()}`.
+
+Upon saving the _StartPage.xml_ file, the simulator should reload with the "Show Profile" button added to each row as shown here:
+
+image::images/show-profile-button.png[]
+
+And clicking the _ShowProfile_ button on any row, will show the _UserProfilePage_ for the corresponding UserProfile.  E.g. If I click on the "Shai Almog" row's _ShowProfile_ button, it will display:
+
+image::images/shai-user-profile-page.png[]
+
+
+==== Using a Lead Component
+
+It seems a bit redundant to have a "Show Profile" button on each row.  Why not just show the profile when the user presses anywhere on the row.  This can be achieved by setting the button as the _lead component_ for the row's container.  Then the container will pipe all of its events to the button for handling.  We would generally, then, hide the button from view.
+
+We use the `rad-leadComponent` attribute on the container to set its lead component.  This attribute takes a query selector (similar to a CSS selector) to specify one of its child components as the lead component.
+
+Change the `<row-template>` and its contents to the following:
+
+[source,xml]
+----
+<row-template>
+    <border uiid="SampleListRow" rad-leadComponent="ShowProfileButton">
+        <profileAvatar size="1.5rem" layout-constraint="west"/>
+        <radLabel tag="Person.name" layout-constraint="center"
+            component.allStyles.font="native:MainRegular 1rem"
+                  component.allStyles.marginLeft="1rem"
+        />
+        <button layout-constraint="east"
+                hidden="true"
+                uiid="ShowProfileButton"
+                rad-href="#UserProfilePage{}">Show Profile</button>
+    </border>
+</row-template>
+----
+
+The key ingredients here are:
+
+`rad-leadComponent="ShowProfileButton"`::
+This says to use the component with UIID "ShowProfileButton" as the lead component.
+
+`<button ... uiid="ShowProfileButton"...>`::
+Assign the "ShowProfileButton" uiid to the button so that the `rad-leadComponent` selector will find it correctly.
+
+`<button ... hidden="true" ...>`::
+Set the button to be hidden so that it doesn't appear on in the view.  It isn't sufficient to set `visible="false"` here, as this would still retain its space in the layout.  The `hidden` attribute hides the button completely without having space reserved for it in the UI.
+
+After making these changes, the view should look like:
+
+image::images/list-with-lead-component.png[]
+
+And clicking on any row will trigger the `rad-href` attribute on the button, which will display the user profile for that particular row.
+
+
+
+
+
+
 
 
 
