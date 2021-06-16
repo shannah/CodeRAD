@@ -1,9 +1,11 @@
 package com.codename1.rad.ui.beans;
 
 import com.codename1.rad.annotations.Inject;
+import com.codename1.rad.controllers.FormController;
 import com.codename1.rad.ui.AbstractEntityView;
 import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.ui.ViewContext;
+import com.codename1.rad.util.NonNull;
 import com.codename1.ui.Component;
 
 public class Title {
@@ -13,19 +15,25 @@ public class Title {
     }
 
     public void setText(String text) {
-        context.getController().getFormController().setTitle(text);
+        context.getController().getViewController().setTitle(text);
     }
 
     public void setComponent(@Inject Component cmp) {
-        context.getController().getFormController().setTitleComponent(cmp);
+        NonNull.with(context.getController(), FormController.class, formController-> {
+            formController.setTitleComponent(cmp);
+        });
+
     }
 
     public void setHidden(boolean hidden) {
-        if (hidden) {
-            context.getController().getFormController().setAddTitleBar(false);
-        } else {
-            context.getController().getFormController().setAddTitleBar(true);
-        }
+        NonNull.with(context.getController(), FormController.class, formController -> {
+            if (hidden) {
+                formController.setAddTitleBar(false);
+            } else {
+                formController.setAddTitleBar(true);
+            }
+        });
+
     }
 
 }

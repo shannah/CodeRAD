@@ -84,8 +84,8 @@ public abstract class BaseProcessor extends AbstractProcessor {
     String getEntityNameFor(TypeElement el) {
         if (el.getKind() == ElementKind.CLASS && el.getSimpleName().toString().startsWith("Abstract")) {
             return el.getSimpleName().toString().substring("Abstract".length());
-        } else if (el.getKind() == ElementKind.INTERFACE && el.getSimpleName().toString().startsWith("I")) {
-            return el.getSimpleName().toString().substring(1);
+        //} else if (el.getKind() == ElementKind.INTERFACE && el.getSimpleName().toString().startsWith("I")) {
+        //    return el.getSimpleName().toString().substring(1);
         } else if (el.getKind() == ElementKind.INTERFACE) {
             return el.getSimpleName().toString();
         } else {

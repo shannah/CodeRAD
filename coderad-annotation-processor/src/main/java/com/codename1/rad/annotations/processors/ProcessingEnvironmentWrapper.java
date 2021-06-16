@@ -441,7 +441,10 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
                     @Override
                     public TypeMirror getReturnType() {
-                        return getTypeParameter(containing, ee, ee.getReturnType());
+
+                        TypeMirror out =  getTypeParameter(containing, ee, ee.getReturnType());
+                        return out;
+
                     }
 
                     @Override
@@ -1529,11 +1532,15 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
             return param;
         }
+        System.out.println("getTypeParameter("+type+", "+method+", "+param);
         TypeElement typeEl = (TypeElement)type.asElement();
         int index = -1;
         for (TypeParameterElement typeParameterElement : typeEl.getTypeParameters()) {
+            System.out.println("Checking "+typeParameterElement);
             index++;
             if (typeParameterElement.asType().toString().equals(param.toString())) {
+                System.out.println("type: "+typeParameterElement.asType());
+                System.out.println("Type arguments " + type.getTypeArguments());
                 if (type.getTypeArguments().size() > index) {
                     return type.getTypeArguments().get(index);
                 } else {
@@ -1799,7 +1806,10 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
     }
 
     public class EntityViewBuilder extends CustomTypeElementBuilder {
-        public EntityViewBuilder(String qualifiedName) {
+        private String modelQualifiedName;
+
+        public EntityViewBuilder(String qualifiedName, String modelQualifiedName) {
+            this.modelQualifiedName = modelQualifiedName;
             String packageName = qualifiedName.substring(0, qualifiedName.lastIndexOf("."));
             PackageElement pkg = elements.getPackageElement(packageName);
             qualifiedName(elements.getName(qualifiedName));
@@ -1810,7 +1820,7 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
             kind(ElementKind.CLASS);
 
             addInterface(createDeclaredType(packageName+"."+simpleName+"Schema"));
-            DeclaredType type = createDeclaredType(qualifiedName, createDeclaredType(packageName+"."+simpleName+"Model"));
+            DeclaredType type = createDeclaredType(qualifiedName, createDeclaredType(modelQualifiedName));
 
 
             type(type);
@@ -1838,6 +1848,18 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
                             .build())
             .build();
             element.addMethod(constructor);
+
+            // Because I can't figure out quite how to add type parameters properly yet, and we
+            // need to introspect the getEntity() method for its return type, we are explicitly adding it here
+            // without generics
+            CustomExecutableElement getEntity = new CustomExecutableElementBuilder()
+                    .returnType(createDeclaredType(modelQualifiedName))
+                    .kind(ElementKind.METHOD)
+                    .receiverType(element.type)
+                    .simpleName(elements.getName("getEntity"))
+                    .modifiers(Modifier.PUBLIC)
+                    .build();
+            element.addMethod(getEntity);
             return this;
 
 

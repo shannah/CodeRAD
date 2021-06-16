@@ -90,7 +90,7 @@ public class ChatFormController extends FormController {
  * @author shannah
  */
 public class FormController extends ViewController implements Runnable {
-    private String title;
+
     private String pathName;
     private boolean addTitleBar = true;
     private Component titleComponent;
@@ -175,7 +175,7 @@ public class FormController extends ViewController implements Runnable {
     }
     
     public void setTitle(String title) {
-        this.title = title;
+        super.setTitle(title);
         if (getView() != null) {
             getView().setTitle(title);
         }
@@ -184,9 +184,7 @@ public class FormController extends ViewController implements Runnable {
 
 
     
-    public String getTitle() {
-        return title;
-    }
+
 
     public void setTitleComponent(Component cmp) {
         this.titleComponent = cmp;
@@ -322,8 +320,8 @@ public class FormController extends ViewController implements Runnable {
             } else {
                 titleLbl = new Label();
                 titleLbl.setUIID("Title");
-                if (title != null) {
-                    titleLbl.setText(title);
+                if (getTitle() != null) {
+                    titleLbl.setText(getTitle());
                 }
                 titleBar.add(BorderLayout.CENTER, titleLbl);
             }

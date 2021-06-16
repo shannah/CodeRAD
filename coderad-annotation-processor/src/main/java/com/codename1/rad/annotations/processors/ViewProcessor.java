@@ -4,7 +4,6 @@ import com.codename1.rad.annotations.Inject;
 import com.codename1.rad.annotations.RAD;
 
 import com.codename1.rad.annotations.TagLib;
-import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
@@ -25,14 +24,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.w3c.dom.Node.ELEMENT_NODE;
-import static org.w3c.dom.Node.TEXT_NODE;
 
 public class ViewProcessor extends BaseProcessor {
     private static final boolean ENABLE_INDEX = false;
@@ -3334,17 +3331,23 @@ public class ViewProcessor extends BaseProcessor {
             if (!href.startsWith("#")) {
                 throw new IllegalArgumentException("Unsupported rad-href value.  Only FormController addresses are allowed.  Of the form #FormControllerClassName");
             }
+
+            boolean linkToNewForm = true;
+            if (rel != null && ("sheet".equalsIgnoreCase(rel) || rel.startsWith("sel:") || rel.startsWith("sheet-"))) {
+                linkToNewForm = false;
+            }
+
+
+
             String formControllerClass = href.substring(1);
             TypeElement formControllerTypeEl = jenv.lookupClass(formControllerClass);
             if (formControllerTypeEl == null) {
                 String fqn = this.jenv.rootBuilder.packageName+"."+formControllerClass;
                 formControllerTypeEl = jenv.lookupClass(fqn);
-                if (formControllerTypeEl == null) {
-                    PackageElement pkg = elements().getPackageElement(this.jenv.rootBuilder.packageName);
-                }
             }
-
+            TypeElement viewTypeEl = null;
             if (formControllerTypeEl != null && isEntityView(formControllerTypeEl)) {
+                viewTypeEl = formControllerTypeEl;
                 // This is a view class
                 // let's try to look up the default controller for it.
                 TypeElement markerControllerInterface = jenv.lookupClass("I"+formControllerTypeEl.getSimpleName()+"Controller");
@@ -3364,102 +3367,197 @@ public class ViewProcessor extends BaseProcessor {
                 }
 
             }
+            if (linkToNewForm) {
+                String selectorParam = entitySelector == null ? "" : ", " + entitySelector;
+                String paramsString = explicitParams == null ?
+                        (rel.equals("child") ? "{formController" + selectorParam + "}" :
+                                rel.equals("sibling") ? "{parentFormController" + selectorParam + "}" :
+                                        rel.equals("top") ? "{applicationController" + selectorParam + "}" :
+                                                rel.equals("section") ? "{sectionController" + selectorParam + "}" : "{formController" + selectorParam + "}") : "{" + explicitParams.substring(1, explicitParams.length() - 1) + "}";
+                paramsString = "new Object[]" + paramsString;
 
-            String selectorParam = entitySelector == null ? "" : ", "+entitySelector;
-            String paramsString = explicitParams == null ?
-                    (rel.equals("child") ? "{formController"+selectorParam+"}" :
-                            rel.equals("sibling") ? "{parentFormController"+selectorParam+"}" :
-                                    rel.equals("top") ? "{applicationController"+selectorParam+"}" :
-                                            rel.equals("section") ? "{sectionController"+selectorParam+"}" : "{formController"+selectorParam+"}") : "{" + explicitParams.substring(1, explicitParams.length()-1) + "}";
-            paramsString = "new Object[]" + paramsString;
+                indent(bindScript, indent).append("com.codename1.rad.controllers.FormController _rad_href_controller = (com.codename1.rad.controllers.FormController)getContext().getController().createObjectWithFactory(")
+                        .append(formControllerTypeEl.getQualifiedName()).append(".class, ").append(paramsString).append(");\n");
+                indent(bindScript, indent).append("if (_rad_href_controller == null) {\n");
 
-            indent(bindScript, indent).append("com.codename1.rad.controllers.FormController _rad_href_controller = (com.codename1.rad.controllers.FormController)getContext().getController().createObjectWithFactory(")
-                    .append(formControllerTypeEl.getQualifiedName()).append(".class, ").append(paramsString).append(");\n");
-            indent(bindScript, indent).append("if (_rad_href_controller == null) {\n");
 
-            /*
-            if (component has bind-action already) {
-                piggy-back onto the bind-action
-            } else {
-                fire a "link" action
-                if the "link action" was not consumed
-                add an action listener
-            }
-
-            // Actual action handling:
-            Try to create controller using Controller.createObjectWithFactory
-            if (controller was not created) {
-                find a suitable class to create the controller
-                controller = new FoundControllerClass
-            }
-            controller.show()
-             */
-            PackageElement packageElement = elements().getPackageOf(jenv.rootBuilder.parentClass);
-            org.w3c.dom.Element dummyTag = null;
-            if (explicitParams == null) {
-                dummyTag = xmlTag.getOwnerDocument().createElement(formControllerClass);
-                if (rel.equals("child")) {
-                    dummyTag.setAttribute("_0_", "formController");
-                } else if (rel.equals("sibling")) {
-                    dummyTag.setAttribute("_0_", "parentFormController");
-
-                } else if (rel.equals("top")) {
-                    dummyTag.setAttribute("_0_", "applicationController");
-                } else if (rel.equals("section")) {
-                    dummyTag.setAttribute("_0_", "sectionController");
+                /*
+                if (component has bind-action already) {
+                    piggy-back onto the bind-action
                 } else {
-                    dummyTag.setAttribute("_0_", "formController");
-                }
-                if (entitySelector != null) {
-                    dummyTag.setAttribute("_1_", entitySelector);
+                    fire a "link" action
+                    if the "link action" was not consumed
+                    add an action listener
                 }
 
+                // Actual action handling:
+                Try to create controller using Controller.createObjectWithFactory
+                if (controller was not created) {
+                    find a suitable class to create the controller
+                    controller = new FoundControllerClass
+                }
+                controller.show()
+                 */
+                PackageElement packageElement = elements().getPackageOf(jenv.rootBuilder.parentClass);
+                org.w3c.dom.Element dummyTag = null;
+                if (explicitParams == null) {
+                    dummyTag = xmlTag.getOwnerDocument().createElement(formControllerClass);
+                    if (rel.equals("child")) {
+                        dummyTag.setAttribute("_0_", "formController");
+                    } else if (rel.equals("sibling")) {
+                        dummyTag.setAttribute("_0_", "parentFormController");
 
-            }
-
-            if (formControllerTypeEl != null) {
-
-                List<JavaClassProxy> candidateControllerClasses = jenv.findInstantiatableClassesAssignableTo(packageElement, dummyTag, "com.codename1.rad.controllers.FormController", formControllerTypeEl.getQualifiedName().toString());
-
-                if (candidateControllerClasses.isEmpty()) {
-                   throw new XMLParseException("Cannot find any instantiatable FormController classes that can be assigned to " + formControllerTypeEl.getQualifiedName() + ".  Referenced in rad-href attribute of " + xmlTag, xmlTag, null);
-
-                } else {
-                    JavaClassProxy controllerClass = candidateControllerClasses.get(0);
-                    indent(bindScript, indent).append("    _rad_href_controller = ");
-
-                    final String fentitySelector = entitySelector;
-                    if (explicitParams == null) {
-                        JavaMethodProxy constructor = controllerClass.getEligibleConstructors(dummyTag).stream().
-                                        filter(m -> fentitySelector == null ? m.getNumParams() <= 1 : true).
-                                        filter(m -> m.getNumParams() == 0 || isA(m.getParameterType(0), "com.codename1.rad.controllers.Controller")).
-                                        sorted((a,b) -> b.getNumParams() - a.getNumParams()).
-                                        findFirst().
-                                        orElse(null);
-
-
-                        if (constructor == null) {
-                            throw new XMLParseException("No suitable constructors found for class "+controllerClass, xmlTag, null);
-                        }
-                        if (dummyTag.hasAttribute("_1_")) {
-                            TypeElement entityParamType = constructor.getParameterType(1);
-                            TypeElement entityParamTypeWrapperType = jenv.lookupClass(entityParamType.getQualifiedName()+"Wrapper");
-                            if (entityParamTypeWrapperType != null) {
-                                dummyTag.setAttribute("_1_", entityParamTypeWrapperType.getQualifiedName()+".wrap("+dummyTag.getAttribute("_1_")+")");
-                            }
-
-                        }
-                        constructor.callAsConstructor(bindScript, dummyTag, false);
+                    } else if (rel.equals("top")) {
+                        dummyTag.setAttribute("_0_", "applicationController");
+                    } else if (rel.equals("section")) {
+                        dummyTag.setAttribute("_0_", "sectionController");
                     } else {
-                        bindScript.append("new ").append(controllerClass.getQualifiedName()).append(explicitParams);
+                        dummyTag.setAttribute("_0_", "formController");
                     }
-                    bindScript.append(";\n");
+                    if (entitySelector != null) {
+                        dummyTag.setAttribute("_1_", entitySelector);
+                    }
+
+
                 }
+
+                if (formControllerTypeEl != null) {
+
+                    List<JavaClassProxy> candidateControllerClasses = jenv.findInstantiatableClassesAssignableTo(packageElement, dummyTag, "com.codename1.rad.controllers.FormController", formControllerTypeEl.getQualifiedName().toString());
+
+                    if (candidateControllerClasses.isEmpty()) {
+                        throw new XMLParseException("Cannot find any instantiatable FormController classes that can be assigned to " + formControllerTypeEl.getQualifiedName() + ".  Referenced in rad-href attribute of " + xmlTag, xmlTag, null);
+
+                    } else {
+                        JavaClassProxy controllerClass = candidateControllerClasses.get(0);
+                        indent(bindScript, indent).append("    _rad_href_controller = ");
+
+                        final String fentitySelector = entitySelector;
+                        if (explicitParams == null) {
+                            JavaMethodProxy constructor = controllerClass.getEligibleConstructors(dummyTag).stream().
+                                    filter(m -> fentitySelector == null ? m.getNumParams() <= 1 : true).
+                                    filter(m -> m.getNumParams() == 0 || isA(m.getParameterType(0), "com.codename1.rad.controllers.Controller")).
+                                    sorted((a, b) -> b.getNumParams() - a.getNumParams()).
+                                    findFirst().
+                                    orElse(null);
+
+
+                            if (constructor == null) {
+                                throw new XMLParseException("No suitable constructors found for class " + controllerClass, xmlTag, null);
+                            }
+                            if (dummyTag.hasAttribute("_1_")) {
+                                TypeElement entityParamType = constructor.getParameterType(1);
+                                TypeElement entityParamTypeWrapperType = jenv.lookupClass(entityParamType.getQualifiedName() + "Wrapper");
+                                if (entityParamTypeWrapperType != null) {
+                                    dummyTag.setAttribute("_1_", entityParamTypeWrapperType.getQualifiedName() + ".wrap(" + dummyTag.getAttribute("_1_") + ")");
+                                }
+
+                            }
+                            constructor.callAsConstructor(bindScript, dummyTag, false);
+                        } else {
+                            bindScript.append("new ").append(controllerClass.getQualifiedName()).append(explicitParams);
+                        }
+                        bindScript.append(";\n");
+                    }
+                }
+
+                indent(bindScript, indent).append("}\n");
+                indent(bindScript, indent).append("_rad_href_controller.show();\n");
+            } else {
+                // This is linking to show a view within the current form
+                if (viewTypeEl == null) {
+                    throw new IllegalStateException("rad-href attribute points to a view that cannot be found");
+                }
+                indent(bindScript, indent).append("com.codename1.rad.controllers.ViewController _rad_href_controller = new com.codename1.rad.controllers.ViewController(getContext().getController());\n");
+                org.w3c.dom.Element dummyTag = null;
+
+
+
+                DeclaredType viewDeclaredType = (DeclaredType)viewTypeEl.asType();
+                JavaClassProxy viewJavaClass = jenv.newJavaClassProxy(viewTypeEl);
+
+                // Need to find out the entity type that this view is for.
+                System.out.println("Looking for getEntity method in "+viewJavaClass.getQualifiedName());
+                ExecutableElement getEntityMethod = viewJavaClass.findGetter("entity");
+                System.out.println("Found getEntity: "+getEntityMethod);
+                ExecutableType getEntityMethodType = (ExecutableType)types().asMemberOf(viewDeclaredType, getEntityMethod);
+                System.out.println("asMemberOf("+viewDeclaredType+") => "+ getEntityMethodType);
+                System.out.println("Return type: "+getEntityMethodType.getReturnType());
+                System.out.println("class="+getEntityMethodType.getClass());
+
+                TypeMirror returnTypeMirror = getEntityMethodType.getReturnType();
+                String returnTypeStr = returnTypeMirror.toString();
+                if (entitySelector == null) {
+                    entitySelector = "new "+returnTypeStr+"Impl()";
+                } else {
+                    entitySelector = returnTypeStr+"Wrapper.wrap("+entitySelector+")";
+                }
+
+                indent(bindScript, indent).append("_rad_href_controller.setView(new "+viewJavaClass.getQualifiedName()+"(_rad_href_controller.createViewContext("+returnTypeStr+".class, "+entitySelector+")));\n");
+
+                if (rel.toLowerCase().startsWith("sheet-") || "sheet".equalsIgnoreCase(rel)) {
+                    // Display this inside a sheet.
+                    indent(bindScript, indent).append("Sheet _sheet = new Sheet(Sheet.getCurrentSheet(), _rad_href_controller.getTitle());\n");
+                    indent(bindScript, indent).append("_sheet.getContentPane().setLayout(new BorderLayout());\n");
+                    indent(bindScript, indent).append("_sheet.getContentPane().add(BorderLayout.CENTER, _rad_href_controller.getView());\n");
+                    indent(bindScript, indent).append("_rad_href_controller.addEventListener(evt->{\n");
+                    indent += 4;
+                    indent(bindScript, indent).append("if (evt instanceof FormController.FormBackEvent) {\n");
+                    indent(bindScript, indent).append("    evt.consume();\n");
+                    indent(bindScript, indent).append("    _sheet.back();\n");
+                    indent(bindScript, indent).append("}\n");
+                    indent -= 4;
+                    indent(bindScript, indent).append("});\n");
+                    if (rel.endsWith("-top") || rel.endsWith("-north")) {
+                        indent(bindScript, indent).append("_sheet.setPosition(BorderLayout.NORTH);\n");
+                    } else if (rel.endsWith("-left") || rel.endsWith("-west")) {
+                        indent(bindScript, indent).append("_sheet.setPosition(BorderLayout.WEST);\n");
+                    } else if (rel.endsWith("-right") || rel.endsWith("-east")) {
+                        indent(bindScript, indent).append("_sheet.setPosition(BorderLayout.EAST);\n");
+                    } else if (rel.endsWith("-bottom") || rel.endsWith("-south")) {
+                        indent(bindScript, indent).append("_sheet.setPosition(BorderLayout.SOUTH);\n");
+                    } else if (rel.endsWith("-center")) {
+                        indent(bindScript, indent).append("_sheet.setPosition(BorderLayout.CENTER);\n");
+                    }
+                    indent(bindScript, indent).append("_sheet.show();\n");
+
+                } else if (rel.startsWith("sel:")) {
+                    rel = rel.substring(rel.indexOf(":")+1);
+                    indent(bindScript, indent).append("Container _targetContainer = com.codename1.ui.ComponentSelector.select(\"").append(StringEscapeUtils.escapeJava(rel)).append("\", ")
+                            .append(jenv.rootBuilder.className).append(".this).asComponent(Container.class);\n");
+                    indent(bindScript, indent).append("if (_targetContainer == null) {\n");
+                    indent(bindScript, indent).append("    com.codename1.io.Log.e(new IllegalArgumentException(\"Cannot find target container at ").append(StringEscapeUtils.escapeJava(rel)).append("\"));\n");
+                    indent(bindScript, indent).append("} else {\n");
+                    indent(bindScript, indent).append("    if (!(_targetContainer.getLayout() instanceof BorderLayout)) {\n");
+                    indent(bindScript, indent).append("        _targetContainer.setLayout(new BorderLayout());\n");
+                    indent(bindScript, indent).append("    }\n");
+                    indent(bindScript, indent).append("    if (_targetContainer.getComponentCount() > 1) {\n");
+                    indent(bindScript, indent).append("        _targetContainer.removeAll();\n");
+                    indent(bindScript, indent).append("    }\n");
+                    indent(bindScript, indent).append("    if (_targetContainer.getComponentCount() == 0) {\n");
+                    indent(bindScript, indent).append("        _targetContainer.add(BorderLayout.CENTER, new Container());\n");
+                    indent(bindScript, indent).append("    }\n");
+
+                    indent(bindScript, indent).append("    com.codename1.ui.animations.Transition _transition = null;\n");
+                    if (xmlTag.hasAttribute("rad-transition")) {
+                        Transitions transitions = Transitions.parse(xmlTag.getAttribute("rad-transition"));
+                        Transition t = transitions.get("rad-href");
+                        if (t != null) {
+                            t.buildTransitionObject(bindScript, indent, "_transition");
+                        }
+                    }
+                    indent(bindScript, indent).append("    _targetContainer.replace(_targetContainer.getComponentAt(0), _rad_href_controller.getView(), _transition);\n");
+                    indent(bindScript, indent).append("    if (_transition == null) _targetContainer.revalidateWithAnimationSafety();\n");
+                    indent(bindScript, indent).append("}\n");
+
+                } else {
+                    throw new IllegalStateException("Unsupported target for rad-href attribute.  Expected either sheet, sheet-*, or sel:*");
+                }
+
+
+
+
             }
-
-            indent(bindScript, indent).append("}\n");
-            indent(bindScript, indent).append("_rad_href_controller.show();\n");
-
             if (xmlTag.hasAttribute("rad-href-trigger")) {
                 String triggerCategory = xmlTag.getAttribute("rad-href-trigger");
                 indent(sb, indent).append("{\n");
@@ -3741,7 +3839,7 @@ public class ViewProcessor extends BaseProcessor {
                     if ("layout".equalsIgnoreCase(propName)) {
                         animateParent = false;
                     }
-                    t.writeTransition(sb, "_fcmp", animateParent);
+                    t.writeTransitionCallForBinding(sb, "_fcmp", animateParent);
                 }
                 sb.append("\n");
             }
@@ -4444,10 +4542,12 @@ public class ViewProcessor extends BaseProcessor {
 
             className = parentClass.getSimpleName().toString();
 
+
             if (className.startsWith("Abstract")) {
                 className = className.substring("Abstract".length());
             }
 
+            viewModelType = className + "Model";
             if (parentClass.getSimpleName().contentEquals(className)) {
                 className += "Impl";
             }
@@ -4490,7 +4590,7 @@ public class ViewProcessor extends BaseProcessor {
             }
             ProcessingEnvironmentWrapper.EntityControllerBuilder controllerBuilder = env.new EntityControllerBuilder(packageName + "." + className+"Controller", viewModelType);
             ProcessingEnvironmentWrapper.EntityControllerMarkerBuilder controllerMarkerBuilder = env.new EntityControllerMarkerBuilder(packageName + ".I" + className + "Controller");
-            ProcessingEnvironmentWrapper.EntityViewBuilder entityViewBuilder = env.new EntityViewBuilder(packageName + "." + className);
+            ProcessingEnvironmentWrapper.EntityViewBuilder entityViewBuilder = env.new EntityViewBuilder(packageName + "." + className, viewModelType);
             for (org.w3c.dom.Element defineTag : getChildElementsByTagName(rootEl, "define-tag")) {
                 if (defineTag.hasAttribute("name")) {
                     schemaBuilder.addTag(defineTag.getAttribute("name"));
@@ -5311,7 +5411,8 @@ public class ViewProcessor extends BaseProcessor {
             sb.append("import com.codename1.rad.controllers.*;\n");
             jenv.writeImports(sb);
             sb.append("@Autogenerated\n");
-            sb.append("public class ").append(className).append(" extends ").append(viewExtends);
+
+            sb.append("public class ").append(className).append(" extends ").append(viewExtends).append("<").append(viewModelType).append(">");
             if (viewImplements != null) {
                 sb.append(" implements ").append(viewImplements);
             }
@@ -6086,7 +6187,7 @@ public class ViewProcessor extends BaseProcessor {
             return out;
         }
 
-        public void writeTransition(StringBuilder sb, String componentVariable, boolean layoutParent) {
+        public void writeTransitionCallForBinding(StringBuilder sb, String componentVariable, boolean layoutParent) {
 
             String getParent = layoutParent ? "getParent()." : "";
             if ((duration == null || duration == 0 ) && (delay == null || delay == 0)) {
@@ -6102,6 +6203,40 @@ public class ViewProcessor extends BaseProcessor {
 
         public int getDurationMs() {
             return (duration == null) ? 0 : duration.intValue();
+        }
+
+        public void buildTransitionObject(StringBuilder sb, int indent, String varName) {
+
+            if (timingFunction == null) return;
+            indent(sb, indent).append("{\n");
+            indent += 4;
+
+            if (timingFunction.equalsIgnoreCase("flip")) {
+                indent(sb, indent).append(varName).append(" = new com.codename1.ui.animations.FlipTransition();\n");
+                if (duration > 0) {
+                    indent(sb, indent).append("((com.codename1.ui.animations.FlipTransition)").append(varName).append(").setDuration(").append(duration.intValue()).append(");\n");
+                }
+            } else if (timingFunction.equalsIgnoreCase("fade")) {
+                indent(sb, indent).append(varName).append(" = com.codename1.ui.animations.CommonTransitions.createFade(").append(duration.intValue()).append(");\n");
+            } else if (timingFunction.equalsIgnoreCase("slide") || timingFunction.startsWith("slide-")) {
+                boolean forward = !timingFunction.contains("reverse");
+                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
+                        "com.codename1.ui.animations.CommonTransitions.SLIDE_HORIZONTAL";
+                indent(sb, indent).append(varName).append(" = com.codename1.ui.animations.CommonTransitions.createSlide(").append(slideType).append(", ").append(forward).append(", ").append(duration.intValue()).append(");\n");
+            } else if (timingFunction.equalsIgnoreCase("cover") || timingFunction.startsWith("cover-")) {
+                boolean forward = !timingFunction.contains("reverse");
+                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
+                        "com.codename1.ui.animations.CommonTransitions.SLIDE_HORIZONTAL";
+                indent(sb, indent).append(varName).append(" = com.codename1.ui.animations.CommonTransitions.createCover(").append(slideType).append(", ").append(forward).append(", ").append(duration.intValue()).append(");\n");
+            } else if (timingFunction.equalsIgnoreCase("uncover") || timingFunction.startsWith("uncover-")) {
+                boolean forward = !timingFunction.contains("reverse");
+                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
+                        "com.codename1.ui.animations.CommonTransitions.SLIDE_HORIZONTAL";
+                indent(sb, indent).append(varName).append(" = com.codename1.ui.animations.CommonTransitions.createUncover(").append(slideType).append(", ").append(forward).append(", ").append(duration.intValue()).append(");\n");
+            }
+
+            indent -=4;
+            indent(sb, indent).append("}\n");
         }
     }
 
