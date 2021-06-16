@@ -39,7 +39,7 @@ public class SplitPaneBuilder extends AbstractComponentBuilder<SplitPane> {
         }
         if (left == null) left = new Container();
         if (right == null) right = new Container();
-        return new SplitPane(orientationInt, left, right, minInset, preferredInset, preferredInset);
+        return new SplitPane(orientationInt, left, right, minInset, preferredInset, maxInset);
     }
 
     public void setMinInset(String minInset) {

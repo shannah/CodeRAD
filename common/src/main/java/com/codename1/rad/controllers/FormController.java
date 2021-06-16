@@ -145,6 +145,10 @@ public class FormController extends ViewController implements Runnable {
     public FormController(@Inject Controller parent) {
         super(parent);
     }
+
+    public void setView(ViewController viewController) {
+        this.setView(viewController.getView());
+    }
     
     /**
      * Sets the form associated with this controller.  This will automatically set

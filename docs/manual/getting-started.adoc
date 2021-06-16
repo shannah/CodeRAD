@@ -584,6 +584,7 @@ If you change the limit to "2", it will show the first action, _Notifications_, 
 
 image::images/buttons-limit-2.png[]
 
+[#form-navigation]
 === Form Navigation
 
 It's time to grow beyond our single-form playpen, and step into the world of multi-form apps.  Let's create another view in the same folder as _StartPage.xml_.  We'll name this _AboutPage.xml_.  If you're using IntelliJ, like me, you can create this file by right clicking the "myapp" directory in the project inspector, and select _New_ > _File_ as shown here:
@@ -623,6 +624,8 @@ Click on this button, and it should take you to the "About Us" view we just crea
 image::images/about-us-page.png[]
 
 Notice that the _About Us_ form includes a _Back_ button that returns you to the _Start Page_.  This is just one of the nice features that you get for free by using CodeRAD.  There is a lot of power packed into the `rad-href` attribute. In this case we specified that we wanted to link to the _AboutPage_ view using the "#AboutPage" URL, it enables other URL types as well.  To learn more about the _rad-href_ attribute, see (TODO section of manual on rad-href).
+
+TIP: This section described only how to navigate to a different form.  It is also possible to load views within the current form using the `rad-href` attribute.  This is commonly used on tablet and desktop to create a _master-detail_ view.  See <<intraform-navigation>> for some examples.
 
 === Models
 
@@ -1204,9 +1207,97 @@ image::images/list-with-lead-component.png[]
 
 And clicking on any row will trigger the `rad-href` attribute on the button, which will display the user profile for that particular row.
 
+[#intraform-navigation]
+=== Intra-Form Navigation
+
+Earlier, in <<form-navigation>>, we learned how to navigate between forms using a _button_ tag with the `rad-href` attribute.  When developing for tablet and desktop, you may want to navigate to a different view within the same form; sort of like using frames in HTML.  A _mail_ app will often have a list of messages on the left side of the screen, and details of the currently selected message on the right, as shown in the Gmail app screenshot below:
+
+image::images/gmail-app-screenshot.png[]
+
+In our previous examples with `rad-href`, we specified _which_ view we wanted to navigate to, but we didn't specify _where_ we wanted the view to be displayed.  By default, it navigates to a new form whose _FormController_ is a child of the current _FormController_.  The full syntax of `rad-href` supports targeting the view to a different location in both the view hierarchy and the controller hierarchy.
+
+Suppose we wanted our view to be displayed inside a _Sheet_ instead of a new form.  Then we could do something like:
+
+[source,xml]
+----
+<button rad-href="#AboutPage sheet">About Page</button>
+----
+
+Alternatively, suppose we wanted to display the view inside a Container within the current form.  Then we could do:
+
+[source,xml]
+----
+<border name="TargetFrame"></border> <1>
+
+...
+
+<button rad-href="#AboutPage sel:#TargetFrame">About Page</button> <2>
+
+----
+<1> A placeholder container where the _AboutPage_ view will be loaded.
+<2> The `sel:` prefix for the target means that the remainder will be treated as a `ComponentSelector` query, which is similar to a CSS selector of Javascript Query Selector.  In our case we are targeting the component with name "TargetFrame".
+
+In the above example, when the user presses the button, it will load the _AboutPage_ view into the _TargetFrame_ container.
+
+Change the contents of the _StartPage_ view to:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" ?>
+<splitPane xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>Intra-form Navigation</title>
+    <var name="profile" lookup="com.example.myapp.models.UserProfile"/>
+    <y>
+        <label>Menu</label>
+        <button rad-href="#AboutPage sel:#ContentPanel">About Page</button>
+        <button rad-href="#UserProfilePage{profile} sel:#ContentPanel">My Profile</button>
+        <button rad-href="#AboutPage sheet">About Page in Sheet</button>
+    </y>
+    <border>
+        <spanLabel layout-constraint="north">This example works best in Tablet or Desktop Mode.
+        It demonstrates intra-form navigation.
+        </spanLabel>
+        <border layout-constraint="center" name="ContentPanel"></border>
+
+    </border>
+</splitPane>
+----
+
+TIP: The above example demonstrates the `<splitPane>` component that is useful for tablet and desktop UIs.  See <<using-split-panes>> to learn more about the _SplitPane_ component.
+
+Launch the simulator, and enable the _Desktop_ skin by selecting the  _Skin_ > _Desktop.skin_ menu item as shown below.
+
+image::images/skins-desktop-skin.png[]
+
+Then the app should appear something like the followign screenshot:
+
+image::images/intra-form-navigation-0.png[]
+
+Click on the _My Profile_ link on the left, and you should see the user profile page appear on the right, as shown below.
+
+image::images/intra-form-navigation-sample.png[]
+
+If you click on the _About Page in Sheet_ button, it will load the _AboutPage_ view inside a sheet as shown here.
+
+image::images/intra-form-navigation-sheet.png[]
+
+You can also control the position of where the sheet will be shown by using one `sheet-top`, `sheet-left`, `sheet-right`, or `sheet-center` instead of the `sheet` option that we used in this example.
 
 
+==== Navigation Transitions
 
+You can use the `rad-transition` attribute in conjuction with the `rad-href` attribute also, to specify a transition to be used when replacing a container's content with a new view.
+
+To demonstrate this, let's add a `rad-transition` attribute to each button in the menu from the previous example.  Change the first _AboutPage_ button to:
+
+[source,xml]
+----
+<button rad-href="#AboutPage sel:#ContentPanel"
+            rad-transition="rad-href 0.5s flip"
+        >About Page</button>
+----
+
+Now, when you click this button, it should transition the _AboutPage_ in with a _flip_ transition with a duration of 0.5 seconds.
 
 
 

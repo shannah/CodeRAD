@@ -3543,6 +3543,8 @@ public class ViewProcessor extends BaseProcessor {
                     indent(bindScript, indent).append("    }\n");
                     indent(bindScript, indent).append("    if (_targetContainer.getComponentCount() == 0) {\n");
                     indent(bindScript, indent).append("        _targetContainer.add(BorderLayout.CENTER, new Container());\n");
+                    indent(bindScript, indent).append("        _targetContainer.getComponentAt(0).setWidth(_targetContainer.getWidth());\n");
+                    indent(bindScript, indent).append("        _targetContainer.getComponentAt(0).setHeight(_targetContainer.getHeight());\n");
                     indent(bindScript, indent).append("    }\n");
 
                     indent(bindScript, indent).append("    com.codename1.ui.animations.Transition _transition = null;\n");
@@ -3604,7 +3606,7 @@ public class ViewProcessor extends BaseProcessor {
             hasViewController = true;
             String controllerExtends = viewControllerTag.getAttribute("extends");
             if (controllerExtends.isEmpty()) controllerExtends = "ViewController";
-            indent(sb, indent).append("ViewController viewController = new ").append(controllerExtends).append("(this.viewController);\n");
+            indent(sb, indent).append("ViewController viewController = new ").append(controllerExtends).append("(context.getController());\n");
         }
 
         void writeChildren(StringBuilder sb) {
@@ -5435,10 +5437,33 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("private final FormController parentFormController;\n");
             writeClassVariables(sb);
             writeScriptMethods(sb);
+            indent(sb, indent).append("private static ViewContext<").append(viewModelType).append("> wrapContext(ViewContext<").append(viewModelType).append("> context) {\n");
+            indent += 4;
+            if (jenv.rootElement.hasAttribute("view-controller")) {
+                String vcClassName = jenv.rootElement.getAttribute("view-controller");
+                indent(sb, indent).append(vcClassName).append(" _viewController = new ").append(vcClassName).append("(context.getController());\n");
+                indent(sb, indent).append("return _viewController.createViewContext(").append(viewModelType).append(".class, context.getEntity());\n");
+            } else {
+                indent(sb, indent).append("return context;\n");
+            }
+            indent -= 4;
+            indent(sb, indent).append("}\n\n");
+
+            indent(sb, indent).append("private Component registerViewController(Component cmp) {\n");
+            indent += 4;
+            if (jenv.rootElement.hasAttribute("view-controller")) {
+                indent(sb, indent).append("this.context.getController().setView(cmp);");
+            }
+            indent(sb, indent).append("return cmp;\n");
+
+            indent -= 4;
+            indent(sb, indent).append("}\n\n");
+
             indent(sb, indent).append("public ").append(className).append("(ViewContext<").append(viewModelType).append("> context) {\n");
             indent += 4;
-            indent(sb, indent).append("super(context);\n");
-            indent(sb, indent).append("this.context = context;\n");
+            indent(sb, indent).append("super(wrapContext(context));\n");
+            indent(sb, indent).append("this.context = getContext();\n");
+
             indent(sb, indent).append("this.formController = context.getController().getFormController();\n");
             indent(sb, indent).append("this.viewController = context.getController();\n");
             indent(sb, indent).append("this.applicationController = context.getController().getApplicationController();\n");
@@ -5447,7 +5472,7 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("getAllStyles().stripMarginAndPadding();\n");
             indent(sb, indent).append("setLayout(new BorderLayout());\n");
             indent(sb, indent).append("_currentContainer = this;\n");
-            indent(sb, indent).append("add(BorderLayout.CENTER, ").append("createComponent0());\n");
+            indent(sb, indent).append("add(BorderLayout.CENTER, ").append("registerViewController(createComponent0()));\n");
             indent -= 4;
             indent(sb, indent).append("}\n");
 
