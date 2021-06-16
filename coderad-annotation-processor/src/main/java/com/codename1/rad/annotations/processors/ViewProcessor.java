@@ -3000,6 +3000,8 @@ public class ViewProcessor extends BaseProcessor {
 
             }
 
+            JavaMethodProxy addChild = builderClass.findMethodProxy("addChild", 1);
+
 
             String textContent = getTextContent(xmlTag);
             if (textContent != null && !textContent.trim().isEmpty()) {
@@ -3170,6 +3172,11 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent);
                     builderClass.setProperty(sb, propertyName, "java:"+createCall, "_builder", propertyType.toString());
                     sb.append("\n");
+                    continue;
+                }
+                if (addChild != null && isComponent(type)) {
+                    indent(sb, indent).append("_builder.addChild(").append(createCall).append(");\n");
+                    childEl.setAttribute("rad-used-for", "builder-addChild");
                     continue;
                 }
 
@@ -3704,6 +3711,8 @@ public class ViewProcessor extends BaseProcessor {
 
                 indent(sb, indent).append("// Child tag ").append(childEl.getTagName()).append(" is type ").append(jenv.findClassThatTagCreates(childEl.getTagName())).append("\n");
                 if (componentClass.isContainer() && jenv.isComponentTag(childEl.getTagName())) {
+
+
                     // This is a component tag.  and the parent is a container.  Just add it as a child.
                     indent(sb, indent).append("// Add child component ").append(" with child tag ").append(childEl.getTagName()).append("\n");
 
