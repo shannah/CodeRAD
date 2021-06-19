@@ -218,6 +218,25 @@ public class Controller implements ActionListener<ControllerEvent> {
         return null;
     }
 
+    /**
+     * Returns the FormController in this hierarchy if it can be found within a maximum distance when
+     * traversing up the controller hierarchy.  When `maxDistance=0`, this will only return non-null
+     * if `this` is a _FormController_ instance.  When `maxDistance=1`, this will only return non-null
+     * if either `this` or the parent controller is a FormController.  Etc...
+     * @param maxDistance The maximum distance to walk up the controller hierarchy to find a FormController before
+     *                    returning `null`.
+     * @return The FormController or null if none found within the specified distance.
+     */
+    public FormController getFormController(int maxDistance) {
+        if (this instanceof FormController) {
+            return (FormController)this;
+        }
+        if (maxDistance > 0 && parent != null) {
+            return parent.getFormController(maxDistance-1);
+        }
+        return null;
+    }
+
     public ViewController getViewController() {
         if (this instanceof ViewController) {
             return (ViewController) this;

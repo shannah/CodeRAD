@@ -1,3 +1,4 @@
+[#getting-started]
 == Getting Started
 
 To get started, download the CodeRAD starter project from https://github.com/shannah/coderad2-starter-template/archive/refs/heads/master.zip[here].
@@ -18,8 +19,31 @@ NOTE: The first time you run and build the project it will take some time becaus
 .The starter project running inside the Codename One simulator
 image::images/hello-world-in-simulator.png[]
 
-.Under the Hood
-****
+[#cloning-project]
+=== Customizing the Maven Artifact Coordinates
+
+The starter project comes preconfigured with placeholder coordinates for `groupId` and `artifactId`.  For the purposes of this tutorial, I will be using these default coordinates.  However, for a _real_ app, you will want to change these coordinates to your own `groupId` and `artifactId`.  The easiest way to change these coordinates is using the `cn1:clone` maven goal.
+
+WARNING: If you clone the project and change the `groupId` and `artifactId`, this will also change package structure in the project, so your package structure will be different than the one I use in the rest of this tutorial.  E.g. Instead of your project files being in the _com.example.myapp_ package, they will be in a package named after your _groupId_.
+
+You can run this goal in IntelliJ by first expanding the "Maven" tab from the tabs in the right side of the window:
+
+image::images/intellij-maven-tab.png[]
+
+Once the _Maven_ sidebar is opened, expand the _myapp_ node, and the _Run Configurations_ sub-node, and then double-click the _Clone Project_ option shown here:
+
+image::images/intellij-clone-project.png[]
+
+It should display a dialog prompt for you to enter the new coordinates and location for your Maven project:
+
+image::images/clone-project-dialog.png[]
+
+After entering the project details into the dialog, press _OK_.  If all goes well, you should see a _BUILD SUCCESS_ message in the output log of IntelliJ, and you should find your new project at the location that you specified.  You can then close this project, and open your newly created project.
+
+
+[#under-the-hood]
+=== Under the Hood
+
 Let's take look under the hood to see how this "Hello World" app is producted.
 
 The _starting point_ for your app is the `com.example.myapp.MyRADApp` class, located in the _common/src/main/java_ directory.
@@ -87,19 +111,20 @@ Not a child component, rather a "bean" that sets the title of the form to "Hi Wo
 `<label>Hello World</label>`::
 A Label component with the text "Hello World"
 
-****
-
+[#hot-reload]
 === Hot Reload
 
 The Codename One simulator supports a "Hot Reload" feature that can dramatically improve productivity.  Especially if you're like me, and you like to experiment with the UI by trial and error.
 
-Hot Reload is disabled by default, but you can enable it using the _Tools_ > _Hot Reload_ > _Reload Simulator_ option (From the Simulator's menu bar).
+Hot Reload is disabled by default, but you can enable it using the _Tools_ > _Hot Reload_ menu.
 
 image::images/enable-hot-reload.png[]
 
 If the _Reload Simulator_ option is checked, then the simulator will monitor the project source files for changes, and automatically recompile and reload the simulator as needed.
 
-TIP: Technically the _Reload Simulator_ option isn't a hot reload, since it actually restarts the simulator - and you will lose your place in the app.  True hot reload (where the classes are reloaded transparently without having to restart the simulator) is also available, but it is experimental and requires some additional setup.
+The _Reload Current Form_ option is the same as the _Reload Simulator_ option except that it will automatically load the current form when the simulator reloads.  When using this option, you will lose the navigation context (e.g. the _parent_ controller will be the _ApplicationController_) and data, when the simulator reloads.
+
+TIP: Technically these _hot reload_ options aren't a "hot" reload, since it actually restarts the simulator - and you will lose your place in the app.  True hot reload (where the classes are reloaded transparently without having to restart the simulator) is also available, but it is experimental and requires some additional setup.
 
 **The remainder of this tutorial will assume that you have _Hot Reload_ enabled**
 
@@ -827,48 +852,17 @@ Now, we we click on the _User Profile_ button, it should display the details of 
 
 image::images/bound-user-profile-page.png[]
 
-.The "Poor Man's" Hot Reload
-****
-CodeRAD has experimental support for full, proper, _Hot reload_ but it currently requires some additional setup that is beyond the scope of this _getting started_ tutorial.
+[TIP]
+====
+Since the _My Profile_ form is a "sub-form" of your app, the _Hot Reload_ > _Reload Simulator_ option would still require you to navigate back to the form when you make changes to the source.  While working on "sub-forms" (i.e. forms that aren't displayed automatically on app start), I recommend enabling the _Hot Reload_ > _Reload Current Form_ option in the simulator.
 
-Throughout this tutorial, we have been using a sort of _pseudo_ hot-reload mechanism whereby the simulator reloads your app entirely when it detects changes to your app's source code. This is actually quite efficient if you are working on the _first_ form of your app.  But if you are working on a form that you need to navigate to, it can become tedious, since with each change to your source, your app will restart, and you'll need to navigate to the form of interest _again_.
+image::images/hot-reload-reload-current-form.png[]
 
-In order to simplify our lives, it can be helpful to _temporarily_ modify the application controller to show the form that you are currently "working" on.  In our case, we will be working on the _UserProfilePage_ for the next few sections, so I will add the following to the `actionPerformed()` method of the `MyRADApp` class:
+This way, when you make changes to the source and the simulator reloads, it will automatically navigate back to the this form.  Be aware, however, that upon reload, you will still lose your application state such as the controller hierarchy and model data.  For example, you'll notice that the "back" button doesn't appear in your _My Profile_ form after reload.
 
-[source,java]
-----
-if (true) {
-    new UserProfilePageController(this, lookup(UserProfile.class)).show();
-    return;
-}
-----
+You can disable this feature when you are finished working on the _My Profile_ form by changing _Hot Reload_ back to _Reload Simulator_.
 
-The full `actionPerformed()` method would, then, look something like :
-
-[source,java]
-----
-public void actionPerformed(ControllerEvent evt) {
-
-    with(evt, StartEvent.class, startEvent -> {
-        if (true) {
-            new UserProfilePageController(this, lookup(UserProfile.class)).show();
-            return;
-        }
-        startEvent.setShowingForm(true);
-        new StartPageController(this).show();
-    });
-    super.actionPerformed(evt);
-}
-----
-
-There are a couple of things worth commenting on here:
-
-1. The `UserProfilePageController` class is a _FormController_ subclass that is generated by the annotation processor.  It is a default implementation of a controller for displaying the `UserProfilePage` view.
-2. The second parameter of the `UserProfilePageController` constructor takes the _view model_ for the `UserProfilePage` view as a parameter.  In this case we are using the `UserProfile` object that we added as a lookup previously in the `onStartController()` method.
-
-This little snippet will cause the app to _always_ show the _UserProfilePage_ when it starts.  We'll remove this once we have finished "working on" the _UserProfilePage_ view.
-
-****
+====
 
 === Fun with Bindings
 
@@ -1298,6 +1292,398 @@ To demonstrate this, let's add a `rad-transition` attribute to each button in th
 ----
 
 Now, when you click this button, it should transition the _AboutPage_ in with a _flip_ transition with a duration of 0.5 seconds.
+
+Some other transition types include _fade_, _slide_, _cover_, and _uncover_ with variants to specify direction, such as _slide-up_, _slide-down_, _slide-left_, etc...
+
+See <<chapter-transitions>> for more details and examples using transitions.
+
+=== Custom View Controllers
+
+Up until now, we haven't created any custom controllers for our views, other than the application controller (the _MyRadApp_ class).  Since all events propagate up the controller hierarchy, it is possible just to handle all of the events in the application controller, as we've been doing.  Keeping all of our logic inside a single _application-wide_ controller has some benefits for small, example apps, but for most real-world apps, you'll want to be intentional about your application's architecture.
+
+Best practice is to create a _ViewController_ for each view, which will be responsible for handling application logic pertaining to that view.   This practice will promote better modularity, which will make it easier to maintain your code, and to reuse components in other projects.
+
+You can assign a custom view controller to a view by adding a `view-controller` attribute to the root element of your view.  E.g.
+
+[source,xml]
+----
+<?xml version="1.0" ?>
+<y view-controller="com.example.myapp.controllers.StartPageViewController">
+   .....
+</y>
+----
+
+[TIP]
+====
+If your controller class is covered by an _import_ directive in your view, then you could just provide the _simple_ name of the controller class, rather than the fully-qualified name.  E.g. the following would also work:
+
+[source, xml]
+----
+<?xml version="1.0" ?>
+<y view-controller="StartPageViewController">
+  <import>
+    import com.example.myapp.controllers.*;
+  </import>
+  ...
+</y>
+----
+====
+
+Let's expand this to a complete example.
+
+In our sample app project, create a new package in the _common/src/main/java_ directory named _com.example.myapp.controllers_, and create a new Java class in this package named "StartPageViewController.java" with the following contents:
+
+.common/src/main/java/com/example/myapp/controllers/StartPageViewController.java
+[source,java]
+----
+package com.example.myapp.controllers;
+
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.ViewController;
+
+public class StartPageViewController extends ViewController {
+    /**
+     * Creates a new ViewController with the given parent controller.
+     *
+     * @param parent
+     */
+    public StartPageViewController(Controller parent) {
+        super(parent);
+    }
+}
+
+----
+
+Now, change the _StartPage.xml_ template to the following content:
+
+.common/src/main/rad/views/com/example/myapp/StartPage.xml
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" ?>
+<y view-controller="com.example.myapp.controllers.StartPageViewController"
+   xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>Example Custom View Controller</title>
+
+    <!-- Define an action category for the controller to
+        receive events when the "Hello" button is clicked -->
+    <define-category name="HELLO_CLICKED"/>
+
+    <spanLabel>Click the button below to trigger an action in the controller.</spanLabel>
+
+    <button>
+        <bind-action category="HELLO_CLICKED"/>
+    </button>
+
+
+</y>
+----
+
+Now try running the example in the simulator.
+
+image::images/custom-view-controller-run1.png[]
+
+Our button is conspicuously missing from this form.  This is because it is bound to the _HELLO_CLICKED_ action category, but our controller hasn't added any actions to this category yet.  Let's add an action to our view controller now.
+
+[source,java]
+----
+@Override
+    protected void initControllerActions() {
+        super.initControllerActions();
+
+        // Register an action with HELLO_CLICKED category so that the view
+        // will bind it to the button.
+        ActionNode.builder()
+                .label("Hello")
+                .addToController(this, StartPage.HELLO_CLICKED, evt -> {
+
+                    // Consume the event so that it doesn't propagage up the controller
+                    // hierarchy.
+                    evt.consume();
+
+                    // Show a message to confirm that we received the event.
+                    ToastBar.showInfoMessage("You clicked me");
+                });
+    }
+----
+
+The simulator should automatically reload upon saving the controller file, and the "Hello" button should appear.  Click "Hello" to confirm that our _ToastBar_ info message appears as shown below:
+
+image::images/custom-controller-you-clicked-me.png[]
+
+[#views-within-views]
+=== Views within Views
+
+Since RAD views are Components themselves, they can be used inside other views, just like other components are.  To demonstrate this,
+let's create create a form to allow users to enter contact information such as name, email, billing address, and shipping address.  Since the billing address and shipping address will likely use the same fields, we'll create a _AddressView_ view and use it from the main form.
+
+Create a new view in the same package as our existing views named _AddressForm.xml_ with the following contents:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<y xsi:noNamespaceSchemaLocation="AddressForm.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <define-tag name="streetAddress" value="PostalAddress.streetAddress"/>
+    <define-tag name="city" value="PostalAddress.addressLocality"/>
+    <define-tag name="province" value="PostalAddress.addressRegion"/>
+    <define-tag name="country" value="PostalAddress.addressCountry"/>
+    <define-tag name="postalCode" value="PostalAddress.postalCode"/>
+
+    <radTextField tag="streetAddress"
+                  component.hint="Street Address"/>
+    <radTextField tag="city"
+        component.hint="City"
+    />
+    <radTextField tag="province"
+        component.hint="Province"
+    />
+    <radTextField tag="country"
+        component.hint="Country"
+    />
+    <radTextField tag="postalCode"
+        component.hint="Postal Code"
+    />
+
+</y>
+----
+
+Now create another view called _ContactForm.xml_ in the same directory with the following contents.
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<y scrollableY="true" xsi:noNamespaceSchemaLocation="ContactForm.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>Contact Form</title>
+
+    <!-- Define some tags for the view model -->
+    <define-tag name="name" value="Person.name"/>
+    <define-tag name="email" value="Person.email"/>
+
+    <label>Name</label>
+    <radTextField tag="name"></radTextField>
+
+    <label>Email</label>
+    <radTextField tag="email"></radTextField>
+
+    <!-- Embed an AddressForm view for the billing address -->
+    <label>Billing Address</label>
+    <addressForm view-model="new"/>
+
+    <!-- Embed another AddressForm view for the shipping address -->
+    <label>Shipping Address</label>
+    <addressForm view-model="new"/>
+
+    <!-- Submit button .. doesn't do anything yet -->
+    <button text="Submit"/>
+
+</y>
+----
+
+And finally, modify the `actionPerformed()` method of the `MyRADApp` class to display the contact form we just created on start:
+
+
+
+[source,java]
+----
+public void actionPerformed(ControllerEvent evt) {
+
+        with(evt, StartEvent.class, startEvent -> {
+            if (true) {
+                // Temporarily making ContactForm the default form.
+                new ContactFormController(this).show();
+                return;
+            }
+            ...
+        });
+        super.actionPerformed(evt);
+    }
+----
+
+If you fire up the simulator, the app should look something like the following screenshot:
+
+image::images/embedded-address-forms.png[]
+
+Notice that the contact form includes two embedded address forms.  One for the _billing address_ and the other for the _shipping address_.  Let's walk through the _ContactForm.xml_ source to see what is happening here.
+
+You've seen most of the tags before in previous examples.  The new part that I'd like to highlight here are the two `<addressForm>` tags:
+
+[source,xml]
+----
+<!-- Embed an AddressForm view for the billing address -->
+    <label>Billing Address</label>
+    <addressForm view-model="new"/>
+
+    <!-- Embed another AddressForm view for the shipping address -->
+    <label>Shipping Address</label>
+    <addressForm view-model="new"/>
+----
+
+These create instances of the `AddressForm` view that we defined in the `AddressForm.xml`file.  The `view-model` attribute is necessary to specify the view model that should be used for the address form.  The value "new" is a special value that indicates that the view should create a new view model for itself.    If this were omitted, it would attempt to use the view model of the current view which we don't want here, because the model for the ContactForm isn't compatible with the model for the AddressForm.
+
+This is roughly equivalent to:
+
+[source,xml]
+----
+<addressForm view-model="new AddressFormModelImpl()"/>
+----
+
+With our current contact form, the _AddressForm_ view models aren't connected to the _ContactForm_ view model, which isn't idea.  Let's improve this by defining tags for _billingAddress_ and _shippingAddress_ in the _ContactForm_ view model:
+
+[source,xml]
+----
+<define-tag name="shippingAddress" type="AddressFormModel" initialValue="new"/>
+<define-tag name="billingAddress" type="AddressFormModel" initialValue="new"/>
+----
+
+TIP: The `initialValue` attribute here specifies the initial value that new model objects should assign to the property.  In this case we use the special value "new", which is equivalent here to `initialValue="new AddressFormModelImpl()"`.  If we omit this `initialValue` it will leave the properties as `null` until we explicitly set them, which might bite us later on.
+
+Now, change the `view-model` attribute of the `<addressForm>` tags to use the _shippingAddress_ and _billingAddress_ properties respectively:
+
+[source,xml]
+----
+<!-- Embed an AddressForm view for the billing address -->
+<label>Billing Address</label>
+<addressForm view-model="context.getEntity().getBillingAddress()"/>
+
+<!-- Embed another AddressForm view for the shipping address -->
+<label>Shipping Address</label>
+<addressForm view-model="context.getEntity().getShippingAddress()"/>
+----
+
+Notice that I used the explicit `getBillingAddress()` and `getShippingAddress()` methods on the _ContactForm_ view model.  I could also have used the more generic `getEntity(TAG)` method:
+
+[source,java]
+----
+context.getEntity().getEntity(billingAddress)
+
+context.getEntity().getEntity(shippingAddress)
+----
+
+Both are fine here, but I chose to use the explicit getters as it is more succinct and easier to understand.
+
+Later on you'll learn another, more succinct, way to access properties of the view model using RAD property macros.  E.g. The following is also equivalent:
+
+[source, xml]
+----
+<!-- Embed an AddressForm view for the billing address -->
+<label>Billing Address</label>
+<addressForm view-model="${billingAddress}"/>
+
+<!-- Embed another AddressForm view for the shipping address -->
+<label>Shipping Address</label>
+<addressForm view-model="${shippingAddress}"/>
+----
+
+[NOTE]
+====
+*Fun Fact*: You can also use the same model for both views.  E.g.:
+
+[source,xml]
+----
+<!-- Embed an AddressForm view for the billing address -->
+<label>Billing Address</label>
+<addressForm view-model="${billingAddress}"/>
+
+<!-- Embed another AddressForm view for the shipping address -->
+<label>Shipping Address</label>
+<addressForm view-model="${billingAddress}"/>
+----
+
+In this case, if you start typing into any fields in _billing address_, it will also update the corresponding fields in _shipping address_.
+====
+
+
+
+=== Developing Custom Components
+
+Since you can use _any_ component (i.e. `com.codename1.ui.Component` subclass) in your views, it follows that you can also develop your own components and use them in your views.  You've already seen a special case of this in <<views-within-views>>, where we used a view that we created from another view.
+
+The only thing you _may_ need to do in order to use your custom component from a _view_ is add an _import_ statement for your component's class.
+
+TIP: RAD views automatically import several of the core packages containing components, such as `com.codename1.ui.*`, `com.codename1.rad.ui.entityviews.*`, etc...  You only need to explicitly _import_ packages and classes that aren't among these default packages.
+
+If your component has a _no-arg_ constructor, then it should _just_ work.  If it doesn't have a _no-arg_ constructor, or it has some special requirements for how it is used, then you may need to also implement a _ComponentBuilder_ for your component.  Later on, I'll also show you how to use dependency injection to have certain properties and arguments automatically "injected" into your component at runtime.
+
+To demonstrate this, create a Java class named `HelloComponent` in the package `com.example.myapp.components`, with the following content:
+
+[source,java]
+----
+package com.example.myapp.components;
+
+import com.codename1.ui.Container;
+import com.codename1.ui.Label;
+import com.codename1.ui.layouts.BorderLayout;
+
+/**
+ * A custom component that displays a hello message.
+ */
+public class HelloComponent extends Container {
+    private Label helloLabel = new Label();
+    private String helloMessage;
+
+    public HelloComponent() {
+        super(new BorderLayout());
+        add(BorderLayout.CENTER, helloLabel);
+    }
+
+    /**
+     * Set the hello message to display.
+     * @param helloMessage
+     */
+    public void setHelloMessage(String helloMessage) {
+        this.helloMessage = helloMessage;
+        helloLabel.setText("Hello " + helloMessage);
+    }
+
+
+    /**
+     * Gets the Hello Message.
+     * @return
+     */
+    public String getHelloMessage() {
+        return helloMessage;
+    }
+}
+
+----
+
+No open the contact form from the previous example and add an import statement for our new package:
+
+[source,xml]
+----
+<import>
+    import com.example.myapp.components.HelloComponent;
+</import>
+----
+
+If you save the file, it will automatically recompile the XML schema so that the `<helloComponent>` tag will be available for type hinting/autocompletion in a few moments.
+
+image::images/hello-componet-typehint.png[]
+
+Add the `helloMessage` attribute to set the message in our component.  Notice that IntelliJ provides type hints for this property also.  It automatically picks up all the setters and getters for your class and converts them into XML attributes.
+
+image::images/hello-component-attribute-autocomplete.png[]
+
+Let's add an instance that says "Hello Steve":
+
+[source, xml]
+----
+<helloComponent helloMessage="Steve"/>
+----
+
+The result:
+
+image::images/hello-steve.png[]
+
+
+
+==== EntityView and PropertyView
+
+If your component is meant to "bind" to a model, then you should consider extending either `AbstractEntityView` or `PropertyView`, as these include built-in support for binding to entities.  If your component is meant to be a view for a single property, then `PropertyView` would make sense.  If, however, it is meant to bind to multiple properties on a model, then you should extend `AbstractEntityView`.  As we've seen before, in <<views-within-views>>, you could create an _EntityView_ entirely in XML, RAD views _do_ get compiled to subclasses of `AbstractEntityView`.  The choice is yours.
+
+
+
+
+
 
 
 

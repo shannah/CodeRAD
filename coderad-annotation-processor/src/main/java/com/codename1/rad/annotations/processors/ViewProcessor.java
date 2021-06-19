@@ -701,7 +701,13 @@ public class ViewProcessor extends BaseProcessor {
                 }
             }
 
-            TypeElement cls = findClassBySimpleName(tag, isa);
+            TypeElement cls =  findClassBySimpleName(tag, isa);
+            if (cls == null) {
+                cls = lookupClass(tag);
+                if (isa != null && !isA(cls, isa)) {
+                    cls = null;
+                }
+            }
             if (cls != null) {
                 tagCache.put(tagKey, cls);
 
@@ -1143,14 +1149,56 @@ public class ViewProcessor extends BaseProcessor {
                     !componentType.getQualifiedName().contentEquals("com.codename1.rad.models.EntityList")) {
                 entityWrapperClass = lookupClass(componentType.getQualifiedName()+"Wrapper");
             }
+            TypeElement entityImplClass = null;
+            if (isEntity && !componentType.getQualifiedName().contentEquals("com.codename1.rad.models.Entity") &&
+                    !componentType.getQualifiedName().contentEquals("com.codename1.rad.models.EntityList")) {
+                entityImplClass = lookupClass(componentType.getQualifiedName()+"Impl");
+            }
             if (isEntity) {
+
+                TypeElement tagClass = rootBuilder.jenv.findClassThatTagCreates(tagContext.getTagName());
+                if (entityWrapperClass == null && tagClass != null && tagClass.getQualifiedName().contentEquals("com.codename1.rad.ui.ViewContext")) {
+                    // The tag is a view context, and we may have lost the type information.
+                    // But in many cases, the ViewContext is used as a parameter for an EntityView, and we can get the
+                    // type information from that view
+                    org.w3c.dom.Element parentTag = (org.w3c.dom.Element)tagContext.getParentNode();
+                    if (parentTag != null) {
+                        TypeElement parentTagClass = rootBuilder.jenv.findClassThatTagCreates(parentTag.getTagName());
+                        if (parentTagClass != null && isA(parentTagClass, "com.codename1.rad.ui.EntityView")) {
+                            JavaClassProxy parentTagClassProxy = rootBuilder.jenv.newJavaClassProxy(parentTagClass);
+                            JavaMethodProxy getEntityProxy = parentTagClassProxy.findMethodProxy("getEntity", 0);
+                            TypeElement entityReturnType = getEntityProxy.getReturnType();
+                            if (entityReturnType != null && !entityReturnType.getQualifiedName().contentEquals("com.codename1.rad.models.Entity") &&
+                                    !entityReturnType.getQualifiedName().contentEquals("com.codename1.rad.models.EntityList") &&
+                                    !entityReturnType.getQualifiedName().contentEquals("com.codename1.rad.models.BaseEntity")
+                            ) {
+                                if (entityReturnType.getKind() == ElementKind.INTERFACE) {
+                                    entityWrapperClass = lookupClass(entityReturnType.getQualifiedName()+"Wrapper");
+                                    entityImplClass = lookupClass(entityReturnType.getQualifiedName()+"Impl");
+                                } else if (entityReturnType.getKind() == ElementKind.CLASS){
+                                    entityImplClass = entityReturnType;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // It it is an entity and we are using injection, then we can use the
                 // entity from the current context
                 if (entityWrapperClass != null) {
                     appendTo.append(entityWrapperClass.getQualifiedName()).append(".wrap(");
                 }
                 if (tagContext.hasAttribute("view-model")) {
-                    appendTo.append(tagContext.getAttribute("view-model"));
+                    String vmString = tagContext.getAttribute("view-model");
+                    if ("new".equals(vmString)) {
+                        if (entityImplClass == null) {
+
+                            throw new IllegalArgumentException("Cannot find model implementation for entity type "+componentType.getQualifiedName()+" to fill view-model=\"new\" attribute. XML tag: "+tagContext+" parent tag: "+tagContext.getParentNode());
+                        }
+                        appendTo.append("new ").append(entityImplClass.getQualifiedName()).append("()");
+                    } else {
+                        appendTo.append(expandRADModelVars(rootBuilder.jenv, tagContext.getAttribute("view-model"), false));
+                    }
                 } else {
                     appendTo.append("context.getEntity()");
                 }
@@ -1188,6 +1236,7 @@ public class ViewProcessor extends BaseProcessor {
 
                 // there were no tags for this view context, so we'll create one
                 org.w3c.dom.Element vcTag = tagContext.getOwnerDocument().createElement(paramType.getQualifiedName().toString());
+
                 List<org.w3c.dom.Element> nodeChildren = getChildrenOfType(tagContext, "com.codename1.rad.nodes.Node");
                 nodeChildren.addAll(getChildrenOfType(tagContext, "com.codename1.rad.models.Entity"));
                 nodeChildren.addAll(getChildrenOfType(tagContext, "com.codename1.rad.controllers.Controller"));
@@ -1391,6 +1440,163 @@ public class ViewProcessor extends BaseProcessor {
 
     }
 
+
+    /**
+     * Tries to infer the type of a property on the view model class.
+     * @param jenv The environment
+     * @param propertyName THe property name to check.
+     * @return TypeElement or null if it could not infer.
+     */
+    TypeElement inferRADTagType(JavaEnvironment jenv, String propertyName) {
+        TypeElement viewModelClass = jenv.lookupClass(jenv.rootBuilder.viewModelType);
+        JavaClassProxy classProxy = jenv.newJavaClassProxy(viewModelClass);
+        ExecutableElement el = classProxy.findGetter(propertyName);
+        if (el != null) {
+            JavaMethodProxy method = classProxy.findMethodProxy(el.getSimpleName().toString(), 0);
+            if (method != null) {
+
+                TypeElement returnType = method.getReturnType();
+                if (returnType != null ) {
+                    return returnType;
+                }
+
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Parses a string with ${...} variables and.
+     * @param jenv The environment.
+     * @param selector THe string value containing variables to parse.
+     * @param stringMode Whether this is a string literal and should interpolate variables in string.
+     * @return The parsed string
+     */
+    public String expandRADModelVars(JavaEnvironment jenv, String selector, boolean stringMode) {
+        int startPos = selector.indexOf("${");
+        if (startPos < 0) {
+            if (stringMode) {
+                return "\"" + StringEscapeUtils.escapeJava(selector) + "\"";
+            } else {
+                return selector;
+            }
+        }
+        int endPos = selector.indexOf("}", startPos);
+        if (endPos < 0) {
+            if (stringMode) {
+                return "\"" + StringEscapeUtils.escapeJava(selector) + "\"";
+            } else {
+                return selector;
+            }
+        }
+
+        if (startPos > 0) {
+            if (stringMode) {
+                return "\"" + StringEscapeUtils.escapeJava(selector.substring(0, startPos)) + "\" + " + expandRADModelVars(jenv, selector.substring(startPos), stringMode);
+            } else {
+                return selector.substring(0, startPos) + expandRADModelVars(jenv, selector.substring(startPos), stringMode);
+            }
+        }
+
+
+        StringBuilder out = new StringBuilder();
+        out.append("new com.codename1.rad.models.PropertySelector(context.getEntity(), ");
+
+        StringTokenizer strtok = new StringTokenizer(selector.substring(2, endPos), "/");
+        boolean first = true;
+        String defaultValue = null;
+        int chainLength = 0;
+        ArrayList<String> tokens = new ArrayList<>();
+        while (strtok.hasMoreTokens()) {
+            String nextTok = strtok.nextToken().trim();
+            if (nextTok.indexOf("|") > 0) {
+                defaultValue = nextTok.substring(nextTok.indexOf("|") + 1).trim();
+                nextTok = nextTok.substring(0, nextTok.indexOf("|")).trim();
+            }
+            if (first) {
+                first = false;
+                out.append(nextTok).append(")");
+            } else {
+                out.append(".createChildSelector(").append(nextTok).append(")");
+            }
+            tokens.add(nextTok);
+            chainLength++;
+        }
+
+        boolean getterAppended = false;
+        if (selector.length() > endPos+1) {
+            if (selector.indexOf(".text", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "\"\"";
+                out.append(".getText(").append(defaultValue).append(")");
+                endPos += 5;
+                getterAppended = true;
+            } else if (selector.indexOf(".int", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "0";
+                out.append(".getInt(").append(defaultValue).append(")");
+                endPos += 4;
+                getterAppended = true;
+            } else if (selector.indexOf(".float", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "0f";
+                out.append(".getFloat(").append(defaultValue).append(")");
+                endPos += 6;
+                getterAppended = true;
+            } else if (selector.indexOf(".double", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "0";
+
+                out.append(".getDouble(").append(defaultValue).append(")");
+                endPos += 7;
+                getterAppended = true;
+            } else if (selector.indexOf(".date", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "null";
+                out.append(".getDate(").append(defaultValue).append(")");
+                endPos += 5;
+                getterAppended = true;
+            } else if (selector.indexOf(".bool", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "false";
+                out.append(".getBoolean(").append(defaultValue).append(")");
+                endPos += 5;
+                getterAppended = true;
+            } else if (selector.indexOf(".(", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "null";
+                out.append(".getAs(").append(selector.substring(selector.indexOf(".(", endPos+1)+2, selector.indexOf(")", endPos+3))).append(".class, ").append(defaultValue).append(")");
+                endPos = selector.indexOf(")", endPos+3);
+                getterAppended = true;
+            } else if (selector.indexOf(".entityList", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "null";
+                out.append(".getEntityList(").append(defaultValue).append(")");
+                endPos += 11;
+                getterAppended = true;
+            } else if (selector.indexOf(".entity", endPos+1) == endPos+1) {
+                if (defaultValue == null) defaultValue = "null";
+                out.append(".getEntity(").append(defaultValue).append(")");
+                endPos += 7;
+                getterAppended = true;
+            }
+
+
+        }
+        if (!getterAppended && chainLength == 1) {
+            // Try to infer the type if the chain length was only 1.
+
+            TypeElement inferredType = inferRADTagType(jenv, tokens.get(0));
+            if (inferredType != null) {
+
+                if (inferredType != null && (inferredType.getKind() == ElementKind.INTERFACE || inferredType.getKind() == ElementKind.CLASS)) {
+                    out.append(".getAs(").append(inferredType.getQualifiedName()).append(".class, ").append(defaultValue).append(")");
+                    getterAppended = true;
+                }
+
+            }
+        }
+        if (stringMode && selector.length() >= endPos+1) {
+            out.append(" + ");
+        }
+        if (selector.length() >= endPos + 1) {
+            out.append(expandRADModelVars(jenv, selector.substring(endPos + 1), stringMode));
+        }
+        return out.toString();
+    }
 
     /**
      * Creates a property selector to select the given property (possibly chained with dot notation).
@@ -1846,15 +2052,24 @@ public class ViewProcessor extends BaseProcessor {
                             isA(type, ((ExecutableType)types().asMemberOf((DeclaredType)typeEl.asType(), e)).getParameterTypes().get(0).toString())).collect(Collectors.toList());
         }
 
-        List<ExecutableElement> findGetters(String propertyName) {
+        List<ExecutableElement> findGetters() {
             if (getters == null) {
                 getters = (List<ExecutableElement>)findMethods().stream()
                         .filter(e -> e.getKind() == ElementKind.METHOD &&
-                                (e.getSimpleName().toString().equalsIgnoreCase(propertyName) || e.getSimpleName().toString().equalsIgnoreCase("get"+propertyName) || e.getSimpleName().toString().equalsIgnoreCase("is"+propertyName)) &&
+                                //(e.getSimpleName().toString().equalsIgnoreCase(propertyName) || e.getSimpleName().toString().equalsIgnoreCase("get"+propertyName) || e.getSimpleName().toString().equalsIgnoreCase("is"+propertyName)) &&
                                 (((ExecutableElement)e).getParameters().size() == 0) &&
                                 ((ExecutableElement)e).getReturnType().getKind() != TypeKind.VOID).collect(Collectors.toList());
             }
             return getters;
+        }
+
+        List<ExecutableElement> findGetters(String propertyName) {
+            return (List<ExecutableElement>)findGetters().stream()
+                        .filter(e -> e.getKind() == ElementKind.METHOD &&
+                                (e.getSimpleName().toString().equalsIgnoreCase(propertyName) || e.getSimpleName().toString().equalsIgnoreCase("get"+propertyName) || e.getSimpleName().toString().equalsIgnoreCase("is"+propertyName)) &&
+                                (((ExecutableElement)e).getParameters().size() == 0) &&
+                                ((ExecutableElement)e).getReturnType().getKind() != TypeKind.VOID).collect(Collectors.toList());
+
         }
 
         /**
@@ -2112,16 +2327,16 @@ public class ViewProcessor extends BaseProcessor {
                     // If we are dealing with an entity, then we may be able to interpret this property as a tag path.
                     appendTo.append("{");
                     if (value.startsWith("java:")) {
-                        appendTo.append("Object _newVal = ").append(value.substring(value.indexOf(":")+1)).append(";");
+                        appendTo.append("Object _newVal = ").append(expandRADModelVars(env, value.substring(value.indexOf(":")+1), false)).append(";");
                         appendTo.append("ContentType _contentType = ").append("_newVal == null ? ContentType.Text : ContentType.createObjectType(_newVal);");
                     }
                     env.createRADPropertySelector(appendTo, attName.replace('.', '/'), receiverVar);
                     if (value.startsWith("string:")) {
-                        appendTo.append(".setText(\"").append(StringEscapeUtils.escapeJava(value.substring(value.indexOf(":")+1))).append("\")");
+                        appendTo.append(".setText(").append(expandRADModelVars(env, value.substring(value.indexOf(":")+1), true)).append(")");
                     } else if (value.startsWith("java:")) {
-                        appendTo.append(".set(_contentType, ").append(value.substring(value.indexOf(":")+1)).append(")");
+                        appendTo.append(".set(_contentType, ").append(expandRADModelVars(env, value.substring(value.indexOf(":")+1), false)).append(")");
                     } else {
-                        appendTo.append(".setText(\"").append(StringEscapeUtils.escapeJava(value)).append("\")");
+                        appendTo.append(".setText(").append(expandRADModelVars(env, value, true)).append(")");
                     }
                     appendTo.append("}");
 
@@ -2177,7 +2392,9 @@ public class ViewProcessor extends BaseProcessor {
 
             }
             if (treatAsString) {
-                value = "\"" + StringEscapeUtils.escapeJava(value) + "\"";
+                value = expandRADModelVars(env, value, true);
+            } else {
+                value = expandRADModelVars(env, value, false);
             }
 
 
@@ -3484,13 +3701,8 @@ public class ViewProcessor extends BaseProcessor {
                 JavaClassProxy viewJavaClass = jenv.newJavaClassProxy(viewTypeEl);
 
                 // Need to find out the entity type that this view is for.
-                System.out.println("Looking for getEntity method in "+viewJavaClass.getQualifiedName());
                 ExecutableElement getEntityMethod = viewJavaClass.findGetter("entity");
-                System.out.println("Found getEntity: "+getEntityMethod);
                 ExecutableType getEntityMethodType = (ExecutableType)types().asMemberOf(viewDeclaredType, getEntityMethod);
-                System.out.println("asMemberOf("+viewDeclaredType+") => "+ getEntityMethodType);
-                System.out.println("Return type: "+getEntityMethodType.getReturnType());
-                System.out.println("class="+getEntityMethodType.getClass());
 
                 TypeMirror returnTypeMirror = getEntityMethodType.getReturnType();
                 String returnTypeStr = returnTypeMirror.toString();
@@ -3773,7 +3985,7 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("final ").append(componentClass.getQualifiedName()).append(" _fcmp = _cmp;\n");
             boolean parseAsJava = false;
             if (attValue.startsWith("java:")) {
-                attValue = attValue.substring(attValue.indexOf(":")+1);
+                attValue = expandRADModelVars(jenv, attValue.substring(attValue.indexOf(":")+1), false);
                 parseAsJava = true;
             }
             indent(sb, indent).append("PropertySelector _propertySelector = ");
@@ -5107,7 +5319,7 @@ public class ViewProcessor extends BaseProcessor {
                     }
                     indent(sb, indent).append("private void script").append(id).append("(").append(parentType.getQualifiedName()).append(" it) {\n");
                     indent += 4;
-                    String scriptContent = el.getTextContent();
+                    String scriptContent = expandRADModelVars(jenv, el.getTextContent(), false);
                     sb.append(reformat(scriptContent, indent));
                     sb.append("\n");
                     indent -= 4;
@@ -5354,7 +5566,9 @@ public class ViewProcessor extends BaseProcessor {
                 for (org.w3c.dom.Element defineProp : getChildElementsByTagName(viewModelTag, "define-property")) {
                     String name = defineProp.getAttribute("name");
                     String tags = defineProp.getAttribute("tags");
+                    String initialValue = defineProp.getAttribute("initialValue");
                     StringBuilder tagsStr = new StringBuilder();
+                    String initialValueStr = initialValue.isEmpty() ? "" : ", initialValue=\"" + StringEscapeUtils.escapeJava(initialValue) + "\"";
                     StringTokenizer strtok = new StringTokenizer(tags, ",");
                     while (strtok.hasMoreTokens()) {
                         String tok = strtok.nextToken().trim();
@@ -5377,7 +5591,7 @@ public class ViewProcessor extends BaseProcessor {
                     }
                     usedPropertyNames.add(name);
                     String ucName = name.substring(0, 1).toUpperCase() + name.substring(1);
-                    indent(sb, indent).append("@RAD(").append(tagsStr).append(")\n");
+                    indent(sb, indent).append("@RAD(").append(tagsStr).append(initialValueStr).append(")\n");
                     indent(sb, indent).append(type).append(" get").append(ucName).append("();\n");
                     indent(sb, indent).append("@RAD\n");
                     indent(sb, indent).append("void set").append(ucName).append("(").append(type).append(" ").append(name).append(");\n");
@@ -5388,6 +5602,8 @@ public class ViewProcessor extends BaseProcessor {
             for (org.w3c.dom.Element defineTag : getChildElementsByTagName(rootEl, "define-tag")) {
                 String tag = defineTag.getAttribute("name");
                 String name = tag;
+                String initialValue = defineTag.getAttribute("initialValue");
+                String initialValueStr = initialValue.isEmpty() ? "" : ", initialValue=\"" + StringEscapeUtils.escapeJava(initialValue) + "\"";
 
                 String type = defineTag.getAttribute("type");
                 if (type.isEmpty()) {
@@ -5403,7 +5619,7 @@ public class ViewProcessor extends BaseProcessor {
                 }
                 usedPropertyNames.add(name);
                 String ucName = name.substring(0, 1).toUpperCase() + name.substring(1);
-                indent(sb, indent).append("@RAD(tag=\"").append(name).append("\")\n");
+                indent(sb, indent).append("@RAD(tag=\"").append(name).append("\"").append(initialValueStr).append(")\n");
                 indent(sb, indent).append(type).append(" get").append(ucName).append("();\n");
                 indent(sb, indent).append("@RAD\n");
                 indent(sb, indent).append("void set").append(ucName).append("(").append(type).append(" ").append(name).append(");\n");
@@ -5439,27 +5655,26 @@ public class ViewProcessor extends BaseProcessor {
             writeScriptMethods(sb);
             indent(sb, indent).append("private static ViewContext<").append(viewModelType).append("> wrapContext(ViewContext<").append(viewModelType).append("> context) {\n");
             indent += 4;
-            if (jenv.rootElement.hasAttribute("view-controller")) {
-                String vcClassName = jenv.rootElement.getAttribute("view-controller");
-                indent(sb, indent).append(vcClassName).append(" _viewController = new ").append(vcClassName).append("(context.getController());\n");
-                indent(sb, indent).append("return _viewController.createViewContext(").append(viewModelType).append(".class, context.getEntity());\n");
-            } else {
-                indent(sb, indent).append("return context;\n");
-            }
+            String vcClassName = jenv.rootElement.hasAttribute("view-controller") ? jenv.rootElement.getAttribute("view-controller") :
+                    "com.codename1.rad.controllers.ViewController";
+
+            indent(sb, indent).append(vcClassName).append(" _viewController = new ").append(vcClassName).append("(context.getController());\n");
+            indent(sb, indent).append("return _viewController.createViewContext(").append(viewModelType).append(".class, context.getEntity());\n");
+
             indent -= 4;
             indent(sb, indent).append("}\n\n");
 
             indent(sb, indent).append("private Component registerViewController(Component cmp) {\n");
             indent += 4;
-            if (jenv.rootElement.hasAttribute("view-controller")) {
-                indent(sb, indent).append("this.context.getController().setView(cmp);");
-            }
+
+            indent(sb, indent).append("this.context.getController().setView(cmp);");
+
             indent(sb, indent).append("return cmp;\n");
 
             indent -= 4;
             indent(sb, indent).append("}\n\n");
 
-            indent(sb, indent).append("public ").append(className).append("(ViewContext<").append(viewModelType).append("> context) {\n");
+            indent(sb, indent).append("public ").append(className).append("(@Inject ViewContext<").append(viewModelType).append("> context) {\n");
             indent += 4;
             indent(sb, indent).append("super(wrapContext(context));\n");
             indent(sb, indent).append("this.context = getContext();\n");
@@ -6132,7 +6347,7 @@ public class ViewProcessor extends BaseProcessor {
 
         private int score(Attr attribute) {
             String name = attribute.getName();
-            if (name.equalsIgnoreCase("materialIcon")) {
+            if (name.equalsIgnoreCase("materialIcon") || name.equalsIgnoreCase("fontIcon")) {
                 return 500;
             }
             if (name.toLowerCase().contains("uiid")) {
@@ -6254,17 +6469,17 @@ public class ViewProcessor extends BaseProcessor {
                 indent(sb, indent).append(varName).append(" = com.codename1.ui.animations.CommonTransitions.createFade(").append(duration.intValue()).append(");\n");
             } else if (timingFunction.equalsIgnoreCase("slide") || timingFunction.startsWith("slide-")) {
                 boolean forward = !timingFunction.contains("reverse");
-                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
+                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical") || timingFunction.contains("-up") || timingFunction.contains("-down")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
                         "com.codename1.ui.animations.CommonTransitions.SLIDE_HORIZONTAL";
                 indent(sb, indent).append(varName).append(" = com.codename1.ui.animations.CommonTransitions.createSlide(").append(slideType).append(", ").append(forward).append(", ").append(duration.intValue()).append(");\n");
             } else if (timingFunction.equalsIgnoreCase("cover") || timingFunction.startsWith("cover-")) {
                 boolean forward = !timingFunction.contains("reverse");
-                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
+                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical") || timingFunction.contains("-up") || timingFunction.contains("-down")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
                         "com.codename1.ui.animations.CommonTransitions.SLIDE_HORIZONTAL";
                 indent(sb, indent).append(varName).append(" = com.codename1.ui.animations.CommonTransitions.createCover(").append(slideType).append(", ").append(forward).append(", ").append(duration.intValue()).append(");\n");
             } else if (timingFunction.equalsIgnoreCase("uncover") || timingFunction.startsWith("uncover-")) {
                 boolean forward = !timingFunction.contains("reverse");
-                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
+                String slideType = (timingFunction.contains("-y") || timingFunction.contains("-vertical") || timingFunction.contains("-up") || timingFunction.contains("-down")) ? "com.codename1.ui.animations.CommonTransitions.SLIDE_VERTICAL" :
                         "com.codename1.ui.animations.CommonTransitions.SLIDE_HORIZONTAL";
                 indent(sb, indent).append(varName).append(" = com.codename1.ui.animations.CommonTransitions.createUncover(").append(slideType).append(", ").append(forward).append(", ").append(duration.intValue()).append(");\n");
             }

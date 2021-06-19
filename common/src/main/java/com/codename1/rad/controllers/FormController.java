@@ -187,12 +187,13 @@ public class FormController extends ViewController implements Runnable {
     }
 
 
-    
 
+    public boolean isTitleSet() {
+        return (getTitle() != null && !getTitle().trim().isEmpty()) || titleComponent != null;
+    }
 
     public void setTitleComponent(Component cmp) {
         this.titleComponent = cmp;
-
     }
 
     public void setAddTitleBar(boolean add) {
@@ -473,6 +474,11 @@ public class FormController extends ViewController implements Runnable {
     }
 
 
+    public static FormController getCurrentFormController() {
+        Form f = CN.getCurrentForm();
+        if (f == null) return null;
+        return getFormController(f);
+    }
 
 
     public void refresh() {

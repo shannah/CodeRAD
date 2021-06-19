@@ -33,6 +33,12 @@ public @interface RAD {
      * @return
      */
     public TagType childTagType() default TagType.Component;
+
+    /**
+     * The initial value to assign to this property when instances are created.
+     * @return
+     */
+    public String initialValue() default "";
     
     
 

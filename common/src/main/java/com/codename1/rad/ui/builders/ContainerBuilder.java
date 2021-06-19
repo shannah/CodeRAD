@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @author shannah
  */
-@RAD(tag={"container", "border", "x", "y", "flow", "layered", "grid", "center"})
+@RAD(tag={"container", "border", "borderAbsolute", "borderScale", "borderCenter", "x", "y", "flow", "layered", "grid", "center"})
 public class ContainerBuilder extends AbstractComponentBuilder<Container> {
     
     
@@ -80,7 +80,13 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
         String tagName = getTagName();
         Layout layout = null;
         if (tagName != null) {
-            if ("border".equalsIgnoreCase(tagName)) {
+            if ("borderAbsolute".equalsIgnoreCase(tagName)) {
+                layout = new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE);
+            } else if ("borderCenter".equalsIgnoreCase(tagName)) {
+                layout = new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER);
+            }else if ("borderScale".equalsIgnoreCase(tagName)) {
+                    layout = new BorderLayout(BorderLayout.CENTER_BEHAVIOR_SCALE);
+            } else if ("border".equalsIgnoreCase(tagName)) {
                 layout = new BorderLayout();
             } else if ("y".equalsIgnoreCase(tagName)) {
                 layout = BoxLayout.y();

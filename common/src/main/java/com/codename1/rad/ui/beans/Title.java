@@ -15,18 +15,21 @@ public class Title {
     }
 
     public void setText(String text) {
-        context.getController().getViewController().setTitle(text);
+        NonNull.with(context.getController().getFormController(1), formController -> {
+            formController.setTitle(text);
+        });
     }
 
     public void setComponent(@Inject Component cmp) {
-        NonNull.with(context.getController(), FormController.class, formController-> {
+
+        NonNull.with(context.getController().getFormController(1), formController-> {
             formController.setTitleComponent(cmp);
         });
 
     }
 
     public void setHidden(boolean hidden) {
-        NonNull.with(context.getController(), FormController.class, formController -> {
+        NonNull.with(context.getController().getFormController(1), formController -> {
             if (hidden) {
                 formController.setAddTitleBar(false);
             } else {

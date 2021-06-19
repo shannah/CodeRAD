@@ -1,0 +1,495 @@
+== App Example 1: A Twitter Clone
+
+In <<getting-started>> we covered the basics of CodeRAD.  In this chapter we'll put our knowledge to the test as we build a clone of the Twitter mobile app.
+
+As Julie Andrews says, let's start at the very beginning: The start page and signup/signing workflow.  Below are some screenshots from the actual Twitter iOS app running on my iPhone 8.
+
+NOTE: In this chapter we will replicate these forms and workflow using CodeRAD.  This tutorial will focus only on the _client_ portion of the app.  Where the _real_ app would require server interaction (e.g. login and registration), we will create mock implementations that run on the client.  These mock implementations can be extended to support your preferred server-side technology, but that is beyond the scope of this tutorial.
+
+image::images/twitter-entrance-flowchart.png[]
+
+=== Creating the Project
+
+To get started, download the CodeRAD starter project from https://github.com/shannah/coderad2-starter-template/archive/refs/heads/master.zip[here].
+
+Extract the .zip file and then open the project in IntelliJ IDEA
+
+TIP: This is the same starter project that we used in the <<getting-started>> tutorial. I recommend you go through the <<getting-started>> tutorial before starting this one as it will provide you with the fundamentals required to move forward.
+
+The starter project comes preconfigured with placeholders for the maven `groupId` and `artifactId` properties.
+
+Before we begin, let's change the `groupId` and `archetypeId` to better reflect our application.  We'll do this by _cloning_ the project using the `cn1:clone` maven goal.
+
+First expand the _Maven_ side panel (if it isn't already expanded) by clicking on the "Maven" tab on the right side of the IntelliJ window.
+
+image::images/intellij-maven-tab.png[]
+
+Then expand the _myapp_ > _Run Configuration_ node, and double click the _Clone Project_ option.
+
+image::images/intellij-clone-project.png[]
+
+In the dialog prompt, enter the new _groupId_ and _artifactId_ for the project, and select a destination for the new project.  My settings are shown in the screenshot below:
+
+image::images/clone-as-tweet-app-dialog.png[]
+
+After you press _OK_ it will create a new project for you at the location you provided.  In my case, the project will be found at `$HOME/Downloads/tweetapp`.
+
+Clone the current project, and then open the _cloned_ project in IntelliJ.
+
+We are now ready to proceed.
+
+
+
+
+
+=== Creating the Views
+
+The flow-chart above shows five forms that we will be recreating:
+
+. Welcome Page
+. Signup Page
+. Signin Page
+. Forgot Password
+. About Twitter
+
+We'll begin by making empty views for each of these forms.
+
+TIP: All of the views for this project are located in the _common/src/main/rad/views_ directory.  See <<under-the-hood>> for a brief of the project layout.
+
+First let's create a new package for our views.  Expand the _common/src/main/rad/views/com/example/tweetapp_ nodes in the project inspector on the left.  Then right-click the _tweetapp_ node and select _New_ > _Directory_
+
+image::images/tweet-app-new-directory.png[]
+
+Enter "views" for the folder name, and press _Enter_.
+
+image::images/tweet-app-package-name-views.png[]
+
+Then right-click on this new _views_ directory node, and select _New_ > _File_:
+
+image::images/tweet-app-views-new-file.png[]
+
+Enter "WelcomePage.xml", in the prompt, and press _Enter_.
+
+image::images/tweetapp-create-welcomepage.png[]
+
+Now, open the _WelcomePage.xml_ file, and change the contents to the following:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<y>
+    <label>Welcome Page</label>
+</y>
+----
+
+Before proceeding, let's try running the project in the simulator to make sure that it compiles OK.  Running the project will also run the CodeRAD annotation processor which will generate Java classes from our WelcomePage view so that they will be available for type hinting and auto-complete in IntelliJ.
+
+Press the image:images/intellij-run-button.png[] button on the toolbar.  It may take a while to run the first time as it might have to download dependencies.   Subsequent runs should only take a few seconds.
+
+If all goes well, you should see the simulator pop up with a "Hi World" app as shown here:
+
+image::images/tweetapp-hi-world.png[]
+
+Notice that this isn't showing our _WelcomePage_ yet.  It is showing the default _StartPage_ template from the template.
+
+Let's modify the _ApplicationController_ so that it shows our _WelcomePage_ view as the default view.
+
+The _ApplicationController_ class for this application is defined in the _TweetApp_ class inside the _com.example.tweetapp_ package (inside the _src/main/java_ directory).
+
+image::images/tweetapp-project-inspector-tweetapp-selected.png[]
+
+Open this file and find the `actionPerformed()` method.  It should look something like the following listing:
+
+[source,java]
+----
+ public void actionPerformed(ControllerEvent evt) {
+
+        with(evt, StartEvent.class, startEvent -> {
+           startEvent.setShowingForm(true);
+            new StartPageController(this).show();
+        });
+        super.actionPerformed(evt);
+    }
+----
+
+TIP: The `actionPerformed()` method is triggered for every event that propagages up to the _ApplicationController_.  You can monitor and handle many application events from inside this method.
+
+Let's change the `new StartPageController(this).show()` call to
+
+[source,java]
+----
+new WelcomePageController(this).show();
+----
+
+NOTE: The `WelcomePageController` class is a `FormController` subclass that is generated from the `WelcomePage.xml` view by the CodeRAD annotation processor.  If you haven't built the project since creating the `WelcomePage.xml` file, then IntelliJ might complain that it can't find the class.  Don't worry, about these warnings as they should "fix" themselves when you run or build the project.
+
+Now, if you restart the simulator, it should show our _WelcomePage_ view.
+
+image::images/tweetapp-welcome-page-form-blank.png[]
+
+=== Hot Reload
+
+The Codename One simulator has a _Hot Reload_ feature that can dramatically improve your development experience by reducing the turnaround time for testing changes to your source code.  See <<hot-reload>> for more information about this feature.
+
+For most of this tutorial, I will be using the _Reload Current Form_ setting of Hot reload so that the simulator will automatically reload the current form after I make changes to the source.
+
+image::images/hot-reload-reload-current-form.png[]
+
+
+=== The Welcome Page
+
+Our welcome page is currently just a placeholder that says "Welcome".  Let's change it to resemble the Twitter welcome page as shown below:
+
+image::images/twitter-welcome-page.png[]
+
+In order to replicate this content and structure, add the following to the _WelcomePage.xml_ file:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<borderAbsolute
+        xsi:noNamespaceSchemaLocation="WelcomePage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <y layout-constraint="center">
+        <spanLabel>See what's happening in the world right now.</spanLabel>
+        <button>Create account</button>
+    </y>
+
+    <flow layout-constraint="south">
+        <label>Haven an account already?</label>
+        <button>Log in</button>
+    </flow>
+</borderAbsolute>
+----
+
+Nothing fancy here.  I'm just trying to _roughly_ replicate how the form is laid out using Codename One's layout managers.   Now reload the simulator (if you have _Hot Reload_ enabled, then the simulator will reload automatically), and you'll see something that looks like:
+
+image::images/tweet-app-welcome-page-no-style.png[]
+
+Now that the structure is there, let's work on the style.
+
+Let's start with the _Create Account_ button.  According a web search, the _Twitter Blue_ color is `#1DA1F2`, so let's make the button background this _Twitter Blue_ and the foreground color white.  We'll do this by creating a UIID named `TwitterButton` in our stylesheet.
+
+==== The _Create Account_ Button
+
+Open the stylesheet (located at _src/main/css/theme.css_) and add the following:
+
+[source,css]
+----
+TwitterButton {
+    cn1-derive: Button;
+    background-color: #55acee;
+    color: white;
+    border: cn1-pill-border;
+}
+----
+
+And add `uiid="TwitterButton"` to the _Create Account_ button:
+
+[source,xml]
+----
+<button uiid="TwitterButton">Create account</button>
+----
+
+You should see the simulator update within a couple seconds to show you the result of this change:
+
+image::images/twitter-create-account-button-2.png[]
+
+This is getting closer, but the button needs a bit more padding.
+
+Just eye-balling it, I'd say the button has about an equal amount of padding as the text size.  So we'll try padding of `1rem`.
+
+After some trial and error, I found that the it looks best with a padding of 0.7rem.
+
+TIP: The `rem` unit corresponds to the height of the default system font.  You can also use other units such as `mm` (millimetres)`, `pt` (points = 1/72nd of an inch), `px` = pixels, `vh` = percent of the display height, `vw` = percent of the display width, `vmin` = percent of the minimum of the display height and width, or `vmax` = the percent of the maxium of the display height and width.
+
+So our CSS becomes:
+
+[source,css]
+----
+TwitterButton {
+    cn1-derive: Button;
+    background-color: #1DA1F2;
+    color: white;
+    border: cn1-pill-border;
+    padding: 0.7rem;
+}
+----
+
+And the result looks like the following:
+
+image::images/tweetapp-create-account-button-3.png[]
+
+==== The Form Padding
+
+We also need to add some padding to the form to match the design.  Again, I'm eye-balling it, but it looks like their form has about 10% of the display width.
+
+Create a new UIID in the stylesheet and call it TwitterContentPanem as follows:
+
+[source,css]
+----
+TwitterContentPane {
+    padding:10vw;
+}
+----
+
+You should see the result instantly in the simulator:
+
+image::images/tweetapp-create-account-button-4.png[]
+
+It's getting closer.  The font isn't exactly right (I'm just using the defualt font right now), but that's OK.  We can circle back and refine the fonts later.
+
+==== The Heading Text
+
+The next obvious thing is the _See what's happening..._ text.  This needs to be larger and black.
+
+I'll create a style named _TwitterHeading1_ for this style.  Set this style as the `textUIID` attribute on the `<spanLabel>` tag:
+
+[source,xml]
+----
+<spanLabel textUIID="TwitterHeading1">See what's happening in the world right now.</spanLabel>
+----
+
+NOTE: We set the `textUIID` attribute instead of the usual `uiid` attribute because the _SpanLabel_ component is a compound component that contains an inner component for rendering the text.  The `uiid` attribute, in this case, only pertains to the outer `SpanLabel` container - so things like borders, backgrounds, and padding, will work as expected there - but the _font_ needs to be applied to the inner component.
+
+And add this style to the stylesheet:
+
+[source,css]
+----
+TwitterHeading1 {
+    font-size: 1.2rem;
+    color: black;
+    margin-bottom: 1rem;
+}
+----
+
+These sizes and margins were arrived at by trial and error.
+
+According to the simulator, we're getting closer to our destination:
+
+image::images/tweetapp-create-account-button5.png[]
+
+==== The Login Link
+
+The footer text and login link are currently too big, and require some padding.  They also highlight a problem that we will face when app is displayed on a phone that has rounded corners and notches, like the iPhone X.
+
+We'll add the `safeArea="true"` attribute on the view's container to ensure that it provides enough padding so that its contents don't get clipped by the corners and notches.
+
+[source,xml]
+----
+<borderAbsolute safeArea="true" ...>
+----
+
+
+We'll also add some styles for the bottom labels and links, we'll call them, `TwitterSmallLabel` and `TwitterSmallLink` respectively.
+
+[source,css]
+----
+TwitterSmallLabel {
+    cn1-derive: Label;
+    font-size: 0.5rem;
+    padding:0;
+    margin:0;
+    color: #66757f;
+    margin-right: 1mm;
+}
+
+TwitterSmallLink {
+    cn1-derive: Button;
+    font-size: 0.5rem;
+    padding:0;
+    margin:0;
+    color: #1DA1F2;
+}
+----
+
+These values were arrived at via trial-and-error, per usual.
+
+NOTE: The `cn1-derive` directive means that this style inherits all of the styles from the given style. E.g. `TwitterSmallLabel` _extends_ the `Label` style, which is defined in the native theme for the platform.
+
+==== Hiding the Title Area
+
+The design doesn't include a typical title bar, but our view currently displays a small white area across the top of the form that from the title that we aren't using.  We can hide this title area by adding:
+
+[source,xml]
+----
+<title hidden="true"/>
+----
+
+==== A few Inline Styles
+
+For the remaining styles that require tweaking, I'm not going to create UIIDs for. I'll just add them directly the view XML.
+
+We'll add some padding to the south container to match the padding in the center container (`10vw`).
+
+[source,xml]
+----
+<flow style.paddingLeft="10vw" style.paddingRight="10vw" layout-constraint="south">
+...
+----
+
+And we'll set the form background color to white:
+
+[source,xml]
+----
+<borderAbsolute
+        safeArea="true"
+        style.bgColor="0xffffff" style.bgTransparency="0xff" ... >
+----
+
+NOTE: We set both `style.bgColor` _and_ `style.bgTransparency` to ensure that the background color is rendered.  If we only set the `style.bgColor` but the native theme set the container to be transparent, then the backgroun color wouldn't be visible.
+
+The result so far:
+
+image::images/tweetapp-welcome-form-almost-complete.png[]
+
+==== The Title Bar Icon
+
+While this view doesn't have a conventional title bar, it does display the _Twitter_ icon in the _title_ position at the top of the form.  Rather than copy the _real_ twitter icon I had our designer make up a custom icon for our tweet app:
+
+image::images/tweet-app-icon-screenshot.png[]
+
+At my request, he wrapped this icon in a TTF file so that it can be used as an icon font within my application.
+
+TIP: My designer used https://icomoon.io/[IcoMoon] to convert his vector image into a truetype font.
+
+TODO: Add a link to download the .ttf font
+
+To use this font, I created a _fonts_ directory inside the _css_ directory, and copied the font (named _icomoon.ttf_) there, so that the font is located at _src/main/css/fonts/icomoon.ttf_.
+
+image::images/tweetapp-css-fonts-folder.png[]
+
+To use this font in the app, I need to add a `@font-face` directive for the font inside the stylesheet as follows:
+
+[source,css]
+----
+@font-face {
+  font-family: 'icomoon';
+  src: url('fonts/icomoon.ttf');
+}
+----
+
+I also need to create a style that uses this font:
+
+[source,css]
+----
+TwitterIcon {
+    font-family: icomoon;
+    font-size: 1.4rem;
+    color: #1DA1F2;
+}
+----
+
+Now, I can finally add a label to my view that uses this icon font, as a means to display the icon.
+
+[source,xml]
+----
+<center layout-constraint="north">
+    <label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label>
+</center>
+----
+
+NOTE: In this version it was necessary to cast the `0xe902` to `char` to avoid a compiler error.  In future versions, this cast will no longer be required.
+
+I use the `iconUIID` attribute to set the UIID of the label's icon so that it uses the our font icon.  The `fontIcon` attribute specifies the character code of the glyph in the font to display. In this case it is the unicode character 0xe902, which I was able to extract from the files provided by IcoMoon.
+
+==== Final Result
+
+.The final result of our WelcomePage
+image::images/tweetapp-welcome-page-final-result.png[]
+
+.WelcomePage.xml
+[source,xml]
+----
+<?xml version="1.0"?>
+<borderAbsolute
+        safeArea="true"
+        style.bgColor="0xffffff" style.bgTransparency="0xff"
+        xsi:noNamespaceSchemaLocation="WelcomePage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <title hidden="true"/>
+    <center layout-constraint="north">
+        <label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label>
+    </center>
+
+    <y layout-constraint="center" uiid="TwitterContentPane">
+        <spanLabel textUIID="TwitterHeading1">See what's happening in the world right now.</spanLabel>
+        <button uiid="TwitterButton">Create account</button>
+
+    </y>
+
+    <flow style.paddingLeft="10vw" style.paddingRight="10vw" layout-constraint="south">
+        <label uiid="TwitterSmallLabel">Have an account already?</label>
+        <button uiid="TwitterSmallLink">Log in</button>
+
+    </flow>
+</borderAbsolute>
+----
+
+.theme.css
+[source,css]
+----
+#Constants {
+    includeNativeBool: true;
+}
+
+@font-face {
+  font-family: 'icomoon';
+  src: url('fonts/icomoon.ttf');
+}
+
+TwitterButton {
+    cn1-derive: Button;
+    background-color: #1DA1F2;
+    color: white;
+    border: cn1-pill-border;
+    padding: 0.7rem;
+}
+
+TwitterContentPane {
+    padding:10vw;
+}
+
+TwitterHeading1 {
+    font-size: 1.2rem;
+    color: black;
+    margin-bottom: 1rem;
+}
+
+TwitterSmallLabel {
+    cn1-derive: Label;
+    font-size: 0.5rem;
+    padding:0;
+    margin:0;
+    color: #66757f;
+    margin-right: 1mm;
+}
+
+TwitterSmallLink {
+    cn1-derive: Button;
+    font-size: 0.5rem;
+    padding:0;
+    margin:0;
+    color: #1DA1F2;
+}
+
+TwitterIcon {
+    font-family: icomoon;
+    font-size: 1.4rem;
+    color: #1DA1F2;
+}
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

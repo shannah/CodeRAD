@@ -307,6 +307,8 @@ public class XMLSchemaGenerator {
                     } else {
                         indent(sb, indent).append("<xs:sequence><xs:any minOccurs=\"0\" maxOccurs=\"unbounded\" processContents=\"lax\"/></xs:sequence>");
                         indent(sb, indent).append("<xs:attribute name=\"layout-constraint\" type=\"xs:string\"/>\n");
+                        indent(sb, indent).append("<xs:attribute name=\"layout-rows\" type=\"xs:string\"/>\n");
+                        indent(sb, indent).append("<xs:attribute name=\"layout-columns\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-transition\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-leadComponent\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-implements\" type=\"xs:string\"/>\n");
@@ -506,6 +508,7 @@ public class XMLSchemaGenerator {
             indent(sb, indent).append("    <xs:attribute name=\"name\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("    <xs:attribute name=\"value\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("    <xs:attribute name=\"type\" type=\"xs:string\"/>\n");
+            indent(sb, indent).append("    <xs:attribute name=\"initialValue\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("  </xs:complexType>\n");
             indent(sb, indent).append("</xs:element>\n");
             indent(sb, indent).append("<xs:element name=\"use-taglib\">\n");
@@ -518,6 +521,7 @@ public class XMLSchemaGenerator {
             indent(sb, indent).append("  <xs:complexType>\n");
             indent(sb, indent).append("    <xs:attribute name=\"name\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("    <xs:attribute name=\"type\" type=\"xs:string\"/>\n");
+            indent(sb, indent).append("    <xs:attribute name=\"initialValue\" type=\"xs:string\"/>\n");
             indent(sb, indent).append("  </xs:complexType>\n");
             indent(sb, indent).append("</xs:element>\n");
             indent(sb, indent).append("<xs:element name=\"define-category\">\n");

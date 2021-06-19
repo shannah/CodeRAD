@@ -297,6 +297,7 @@ public class EntityProcessor extends BaseProcessor {
         TypeMirror type;
         Element methodElement;
         Set<String> tags = new LinkedHashSet<>();
+        String initialValue = null;
         
         EntityProperty(String name, TypeMirror type, Element methodElement) {
             this.name = name;
@@ -306,9 +307,16 @@ public class EntityProcessor extends BaseProcessor {
                 processingEnv.getMessager().printMessage(Kind.ERROR, "Property "+name+" has a null type", methodElement);
                 throw new IllegalArgumentException("Property "+name+" has a null type");
             }
+
             
         }
-        
+
+        void setInitialValue(String value) {
+            this.initialValue = value;
+        }
+
+
+
         void addTags(String... tags) {
             this.tags.addAll(Arrays.asList(tags));
         }
@@ -618,6 +626,14 @@ public class EntityProcessor extends BaseProcessor {
                             processingEnv.getMessager().printMessage(Kind.ERROR, "Two properties found with the same tags.", el);
                         }
 
+                        RAD radAnno = methodEl.getAnnotation(RAD.class);
+                        if (radAnno != null) {
+                            String initialValue = radAnno.initialValue();
+                            if (initialValue != null && !initialValue.isEmpty()) {
+                                prop.setInitialValue(initialValue);
+                            }
+                        }
+
                     });
                 }
             }
@@ -732,11 +748,12 @@ public class EntityProcessor extends BaseProcessor {
         
         
         CodeBlock.Builder entityTypeInitializer = CodeBlock.builder();
+        CodeBlock.Builder initializer = CodeBlock.builder();
         List<MethodSpec> methods = new ArrayList<MethodSpec>();
         List<FieldSpec> fields = new ArrayList<FieldSpec>();
         
         
-        
+        initializer.add("setEntityType(TYPE);\n");
         
         entityPlan.properties.values()
                     .forEach(entityProperty -> {
@@ -768,6 +785,34 @@ public class EntityProcessor extends BaseProcessor {
                                 Modifier.STATIC
                                         
                        );
+
+                        if (entityProperty.initialValue != null) {
+                            if ("new".equals(entityProperty.initialValue)) {
+                                TypeKind propKind = entityProperty.type.getKind();
+                                String value = null;
+                                if (propKind == TypeKind.INT || propKind == TypeKind.FLOAT || propKind == TypeKind.DOUBLE || propKind == TypeKind.LONG || propKind == TypeKind.BYTE || propKind == TypeKind.SHORT) {
+                                    value = "0";
+                                } else if (propKind == TypeKind.DECLARED) {
+                                    TypeElement typeEl = (TypeElement)((DeclaredType)entityProperty.type).asElement();
+                                    if (typeEl != null) {
+                                        if (typeEl.getKind() == ElementKind.INTERFACE) {
+                                            String implName = typeEl.getQualifiedName()+"Impl";
+                                            value = "new "+implName+"()";
+                                        } else {
+                                            value = "new "+typeEl.getQualifiedName()+"()";
+                                        }
+                                    }
+                                }
+                                if (value == null) {
+                                    processingEnv.getMessager().printMessage(Kind.ERROR, "Failed to find appropriate constructor for initialValue of property "+entityProperty.name+" of entity "+entityPlan.entityName, entityProperty.methodElement);
+                                } else {
+                                    initializer.add(entityProperty.getSetterName() + "(" + value + ");\n");
+                                }
+                            } else {
+                                initializer.add(entityProperty.getSetterName() + "(" + entityProperty.initialValue + ");\n");
+                            }
+                        }
+
                        fields.add(fieldSpec.build());
                         
                         
@@ -800,7 +845,7 @@ public class EntityProcessor extends BaseProcessor {
                         
                         
                 )
-                .addInitializerBlock(CodeBlock.builder().add("setEntityType(TYPE);").build());
+                .addInitializerBlock(initializer.build());
         if (entityPlan.entityAbstractClass != null) {
             entitySpec.superclass(entityPlan.entityAbstractClass.asType());
         } else {

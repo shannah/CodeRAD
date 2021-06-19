@@ -16,6 +16,7 @@
 package com.codename1.rad.models;
 
 import com.codename1.rad.ui.UI;
+import com.codename1.rad.util.NonNull;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Image;
 import com.codename1.ui.URLImage;
@@ -406,7 +407,48 @@ public class PropertySelector {
         }
         return false;
     }
-    
+
+    public <T> T getAs(Class<T> cls, T defaultValue) {
+        Entity e = null;
+        if (parent != null) {
+            e = parent.get(ContentType.EntityType, null);
+        } else if (root != null) {
+            e = root;
+        }
+        if (e != null) {
+            if (isIndexSelector()) {
+                if (!(e instanceof EntityList)) {
+                    return null;
+                }
+
+                EntityList el = (EntityList)e;
+                Object out = index.get(el);
+
+                if (out == null || !cls.isAssignableFrom(out.getClass())) {
+                    return defaultValue;
+                }
+                return (T)out;
+
+            }
+            Property prop = property;
+            if (prop == null) {
+                prop = e.getEntity().getEntityType().findProperty(tags);
+            }
+            if (prop != null) {
+                //if (type == ContentType.EntityType && !e.isEntity(prop)) {
+                //    return defaultValue;
+                //}
+
+                Object out = e.getEntity().get(prop);
+                if (out == null || !cls.isAssignableFrom(out.getClass())) {
+                    return defaultValue;
+                }
+                return (T)out;
+            }
+        }
+        return defaultValue;
+    }
+
     /**
      * Gets the property value as the given type.
      * @param <T> The type to coerce the property value to.
