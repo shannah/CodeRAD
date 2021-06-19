@@ -3551,9 +3551,15 @@ public class ViewProcessor extends BaseProcessor {
                 href = href.substring(0, href.indexOf(" "));
             }
 
+            if ((href.startsWith("http://") || href.startsWith("https://")) && !"_blank".equals(rel) ) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "http:// and https:// urls only supported with _blank target currently. Change your rad-href attribute to rad-href=\""+href+" _blank\"", jenv.rootBuilder.parentClass);
+                throw new IllegalArgumentException("http:// and https:// urls only supported with _blank target currently. Change your rad-href attribute to rad-href=\""+href+" _blank\"");
+            }
 
-            if (!href.startsWith("#")) {
-                throw new IllegalArgumentException("Unsupported rad-href value.  Only FormController addresses are allowed.  Of the form #FormControllerClassName");
+
+
+            if (!href.startsWith("#") && !href.startsWith("http://") && !href.startsWith("https://")) {
+                throw new IllegalArgumentException("Unsupported rad-href value.  Only FormController addresses are allowed.  Of the form #FormControllerClassName.  http:// and https:// addresses are also allowed");
             }
 
             boolean linkToNewForm = true;
@@ -3561,16 +3567,19 @@ public class ViewProcessor extends BaseProcessor {
                 linkToNewForm = false;
             }
 
+            boolean openExternalWebpage = "_blank".equals(rel) && (href.startsWith("http://") || href.startsWith("https://"));
+
+
 
 
             String formControllerClass = href.substring(1);
             TypeElement formControllerTypeEl = jenv.lookupClass(formControllerClass);
-            if (formControllerTypeEl == null) {
+            if (formControllerTypeEl == null && !openExternalWebpage) {
                 String fqn = this.jenv.rootBuilder.packageName+"."+formControllerClass;
                 formControllerTypeEl = jenv.lookupClass(fqn);
             }
             TypeElement viewTypeEl = null;
-            if (formControllerTypeEl != null && isEntityView(formControllerTypeEl)) {
+            if (!openExternalWebpage && formControllerTypeEl != null && isEntityView(formControllerTypeEl)) {
                 viewTypeEl = formControllerTypeEl;
                 // This is a view class
                 // let's try to look up the default controller for it.
@@ -3591,7 +3600,12 @@ public class ViewProcessor extends BaseProcessor {
                 }
 
             }
-            if (linkToNewForm) {
+
+            if (openExternalWebpage) {
+                // Opening URL externally.
+                indent(bindScript, indent).append("com.codename1.ui.CN.execute(\"").append(StringEscapeUtils.escapeJava(href)).append("\");\n");
+
+            } else if (linkToNewForm) {
                 String selectorParam = entitySelector == null ? "" : ", " + entitySelector;
                 String paramsString = explicitParams == null ?
                         (rel.equals("child") ? "{formController" + selectorParam + "}" :
