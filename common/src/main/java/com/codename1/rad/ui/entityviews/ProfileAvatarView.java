@@ -291,7 +291,7 @@ public class ProfileAvatarViewSample {
  * @author shannah
  */
 public class ProfileAvatarView extends AbstractEntityView {
-    private static final String CACHE_KEY = "circle-mask-";
+
     
     
     
@@ -484,20 +484,7 @@ public class ProfileAvatarView extends AbstractEntityView {
     
     private Object getCircleMask() {
         int size = CN.convertToPixels(sizeMM);
-        String cacheKey = CACHE_KEY+size;
-        Object mask = UI.getCache().get(cacheKey);
-        if (mask != null) {
-            return mask;
-        }
-        
-        Image roundMask = Image.createImage(size, size, 0xff000000);
-        Graphics gr = roundMask.getGraphics();
-        gr.setColor(0xffffff);
-        gr.setAntiAliased(true);
-        gr.fillArc(0, 0, size, size, 0, 360);
-        mask = roundMask.createMask();
-        UI.getCache().set(cacheKey, mask);
-        return mask;
+        return UI.getCircleMask(size);
     }
 
     @Override

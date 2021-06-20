@@ -2383,6 +2383,12 @@ public class ViewProcessor extends BaseProcessor {
                 String enumConstant = enumValues.stream().filter(s -> s.equalsIgnoreCase(fValue)).findFirst().orElse(null);
                 if (enumConstant != null) {
                     value = parameterType.getQualifiedName() + "." + enumConstant;
+                } else if (parameterType.getQualifiedName().contentEquals("com.codename1.ui.Image") && (value.startsWith("http://") || value.startsWith("https://"))) {
+                    // TODO convert to URL image
+                    ImageParameters imageParams = new ImageParameters(value);
+                    StringBuilder imageParamsBuilder = new StringBuilder();
+                    imageParams.writeAsURLImage(imageParamsBuilder, env);
+                    value = imageParamsBuilder.toString();
                 } else if (isScalar(value)) {
                     value = formatScalarAsArgumentValue(value);
                 } else if (paramType.getQualifiedName().contentEquals("com.codename1.ui.Font") && isFontLiteral(value)) {
@@ -2412,6 +2418,127 @@ public class ViewProcessor extends BaseProcessor {
 
 
     }
+
+    public class ImageParameters {
+        private String url;
+        private String width, height;
+        private ImageMask mask = ImageMask.None;
+        private ImageScale scale = ImageScale.Scale;
+        private String aspect = "1.85";
+        private String rawUrl;
+
+        ImageParameters(String str) {
+            rawUrl = str;
+            url = str;
+            int spacePos = str.indexOf(" ");
+            if (spacePos > 0) {
+                String params = str.substring(spacePos+1).trim();
+                url = str.substring(0, spacePos);
+                StringTokenizer strtok = new StringTokenizer(params, ";");
+                while (strtok.hasMoreTokens()) {
+                    String nextTok = strtok.nextToken().trim();
+                    int colonPos = nextTok.indexOf(":");
+
+                    String key = colonPos > 0 ? nextTok.substring(0, colonPos).trim() : nextTok;
+                    String value = colonPos > 0 ? nextTok.substring(colonPos+1).trim() : null;
+                    if ("width".equals(key)) width = isScalar(value) ? formatScalarAsArgumentValue(value) : value;
+                    else if ("height".equals(key)) height = isScalar(value) ? formatScalarAsArgumentValue(value) : value;
+                    else if ("mask".equals(key)) {
+                        if ("circle".equalsIgnoreCase(value)) {
+                            mask = ImageMask.Circle;
+                        } else if ("roundrect".equalsIgnoreCase(value)) {
+                            mask = ImageMask.RoundRect;
+                        }
+                    } else if ("scale".equals(key)) {
+                        if ("fill".equalsIgnoreCase(value)) {
+                            scale = ImageScale.ScaleToFill;
+                        } else if ("none".equalsIgnoreCase(value)) {
+                            scale = ImageScale.None;
+                        }
+                    } else if ("aspect".equals(key)) {
+                        aspect = value;
+                    }
+
+                }
+            }
+        }
+
+
+        void writeAsURLImage(StringBuilder buf, JavaEnvironment jenv) {
+
+            String w = width;
+            String h = height;
+            if (w == null && h != null) {
+                if (mask == ImageMask.Circle) {
+                    w = h;
+                } else {
+                    w = "(int)Math.round(" + aspect + "*" + h + ")";
+                }
+            } else if (w != null && h == null) {
+                if (mask == ImageMask.Circle) {
+                    h = w;
+                } else {
+                    h = "(int)Math.round("+w+"/"+aspect+")";
+                }
+
+            } else if (w == null && h == null) {
+                w = h = "100";
+            }
+            String storageKey;
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                md.update((rawUrl + w + h + mask + scale).toString().getBytes("utf-8"));
+                byte[] digest = md.digest();
+                storageKey = "urlImage@"+Base64.getEncoder().encodeToString(digest);
+            } catch (Exception ex){
+                ex.printStackTrace();
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to create checksum for URL image storage key of "+rawUrl, jenv.rootBuilder.parentClass);
+                storageKey = "urlImage@null";
+            }
+
+            String adapterParam;
+            switch (mask) {
+                case Circle:
+                    adapterParam = "com.codename1.rad.ui.image.ImageUtil.createRoundMaskAdapter("+w+")";
+                    break;
+                case RoundRect:
+                    String cacheid = "RoundRect"+w+"x"+h;
+                    adapterParam = "com.codename1.rad.ui.image.ImageUtil.createRoundRectMaskAdapter(2f, "+w+", "+h+")";
+                    break;
+                default:
+                    switch (scale) {
+                        case Scale:
+                            adapterParam = "com.codename1.ui.URLImage.RESIZE_SCALE";
+                            break;
+                        case ScaleToFill:
+                            adapterParam = "com.codename1.ui.URLImage.RESIZE_SCALE_TO_FILL";
+                            break;
+                        default: adapterParam = "null";
+                    }
+
+            }
+
+            buf.append("com.codename1.rad.ui.UI.createImageToStorage(\"").append(StringEscapeUtils.escapeJava(url)).append("\", ")
+                    .append("com.codename1.rad.ui.image.ImageUtil.createPlaceholder(").append(w).append(",").append(h).append("), \"").append(StringEscapeUtils.escapeJava(storageKey)).append("\", ").append(adapterParam).append(")");
+
+        }
+
+
+    }
+
+    public enum ImageMask {
+        None,
+        Circle,
+        RoundRect
+    }
+
+    private enum ImageScale {
+        None,
+        Scale,
+        ScaleToFill
+    }
+
+
 
     private boolean isFontLiteral(String value) {
         if (value == null) return false;

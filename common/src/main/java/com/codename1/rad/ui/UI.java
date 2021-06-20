@@ -58,7 +58,7 @@ import com.codename1.rad.text.NumberFormatter;
 import com.codename1.rad.text.TextFormatter;
 import com.codename1.rad.text.TimeAgoDateFormatter;
 import com.codename1.rad.ui.image.PropertyImageRenderer;
-import com.codename1.ui.Image;
+import com.codename1.ui.*;
 import com.codename1.ui.list.ListModel;
 import com.codename1.util.EasyThread;
 
@@ -81,6 +81,7 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     private static TableCellEditor defaultTableCellEditor;
     private static EntityListCellRenderer defaultListCellRenderer;
     private static File tmpDir;
+    private static final String CIRCLE_MASK_CACHE_KEY = "circle-mask-";
     
     private static StrongCache cache;
     
@@ -676,6 +677,43 @@ public class UI extends EntityType implements ActionCategories, WidgetTypes {
     
     public static SetterAttribute setter(Setter s) {
         return new SetterAttribute(s);
+    }
+
+    public static Object getCircleMask(int size) {
+        String cacheKey = CIRCLE_MASK_CACHE_KEY+size;
+        Object mask = UI.getCache().get(cacheKey);
+        if (mask != null) {
+            return mask;
+        }
+
+        Image roundMask = Image.createImage(size, size, 0xff000000);
+        Graphics gr = roundMask.getGraphics();
+        gr.setColor(0xffffff);
+        gr.setAntiAliased(true);
+        gr.fillArc(0, 0, size, size, 0, 360);
+        mask = roundMask.createMask();
+        UI.getCache().set(cacheKey, mask);
+        return mask;
+    }
+
+    public static Image createImageToStorage(String url, EncodedImage placeholder, String storageFile, URLImage.ImageAdapter adapter) {
+
+        if (url == null || url.length() == 0) {
+            return placeholder;
+        }
+
+        if (url.indexOf(" ") > 0) {
+            url = url.substring(0, url.indexOf(" "));
+        }
+        if (storageFile == null) {
+            storageFile = url + "@"+placeholder.getWidth()+"x"+placeholder.getHeight();
+        } else if (storageFile.indexOf("@") == 0) {
+            storageFile = url + storageFile;
+        }
+        return URLImage.createToStorage(placeholder, storageFile, url, adapter);
+
+
+
     }
     
 }
