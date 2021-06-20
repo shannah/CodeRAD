@@ -2383,12 +2383,17 @@ public class ViewProcessor extends BaseProcessor {
                 String enumConstant = enumValues.stream().filter(s -> s.equalsIgnoreCase(fValue)).findFirst().orElse(null);
                 if (enumConstant != null) {
                     value = parameterType.getQualifiedName() + "." + enumConstant;
-                } else if (parameterType.getQualifiedName().contentEquals("com.codename1.ui.Image") && (value.startsWith("http://") || value.startsWith("https://"))) {
+                } else if (parameterType.getQualifiedName().contentEquals("com.codename1.ui.Image") && (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("jar://"))) {
                     // TODO convert to URL image
                     ImageParameters imageParams = new ImageParameters(value);
                     StringBuilder imageParamsBuilder = new StringBuilder();
                     imageParams.writeAsURLImage(imageParamsBuilder, env);
                     value = imageParamsBuilder.toString();
+                } else if (parameterType.getQualifiedName().contentEquals("com.codename1.media.Media") && (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("jar://"))) {
+                    MediaParameters mediaParams = new MediaParameters(value);
+                    StringBuilder mediaParamBuilder = new StringBuilder();
+                    mediaParams.writeAsURLMedia(mediaParamBuilder, env);
+                    value = mediaParamBuilder.toString();
                 } else if (isScalar(value)) {
                     value = formatScalarAsArgumentValue(value);
                 } else if (paramType.getQualifiedName().contentEquals("com.codename1.ui.Font") && isFontLiteral(value)) {
@@ -2419,6 +2424,87 @@ public class ViewProcessor extends BaseProcessor {
 
     }
 
+    public class MediaParameters {
+        private String url;
+        private String mimeType;
+        private String rawUrl;
+
+        MediaParameters(String str) {
+            rawUrl = str;
+            url = str;
+            int spacePos = str.indexOf(" ");
+            if (spacePos > 0) {
+                String params = str.substring(spacePos+1).trim();
+                url = str.substring(0, spacePos);
+                StringTokenizer strtok = new StringTokenizer(params, ";");
+                while (strtok.hasMoreTokens()) {
+                    String nextTok = strtok.nextToken().trim();
+                    int colonPos = nextTok.indexOf(":");
+
+                    String key = colonPos > 0 ? nextTok.substring(0, colonPos).trim() : nextTok;
+                    String value = colonPos > 0 ? nextTok.substring(colonPos+1).trim() : null;
+                    if ("mimetype".equalsIgnoreCase(key)) mimeType = value;
+                    else if (value == null) {
+                        mimeType = key;
+                    }
+
+                }
+            }
+        }
+
+
+        void writeAsURLMedia(StringBuilder buf, JavaEnvironment jenv) {
+    
+            
+            String mime = mimeType;
+            if (mime == null) {
+                String baseUrl = url.toLowerCase();
+                if (baseUrl.indexOf('?') > 0) {
+                    baseUrl = baseUrl.substring(0, baseUrl.indexOf('?'));
+                }
+                if (baseUrl.endsWith(".mp4")) {
+                    mime = "video/mp4";
+                } else if (baseUrl.endsWith(".mp3")) {
+                    mime = "audio/mpeg";
+                } else if (baseUrl.endsWith(".wav")) {
+                    mime = "audio/wav";
+                } else if (baseUrl.endsWith(".aac")) {
+                    mime = "audio/aac";
+                } else if (baseUrl.endsWith(".avi")) {
+                    mime = "audio/avi";
+                } else if (baseUrl.endsWith(".mpeg")) {
+                    mime = "video/mpeg";
+                } else if (baseUrl.endsWith(".oga")) {
+                    mime = "audio/ogg";
+                } else if (baseUrl.endsWith(".ogv")) {
+                    mime = "video/ogg";
+                } else if (baseUrl.endsWith(".opus")) {
+                    mime = "audio/opus";
+                } else if (baseUrl.endsWith(".ts")) {
+                    mime = "video/mp2t";
+                } else if (baseUrl.endsWith(".weba")) {
+                    mime = "audio/webm";
+                } else if (baseUrl.endsWith(".webm")) {
+                    mime = "video/webm";
+                } else if (baseUrl.endsWith(".3gp")) {
+                    mime = "video/3gpp";
+                } else if (baseUrl.endsWith(".3g2")) {
+                    mime = "video/3gpp2";
+                } else {
+                    mime = null;
+                }
+            }
+            if (mime != null) {
+                mime = "\""+StringEscapeUtils.escapeJava(mime)+"\"";
+            }
+            buf.append("NonNull.suppressErrors(com.codename1.media.Media.class, () -> {");
+            buf.append("return com.codename1.media.MediaManager.createMedia(\"").append(StringEscapeUtils.escapeJava(url)).append("\", ").append(mime).append(")");
+            buf.append("})");
+        }
+
+
+    }
+    
     public class ImageParameters {
         private String url;
         private String width, height;

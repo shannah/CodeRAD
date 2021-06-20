@@ -1,5 +1,6 @@
 package com.codename1.rad.util;
 
+import com.codename1.io.Log;
 import com.codename1.util.SuccessCallback;
 
 public class NonNull {
@@ -27,5 +28,18 @@ public class NonNull {
     
     public static boolean empty(Object val) {
         return val == null || val.toString().isEmpty();
+    }
+
+    public static interface Function<T> {
+        public T run();
+    }
+
+    public <T> T suppressErrors(Class<T> returnType, Function<T> func) {
+        try {
+            return func.run();
+        } catch (Exception ex) {
+            Log.e(ex);
+            return null;
+        }
     }
 }
