@@ -24,7 +24,7 @@ public class RadioPropertyViewBuilder extends PropertyViewBuilder<RadioButton> {
 
     @Override
     public RadioPropertyView build() {
-        if (fieldNode != null) {
+        if (fieldNode == null) {
             throw new IllegalStateException("RadioPropertyViewBuilder requires tag to be set");
         }
         return new RadioPropertyView(radioButton == null ? new RadioButton() : radioButton, getEntity(), fieldNode);

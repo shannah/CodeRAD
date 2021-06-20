@@ -2354,7 +2354,7 @@ public class ViewProcessor extends BaseProcessor {
                 throw new IllegalStateException("No parameter type found for first parameter of setter method "+setter);
             }
 
-            boolean treatAsString = paramType.getQualifiedName().contentEquals("java.lang.String");
+            boolean treatAsString = paramType.getQualifiedName().contentEquals("java.lang.String") && !setter.isArrayParameter(0);
 
 
             if (value.startsWith("java:")) {
@@ -2394,6 +2394,23 @@ public class ViewProcessor extends BaseProcessor {
                     StringBuilder mediaParamBuilder = new StringBuilder();
                     mediaParams.writeAsURLMedia(mediaParamBuilder, env);
                     value = mediaParamBuilder.toString();
+                } else if ((value.startsWith("csv:") || value.startsWith("strings:")) && parameterType.getQualifiedName().contentEquals("java.lang.String") && setter.isArrayParameter(0)) {
+                    StringBuilder csvBuilder = new StringBuilder();
+                    String csvValues = value.substring(value.indexOf(":")+1);
+                    StringTokenizer strtok = new StringTokenizer(csvValues, ",");
+                    boolean first = true;
+                    csvBuilder.append("new String[]{");
+                    while (strtok.hasMoreTokens()) {
+                        String nextTok = strtok.nextToken().trim();
+                        if (first) {
+                            first = false;
+                        } else {
+                            csvBuilder.append(", ");
+                        }
+                        csvBuilder.append("\"").append(StringEscapeUtils.escapeJava(nextTok)).append("\"");
+                    }
+                    csvBuilder.append("}");
+                    value = csvBuilder.toString();
                 } else if (isScalar(value)) {
                     value = formatScalarAsArgumentValue(value);
                 } else if (paramType.getQualifiedName().contentEquals("com.codename1.ui.Font") && isFontLiteral(value)) {
@@ -5208,6 +5225,7 @@ public class ViewProcessor extends BaseProcessor {
             jenv.addImports("import static com.codename1.rad.util.NonNull.nonNull;");
             jenv.addImports("import static com.codename1.rad.util.NonNull.nonNullEntries;");
             if (!root.hasAttribute("strict-imports")) {
+                jenv.addImports("import com.codename1.ui.spinner.Picker;\n");
                 jenv.addImports("import com.codename1.rad.schemas.*;\n");
                 jenv.addImports("import com.codename1.rad.ui.builders.*;\n");
                 jenv.addImports("import ca.weblite.shared.components.*;\n");
