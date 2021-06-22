@@ -296,6 +296,8 @@ public abstract class BaseProcessor extends AbstractProcessor {
     static String getPropName(String methodName) {
         if (methodName.startsWith("get") || methodName.startsWith("set")) {
             return methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+        } else if (methodName.startsWith("is")) {
+            return methodName.substring(2, 3).toLowerCase() + methodName.substring(3);
         }
         return null;
     }

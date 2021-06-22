@@ -1576,17 +1576,18 @@ public class ViewProcessor extends BaseProcessor {
 
 
         }
-        if (!getterAppended && chainLength == 1) {
+        if (!getterAppended && chainLength == 1 && stringMode) {
             // Try to infer the type if the chain length was only 1.
+            if (selector.length() <= endPos+1 || selector.charAt(endPos+1) != '.') {
+                TypeElement inferredType = inferRADTagType(jenv, tokens.get(0));
+                if (inferredType != null) {
 
-            TypeElement inferredType = inferRADTagType(jenv, tokens.get(0));
-            if (inferredType != null) {
+                    if (inferredType != null && (inferredType.getKind() == ElementKind.INTERFACE || inferredType.getKind() == ElementKind.CLASS)) {
+                        out.append(".getAs(").append(inferredType.getQualifiedName()).append(".class, ").append(defaultValue).append(")");
+                        getterAppended = true;
+                    }
 
-                if (inferredType != null && (inferredType.getKind() == ElementKind.INTERFACE || inferredType.getKind() == ElementKind.CLASS)) {
-                    out.append(".getAs(").append(inferredType.getQualifiedName()).append(".class, ").append(defaultValue).append(")");
-                    getterAppended = true;
                 }
-
             }
         }
         if (stringMode && selector.length() >= endPos+1) {
@@ -5839,7 +5840,11 @@ public class ViewProcessor extends BaseProcessor {
                     usedPropertyNames.add(name);
                     String ucName = name.substring(0, 1).toUpperCase() + name.substring(1);
                     indent(sb, indent).append("@RAD(").append(tagsStr).append(initialValueStr).append(")\n");
-                    indent(sb, indent).append(type).append(" get").append(ucName).append("();\n");
+                    String getterPrefix = "get";
+                    if (type.equalsIgnoreCase("java.lang.Boolean") || type.equalsIgnoreCase("boolean")) {
+                        getterPrefix = "is";
+                    }
+                    indent(sb, indent).append(type).append(" ").append(getterPrefix).append(ucName).append("();\n");
                     indent(sb, indent).append("@RAD\n");
                     indent(sb, indent).append("void set").append(ucName).append("(").append(type).append(" ").append(name).append(");\n");
 
@@ -5867,7 +5872,11 @@ public class ViewProcessor extends BaseProcessor {
                 usedPropertyNames.add(name);
                 String ucName = name.substring(0, 1).toUpperCase() + name.substring(1);
                 indent(sb, indent).append("@RAD(tag=\"").append(name).append("\"").append(initialValueStr).append(")\n");
-                indent(sb, indent).append(type).append(" get").append(ucName).append("();\n");
+                String getterPrefix = "get";
+                if (type.equalsIgnoreCase("java.lang.Boolean") || type.equalsIgnoreCase("boolean")) {
+                    getterPrefix = "is";
+                }
+                indent(sb, indent).append(type).append(" ").append(getterPrefix).append(ucName).append("();\n");
                 indent(sb, indent).append("@RAD\n");
                 indent(sb, indent).append("void set").append(ucName).append("(").append(type).append(" ").append(name).append(");\n");
 

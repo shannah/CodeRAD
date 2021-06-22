@@ -550,7 +550,11 @@ public class EntityProcessor extends BaseProcessor {
         }
 
         private String getGetterName() {
-            return "get"+name.substring(0, 1).toUpperCase()  + name.substring(1);
+            String prefix = "get";
+            if (type.getKind() == TypeKind.BOOLEAN || (type.toString().equals("java.lang.Boolean"))) {
+                prefix = "is";
+            }
+            return prefix+name.substring(0, 1).toUpperCase()  + name.substring(1);
         }
 
         private String getSetterName() {
@@ -601,6 +605,9 @@ public class EntityProcessor extends BaseProcessor {
                     getAllTaggedAndAbstractMethods(null, el).forEach(methodEl -> {
                         String propName = getPropName(methodEl.getSimpleName().toString());
                         if (propName == null) {
+                            return;
+                        }
+                        if (methodEl.getSimpleName().toString().startsWith("is") && (!"boolean".equalsIgnoreCase(methodEl.getReturnType().toString()) && !"java.lang.Boolean".equalsIgnoreCase(methodEl.getReturnType().toString()))) {
                             return;
                         }
                         ExecutableElement eeMethod = (ExecutableElement)methodEl;
@@ -763,11 +770,38 @@ public class EntityProcessor extends BaseProcessor {
                         
                         propertyStatement.add("RAD_PROPERTY_"+entityProperty.name+"="+entityProperty.getTypeString(roundEnv));
                         entityTypeInitializer.add(propertyStatement.build());
-                        MethodSpec methodSpec = MethodSpec.methodBuilder(entityProperty.getGetterName())
+                        MethodSpec.Builder methodSpecB = MethodSpec.methodBuilder(entityProperty.getGetterName())
                                 .returns(ClassName.get(entityProperty.type))
-                                .addModifiers(Modifier.PUBLIC)
-                                .addCode("return ($T)get(RAD_PROPERTY_"+entityProperty.name+");", entityProperty.type)
-                                .build();
+                                .addModifiers(Modifier.PUBLIC);
+
+                        if (entityProperty.type.getKind() == TypeKind.BOOLEAN) {
+                            methodSpecB.addCode("Boolean out = getBoolean(RAD_PROPERTY_" + entityProperty.name + "); \n" +
+                                    "return out == null ? false : out;");
+                        } else if (entityProperty.type.getKind() == TypeKind.INT) {
+                            methodSpecB.addCode("Integer out = getInt(RAD_PROPERTY_" + entityProperty.name + ");\n" +
+                                    "return out == null ? 0 : out;");
+                        } else if (entityProperty.type.getKind() == TypeKind.FLOAT) {
+                            methodSpecB.addCode("Float out = getFloat(RAD_PROPERTY_" + entityProperty.name + ");\n" +
+                                    "return out == null ? 0f : out;");
+
+                        } else if (entityProperty.type.getKind() == TypeKind.DOUBLE) {
+                            methodSpecB.addCode("Double out = getDouble(RAD_PROPERTY_" + entityProperty.name + ");\n" +
+                                    "return out == null ? 0 : out;");
+                        } else if (entityProperty.type.getKind() == TypeKind.LONG) {
+                            methodSpecB.addCode("Long out = getLong(RAD_PROPERTY_" + entityProperty.name + ");\n" +
+                                    "return out == null ? 0L : out;");
+                        } else if (entityProperty.type.getKind() == TypeKind.DECLARED && entityProperty.type.toString().equals("java.util.Date")) {
+                            methodSpecB.addCode("return getDate(RAD_PROPERTY_" + entityProperty.name + ");");
+                        } else if (entityProperty.type.getKind() == TypeKind.DECLARED && entityProperty.type.toString().equals("java.lang.String")) {
+                            methodSpecB.addCode("return getText(RAD_PROPERTY_" + entityProperty.name + ");");
+                        } else {
+                            methodSpecB.addCode("return ($T)get(RAD_PROPERTY_" + entityProperty.name + ");", entityProperty.type);
+                        }
+                                //.build();
+
+
+                        MethodSpec methodSpec = methodSpecB.build();
+
                             methods.add(methodSpec);
                         methodSpec = MethodSpec.methodBuilder(entityProperty.getSetterName())
                                 
@@ -885,6 +919,8 @@ public class EntityProcessor extends BaseProcessor {
         
         
     }
+
+
     
     private void createEntityWrapper(EntityPlan entityPlan, RoundEnvironment roundEnv) {
         List<MethodSpec> methods = new ArrayList<MethodSpec>();
@@ -903,6 +939,8 @@ public class EntityProcessor extends BaseProcessor {
                                 .addCode("return ($T)getEntity()."+entityProperty.getWrapperAccessorCall(roundEnv)+";", entityProperty.type)
                                 .build();
                             methods.add(methodSpec);
+
+
                         methodSpec = MethodSpec.methodBuilder(entityProperty.getSetterName())
                                 
                                 .addParameter(ClassName.get(entityProperty.type), "_value")
