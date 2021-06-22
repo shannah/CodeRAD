@@ -1620,18 +1620,23 @@ public class ViewProcessor extends BaseProcessor {
         StringTokenizer strtok = new StringTokenizer(selector, ".");
         while (strtok.hasMoreTokens()) {
             String tok = strtok.nextToken();
-            ExecutableElement getterMethod = classProxy.findGetter(tok);
+            JavaMethodProxy getterMethod = classProxy.findGetterProxy(tok);
 
             if (strtok.hasMoreTokens() && getterMethod == null) {
-                throw new IllegalArgumentException("Cannot create property selector for "+classProxy.className+" with selector "+selector+" becuase the class has no appropriate getter method.");
+                throw new IllegalArgumentException("Cannot create property selector for "+classProxy.className+" with selector "+selector+" becuase the class has no appropriate getter method. Token was "+tok+" and classProxy was "+classProxy.typeEl.getQualifiedName());
             }
 
             String _propType = propType;
             if (strtok.hasMoreTokens()) {
-                _propType = getterMethod.getReturnType().toString();
+                TypeElement returnType = getterMethod.getReturnType();
+                _propType = returnType.getQualifiedName().toString();
             }
 
             out = (out == null) ? new JavaPropertySelector(classProxy, tok, _propType) : new JavaPropertySelector(out, tok, _propType);
+            if (strtok.hasMoreTokens()) {
+
+                classProxy = classProxy.env.newJavaClassProxy(getterMethod.getReturnType());
+            }
         }
         return out;
     }
@@ -2099,6 +2104,13 @@ public class ViewProcessor extends BaseProcessor {
                 }
             }
             return findGetters(propertyName).stream().findAny().orElse(null);
+
+        }
+
+        JavaMethodProxy findGetterProxy(String propertyName, String... type) {
+            ExecutableElement getter = findGetter(propertyName, type);
+            if (getter == null) return null;
+            return findMethodProxy(getter.getSimpleName().toString(), 0);
 
         }
 
@@ -2852,22 +2864,12 @@ public class ViewProcessor extends BaseProcessor {
             List<? extends TypeMirror> mirrors = getExecutableType().getParameterTypes();
             List<TypeElement> out = new ArrayList<TypeElement>(mirrors.size());
             for (TypeMirror m : mirrors) {
-                if (m.getKind() == TypeKind.TYPEVAR) {
-                    TypeVariable typeVar = (TypeVariable)m;
-                    m = typeVar.getUpperBound();
-                } else if (m.getKind() == TypeKind.ARRAY) {
-                    ArrayType arrayType = (ArrayType)m;
-                    m = arrayType.getComponentType();
-                }
-                if (m.getKind() == TypeKind.TYPEVAR) {
-                    TypeVariable typeVar = (TypeVariable) m;
-                    m = typeVar.getUpperBound();
-                }
-                TypeElement el = toTypeElement(m);
+
+                TypeElement el = toTypeElement(m, true);
                 if (el == null) {
                     throw new IllegalStateException("Failed to find type element for TypeMirror "+m+" kind="+m.getKind()+", method="+methodEl);
                 }
-                out.add(toTypeElement(m));
+                out.add(el);
             }
             return out;
         }
@@ -6415,6 +6417,23 @@ public class ViewProcessor extends BaseProcessor {
     }
 
     private TypeElement toTypeElement(TypeMirror mirror) {
+        return toTypeElement(mirror, false);
+    }
+
+    private TypeElement toTypeElement(TypeMirror mirror, boolean convertTypeVar) {
+        if (convertTypeVar) {
+            if (mirror.getKind() == TypeKind.TYPEVAR) {
+                TypeVariable typeVar = (TypeVariable) mirror;
+                mirror = typeVar.getUpperBound();
+            } else if (mirror.getKind() == TypeKind.ARRAY) {
+                ArrayType arrayType = (ArrayType) mirror;
+                mirror = arrayType.getComponentType();
+            }
+            if (mirror.getKind() == TypeKind.TYPEVAR) {
+                TypeVariable typeVar = (TypeVariable) mirror;
+                mirror = typeVar.getUpperBound();
+            }
+        }
         switch (mirror.getKind()) {
             case FLOAT:
             case INT:
@@ -6590,11 +6609,23 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
+        private int countChars(String str, char ch) {
+            int count = 0;
+            int len = str.length();
+            char[] chars = str.toCharArray();
+            for (int i=0; i<len; i++) {
+                if (chars[i]==ch) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         private int score(Attr attribute) {
             String name = attribute.getName();
             int base = 0;
             if (name.contains(".")) {
-                base = 250;
+                base = 250 * countChars(name, '.');
             }
             if (name.equalsIgnoreCase("materialIcon") || name.equalsIgnoreCase("fontIcon")) {
                 return base + 500;

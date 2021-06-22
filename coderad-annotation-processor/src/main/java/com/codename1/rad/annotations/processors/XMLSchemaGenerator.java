@@ -315,6 +315,7 @@ public class XMLSchemaGenerator {
                         indent(sb, indent).append("<xs:attribute name=\"rad-href\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-href-trigger\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"view-model\" type=\"xs:string\"/>\n");
+                        indent(sb, indent).append("<xs:attribute name=\"view-controller\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-extends\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-model\" type=\"xs:string\"/>\n");
                         indent(sb, indent).append("<xs:attribute name=\"rad-var\" type=\"xs:string\"/>\n");
