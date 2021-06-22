@@ -212,8 +212,13 @@ TwitterButton {
     color: white;
     border: cn1-pill-border;
     padding: 0.7rem;
+    font-size: 1rem;
+    font-family: 'native:MainBold';
+    margin:0;
 }
 ----
+
+NOTE: I also explicitly set the _font-size_ and _font-family_ here.  The `native:MainBold` maps to the main bold font of the platform.  On Android this will be the _Roboto_ font, and on iOS it will be the _San Francisco_ font.
 
 And the result looks like the following:
 
@@ -223,11 +228,11 @@ image::images/tweetapp-create-account-button-3.png[]
 
 We also need to add some padding to the form to match the design.  Again, I'm eye-balling it, but it looks like their form has about 10% of the display width.
 
-Create a new UIID in the stylesheet and call it TwitterContentPanem as follows:
+Create a new UIID in the stylesheet and call it WelcomePage as follows:
 
 [source,css]
 ----
-TwitterContentPane {
+WelcomePage {
     padding:10vw;
 }
 ----
@@ -315,30 +320,17 @@ The design doesn't include a typical title bar, but our view currently displays 
 <title hidden="true"/>
 ----
 
-==== A few Inline Styles
+==== Background Color
 
-For the remaining styles that require tweaking, I'm not going to create UIIDs for. I'll just add them directly the view XML.
+Our background color is currently just using the default form background color which is grayish.  We need to change it to _white_.  We can do that by adding `background-color:white` to the `WelcomePage` style in the stylesheet:
 
-We'll add some padding to the south container to match the padding in the center container (`10vw`).
-
-[source,xml]
+[source,css]
 ----
-<flow style.paddingLeft="10vw" style.paddingRight="10vw" layout-constraint="south">
-...
+WelcomePage {
+    padding: 10vw;
+    background-color: white;
+}
 ----
-
-And we'll set the form background color to white:
-
-[source,xml]
-----
-<borderAbsolute
-        safeArea="true"
-        style.bgColor="0xffffff" style.bgTransparency="0xff" ... >
-----
-
-NOTE: We set both `style.bgColor` _and_ `style.bgTransparency` to ensure that the background color is rendered.  If we only set the `style.bgColor` but the native theme set the container to be transparent, then the backgroun color wouldn't be visible.
-
-The result so far:
 
 image::images/tweetapp-welcome-form-almost-complete.png[]
 
@@ -402,8 +394,8 @@ image::images/tweetapp-welcome-page-final-result.png[]
 ----
 <?xml version="1.0"?>
 <borderAbsolute
+        uiid="WelcomePage"
         safeArea="true"
-        style.bgColor="0xffffff" style.bgTransparency="0xff"
         xsi:noNamespaceSchemaLocation="WelcomePage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <title hidden="true"/>
@@ -411,13 +403,13 @@ image::images/tweetapp-welcome-page-final-result.png[]
         <label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label>
     </center>
 
-    <y layout-constraint="center" uiid="TwitterContentPane">
+    <y layout-constraint="center">
         <spanLabel textUIID="TwitterHeading1">See what's happening in the world right now.</spanLabel>
         <button uiid="TwitterButton">Create account</button>
 
     </y>
 
-    <flow style.paddingLeft="10vw" style.paddingRight="10vw" layout-constraint="south">
+    <flow layout-constraint="south">
         <label uiid="TwitterSmallLabel">Have an account already?</label>
         <button uiid="TwitterSmallLink">Log in</button>
 
@@ -445,8 +437,9 @@ TwitterButton {
     padding: 0.7rem;
 }
 
-TwitterContentPane {
+WelcomePage {
     padding:10vw;
+    background-color:white;
 }
 
 TwitterHeading1 {
@@ -478,6 +471,290 @@ TwitterIcon {
     color: #1DA1F2;
 }
 ----
+
+==== Adapting for Android
+
+But wait, we're not done yet.  So far we've been testing with the _iPhone X_ skin exclusively.  Since we are building our app for multiple platforms, we need to test it on some other skins.  The Codename One simulator comes with skins for many popular phone and tablets on the market.  By default, you'll only see the _iPhoneX_ and desktop skins in the _Skins_ menu.  You can add additional skins via the _Skins_ > _More..._ menu item.
+
+My favourite Android skin is the Samsung Galaxy S8.  If your _Skins_ menu doesn't include this skin yet, then you'll need to add it, as follows.
+
+. Select _Skins_ > _More..._ from the menu bar.
++
+image::images/skins-add-more-menuitem.png[]
++
+It will take a few seconds to load the list of skins.
+. When the _Skins_ dialog appears, enter "GalaxyS" into the search field at the top.  You should see a few matching results appear in the list, as shown below:
++
+image::images/skins-galaxy-search.png[]
++
+NOTE: _SamsungGalaxyS8_ is not included in the screenshot above because I have already installed it, but it should appear in your list.
+. Check the box beside _SamsungGalaxyS8_, and press the _Download_ button.
++
+It will take a few moments, but when it is done, you should see an option for _SamsungGalaxyS8_ in your skins menu.
+
+To test out the app in Android, select the _SamsungGalaxyS8_ skin from the _Skins_ menu.
+
+image::images/select-galaxys8-skin.png[]
+
+It should resemble the screenshot below:
+
+image::images/tweetapp-android-skin-1.png[]
+
+This looks a little different than it did on the iPhoneX skin. All of the text is a little bit too small.
+
+This is because different platforms have different default font sizes, and pixel density also varies across devices.  The best way I have found to _normalize_ these factors and obtain consistent results across platform is to define the `defaultFontSize` theme constant to an appropriate value, and use `rem` units for font sizes whenever possible.
+
+In the `#Constants` section of the _theme.css_ file, add:
+
+[source,css]
+----
+#Constants {
+  ...
+  defaultFontSizeInt: 18;
+}
+----
+
+We are also going to change some of the font sizes so that they look better on the _S8_ skin.
+
+Change the `font-size` properties in a few styles as follows:
+
+[source,css]
+----
+TwitterButton {
+  ...
+  font-size: 1rem;
+}
+
+TwitterHeading1 {
+  ...
+  font-size: 1.5rem;
+}
+
+TwitterSmallLabel {
+  ...
+  font-size: 0.7rem;
+}
+
+TwitterSmallLink {
+  ...
+  font-size: 0.7rem;
+}
+----
+
+After making these changes, the simulator should look something like:
+
+image::images/tweet-app-s8-skin-2.png[]
+
+And if we now toggle back to the iPhone X, it will look like:
+
+image::images/tweetapp-iphonex-skin-final.png[]
+
+These now look a little better.
+
+We may continue to tweak the styles as we go on, but for now, I'd say we can move onto the registration page.
+
+=== The Signup Page
+
+When you click on _Create account_ in the _Twitter_ app, it brings you to the _Signup Page_ which looks like:
+
+image::images/twitter-signup-page.png[]
+
+Create a new file named "SignupPage.xml" in the same directory as the _WelcomePage.xml_ file.
+
+Then add the following contents:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<border safeArea="true"
+        xsi:noNamespaceSchemaLocation="SignupPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>
+        <label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label>
+    </title>
+    <y layout-constraint="center">
+        <label>Create your account</label>
+        <textField hint="Name"/>
+        <textField hint="Phone number or email address"/>
+        <textField hint="Date of birth"/>
+    </y>
+    <right layout-constraint="south">
+        <button>Next</button>
+    </right>
+</border>
+
+----
+
+NOTE: I used `<textField>` tags for all three fields of this form, even though (as we'll discover later) the _birthdate_ field should be a date picker, and the _phone number or email address_ field has more involved than a single _TextField_ component can handle.  Later on we will be revisiting these tag choices, but for now I just want to be able to express the semantic structure of the form using tags.  It will be easy to change them to different components later on if required.
+
+This is just a basic set of components to replicate the contents of the form.  It doesn't include any special styling yet.  There are a couple of things worth noting here:
+
+In the _WelcomePage_ we hid the title bar using `<title hidden="true"/>`.  Since this form has a _back_ button, however, I'd like to use the default title bar so that we can get the _back_ functionality for free.
+
+The `<title>` is a special tag that test the title of the form.  If you provide string contents, then those will be used as the title.  If you provide a child component, as we've done here, it will use that component in the title position.  In this case we want our icon to be placed in the title position.
+
+The `<right>` tag is an alias for a container with `FlowLayout` and aligned to the right.
+
+==== Linking from the Welcome Page
+
+Before we can try out our new _Signup_ page, we need to add a link to it from the _Welcome_ page.  We'll do this by adding a `rad-href` attribute to the _Create account_ button on the _Welcome_ page:
+
+[source,xml]
+----
+<button uiid="TwitterButton" rad-href="#SignupPage">Create account</button>
+----
+
+Now, when you click on the _Create account_ button, it will navigate to our new _Signup_ page, which is shown below:
+
+image::images/tweetapp-signup-page-1.png[]
+
+This is a starting point.
+
+=== Hot Reload: Reload Current Form
+
+Before we begin the process of styling the _Signup_ form, let's change the _Hot Reload_ settings of the simulator to _Reload Current Form_.  This will cause the app to automatically reload the current form when we make changes triggering the hot reload.
+
+image::images/hot-reload-reload-current-form.png[]
+
+NOTE: When the _Reload Current Form_ option is enabled we lose the navigation context on reload, so things like the _Back_ button won't appear.
+
+This mode is helpful while we are actively developing a view.
+
+==== Adding Styles
+
+I won't go through the _styling_ process in as much detail as I did for the _Welcome_ page.  I'll just show you the styles I arrived at by trial and error, and comment on some of the new or non-obvious things.  Add the following styles to your stylesheet:
+
+[source,css]
+----
+
+/** Signup Page Styles */
+
+SignupPage {
+    background-color:white;
+    margin:0;
+}
+
+SignupPageContent {
+    padding: 8vw;
+}
+
+SignupPageTitle {
+    cn1-derive: Label;
+    font-size: 1.2rem;
+    font-family: "native:MainBold";
+    text-align:center;
+    margin-bottom: 1.7rem;
+    color: black;
+}
+
+TwitterNextButton {
+    cn1-derive: Button;
+    background-color: #1DA1F2;
+    color: white;
+    border: cn1-pill-border;
+    padding: 0.5rem 0.75rem;
+
+    font-size: 0.7rem;
+
+}
+
+TwitterTextField, TwitterTextFieldHint {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    font-size: 0.8rem;
+    font-family: "native:MainLight";
+}
+
+TwitterTextField {
+    cn1-derive: TextField;
+    border: none;
+    border-bottom: 0.8pt solid #ccc;
+
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+
+
+}
+
+TwitterTextFieldHint {
+    color: #66757f;
+
+}
+----
+
+And set the UIIDs for the corresponding elements in the _SignupPage_ view:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<border uiid="SignupPage"
+        safeArea="true"
+        xsi:noNamespaceSchemaLocation="SignupPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>
+        <label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label>
+    </title>
+    <y layout-constraint="center" uiid="SignupPageContent">
+        <label uiid="SignupPageTitle">Create your account</label>
+        <textField hint="Name" uiid="TwitterTextField" hintLabel.uiid="TwitterTextFieldHint"/>
+        <textField hint="Phone number or email address" uiid="TwitterTextField" hintLabel.uiid="TwitterTextFieldHint"/>
+        <textField hint="Date of birth" uiid="TwitterTextField" hintLabel.uiid="TwitterTextFieldHint"/>
+    </y>
+    <right layout-constraint="south">
+        <button uiid="TwitterNextButton">Next</button>
+    </right>
+
+
+</border>
+
+----
+
+The things to notice on this snippet are the `uiid` attributes that were added to some of the XML tags.  Notice also that I added `hintLabel.uiid` attributes to the `<textField>` tags.  These are to set the UIID of the _hint_ text and correspond with the _Java_ expression `textField.getHintLabel().setUIID(...)`.  This demonstrates the syntax that you can use to set _sub_-properties via attributes.
+
+TIP: There is no limit to the number of levels of chaining  that you can do with setting sub-properties.  E.g. `a.b.c.d.e="foo"` would be the same as calling, `theComponent.getA().getB().getC().getD().setE(foo)` in Java, except that the code that CodeRAD generates is null-safe.  _However_, not all chaining sequences are included in the XML schemas, so IntelliJ highlight some of your chained attributes in red, claiming that they are invalid.  While this may be annoying (seeing the error message), the view should build just fine.
+
+The result on the Samsung Galaxy S8:
+
+image::images/tweetapp-signup-form-s8-2.png[]
+
+And on iPhone X:
+
+image::images/tweetapp-signup-form-iphonex-2.png[]
+
+==== The Title Bar
+
+We didn't explicitly create the title bar with an XML tag.  Its creation is handled by the `FormController` when the view is displayed.  Therefore we couldn't set a `uiid` attribute to set its style.  This is why it looks a little off color on the iPhoneX, and it has a shadowed bottom border on the S8.
+
+In cases like this, when I need to style a component that I didn't create myself, I generally use the _Component Inspector_ in the simulator to find out the UIID of the "offending" component.  Let's do that now, by selecting _Tools_ > _Component Inspector_:
+
+image::images/tweetapp-component-inspector-menu.png[]
+
+The screenshot below shows the component tree expanded to the _TitleBar_ component.  The component that I select in the component tree is shaded _red_ in the simulator, which helps me to know that I have found the correct component.
+
+image::images/tweetapp-component-inspector-titlearea.png[]
+
+According to the inspector, the UIID of that component is "TitleArea", so let's try to override that style in the stylesheet.
+
+Global overrides like this I usually place near the beginning of the stylesheet.
+
+[source,css]
+----
+TitleArea {
+    border:none;
+    background-color:white;
+    margin:0;
+}
+----
+
+And the result on the S8:
+
+image::images/tweetapp-signup-page-s8-4.png[]
+
+
+
+
+
+
+
+
 
 
 

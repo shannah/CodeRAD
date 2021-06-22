@@ -96,12 +96,25 @@ public class FloatingActionButtonBuilder extends AbstractComponentBuilder<Floati
                     }
 
                 }
-                Container dummy = new Container();
+
+                //TODO:  We have problems here due to new structure of a Root ViewController
                 Container parentParent = parentContainer.getParent();
-                parentParent.replace(parentContainer, dummy, null);
-                Container wrapped = out.bindFabToContainer(parentContainer);
-                parentParent.replace(dummy, wrapped, null);
+                if (parentParent != null) {
+                    Container dummy = new Container();
+
+                    parentParent.replace(parentContainer, dummy, null);
+                    Container wrapped = out.bindFabToContainer(parentContainer);
+                    parentParent.replace(dummy, wrapped, null);
+
+                } else {
+                    Container bound =  out.bindFabToContainer(parentContainer);
+
+                    if (parentContainer == cmp) {
+                        return bound;
+                    }
+                }
                 return cmp;
+
             });
 
         }

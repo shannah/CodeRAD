@@ -5914,7 +5914,7 @@ public class ViewProcessor extends BaseProcessor {
 
             indent(sb, indent).append("this.context.getController().setView(cmp);");
 
-            indent(sb, indent).append("return cmp;\n");
+            indent(sb, indent).append("return this.context.getController().getView();\n");
 
             indent -= 4;
             indent(sb, indent).append("}\n\n");
@@ -6592,16 +6592,21 @@ public class ViewProcessor extends BaseProcessor {
 
         private int score(Attr attribute) {
             String name = attribute.getName();
+            int base = 0;
+            if (name.contains(".")) {
+                base = 250;
+            }
             if (name.equalsIgnoreCase("materialIcon") || name.equalsIgnoreCase("fontIcon")) {
-                return 500;
+                return base + 500;
             }
             if (name.toLowerCase().contains("uiid")) {
-                return 10;
+                return base + 10;
             }
             if (name.toLowerCase().contains("style")) {
-                return 20;
+                return base + 20;
             }
-            return 250;
+
+            return base + 250;
 
         }
     }

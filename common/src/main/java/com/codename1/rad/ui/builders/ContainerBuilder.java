@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @author shannah
  */
-@RAD(tag={"container", "border", "borderAbsolute", "borderScale", "borderCenter", "x", "y", "flow", "layered", "grid", "center"})
+@RAD(tag={"container", "border", "borderAbsolute", "borderScale", "borderCenter", "x", "y", "flow", "layered", "grid", "center", "right", "left"})
 public class ContainerBuilder extends AbstractComponentBuilder<Container> {
     
     
@@ -61,6 +61,10 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
             return layout(new FlowLayout());
         } else if ("center".equals(lcLayout)) {
             return layout(new FlowLayout(Component.CENTER));
+        } else if ("right".equals(lcLayout)) {
+            return layout(new FlowLayout(Component.RIGHT));
+        } else if ("left".equals(lcLayout)) {
+            return layout(new FlowLayout(Component.LEFT));
         } else if ("layered".equals(lcLayout)) {
             return layout(new LayeredLayout());
         } else {
@@ -109,7 +113,12 @@ public class ContainerBuilder extends AbstractComponentBuilder<Container> {
                 layout = new LayeredLayout();
             } else if ("center".equalsIgnoreCase(tagName)) {
                 layout = new FlowLayout(Component.CENTER);
+            } else if ("right".equalsIgnoreCase(tagName)) {
+                layout = new FlowLayout(Component.RIGHT);
+            } else if ("left".equalsIgnoreCase(tagName)) {
+                layout = new FlowLayout(Component.LEFT);
             }
+
         }
         if (layout != null) {
             return new Container(layout);
