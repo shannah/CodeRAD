@@ -4224,6 +4224,64 @@ public class ViewProcessor extends BaseProcessor {
                 throw new IllegalArgumentException("AttName must start with bind-");
             }
             String propName = attName.substring(attName.indexOf("-")+1);
+            String leafPropName = propName;
+            String rootPropName = propName;
+            if (propName.contains(".")) {
+                leafPropName = leafPropName.substring(leafPropName.lastIndexOf(".")+1);
+                rootPropName = propName.substring(0, propName.lastIndexOf("."));
+            }
+
+            JavaClassProxy componentBinder = jenv.newJavaClassProxy(elements().getTypeElement("com.codename1.rad.ui.builders.ComponentBinder"));
+
+            JavaMethodProxy binderMethodProxy = componentBinder.findMethodProxy("bind"+leafPropName, 3);
+            if (binderMethodProxy != null) {
+
+                if (leafPropName.equals(propName)) {
+                    if (attValue.startsWith("java:")) {
+                        throw new XMLParseException("The binding "+attName+" doesn't support java expressions.", xmlTag, null);
+                    }
+                    // This is a special case that is handled by the ComponentBinder class.
+                    indent(sb, indent).append("{\n");
+                    indent += 4;
+                    indent(sb, indent).append("// Binding for ").append(attName).append("=").append(attValue).append("\n");
+
+                    indent(sb, indent).append("PropertySelector _propertySelector = ");
+                    jenv.createRADPropertySelector(sb, attValue);
+                    sb.append(";\n");
+                    indent(sb, indent).append(componentBinder.getQualifiedName()).append(".").append(binderMethodProxy.methodEl.getSimpleName()).append("(this, _propertySelector, _cmp);\n");
+                    indent(sb, indent).append("}\n");
+                    indent -=4;
+                    return;
+                } else {
+                    JavaPropertySelector rootPropertySelector;
+                    try {
+                        rootPropertySelector = createPropertySelector(componentClass, rootPropName, "com.codename1.ui.Component");
+
+                    } catch (Exception ex) {
+                        rootPropertySelector = null;
+                    }
+                    if (rootPropertySelector != null && rootPropertySelector.classProxy.isComponent()) {
+                        indent(sb, indent).append("{\n");
+                        indent += 4;
+                        indent(sb, indent).append("// Binding for ").append(attName).append("=").append(attValue).append("\n");
+                        indent(sb, indent).append(rootPropertySelector.getter().getReturnType().getQualifiedName()).append(" _tmpCmp = null;\n");
+                        rootPropertySelector.assignVar(sb, "_cmp", "_tmpCmp", "null");
+                        sb.append("\n");
+                        indent(sb, indent).append("if (_tmpCmp != null) {\n");
+                        indent += 4;
+                        indent(sb, indent).append("PropertySelector _propertySelector = ");
+                        jenv.createRADPropertySelector(sb, attValue);
+                        sb.append(";\n");
+                        indent(sb, indent).append(componentBinder.getQualifiedName()).append(".").append(binderMethodProxy.methodEl.getSimpleName()).append("(this, _propertySelector, _tmpCmp);\n");
+                        indent -=4;
+                        indent(sb, indent).append("}\n");
+                        indent -= 4;
+                        indent(sb, indent).append("}\n");
+                        return;
+                    }
+                }
+
+            }
 
             JavaPropertySelector propertySelector = createPropertySelector(componentClass, propName);
             indent(sb, indent).append("{\n");
@@ -4427,6 +4485,8 @@ public class ViewProcessor extends BaseProcessor {
                     sb.append(") -> onCommit.run());\n");
 
                 }
+
+                JavaMethodProxy addFocusListenerMethod = componentClass.findMethodProxy("addFocusListener", 1);
 
             }
 
@@ -5978,28 +6038,8 @@ public class ViewProcessor extends BaseProcessor {
             //sb.append("            }\n");
             //sb.append("        }\n");
             sb.append("    }\n");
-            sb.append("    private java.util.List<Runnable> bindListeners;\n");
-            sb.append("    private java.util.List<Runnable> unbindListeners;\n");
-            sb.append("    @Override\n");
-            sb.append("    protected void bindImpl() {\n");
-            sb.append("        if (bindListeners != null && !bindListeners.isEmpty()) {\n");
-            sb.append("            for (Runnable r : bindListeners) r.run();\n");
-            sb.append("        }\n");
-            sb.append("    }\n");
-            sb.append("    private void addBindListener(Runnable r) {\n");
-            sb.append("        if (bindListeners == null) bindListeners = new java.util.ArrayList<>();\n");
-            sb.append("        bindListeners.add(r);\n");
-            sb.append("    }\n");
-            sb.append("    @Override\n");
-            sb.append("    protected void unbindImpl() {\n");
-            sb.append("        if (unbindListeners != null && !unbindListeners.isEmpty()) {\n");
-            sb.append("            for (Runnable r : unbindListeners) r.run();\n");
-            sb.append("        }\n");
-            sb.append("    }\n");
-            sb.append("    private void addUnbindListener(Runnable r) {\n");
-            sb.append("        if (unbindListeners == null) unbindListeners = new java.util.ArrayList<>();\n");
-            sb.append("        unbindListeners.add(r);\n");
-            sb.append("    }\n");
+
+
             sb.append("    @Override\n");
             sb.append("    public void activate() {\n");
             sb.append("        super.activate();\n");

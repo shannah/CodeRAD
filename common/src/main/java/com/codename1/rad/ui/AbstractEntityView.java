@@ -25,13 +25,15 @@ import static com.codename1.ui.ComponentSelector.$;
  * A base class for a view that can bind to an entity.  Sublasses just need toi implement {@link #update() }.
  * @author shannah
  */
-public abstract class AbstractEntityView<T extends Entity> extends Container implements EntityView<T>, Activatable {
+public abstract class AbstractEntityView<T extends Entity> extends Container implements EntityView<T>, Activatable, Bindable {
     //private T entity;
     private int bindCount;
     private boolean bindOnPropertyChangeEvents = true;
     //private Node node;
     private ViewContext<T> context;
     private List<Runnable> updateListeners;
+    private java.util.List<Runnable> bindListeners;
+    private java.util.List<Runnable> unbindListeners;
     
     
     
@@ -160,7 +162,9 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
                 context.getEntity().getEntity().addPropertyChangeListener(pcl);
             }
             context.getEntity().getEntity().addObserver(observer);
-
+            if (bindListeners != null && !bindListeners.isEmpty()) {
+                for (Runnable r : bindListeners) r.run();
+            }
             bindImpl();
         }
     }
@@ -183,6 +187,9 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
         }
         if (bindCount == 0) {
             unbindImpl();
+            if (unbindListeners != null && !unbindListeners.isEmpty()) {
+                for (Runnable r : unbindListeners) r.run();
+            }
             if (bindOnPropertyChangeEvents) {
                 context.getEntity().getEntity().removePropertyChangeListener(pcl);
             }
@@ -192,6 +199,17 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
            
         }
     }
+    public void addBindListener(Runnable r) {
+        if (bindListeners == null) bindListeners = new java.util.ArrayList<>();
+        bindListeners.add(r);
+    }
+
+    public void addUnbindListener(Runnable r) {
+        if (unbindListeners == null) unbindListeners = new java.util.ArrayList<>();
+        unbindListeners.add(r);
+    }
+
+
 
     /**
      * Should be overridden by subclasses to unregister listeners from the model.

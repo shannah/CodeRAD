@@ -324,6 +324,16 @@ public class XMLSchemaGenerator {
 
                     }
                 }
+                if (clazz.getQualifiedName().contentEquals("com.codename1.ui.Component")) {
+                    TypeElement componentBinder = processingEnvironment.getElementUtils().getTypeElement("com.codename1.rad.ui.builders.ComponentBinder");
+                    for (Element member : processingEnvironment.getElementUtils().getAllMembers(componentBinder)) {
+                        if (member.getKind() == ElementKind.METHOD && member.getSimpleName().toString().startsWith("bind")) {
+                            String propertyName = toCamelCase(member.getSimpleName().toString().substring(4));
+
+                            indent(sb, indent).append("<xs:attribute name=\"bind-").append(propertyName).append("\" type=\"xs:string\"/>\n");
+                        }
+                    }
+                }
                 for (Element member : processingEnvironment.getElementUtils().getAllMembers(clazz)) {
                     if (extensionBase != null && parentMembers.contains(member)) continue;
                     if (member.getKind() == ElementKind.METHOD) {

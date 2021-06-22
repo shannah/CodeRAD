@@ -62,6 +62,7 @@ image::https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/MVC-Process.svg
 . *Controllers* - Controllers define the structure and flow of an application.  All user interaction is handled by the controller.  Your application's main class will be an instance of `ApplicationController`.  Each form can have an associated `FormController`.  In some cases you may associate a `ViewController` with other UI components also.
 . *Actions* - Actions provide a means of extending the functionality of a view.  Each view will publish a list of action categories that it supports.  The controller may then register actions in these categories to embed buttons, menus, and functionality into the view.
 
+[#entities-properties-schemas-tags]
 === Entities, Properties, Schemas and Tags
 
 The **Entity** sits at the core of CodeRAD.  The https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html[Entity] class is the base class of all model classes in CodeRAD.  Each https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html[Entity] has an https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/EntityType.html[EntityType] which defines the properties that are available in an entity.  Properties, in turn, may be "tagged" with zero or more https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Tag.html[Tag]s.  These tags can be used to lookup properties on an entity in a more generic way than referring to the property itself.  

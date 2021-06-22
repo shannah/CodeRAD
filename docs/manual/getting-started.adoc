@@ -362,6 +362,7 @@ After changing the contents of your _StartPage.xml_ file to the above, and savin
 
 image::images/simulator-fun-with-components.png[]
 
+[#adding-actions]
 === Adding Actions
 
 CodeRAD is built around the Model-View-Controller (MVC) philosophy which asserts that the _View_ logic (i.e. how the app looks) should be separated from the _Controller_ logic (i.e. what the app does with user input).  _Actions_ form the cornerstone of how CodeRAD keeps these concerns separate.  They provide a sort of communication channel between the controller and the view, kind of like a set of Walkie-talkies.
@@ -961,6 +962,7 @@ image::images/rad-transition-flow-state.png[]
 .A video clip of this transition
 video::vY60zLo6f5E[youtube, width=440, height=800]
 
+[#implicit-view-models]
 .Implicit View Models
 ****
 If you don't specify the model class to use for your view using the `rad-model` attribute (see the _UserProfilePage_ example), it will use an _implicit_ view model - meaning that the annotation processor generates a view model for this view automatically.  In such cases, it will generate properties on the view model to correspond _tag definitions_ in the view.
