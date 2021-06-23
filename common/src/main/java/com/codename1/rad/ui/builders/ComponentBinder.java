@@ -26,7 +26,7 @@ public class ComponentBinder {
         });
         ActionListener<PropertyChangeEvent> pcl = evt->{
             boolean isFocused = !property.isFalsey();
-            if (isFocused != cmp.hasFocus()) {
+            if (isFocused && !cmp.hasFocus()) {
                 cmp.requestFocus();
             }
         };

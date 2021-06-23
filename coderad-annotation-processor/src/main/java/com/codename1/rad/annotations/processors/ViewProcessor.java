@@ -3654,12 +3654,38 @@ public class ViewProcessor extends BaseProcessor {
             }
             NamedNodeMap attributes = xmlTag.getAttributes();
             int len = attributes.getLength();
+
+
+            Map<String,String> addedAtts = new HashMap<>();
+            for (int i=0; i<len; i++) {
+                Attr attr = (Attr) attributes.item(i);
+
+                String attName = attr.getName();
+                if (attName.startsWith("bind-") && !attName.substring(attName.indexOf("-")+1).contains("-")) {
+                    String bindProp = attName.substring(attName.indexOf("-")+1);
+                    if (!xmlTag.hasAttribute(bindProp)) {
+                        String val = xmlTag.getAttribute(attName);
+                        if (val.startsWith("java:") || val.contains("$") || val.contains("{") || val.contains("(")) {
+                            addedAtts.put(bindProp, val);
+                        }
+
+                    }
+                }
+
+            }
+            for (String key : addedAtts.keySet()) {
+                xmlTag.setAttribute(key, addedAtts.get(key));
+            }
+            attributes = xmlTag.getAttributes();
+            len = attributes.getLength();
+
             List<Attr> attributesList = new ArrayList<>();
 
             for (int i=0; i<len; i++) {
                 Attr attr = (Attr) attributes.item(i);
                 attributesList.add(attr);
             }
+
             Collections.sort(attributesList, new AttributeComparator());
             for(Attr attr : attributesList) {
 
@@ -4292,10 +4318,13 @@ public class ViewProcessor extends BaseProcessor {
             if (attValue.startsWith("java:")) {
                 attValue = expandRADModelVars(jenv, attValue.substring(attValue.indexOf(":")+1), false);
                 parseAsJava = true;
+            } else if (attValue.contains("$") || attValue.contains("{") || attValue.contains(",")) {
+                parseAsJava = true;
             }
             indent(sb, indent).append("PropertySelector _propertySelector = ");
             if (parseAsJava) {
                 sb.append("null");
+                attValue = expandRADModelVars(jenv, attValue, false);
             } else {
                 jenv.createRADPropertySelector(sb, attValue);
             }
@@ -4353,6 +4382,12 @@ public class ViewProcessor extends BaseProcessor {
                 Transitions transitions = Transitions.parse(xmlTag.getAttribute("rad-transition"));
                 t = transitions.get(propName);
             }
+
+            if (t == null && (propName.equalsIgnoreCase("hidden") || propName.toLowerCase().endsWith(".hidden"))) {
+                Transitions transitions = Transitions.parse(propName +" 0s");
+                t = transitions.get(propName);
+            }
+
             if (t != null && propName.equalsIgnoreCase("uiid") && t.getDurationMs() > 0) {
                 sb.append("{com.codename1.ui.animations.ComponentAnimation _anim = _fcmp.createStyleAnimation(_newVal, ").append(t.getDurationMs()).append("); com.codename1.ui.AnimationManager _animMgr = _fcmp.getAnimationManager(); ");
                 sb.append("if (_animMgr != null) _animMgr.addAnimation(_anim);}\n");
@@ -4486,7 +4521,6 @@ public class ViewProcessor extends BaseProcessor {
 
                 }
 
-                JavaMethodProxy addFocusListenerMethod = componentClass.findMethodProxy("addFocusListener", 1);
 
             }
 

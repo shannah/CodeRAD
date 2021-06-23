@@ -105,8 +105,13 @@ Open this file and find the `actionPerformed()` method.  It should look somethin
  public void actionPerformed(ControllerEvent evt) {
 
         with(evt, StartEvent.class, startEvent -> {
-           startEvent.setShowingForm(true);
-            new StartPageController(this).show();
+            if (!startEvent.isShowingForm()) {
+                // If app was re-opened, it will automatically
+                // show the current form, and set the showingForm flag
+                // In such a case, we don't want to show the welcome form.
+                startEvent.setShowingForm(true);
+                new WelcomePageController(this).show();
+            }
         });
         super.actionPerformed(evt);
     }
@@ -900,6 +905,503 @@ Notes on this:
 
 . The `tag="name"` binds this component to the "name" property of the view model that we defined above using `<define-tag../>`.
 . We prefixed each of the attributes that target the _TextField_ itself with "component."  This is beause the TextField itself is actually wrapped by the `radTextField` (which is an instance of `TextFieldPropertyView`), and the rad text field class has a `getComponent()` method that retrieves the actual text field.  So, for example, setting `component.hint="Name"` is like calling `radTextField.getComponent().setHint("Name")`.
+
+===== Splitting the _Phone or Email_ Field
+
+In our initial design we used a single text field for _Phone or Email_ to match what the Twitter form looked like.  If we dig a little deeper into the behaviour of this field, however, it looks like there is more than meets the eye.
+
+If you tap on the _Phone or Email_ field in the actual _Twitter_ app, you'll notice that the field hint changes to just "Phone", and it provides you with a button to "Use email instead".
+
+image::images/tweet-app-twitter-phone-field.png[]
+
+If you click on the _Use email instead_ button, it will toggle the field to an "Email" field, and the keyboard layout will change to one that is appropriate for entering email addresses.
+
+There a few different ways that we could replicate this behaviour.  In the approach that I chose, I split the field into a button and two text fields.
+
+The button with label "Phone number or email address" is styled like a text field, and is displayed initially.  The two text fields (for phone and email respectively) are hidden initially.  When the user presses the button, it triggers a change that hides the button and shows the _Phone_ field, and the _Use email instead_ button.  If the user presses the _Use email instead_ button, it hides the _Phone_ field and displays the _Email_ field.
+
+The following is what I ended up with for these three components:
+
+[source,xml]
+----
+
+<!-- Define some additional properties on the view model to help
+    track state. -->
+
+<!-- useEmail tracks if the user has opted to use their email address
+    instead of phone. -->
+<define-tag name="useEmail" type="boolean"/>
+
+<!-- editingPhoneOrEmail is to be set when the user presses the
+    "Phone or Email" button initially. -->
+<define-tag name="editingPhoneOrEmail" type="boolean"/>
+
+<!-- phoneFieldFocused tracks whether the phone field currently has focus -->
+<define-tag name="phoneFieldFocused" type="boolean"/>
+
+<!-- emailFieldFocused tracks whether the email field currently has focus -->
+<define-tag name="emailFieldFocused" type="boolean"/>
+
+<button uiid="PhoneOrEmailButton"
+    text="Phone number or email address"
+    bind-hidden="${editingPhoneOrEmail}.bool"
+>
+    <script>
+
+        it.addActionListener(evt -> {
+            evt.consume();
+            it.getComponentForm().setFormBottomPaddingEditingMode(true);
+            ${editingPhoneOrEmail}.setBoolean(true);
+            if (${useEmail}.bool) {
+                emailTextField.getComponent().startEditingAsync();
+            } else {
+                phoneTextField.getComponent().startEditingAsync();
+            }
+        });
+    </script>
+</button>
+
+<radTextField
+        rad-var="phoneTextField"
+        tag="phone"
+        bind-component.focus="phoneFieldFocused"
+        bind-hidden="${useEmail}.bool || !${editingPhoneOrEmail}.bool"
+        component.hint="Phone number"
+        component.uiid="TwitterTextField"
+        component.hintLabel.uiid="TwitterTextFieldHint"
+        component.constraint="TextArea.PHONENUMBER"
+/>
+
+<radTextField
+        rad-var="emailTextField"
+        bind-hidden="!${useEmail}.bool || !${editingPhoneOrEmail}.bool"
+        tag="email"
+        component.hint="Email address"
+        component.uiid="TwitterTextField"
+        component.hintLabel.uiid="TwitterTextFieldHint"
+        component.constraint="TextArea.EMAILADDR"
+        bind-component.focus="emailFieldFocused"
+>
+
+</radTextField>
+----
+
+There's a fair bit here to unpack, so bear with me.  Let's start with the new `<define-tag>` tags.  In order to replicate the funcionality of the twitter form, I need to create some different states for the form to be in.  The easiest way to do that is to add some properties to the model to keep track of this state.  Then we can bind the UI components to these model properties to have them appear and disappear according to the state of the model.  We'll see how these properties are used in a a moment, but first let's look at the UI components, starting with the button.
+
+The `uiid="PhoneOrEmailButton"` on the `<button>` tag is a style that makes the button look like a text field.  We define this style in our stylesheet as follows:
+
+[source,css]
+----
+PhoneOrEmailButton {
+    cn1-derive: TwitterTextField;
+    color: gray;
+}
+----
+
+The `cn1-derive` directive ensures that it inherits all of the styles from the `TwitterTextField` style.  And we set the text color to gray.
+
+The `bind-hidden="${editingPhoneOrEmail}.bool"` attribute binds the _hidden_ property of the button to the _editingPhoneOrEmail_ property of the view model.
+
+NOTE: The `${editingPhoneOrEmail}.bool` string is a RAD View macro for accessing a model property.  This is roughly equivalent to the Java expression `getEntity().getBoolean(entityPhoneOrEmail)`.
+
+Since the _editingPhoneOrEmail_ property starts out as false, which means that the _hidden_ property of the button will initially be `false` (i.e. it will be initially visible).
+
+We _set_ the _editingPhoneOrEmail_ property in the action listener for the button which we defined inside a `<script>` tag.
+
+NOTE: Later on we may clean things up by moving this logic into the controller, but for now, and for simplicity, we place this code inside the view directly.
+
+Let's take a closer look at this script tag, as there are few things worth comment here:
+
+[source,xml]
+----
+<script>
+    // setFormBottonPaddingEditingMode affects mobile device
+    // keyboard behaviour.
+
+    it.addActionListener(evt -> {
+        evt.consume();
+        it.getComponentForm().setFormBottomPaddingEditingMode(true);
+        ${editingPhoneOrEmail}.setBoolean(true);
+        if (${useEmail}.bool) {
+            emailTextField.getComponent().startEditingAsync();
+        } else {
+            phoneTextField.getComponent().startEditingAsync();
+        }
+    });
+</script>
+----
+
+This Java code is executed inside the context of the view, and it provides an execution context with a few default variables available.  The `it` variable is a reference to the component that "contains" the script tag.  In this case it is the `<button>` tag (which is a _Button_ object).
+
+
+
+`it.addActionListener(evt->{...})`  adds a listener to be called when the button is clicked.
+
+`it.getComponentForm().setFormBottomPaddingEditingMode(true);` affects the behaviour on devices with a virtual keyboard (e.g. Android and iOS).  The default behaviour is for the keyboard to cover up part of the form, but in this form, we want the "Use email instead" button to still be visible when the keyboard is showing.  When `setFormBottomPaddingEditingMode(true)` is called on the form, it will cause the form to shrink when the keyboard appears so that the bottom buttons will still be visible.
+
+We call this inside the `<script>` tag because we don't have direct access to the `Form` object from our View.
+
+`${editingPhoneOrEmail}.setBoolean(true)` sets the _editingPhoneOrEmail_ property of the view model, which will trigger some state updates in the view. This will result in the the button being hidden because of its `bind-hidden` attribute.  This also results in the _phone_ field being displayed because of its `bind-hidden` attribute:
+
+[source,xml]
+----
+<radTextField
+        ...
+        bind-hidden="${useEmail}.bool || !${editingPhoneOrEmail}.bool"
+        ...
+/>
+----
+
+The final part of the _actionListener_ is the call to `emailTextField.getComponent().startEditingAsync()` on either the _phone_ or _email_ field, depending on whether the view model's _useEmail_ property is `true`.  This will focus the field and open the virtual keyboard.
+
+TIP: You might be wondering where the _emailTextField_ variable comes from, and what it refers to.  Notice that the _email_ field includes an attribute `rad-var="emailTextField"`.  This creates a variable reference to this `radTextField` tag's component object, which is a `TextFieldPropertyView` object.  You can add a `rad-var` attribute to any tag to make it accessible inside `<script>` tags and other java expressions inside the view.
+
+**Moving onto the _phone_ field:**
+
+[source,xml]
+----
+<radTextField
+        rad-var="phoneTextField"
+        tag="phone"
+        bind-component.focus="phoneFieldFocused"
+        bind-hidden="${useEmail}.bool || !${editingPhoneOrEmail}.bool"
+        component.hint="Phone number"
+        component.uiid="TwitterTextField"
+        component.hintLabel.uiid="TwitterTextFieldHint"
+        component.constraint="TextArea.PHONENUMBER"
+/>
+----
+
+The first thing to notice here is that we are using the `radTextField` tag instead of `textField`.  This allows the field's text to be bound to the view model's _phone_ property.  This binding is expressed by the `tag="phone"` attribute.
+
+Since `radTextField` is actually a _Container_ that wraps a _TextField_, and the _TextField_ component is available via the _getComponent()_ method, we prefix attributes that should be applied on the _TextField_ component with `component`.  E.g.
+
+----
+....
+component.hint="Phone number"
+component.uiid="TwitterTextField"
+component.hintLabel.uiid="TwitterTextFieldHint"
+component.constraint="TextArea.PHONENUMBER"
+....
+----
+
+`bind-component.focus="phoneFieldFocused"` binds the "focus" state of the text field with the _phoneFiledFocused_ view model property.  We do this so that the _Use email instead_ button can bind its _hidden_ property to this variable and only be shown when the phone field is focused.
+
+IMPORTANT: We used the literal _phoneFieldFocused_ tag name as the attribute value here instead of using the view macro expression `${phoneFieldFocused}` like we used in other _bind_ attributes.  This is because providing the _literal_ tag name to a bind expression allows the binding to be _two-way_.  When using the `${...}` macro syntax, the value is treated like Java expression which can be evaluated, but cannot be "modified" - i.e. would only result in a one-way binding.
+
+The _email_ field properties are very similar to the _phone_ field, so I won't discuss them here.
+
+===== Toggling Beween Phone and Email
+
+Finally, we need to add the buttons to toggle bewteen the _email_ and the _phone_ fields.
+
+The following is a snippet from the view that defines these buttons, which I added into the _south_ part of the view:
+
+[source,xml]
+----
+<x layout-constraint="west">
+    <button text="Use Email Address"
+            bind-hidden="!${phoneFieldFocused}.bool"
+            uiid="TextFieldToggleButton"
+    >
+        <script>
+            it.addActionListener(evt->{
+               ${useEmail}.setBoolean(true);
+                emailTextField.getComponent().startEditingAsync();
+            });
+        </script>
+    </button>
+
+
+    <button text="Use Phone"
+            bind-hidden="!${emailFieldFocused}.bool"
+            uiid="TextFieldToggleButton"
+    >
+        <script>
+            it.addActionListener(evt->{
+                ${useEmail}.setBoolean(false);
+                phoneTextField.getComponent().startEditingAsync();
+            });
+        </script>
+    </button>
+</x>
+----
+
+These buttons both include a `bind-hidden` attribute which bind the view model's corresponding _xxxFieldFocused_ properties.  The result is that both of these buttons are hidden by default, but will be shown when their corresponding text field is focused.  This matches the behaviour of the actual Twitter app.
+
+Both of these buttons also include `<script>` tags to add action listeners which toggle the _useEmail_ model property on and off, which triggers the _hidden_ bindings of the _email_ and _phone_ `<radTextField>` tags to be re-evaluated.
+
+===== The _Date of birth_ Field
+
+For the _Date of Birth_ field we will use a `<radDatePicker>` tag, which creates a `PickerPropertyView` component, which wraps the `Picker` component, and adds some enhanced _binding_ support.
+
+[source,xml]
+----
+<radDatePicker
+        tag="birthDate"
+        component.text="Date of birth"
+        component.uiid="TwitterDatePicker"
+/>
+----
+
+After the complexities faced with the _phone and email_ field, this one is tame.  The `tag="birthDate"` attribute binds the picker value to the view model's _birthDate_ proeprty.  We use `component.uiid="TwitterDatePicker"` which we defined as:
+
+[source,css]
+----
+TwitterDatePicker {
+    cn1-derive: TwitterTextField;
+    color: gray;
+}
+----
+
+Like the _Phone or Email_ button we created before, we style this picker to look like a text field.
+
+==== The Result
+
+Now that I've gone through all of the individual pieces of the _Signup Form_, let's take a look at the result.
+
+First the source so far:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<border view-controller="com.example.tweetapp.controllers.SignupPageViewController"
+        uiid="SignupPage"
+        safeArea="true"
+        xsi:noNamespaceSchemaLocation="SignupPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <define-category name="NEXT"/>
+    <define-category name="USE_PHONE"/>
+    <define-category name="USE_EMAIL"/>
+    <define-category name="ENTER_PHONE_OR_EMAIL"/>
+
+    <define-tag name="name" value="Person.name"/>
+    <define-tag name="phone" value="Person.telephone"/>
+    <define-tag name="email" value="Person.email"/>
+    <define-tag name="birthDate" value="Person.birthDate" type="java.util.Date"/>
+
+    <define-tag name="useEmail" type="boolean"/>
+    <define-tag name="editingPhoneOrEmail" type="boolean"/>
+    <define-tag name="phoneFieldFocused" type="boolean"/>
+    <define-tag name="emailFieldFocused" type="boolean"/>
+
+    <title>
+        <label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label>
+    </title>
+    <y layout-constraint="center" uiid="SignupPageContent" scrollableY="true">
+        <label uiid="SignupPageTitle">Create your account</label>
+        <radTextField
+                tag="name"
+                component.hint="Name"
+                component.uiid="TwitterTextField"
+                component.hintLabel.uiid="TwitterTextFieldHint"
+        />
+
+
+        <button uiid="PhoneOrEmailButton"
+            text="Phone number or email address"
+                bind-hidden="${editingPhoneOrEmail}.bool"
+
+        >
+            <script>
+
+
+
+            it.addActionListener(evt -> {
+                evt.consume();
+                it.getComponentForm().setFormBottomPaddingEditingMode(true);
+                ${editingPhoneOrEmail}.setBoolean(true);
+                if (${useEmail}.bool) {
+                    emailTextField.getComponent().startEditingAsync();
+                } else {
+                    phoneTextField.getComponent().startEditingAsync();
+                }
+            });
+            </script>
+        </button>
+
+        <radTextField
+                rad-var="phoneTextField"
+                tag="phone"
+                bind-component.focus="phoneFieldFocused"
+                bind-hidden="${useEmail}.bool || !${editingPhoneOrEmail}.bool"
+                component.hint="Phone number"
+                component.uiid="TwitterTextField"
+                component.hintLabel.uiid="TwitterTextFieldHint"
+                component.constraint="TextArea.PHONENUMBER"
+        />
+
+        <radTextField
+                rad-var="emailTextField"
+                bind-hidden="!${useEmail}.bool || !${editingPhoneOrEmail}.bool"
+                tag="email"
+                component.hint="Email address"
+                component.uiid="TwitterTextField"
+                component.hintLabel.uiid="TwitterTextFieldHint"
+                component.constraint="TextArea.EMAILADDR"
+                bind-component.focus="emailFieldFocused"
+        >
+
+        </radTextField>
+
+
+        <radDatePicker
+                tag="birthDate"
+                component.text="Date of birth"
+                component.uiid="TwitterDatePicker"
+        />
+    </y>
+    <border layout-constraint="south" uiid="SignupPageSouth">
+        <x layout-constraint="west">
+            <button text="Use Email Address"
+                    bind-hidden="!${phoneFieldFocused}.bool"
+                    uiid="TextFieldToggleButton"
+            >
+                <script>
+                    it.addActionListener(evt->{
+                       ${useEmail}.setBoolean(true);
+                        emailTextField.startEditingAsync();
+                    });
+                </script>
+            </button>
+
+
+            <button text="Use Phone"
+                    bind-hidden="!${emailFieldFocused}.bool"
+                    uiid="TextFieldToggleButton"
+            >
+                <script>
+                    it.addActionListener(evt->{
+                        ${useEmail}.setBoolean(false);
+                        phoneTextField.startEditingAsync();
+                    });
+                </script>
+            </button>
+        </x>
+        <x layout-constraint="east">
+            <button  uiid="TwitterNextButton" text="Next">
+                <bind-action category="NEXT"/>
+            </button>
+        </x>
+
+    </border>
+
+
+</border>
+----
+
+And the CSS we added for the Signup page:
+
+[source,css]
+----
+/** Signup Page Styles */
+
+SignupPage {
+    background-color:white;
+    margin:0;
+}
+
+SignupPageContent {
+    padding: 8vw;
+}
+
+SignupPageSouth {
+    padding:2mm;
+    padding-left: 8vw;
+    padding-right: 8vw;
+    margin:0;
+    border-top: 1px solid gray;
+}
+
+SignupPageTitle {
+    cn1-derive: Label;
+    font-size: 1.2rem;
+    font-family: "native:MainBold";
+    text-align:center;
+    margin-bottom: 1.7rem;
+    color: black;
+}
+
+TwitterNextButton {
+    cn1-derive: Button;
+    background-color: #1DA1F2;
+    color: white;
+    border: cn1-pill-border;
+    padding: 0.5rem 0.75rem;
+
+    font-size: 0.7rem;
+    margin-right: 0;
+
+}
+
+TwitterTextField, TwitterTextFieldHint {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    font-size: 0.8rem;
+    font-family: "native:MainLight";
+    color: gray;
+}
+
+TwitterTextField {
+    cn1-derive: TextField;
+    border: none;
+    border-bottom: 0.8pt solid #ccc;
+    color: #333333;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+TwitterDatePicker {
+    cn1-derive: TwitterTextField;
+    color: gray;
+}
+
+PhoneOrEmailButton {
+    cn1-derive: TwitterTextField;
+    color: gray;
+}
+
+TwitterTextFieldHint {
+    color: #66757f;
+
+}
+
+TextFieldToggleButton {
+    cn1-derive: Button;
+    color: #1DA1F2;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.7rem;
+    margin:0;
+}
+
+----
+
+And some screenshots from the simulator:
+
+image::images/tweetapp-signup-form-complete-simulator.png[]
+
+I have also prepared a short screencast on one of my Android devices to show how it looks on an actual device:
+
+video::RFteZABnI-g[youtube, width=440, height=800]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
