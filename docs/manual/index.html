@@ -455,7 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_what_is_coderad">1.2. What is CodeRAD?</a></li>
 <li><a href="#_goals_of_coderad">1.3. Goals of CodeRAD</a></li>
 <li><a href="#_fundamental_concepts">1.4. Fundamental Concepts</a></li>
-<li><a href="#_entities_properties_schemas_and_tags">1.5. Entities, Properties, Schemas and Tags</a></li>
+<li><a href="#entities-properties-schemas-tags">1.5. Entities, Properties, Schemas and Tags</a></li>
 <li><a href="#_views">1.6. Views</a></li>
 <li><a href="#_controllers_and_actions">1.7. Controllers and Actions</a></li>
 </ul>
@@ -467,7 +467,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#hot-reload">2.3. Hot Reload</a></li>
 <li><a href="#_changing_the_styles">2.4. Changing the Styles</a></li>
 <li><a href="#_adding_more_components">2.5. Adding More Components</a></li>
-<li><a href="#_adding_actions">2.6. Adding Actions</a></li>
+<li><a href="#adding-actions">2.6. Adding Actions</a></li>
 <li><a href="#_creating_menus">2.7. Creating Menus</a></li>
 <li><a href="#form-navigation">2.8. Form Navigation</a></li>
 <li><a href="#_models">2.9. Models</a></li>
@@ -487,6 +487,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_hot_reload">3.3. Hot Reload</a></li>
 <li><a href="#_the_welcome_page">3.4. The Welcome Page</a></li>
 <li><a href="#_the_signup_page">3.5. The Signup Page</a></li>
+<li><a href="#_the_login_page">3.6. The Login Page</a></li>
 </ul>
 </li>
 <li><a href="#_controllers">4. Controllers</a>
@@ -644,7 +645,7 @@ Codename One apps are written in Java or Kotlin, giving you access to its well e
 </div>
 </div>
 <div class="sect2">
-<h3 id="_entities_properties_schemas_and_tags">1.5. Entities, Properties, Schemas and Tags</h3>
+<h3 id="entities-properties-schemas-tags">1.5. Entities, Properties, Schemas and Tags</h3>
 <div class="paragraph">
 <p>The <strong>Entity</strong> sits at the core of CodeRAD.  The <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html">Entity</a> class is the base class of all model classes in CodeRAD.  Each <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Entity.html">Entity</a> has an <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/EntityType.html">EntityType</a> which defines the properties that are available in an entity.  Properties, in turn, may be "tagged" with zero or more <a href="https://shannah.github.io/CodeRAD/javadoc/com/codename1/rad/models/Tag.html">Tag</a>s.  These tags can be used to lookup properties on an entity in a more generic way than referring to the property itself.</p>
 </div>
@@ -1471,7 +1472,7 @@ import com.xyz.otherwidgets.*;
 </div>
 </div>
 <div class="sect2">
-<h3 id="_adding_actions">2.6. Adding Actions</h3>
+<h3 id="adding-actions">2.6. Adding Actions</h3>
 <div class="paragraph">
 <p>CodeRAD is built around the Model-View-Controller (MVC) philosophy which asserts that the <em>View</em> logic (i.e. how the app looks) should be separated from the <em>Controller</em> logic (i.e. what the app does with user input).  <em>Actions</em> form the cornerstone of how CodeRAD keeps these concerns separate.  They provide a sort of communication channel between the controller and the view, kind of like a set of Walkie-talkies.</p>
 </div>
@@ -2345,7 +2346,7 @@ The <em>bind-*</em> attributes, by default expect their values to be references 
 <iframe width="440" height="800" src="https://www.youtube.com/embed/vY60zLo6f5E?rel=0" frameborder="0" allowfullscreen></iframe>
 </div>
 </div>
-<div class="sidebarblock">
+<div id="implicit-view-models" class="sidebarblock">
 <div class="content">
 <div class="title">Implicit View Models</div>
 <div class="paragraph">
@@ -3471,8 +3472,13 @@ All of the views for this project are located in the <em>common/src/main/rad/vie
 <pre class="CodeRay highlight"><code data-lang="java"> <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> actionPerformed(ControllerEvent evt) {
 
         with(evt, StartEvent.class, startEvent -&gt; {
-           startEvent.setShowingForm(<span style="color:#069">true</span>);
-            <span style="color:#080;font-weight:bold">new</span> StartPageController(<span style="color:#950">this</span>).show();
+            <span style="color:#080;font-weight:bold">if</span> (!startEvent.isShowingForm()) {
+                <span style="color:#777">// If app was re-opened, it will automatically</span>
+                <span style="color:#777">// show the current form, and set the showingForm flag</span>
+                <span style="color:#777">// In such a case, we don't want to show the welcome form.</span>
+                startEvent.setShowingForm(<span style="color:#069">true</span>);
+                <span style="color:#080;font-weight:bold">new</span> WelcomePageController(<span style="color:#950">this</span>).show();
+            }
         });
         <span style="color:#950">super</span>.actionPerformed(evt);
     }</code></pre>
@@ -4410,6 +4416,808 @@ There is no limit to the number of levels of chaining  that you can do with sett
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_the_signup_page_controller">3.5.5. The Signup Page Controller</h4>
+<div class="paragraph">
+<p>Our next step is to make make the signup page actually do something other than look pretty.  In the spirit of MVC we will handle logic for this form in a <em>controller</em>.</p>
+</div>
+<div class="paragraph">
+<p>Create a <em>com.example.tweetapp.controllers</em> package inside the <em>src/main/java</em> directory if you haven&#8217;t already, and create a new Java class in this package named "SignupPageViewController" with the following contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.example.tweetapp.controllers</span>;
+
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.controllers.Controller</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.controllers.ViewController</span>;
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">SignupPageViewController</span> <span style="color:#088;font-weight:bold">extends</span> ViewController {
+    <span style="color:#777">/**
+     * Creates a new ViewController with the given parent controller.
+     *
+     * @param parent
+     */</span>
+    <span style="color:#088;font-weight:bold">public</span> SignupPageViewController(Controller parent) {
+        <span style="color:#950">super</span>(parent);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then, back in the <em>SignupPage.xml</em> view, add a <code>view-controller</code> attribute to the root XML tag that referrs to the <em>SignupPageViewController</em> class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">view-controller</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.example.tweetapp.controllers.SignupPageViewController</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">...</span> <span style="color:#070;font-weight:bold">&gt;</span>
+...</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_the_next_action">3.5.6. The "Next" Action</h4>
+<div class="paragraph">
+<p>Now that we have our view controller in place, let&#8217;s convert the <em>Next</em> button into a <em>Next</em> action - the distinction being that an action is <em>bound</em> to the controller.</p>
+</div>
+<div class="paragraph">
+<p>First we need to add an action category for the <em>Next</em> action.  We do this via the <code>&lt;define-category&gt;</code> tag:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;define-category</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NEXT</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+If the <code>&lt;define-category&gt;</code> tag is new to you, you should check out <a href="#adding-actions">Adding Actions</a> in the <em>Getting Started</em> section for a brief introduction to actions and categories.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>And we&#8217;ll bind our <em>Next</em> button to this <em>NEXT</em> category using the <code>&lt;bind-action&gt;</code> tag, which we&#8217;ll add as a child of the <code>&lt;button&gt;</code> tag:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterNextButton</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Next</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;bind-action</span> <span style="color:#b48">category</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NEXT</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/button&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice we moved the "Next" text from the tag content into the <code>text</code> attribute.  This is just cleaner to look at now that we have some child tags.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+When <code>&lt;bind-action&gt;</code> is added to a <code>&lt;button&gt;</code>, properties defined in the action will override the corresponding button properties.  E.g. If the action included a <code>label</code> property, then that would override the <code>text</code> attribute of the <code>button</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Now to define the <em>Next</em> action in the controller.</p>
+</div>
+<div class="paragraph">
+<p>Implement the <code>initControllerActions()</code> method in the view controller as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#007">@Override</span>
+<span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">void</span> initControllerActions() {
+    <span style="color:#950">super</span>.initControllerActions();
+
+    ActionNode.builder()
+            .addToController(<span style="color:#950">this</span>, SignupPage.NEXT, evt-&gt;{
+                evt.consume();
+                <span style="color:#0a8;font-weight:bold">Dialog</span>.show(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Click recieved</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">You clicked Next</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">OK</span><span style="color:#710">&quot;</span></span>, <span style="color:#069">null</span>);
+            });
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>ActionNode.builder()</code> method creates an <code>ActionNode.Builder</code> object, which has many utility methods for constructing actions and registering them with controllers.</p>
+</div>
+<div class="paragraph">
+<p>The <code>addToController()</code> method takes three parameters:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The controller to add the action to.  In this case we pass <code>this</code> since we want to add it to this view controller.</p>
+</li>
+<li>
+<p>The Action Category.  In this case we are passing <code>SignupPage.NEXT</code> which was generated by our <code>&lt;define-category name="NEXT"/&gt;</code> tag.</p>
+</li>
+<li>
+<p>An <code>ActionListener</code> that is called when the action is triggered.  In this case we just display a dialog that says "You Clicked Me".</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>If you reload the app in simulator and press the "Next" button, it should display a dialog as shown here:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-next-you-clicked-me-android.png" alt="tweetapp next you clicked me android">
+</div>
+<div class="title">Figure 11. Dialog shown when clicking the <em>Next</em> button on Android.  Notice that this dialog uses the native Android styles.  On iOS the dialog would look slightly different - matching the iOS native theme.</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_the_view_model">3.5.7. The View Model</h4>
+<div class="paragraph">
+<p>Now, when the user clicks <em>Next</em> it triggers the corresponding event handler in our controller, but we haven&#8217;t provided a "clean" way, yet, to pass the user&#8217;s input to our controller action.  This is where the <em>view model</em> comes into play.</p>
+</div>
+<div class="paragraph">
+<p>The <em>View Model</em> is the entity object that stores all of the model data for a view.  If you do not explicity specify a view model for your view (via the <code>rad-model</code> attribute), then an Entity class is automatically generated by the CodeRAD annotation processor, named <code>{ViewName}Model</code>.  E.g. For our <code>SignupPage</code> view, the generated entity class would be named <code>SignupPageModel</code>, and it would be in the same package as the <code>SignupPage</code> view.</p>
+</div>
+<div class="paragraph">
+<p>You can define properties for the view model using the <code>&lt;define-tag&gt;</code> tag, as described in <a href="#implicit-view-models">Implicit View Models</a>.</p>
+</div>
+<div class="paragraph">
+<p>In our case, we are going to add properties for each field on the form.</p>
+</div>
+<div class="paragraph">
+<p>Add the following to the _SignupPage.xml` view anywhere inside the root tag. I generally place my <code>define-tag</code> tags near the top.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.name</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phone</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.telephone</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">email</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.email</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">birthDate</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.birthDate</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">java.util.Date</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A few things to note here:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>I have provided a <code>value</code> attribute for each of these tags because these properties seem to match up directly with well-known property types.  CodeRAD includes a set of default schemas in the <em>com.codename1.rad.schemas</em> directory which are adapted from the schemas listed at <a href="https://schema.org/" class="bare">https://schema.org/</a>.  In particular the <a href="https://schema.org/Person">Person schema</a> seems relevant here. By mapping our properties to these existing properties, it will make it easier for other views to use our view model without having to explicitly depend on the view model entity itself. See <a href="#entities-properties-schemas-tags">Entities, Properties, Schemas and Tags</a> for some more information about this.</p>
+</li>
+<li>
+<p>For the <code>birthDate</code> tag we have added a type of <code>java.util.Date</code>.  If no type is required, the property is assumed to be a string.  Since the <em>birthDate</em> is a date, we want the model to treat this property as a date.</p>
+</li>
+<li>
+<p>I have split up the "Phone or Email Address" field into two properties: <em>phone</em> and <em>email</em>.  This is just cleaner.  Also, as we&#8217;ll see, the <em>Phone or Email</em> field of the Twitter app isn&#8217;t really a <em>single</em> text field at all.  It is more like a button that toggles between two different possible text fields: phone and email.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_binding_ui_elements_to_the_view_model">3.5.8. Binding UI Elements to the View Model</h4>
+<div class="paragraph">
+<p>Now that we have a view model in place, we can bind our UI elements to the model.  This will involve changing the <code>&lt;textField&gt;</code> tags that we are currently using to their "bindable" counterparts.  We will also take this opportunity to split up the "Phone or Email" field up into two fields.</p>
+</div>
+<div class="paragraph">
+<p>CodeRAD includes a set of bindable wrappers for most of the core Codename One components in the <em>com.codename1.rad.propertyviews</em> package.  To convert a basic Codename One component to its bindable counterpart, you can generally prefix "rad" to the tag name.  E.g. Instead of <code>&lt;textField&gt;</code>, you can use <code>&lt;radTextField&gt;</code>.</p>
+</div>
+<div class="paragraph">
+<p>A slight wrinkle is that the <code>&lt;rad*&gt;</code> components are actually <code>Container</code> classes that <em>wrap</em> the basic component, so if you want to set properties on the basic component such as "hint" or "uiid", you need to set them with the "component." prefix.</p>
+</div>
+<div class="paragraph">
+<p>For example, let&#8217;s convert the <em>name</em> text field into its RAD counter part.  Before we had:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;radTextField</span>
+  <span style="color:#b48">hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Name</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#b48">hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We change this to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;radTextField</span>
+  <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Name</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+  <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notes on this:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The <code>tag="name"</code> binds this component to the "name" property of the view model that we defined above using <code>&lt;define-tag../&gt;</code>.</p>
+</li>
+<li>
+<p>We prefixed each of the attributes that target the <em>TextField</em> itself with "component."  This is beause the TextField itself is actually wrapped by the <code>radTextField</code> (which is an instance of <code>TextFieldPropertyView</code>), and the rad text field class has a <code>getComponent()</code> method that retrieves the actual text field.  So, for example, setting <code>component.hint="Name"</code> is like calling <code>radTextField.getComponent().setHint("Name")</code>.</p>
+</li>
+</ol>
+</div>
+<div class="sect4">
+<h5 id="_splitting_the_phone_or_email_field">Splitting the <em>Phone or Email</em> Field</h5>
+<div class="paragraph">
+<p>In our initial design we used a single text field for <em>Phone or Email</em> to match what the Twitter form looked like.  If we dig a little deeper into the behaviour of this field, however, it looks like there is more than meets the eye.</p>
+</div>
+<div class="paragraph">
+<p>If you tap on the <em>Phone or Email</em> field in the actual <em>Twitter</em> app, you&#8217;ll notice that the field hint changes to just "Phone", and it provides you with a button to "Use email instead".</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweet-app-twitter-phone-field.png" alt="tweet app twitter phone field">
+</div>
+</div>
+<div class="paragraph">
+<p>If you click on the <em>Use email instead</em> button, it will toggle the field to an "Email" field, and the keyboard layout will change to one that is appropriate for entering email addresses.</p>
+</div>
+<div class="paragraph">
+<p>There a few different ways that we could replicate this behaviour.  In the approach that I chose, I split the field into a button and two text fields.</p>
+</div>
+<div class="paragraph">
+<p>The button with label "Phone number or email address" is styled like a text field, and is displayed initially.  The two text fields (for phone and email respectively) are hidden initially.  When the user presses the button, it triggers a change that hides the button and shows the <em>Phone</em> field, and the <em>Use email instead</em> button.  If the user presses the <em>Use email instead</em> button, it hides the <em>Phone</em> field and displays the <em>Email</em> field.</p>
+</div>
+<div class="paragraph">
+<p>The following is what I ended up with for these three components:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#777">&lt;!-- Define some additional properties on the view model to help
+    track state. --&gt;</span>
+
+<span style="color:#777">&lt;!-- useEmail tracks if the user has opted to use their email address
+    instead of phone. --&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">useEmail</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">boolean</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+<span style="color:#777">&lt;!-- editingPhoneOrEmail is to be set when the user presses the
+    &quot;Phone or Email&quot; button initially. --&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">editingPhoneOrEmail</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">boolean</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+<span style="color:#777">&lt;!-- phoneFieldFocused tracks whether the phone field currently has focus --&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneFieldFocused</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">boolean</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+<span style="color:#777">&lt;!-- emailFieldFocused tracks whether the email field currently has focus --&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">emailFieldFocused</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">boolean</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">PhoneOrEmailButton</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Phone number or email address</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${editingPhoneOrEmail}.bool</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;script&gt;</span>
+<span style="background-color:hsla(0,0%,0%,0.07);color:black">
+        it.addActionListener(evt -&gt; {
+            evt.consume();
+            it.getComponentForm().setFormBottomPaddingEditingMode(<span style="color:#069">true</span>);
+            <span style="color:#369;font-weight:bold">$</span>{editingPhoneOrEmail}.setBoolean(<span style="color:#069">true</span>);
+            <span style="color:#080;font-weight:bold">if</span> (<span style="color:#369;font-weight:bold">$</span>{useEmail}.bool) {
+                emailTextField.getComponent().startEditingAsync();
+            } <span style="color:#080;font-weight:bold">else</span> {
+                phoneTextField.getComponent().startEditingAsync();
+            }
+        });</span>
+    <span style="color:#070;font-weight:bold">&lt;/script&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;radTextField</span>
+        <span style="color:#b48">rad-var</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneTextField</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phone</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">bind-component.focus</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneFieldFocused</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${useEmail}.bool || !${editingPhoneOrEmail}.bool</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Phone number</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextArea.PHONENUMBER</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">/&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;radTextField</span>
+        <span style="color:#b48">rad-var</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">emailTextField</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">!${useEmail}.bool || !${editingPhoneOrEmail}.bool</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">email</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Email address</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextArea.EMAILADDR</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">bind-component.focus</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">emailFieldFocused</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;/radTextField&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There&#8217;s a fair bit here to unpack, so bear with me.  Let&#8217;s start with the new <code>&lt;define-tag&gt;</code> tags.  In order to replicate the funcionality of the twitter form, I need to create some different states for the form to be in.  The easiest way to do that is to add some properties to the model to keep track of this state.  Then we can bind the UI components to these model properties to have them appear and disappear according to the state of the model.  We&#8217;ll see how these properties are used in a a moment, but first let&#8217;s look at the UI components, starting with the button.</p>
+</div>
+<div class="paragraph">
+<p>The <code>uiid="PhoneOrEmailButton"</code> on the <code>&lt;button&gt;</code> tag is a style that makes the button look like a text field.  We define this style in our stylesheet as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="css"><span style="color:#070;font-weight:bold">PhoneOrEmailButton</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">TwitterTextField</span>;
+    <span style="color:#606">color</span>: <span style="color:#088">gray</span>;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>cn1-derive</code> directive ensures that it inherits all of the styles from the <code>TwitterTextField</code> style.  And we set the text color to gray.</p>
+</div>
+<div class="paragraph">
+<p>The <code>bind-hidden="${editingPhoneOrEmail}.bool"</code> attribute binds the <em>hidden</em> property of the button to the <em>editingPhoneOrEmail</em> property of the view model.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The <code>${editingPhoneOrEmail}.bool</code> string is a RAD View macro for accessing a model property.  This is roughly equivalent to the Java expression <code>getEntity().getBoolean(entityPhoneOrEmail)</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Since the <em>editingPhoneOrEmail</em> property starts out as false, which means that the <em>hidden</em> property of the button will initially be <code>false</code> (i.e. it will be initially visible).</p>
+</div>
+<div class="paragraph">
+<p>We <em>set</em> the <em>editingPhoneOrEmail</em> property in the action listener for the button which we defined inside a <code>&lt;script&gt;</code> tag.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Later on we may clean things up by moving this logic into the controller, but for now, and for simplicity, we place this code inside the view directly.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s take a closer look at this script tag, as there are few things worth comment here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;script&gt;</span>
+<span style="background-color:hsla(0,0%,0%,0.07);color:black">    <span style="color:#777">// setFormBottonPaddingEditingMode affects mobile device</span>
+    <span style="color:#777">// keyboard behaviour.</span>
+
+    it.addActionListener(evt -&gt; {
+        evt.consume();
+        it.getComponentForm().setFormBottomPaddingEditingMode(<span style="color:#069">true</span>);
+        <span style="color:#369;font-weight:bold">$</span>{editingPhoneOrEmail}.setBoolean(<span style="color:#069">true</span>);
+        <span style="color:#080;font-weight:bold">if</span> (<span style="color:#369;font-weight:bold">$</span>{useEmail}.bool) {
+            emailTextField.getComponent().startEditingAsync();
+        } <span style="color:#080;font-weight:bold">else</span> {
+            phoneTextField.getComponent().startEditingAsync();
+        }
+    });</span>
+<span style="color:#070;font-weight:bold">&lt;/script&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This Java code is executed inside the context of the view, and it provides an execution context with a few default variables available.  The <code>it</code> variable is a reference to the component that "contains" the script tag.  In this case it is the <code>&lt;button&gt;</code> tag (which is a <em>Button</em> object).</p>
+</div>
+<div class="paragraph">
+<p><code>it.addActionListener(evt&#8594;{&#8230;&#8203;})</code>  adds a listener to be called when the button is clicked.</p>
+</div>
+<div class="paragraph">
+<p><code>it.getComponentForm().setFormBottomPaddingEditingMode(true);</code> affects the behaviour on devices with a virtual keyboard (e.g. Android and iOS).  The default behaviour is for the keyboard to cover up part of the form, but in this form, we want the "Use email instead" button to still be visible when the keyboard is showing.  When <code>setFormBottomPaddingEditingMode(true)</code> is called on the form, it will cause the form to shrink when the keyboard appears so that the bottom buttons will still be visible.</p>
+</div>
+<div class="paragraph">
+<p>We call this inside the <code>&lt;script&gt;</code> tag because we don&#8217;t have direct access to the <code>Form</code> object from our View.</p>
+</div>
+<div class="paragraph">
+<p><code>${editingPhoneOrEmail}.setBoolean(true)</code> sets the <em>editingPhoneOrEmail</em> property of the view model, which will trigger some state updates in the view. This will result in the the button being hidden because of its <code>bind-hidden</code> attribute.  This also results in the <em>phone</em> field being displayed because of its <code>bind-hidden</code> attribute:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;radTextField</span>
+        <span style="color:#b48">...</span>
+        <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${useEmail}.bool || !${editingPhoneOrEmail}.bool</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">...</span>
+<span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The final part of the <em>actionListener</em> is the call to <code>emailTextField.getComponent().startEditingAsync()</code> on either the <em>phone</em> or <em>email</em> field, depending on whether the view model&#8217;s <em>useEmail</em> property is <code>true</code>.  This will focus the field and open the virtual keyboard.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+You might be wondering where the <em>emailTextField</em> variable comes from, and what it refers to.  Notice that the <em>email</em> field includes an attribute <code>rad-var="emailTextField"</code>.  This creates a variable reference to this <code>radTextField</code> tag&#8217;s component object, which is a <code>TextFieldPropertyView</code> object.  You can add a <code>rad-var</code> attribute to any tag to make it accessible inside <code>&lt;script&gt;</code> tags and other java expressions inside the view.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>Moving onto the <em>phone</em> field:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;radTextField</span>
+        <span style="color:#b48">rad-var</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneTextField</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phone</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">bind-component.focus</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneFieldFocused</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${useEmail}.bool || !${editingPhoneOrEmail}.bool</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Phone number</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextArea.PHONENUMBER</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first thing to notice here is that we are using the <code>radTextField</code> tag instead of <code>textField</code>.  This allows the field&#8217;s text to be bound to the view model&#8217;s <em>phone</em> property.  This binding is expressed by the <code>tag="phone"</code> attribute.</p>
+</div>
+<div class="paragraph">
+<p>Since <code>radTextField</code> is actually a <em>Container</em> that wraps a <em>TextField</em>, and the <em>TextField</em> component is available via the <em>getComponent()</em> method, we prefix attributes that should be applied on the <em>TextField</em> component with <code>component</code>.  E.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>....
+component.hint="Phone number"
+component.uiid="TwitterTextField"
+component.hintLabel.uiid="TwitterTextFieldHint"
+component.constraint="TextArea.PHONENUMBER"
+....</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>bind-component.focus="phoneFieldFocused"</code> binds the "focus" state of the text field with the <em>phoneFiledFocused</em> view model property.  We do this so that the <em>Use email instead</em> button can bind its <em>hidden</em> property to this variable and only be shown when the phone field is focused.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+We used the literal <em>phoneFieldFocused</em> tag name as the attribute value here instead of using the view macro expression <code>${phoneFieldFocused}</code> like we used in other <em>bind</em> attributes.  This is because providing the <em>literal</em> tag name to a bind expression allows the binding to be <em>two-way</em>.  When using the <code>${&#8230;&#8203;}</code> macro syntax, the value is treated like Java expression which can be evaluated, but cannot be "modified" - i.e. would only result in a one-way binding.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The <em>email</em> field properties are very similar to the <em>phone</em> field, so I won&#8217;t discuss them here.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_toggling_beween_phone_and_email">Toggling Beween Phone and Email</h5>
+<div class="paragraph">
+<p>Finally, we need to add the buttons to toggle bewteen the <em>email</em> and the <em>phone</em> fields.</p>
+</div>
+<div class="paragraph">
+<p>The following is a snippet from the view that defines these buttons, which I added into the <em>south</em> part of the view:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;x</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">west</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Use Email Address</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">!${phoneFieldFocused}.bool</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextFieldToggleButton</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;script&gt;</span>
+<span style="background-color:hsla(0,0%,0%,0.07);color:black">            it.addActionListener(evt-&gt;{
+               <span style="color:#369;font-weight:bold">$</span>{useEmail}.setBoolean(<span style="color:#069">true</span>);
+                emailTextField.getComponent().startEditingAsync();
+            });</span>
+        <span style="color:#070;font-weight:bold">&lt;/script&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+
+
+    <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Use Phone</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">!${emailFieldFocused}.bool</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextFieldToggleButton</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;script&gt;</span>
+<span style="background-color:hsla(0,0%,0%,0.07);color:black">            it.addActionListener(evt-&gt;{
+                <span style="color:#369;font-weight:bold">$</span>{useEmail}.setBoolean(<span style="color:#069">false</span>);
+                phoneTextField.getComponent().startEditingAsync();
+            });</span>
+        <span style="color:#070;font-weight:bold">&lt;/script&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/x&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These buttons both include a <code>bind-hidden</code> attribute which bind the view model&#8217;s corresponding <em>xxxFieldFocused</em> properties.  The result is that both of these buttons are hidden by default, but will be shown when their corresponding text field is focused.  This matches the behaviour of the actual Twitter app.</p>
+</div>
+<div class="paragraph">
+<p>Both of these buttons also include <code>&lt;script&gt;</code> tags to add action listeners which toggle the <em>useEmail</em> model property on and off, which triggers the <em>hidden</em> bindings of the <em>email</em> and <em>phone</em> <code>&lt;radTextField&gt;</code> tags to be re-evaluated.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_the_date_of_birth_field">The <em>Date of birth</em> Field</h5>
+<div class="paragraph">
+<p>For the <em>Date of Birth</em> field we will use a <code>&lt;radDatePicker&gt;</code> tag, which creates a <code>PickerPropertyView</code> component, which wraps the <code>Picker</code> component, and adds some enhanced <em>binding</em> support.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;radDatePicker</span>
+        <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">birthDate</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Date of birth</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterDatePicker</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After the complexities faced with the <em>phone and email</em> field, this one is tame.  The <code>tag="birthDate"</code> attribute binds the picker value to the view model&#8217;s <em>birthDate</em> proeprty.  We use <code>component.uiid="TwitterDatePicker"</code> which we defined as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="css"><span style="color:#070;font-weight:bold">TwitterDatePicker</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">TwitterTextField</span>;
+    <span style="color:#606">color</span>: <span style="color:#088">gray</span>;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Like the <em>Phone or Email</em> button we created before, we style this picker to look like a text field.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_the_result">3.5.9. The Result</h4>
+<div class="paragraph">
+<p>Now that I&#8217;ve gone through all of the individual pieces of the <em>Signup Form</em>, let&#8217;s take a look at the result.</p>
+</div>
+<div class="paragraph">
+<p>First the source so far:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">view-controller</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.example.tweetapp.controllers.SignupPageViewController</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPage</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">safeArea</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;define-category</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NEXT</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-category</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">USE_PHONE</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-category</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">USE_EMAIL</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-category</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">ENTER_PHONE_OR_EMAIL</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.name</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phone</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.telephone</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">email</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.email</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">birthDate</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.birthDate</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">java.util.Date</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">useEmail</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">boolean</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">editingPhoneOrEmail</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">boolean</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneFieldFocused</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">boolean</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">emailFieldFocused</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">boolean</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;title&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;label</span> <span style="color:#b48">iconUIID</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterIcon</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">fontIcon</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">(char)0xe902</span><span style="color:#710">&quot;</span></span> <span style="color:#070;font-weight:bold">&gt;</span><span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;y</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">center</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPageContent</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">scrollableY</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;label</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPageTitle</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>Create your account<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;radTextField</span>
+                <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Name</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#070;font-weight:bold">/&gt;</span>
+
+
+        <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">PhoneOrEmailButton</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Phone number or email address</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${editingPhoneOrEmail}.bool</span><span style="color:#710">&quot;</span></span>
+
+        <span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;script&gt;</span>
+<span style="background-color:hsla(0,0%,0%,0.07);color:black">
+
+
+            it.addActionListener(evt -&gt; {
+                evt.consume();
+                it.getComponentForm().setFormBottomPaddingEditingMode(<span style="color:#069">true</span>);
+                <span style="color:#369;font-weight:bold">$</span>{editingPhoneOrEmail}.setBoolean(<span style="color:#069">true</span>);
+                <span style="color:#080;font-weight:bold">if</span> (<span style="color:#369;font-weight:bold">$</span>{useEmail}.bool) {
+                    emailTextField.getComponent().startEditingAsync();
+                } <span style="color:#080;font-weight:bold">else</span> {
+                    phoneTextField.getComponent().startEditingAsync();
+                }
+            });</span>
+            <span style="color:#070;font-weight:bold">&lt;/script&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+
+        <span style="color:#070;font-weight:bold">&lt;radTextField</span>
+                <span style="color:#b48">rad-var</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneTextField</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phone</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">bind-component.focus</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneFieldFocused</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${useEmail}.bool || !${editingPhoneOrEmail}.bool</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Phone number</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextArea.PHONENUMBER</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#070;font-weight:bold">/&gt;</span>
+
+        <span style="color:#070;font-weight:bold">&lt;radTextField</span>
+                <span style="color:#b48">rad-var</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">emailTextField</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">!${useEmail}.bool || !${editingPhoneOrEmail}.bool</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">email</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Email address</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextArea.EMAILADDR</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">bind-component.focus</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">emailFieldFocused</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#070;font-weight:bold">&gt;</span>
+
+        <span style="color:#070;font-weight:bold">&lt;/radTextField&gt;</span>
+
+
+        <span style="color:#070;font-weight:bold">&lt;radDatePicker</span>
+                <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">birthDate</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Date of birth</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterDatePicker</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/y&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">south</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPageSouth</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;x</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">west</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Use Email Address</span><span style="color:#710">&quot;</span></span>
+                    <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">!${phoneFieldFocused}.bool</span><span style="color:#710">&quot;</span></span>
+                    <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextFieldToggleButton</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#070;font-weight:bold">&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;script&gt;</span>
+<span style="background-color:hsla(0,0%,0%,0.07);color:black">                    it.addActionListener(evt-&gt;{
+                       <span style="color:#369;font-weight:bold">$</span>{useEmail}.setBoolean(<span style="color:#069">true</span>);
+                        emailTextField.startEditingAsync();
+                    });</span>
+                <span style="color:#070;font-weight:bold">&lt;/script&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+
+
+            <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Use Phone</span><span style="color:#710">&quot;</span></span>
+                    <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">!${emailFieldFocused}.bool</span><span style="color:#710">&quot;</span></span>
+                    <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextFieldToggleButton</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#070;font-weight:bold">&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;script&gt;</span>
+<span style="background-color:hsla(0,0%,0%,0.07);color:black">                    it.addActionListener(evt-&gt;{
+                        <span style="color:#369;font-weight:bold">$</span>{useEmail}.setBoolean(<span style="color:#069">false</span>);
+                        phoneTextField.startEditingAsync();
+                    });</span>
+                <span style="color:#070;font-weight:bold">&lt;/script&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/x&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;x</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">east</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;button</span>  <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterNextButton</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Next</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;bind-action</span> <span style="color:#b48">category</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NEXT</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/x&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;/border&gt;</span>
+
+
+<span style="color:#070;font-weight:bold">&lt;/border&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And the CSS we added for the Signup page:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="css"><span style="color:#777">/** Signup Page Styles */</span>
+
+<span style="color:#070;font-weight:bold">SignupPage</span> {
+    <span style="color:#606">background-color</span>:<span style="color:#088">white</span>;
+    <span style="color:#606">margin</span>:<span style="color:#60E">0</span>;
+}
+
+<span style="color:#070;font-weight:bold">SignupPageContent</span> {
+    <span style="color:#606">padding</span>: <span style="color:#60E">8</span><span style="color:#088">vw</span>;
+}
+
+<span style="color:#070;font-weight:bold">SignupPageSouth</span> {
+    <span style="color:#606">padding</span>:<span style="color:#60E">2mm</span>;
+    <span style="color:#606">padding-left</span>: <span style="color:#60E">8</span><span style="color:#088">vw</span>;
+    <span style="color:#606">padding-right</span>: <span style="color:#60E">8</span><span style="color:#088">vw</span>;
+    <span style="color:#606">margin</span>:<span style="color:#60E">0</span>;
+    <span style="color:#606">border-top</span>: <span style="color:#60E">1px</span> <span style="color:#088">solid</span> <span style="color:#088">gray</span>;
+}
+
+<span style="color:#070;font-weight:bold">SignupPageTitle</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">Label</span>;
+    <span style="color:#606">font-size</span>: <span style="color:#60E">1.2</span><span style="color:#088">rem</span>;
+    <span style="color:#606">font-family</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">native:MainBold</span><span style="color:#710">&quot;</span></span>;
+    <span style="color:#606">text-align</span>:<span style="color:#088">center</span>;
+    <span style="color:#606">margin-bottom</span>: <span style="color:#60E">1.7</span><span style="color:#088">rem</span>;
+    <span style="color:#606">color</span>: <span style="color:#088">black</span>;
+}
+
+<span style="color:#070;font-weight:bold">TwitterNextButton</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">Button</span>;
+    <span style="color:#606">background-color</span>: <span style="color:#0A0">#1DA1F2</span>;
+    <span style="color:#606">color</span>: <span style="color:#088">white</span>;
+    <span style="color:#606">border</span>: <span style="color:#088">cn1-pill-border</span>;
+    <span style="color:#606">padding</span>: <span style="color:#60E">0.5</span><span style="color:#088">rem</span> <span style="color:#60E">0.75</span><span style="color:#088">rem</span>;
+
+    <span style="color:#606">font-size</span>: <span style="color:#60E">0.7</span><span style="color:#088">rem</span>;
+    <span style="color:#606">margin-right</span>: <span style="color:#60E">0</span>;
+
+}
+
+<span style="color:#070;font-weight:bold">TwitterTextField</span>, <span style="color:#070;font-weight:bold">TwitterTextFieldHint</span> {
+    <span style="color:#606">padding-top</span>: <span style="color:#60E">0.7</span><span style="color:#088">rem</span>;
+    <span style="color:#606">padding-bottom</span>: <span style="color:#60E">0.7</span><span style="color:#088">rem</span>;
+    <span style="color:#606">font-size</span>: <span style="color:#60E">0.8</span><span style="color:#088">rem</span>;
+    <span style="color:#606">font-family</span>: <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">native:MainLight</span><span style="color:#710">&quot;</span></span>;
+    <span style="color:#606">color</span>: <span style="color:#088">gray</span>;
+}
+
+<span style="color:#070;font-weight:bold">TwitterTextField</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">TextField</span>;
+    <span style="color:#606">border</span>: <span style="color:#088">none</span>;
+    <span style="color:#606">border-bottom</span>: <span style="color:#60E">0.8pt</span> <span style="color:#088">solid</span> <span style="color:#0A0">#ccc</span>;
+    <span style="color:#606">color</span>: <span style="color:#0A0">#333333</span>;
+    <span style="color:#606">margin-top</span>: <span style="color:#60E">1</span><span style="color:#088">rem</span>;
+    <span style="color:#606">margin-bottom</span>: <span style="color:#60E">0.5</span><span style="color:#088">rem</span>;
+}
+
+<span style="color:#070;font-weight:bold">TwitterDatePicker</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">TwitterTextField</span>;
+    <span style="color:#606">color</span>: <span style="color:#088">gray</span>;
+}
+
+<span style="color:#070;font-weight:bold">PhoneOrEmailButton</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">TwitterTextField</span>;
+    <span style="color:#606">color</span>: <span style="color:#088">gray</span>;
+}
+
+<span style="color:#070;font-weight:bold">TwitterTextFieldHint</span> {
+    <span style="color:#606">color</span>: <span style="color:#0A0">#66757f</span>;
+
+}
+
+<span style="color:#070;font-weight:bold">TextFieldToggleButton</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">Button</span>;
+    <span style="color:#606">color</span>: <span style="color:#0A0">#1DA1F2</span>;
+    <span style="color:#606">border</span>: <span style="color:#088">none</span>;
+    <span style="color:#606">padding</span>: <span style="color:#60E">0.5</span><span style="color:#088">rem</span> <span style="color:#60E">0.75</span><span style="color:#088">rem</span>;
+    <span style="color:#606">font-size</span>: <span style="color:#60E">0.7</span><span style="color:#088">rem</span>;
+    <span style="color:#606">margin</span>:<span style="color:#60E">0</span>;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And some screenshots from the simulator:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-signup-form-complete-simulator.png" alt="tweetapp signup form complete simulator">
+</div>
+</div>
+<div class="paragraph">
+<p>I have also prepared a short screencast on one of my Android devices to show how it looks on an actual device:</p>
+</div>
+<div class="videoblock">
+<div class="content">
+<iframe width="440" height="800" src="https://www.youtube.com/embed/RFteZABnI-g?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
+<div class="paragraph">
+<p>Before we implement that actual <em>signup</em> functionality (i.e. what happens when we click the <em>Next</em> button), I&#8217;d like to create the other views.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_login_page">3.6. The Login Page</h3>
+<div class="paragraph">
+<p>The <em>Login</em> page is similar to the <em>Signup</em> page, without the complexity of having to enable toggle between the <em>phone</em> and <em>email</em> fields.</p>
+</div>
 </div>
 </div>
 </div>
@@ -4523,13 +5331,13 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-021231.287.png" alt="Image 300320 021231.287">
 </div>
-<div class="title">Figure 11. A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.</div>
+<div class="title">Figure 12. A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/Image-300320-020346.131.png" alt="Image 300320 020346.131">
 </div>
-<div class="title">Figure 12. A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.</div>
+<div class="title">Figure 13. A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.</div>
 </div>
 <div class="paragraph">
 <p>In fact, we derive many benefits from the fact that the UI can be mapped to a tree data structure.  Trees are nice to work with because they lend themselves nicely to software.  If you can write a function that operates on a single node of the tree, you can easily expand this function to operate on the entire tree.</p>
@@ -4547,7 +5355,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-023353.927.png" alt="Image 300320 023353.927">
 </div>
-<div class="title">Figure 13. Screenshots from the Twitter mobile app.</div>
+<div class="title">Figure 14. Screenshots from the Twitter mobile app.</div>
 </div>
 <div class="paragraph">
 <p>The app structure of Twitter has 4 top-level FormControllers corresponding to the tabs at the bottom of the app:  Home, Search, Alerys, and Inbox.  The "Home" tab contains a list of tweets, and clicking on any of these tweets will bring the user to a "Tweet Details" form.  Hence in the controller hierarchy, the "Home" tab is a top-level form (a child of the ApplicationController), and it has at least one child, the "Tweet Details" form controller.</p>
@@ -4556,7 +5364,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-023007.132.png" alt="Image 300320 023007.132">
 </div>
-<div class="title">Figure 14. A partial controller hierarchy for the Twitter mobile app.  <strong>Note that this is not a class hierarchy</strong>, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".</div>
+<div class="title">Figure 15. A partial controller hierarchy for the Twitter mobile app.  <strong>Note that this is not a class hierarchy</strong>, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".</div>
 </div>
 </div>
 <div class="sect2">
@@ -4565,7 +5373,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-015455.241.png" alt="Image 300320 015455.241">
 </div>
-<div class="title">Figure 15. The main controller classes provided by CodeRAD.</div>
+<div class="title">Figure 16. The main controller classes provided by CodeRAD.</div>
 </div>
 <div class="paragraph">
 <p>CodeRAD provides a set of fundamental controller classes to help structure your app in this way:</p>
@@ -4698,7 +5506,7 @@ The following examples all use an ApplicationController as the root of the contr
 <div class="content">
 <img src="images/Image-300320-014315.510.png" alt="Image 300320 014315.510">
 </div>
-<div class="title">Figure 16. The flow of the <code>FormBackEvent</code> as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.</div>
+<div class="title">Figure 17. The flow of the <code>FormBackEvent</code> as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.</div>
 </div>
 </div>
 </div>

@@ -1385,6 +1385,437 @@ I have also prepared a short screencast on one of my Android devices to show how
 
 video::RFteZABnI-g[youtube, width=440, height=800]
 
+==== Handling Form Submission
+
+Now that our form looks correct, we can return to the _Next_ action that we started a few sections back.  Open the _SignupFormViewController_ class that we created, and create a new method to handle the form submission:
+
+[source,java]
+----
+private void handleSubmit(ActionNode.ActionNodeEvent evt) {
+
+}
+----
+
+And change the `initControllerActions()` method to have the _Next_ action trigger our `handleSubmit()` method instead of the anonymous callback it currently triggers.
+
+[source,java]
+----
+@Override
+protected void initControllerActions() {
+    super.initControllerActions();
+    ActionNode.builder()
+            .addToController(this, SignupPage.NEXT, this::handleSubmit);
+}
+----
+
+===== Field Validation
+
+The first thing we need to do, when handling the registration request, is validate the user's field input.  If validation fails, then an error message should be displayed near the relevant field.  A nice way to achieve this is to create view model properties corresponding to each input field of the signup form to store error messages.  Then we can add labels to the view that are bound to these error messages.
+
+We define the view model properties in our view as follows:
+
+[source,xml]
+----
+<!-- Properties for error messages -->
+<define-tag name="nameErrorMessage"/>
+<define-tag name="phoneOrEmailErrorMessage"/>
+<define-tag name="birthDateErrorMessage"/>
+----
+
+For the error message labels we will use `<radLabel>` components so that they can be bound to the view model easily.  They will be placed just below their corresponding input field in the view.
+
+Let's take a look at the _nameErrorMessage_ label first:
+
+[source,xml]
+----
+
+<!-- Placed just after the "name" field -->
+
+<radLabel tag="nameErrorMessage"
+    bind-hidden="${nameErrorMessage}.isEmpty()"
+          rad-transition="hidden 0.3s"
+          component.uiid="FieldErrorMessage"
+/>
+----
+
+The `tag` attribute binds this to the _nameErrorMessage_.  The `bind-hidden` attribute ensures that this label is hidden when the _nameErrorMessage_ property is empty.  The `rad-transition` attribute causes the label to transition in when it is displayed, rather than just abruptly appear.  Finally we assigned the UIID "FieldErrorMessage" to the label via the `component.uiid` attribute.
+
+TIP: Recall that the `<radLabel>` tag is a `LabelPropertyView` instance, which is a container that wraps a `Label` instance.  The `Label` instance is accessible via the `getComponent()` method, hence the `component.` prefix to the UIID, because we want to style the actual `Label`, and not the property view container.
+
+I have defined the _FieldErrorMessage_ style in the stylesheet as follows:
+
+[source,css]
+----
+FieldErrorMessage {
+    cn1-derive: Label;
+    font-size: 0.7rem;
+    color: white;
+    background-color:red;
+    padding: 1.5mm;
+    margin-top: 0;
+}
+----
+
+I have also removed the bottom margin from the _TwitterTextField_ style so that the error message will be rendered just underneath the corresponding field.
+
+[source,css]
+----
+TwitterTextField {
+   ...
+  margin-bottom: 0.5mm;
+}
+----
+
+
+With these in place, let's return to the `handleSubmit()` method, and implement some validation.
+
+[source,java]
+----
+private void handleSubmit(ActionNode.ActionNodeEvent evt) {
+    // Get reference to the view's model via the event.
+    SignupPageModel viewModel = SignupPageModelWrapper.wrap(evt.getEntity());
+
+    // Do some validation
+    boolean failedValidation = false;
+    if (viewModel.isUseEmail() && NonNull.empty(viewModel.getEmail())) {
+        viewModel.setPhoneOrEmailErrorMessage("Email address cannot be empty");
+        failedValidation = true;
+    } else if (!viewModel.isUseEmail() && NonNull.empty(viewModel.getPhone())) {
+        viewModel.setPhoneOrEmailErrorMessage("Phone cannot be empty");
+        failedValidation = true;
+    } else {
+        viewModel.setPhoneOrEmailErrorMessage("");
+    }
+
+    if (NonNull.empty(viewModel.getName())) {
+        viewModel.setNameErrorMessage("Name cannot be empty");
+        failedValidation = true;
+    } else {
+        viewModel.setNameErrorMessage("");
+    }
+
+    if (NonNull.empty(viewModel.getBirthDate())) {
+        viewModel.setBirthDateErrorMessage("Birthdate cannot be empty");
+        failedValidation = true;
+    } else {
+        viewModel.setBirthDateErrorMessage("");
+    }
+
+    if (failedValidation) {
+        return;
+    }
+}
+----
+
+The first thing we do here is obtain a reference to the view model with this line:
+
+[source,java]
+----
+SignupPageModel viewModel = SignupPageModelWrapper.wrap(evt.getEntity());
+----
+
+This uses both the `SignupViewModel` entity interface, and the `SignupViewModelWrapper` class, which implements `SignupViewModel`.  Both of these are generated by the CodeRAD annotation processor.  Wrapper classes are generated for each RAD entity (i.e. view model) that you define.  This class enables you to wrap _any_ Entity so that it can be be interacted with via the `SignupViewModel` interface.
+
+TIP: Using this wrapper is not strictly necessary, but it handy as it allows you to use, for example `entity.getName()` instead of `entity.getText(name)`, which _feels_ more natural in Java.
+
+Our validator is very basic right now - only checking for empty values.  If it finds a "problem", it sets the relevant `xxxErrorMessage` property on the view model that we just created.  Setting these view model properties will instantly trigger updates in the view.
+
+Now, if we click _Next_ on our form without entering any data we see something like:
+
+image::images/tweetapp-signup-page-error-messages.png[]
+
+.A video showing the transitions when showing and hiding the error messages.
+video::wWWPEgN9D1E[youtube, width=440, height=800]
+
+
+===== Sending Signup Request to the Server
+
+Once the form input is validated, we can build a request to send to the server.   We will create a _service_ class to encapsulate all interaction with the server.
+
+NOTE: For the purpose of this tutorial, we won't be connecting to an actual server.  We will just mock these requests.  The API will be designed to be fully asynchronous, however, so that modifying the implementation to make network requests should be straight forward.
+
+Create a new Java package named `com.example.tweetapp.services`, and create a new class named `TweetAppClient` inside this package.  Add the following contents:
+
+[source, java]
+----
+package com.example.tweetapp.services;
+
+import com.codename1.rad.util.NonNull;
+import com.codename1.util.AsyncResource;
+
+import java.util.Date;
+
+/**
+ * A client for interacting with the server.
+ */
+public class TweetAppClient {
+
+    /**
+     * Flag to indicate that we are currently logged in.
+     */
+    private boolean loggedIn;
+
+    /**
+     * The currently logged in user Id.  In this mock implementation the user Id
+     * is just the email address or phone number.
+     */
+    private String loggedInUserId;
+
+    public boolean isLoggedIn(){
+        return loggedIn;
+    }
+
+    public String getLoggedInUserId() {
+        return loggedInUserId;
+    }
+
+
+    /**
+     * A response object that is passed to the SignupRequest callback
+     * upon completion.
+     */
+    public static class SignupResponse {
+        /**
+         * Whether the signup was successful
+         */
+        private boolean success;
+
+        /**
+         * Reference to request that this response is for.
+         */
+        private SignupRequest request;
+
+        /**
+         * The response code.  200 for success.
+         * Make up error codes to fit needs.
+         */
+        private int responseCode;
+
+        /**
+         * A message related to the response code.  Contains error message
+         * in case of errors.
+         */
+        private String message;
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public SignupRequest getRequest() {
+            return request;
+        }
+
+        public int getResponseCode() {
+            return responseCode;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+
+
+    }
+
+    /**
+     * Encapsulates a signup request to send to the server.  Modify this
+     * class to include the information you require in your signup process.
+     *
+     */
+    public  class SignupRequest extends AsyncResource<SignupResponse> {
+        /**
+         * The email address of the user.
+         */
+        private String email,
+        /**
+         * The phone number of the user.
+          */
+        phone,
+
+        /**
+         * The name of the user.
+         */
+        name;
+
+        /**
+         * The birth date of the user.
+         */
+        private Date birthDate;
+
+        /**
+         * Send the signup request.
+         * @return
+         */
+        public SignupRequest signup() {
+            return TweetAppClient.this.signup(this);
+        }
+
+        public SignupRequest email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public SignupRequest phone(String phone) {
+            this.phone = phone;
+            return this;
+        }
+
+        public SignupRequest birthDate(Date birthDate) {
+            this.birthDate = birthDate;
+            return this;
+        }
+
+        public SignupRequest name(String name) {
+            this.name = name;
+            return this;
+        }
+
+    }
+
+    /**
+     * Creates a new signup request.
+     * @return
+     */
+    public SignupRequest createSignupRequest() {
+        return new SignupRequest();
+    }
+
+    /**
+     * Sends a signup request to the server.
+     * @param request
+     * @return
+     */
+    private SignupRequest signup(SignupRequest request) {
+
+        // This is just mocking the signup process.
+        // Change this to contact the server and sign up.
+        SignupResponse response = new SignupResponse();
+        response.responseCode = 200;
+        response.message = "Success";
+        response.request = request;
+        response.success = true;
+        request.complete(response);
+
+        // To log in we set the loggedInUserId and loggedIn
+        // boolean flag.
+        loggedInUserId = NonNull.nonNull(request.email, request.phone);
+        loggedIn = true;
+        return request;
+    }
+}
+
+----
+
+NOTE: To simplify things, this class _automatically_ sets the _loggedIn_ flag when a successful response is received from the "server".  In a real app, we would probably have a multi-step registration process that would require the user to respond to a confirmation email or phone text message, but that is beyond the scope of this tutorial.
+
+We will use a single instance of this class in our application, which we will create inside the `onStartController()` method of our application delegate class (i.e. the `com.example.tweetapp.Tweetapp` class).
+
+[source, java]
+----
+@Override
+protected void onStartController() {
+    super.onStartController();
+
+    /**
+     * Add a TweetAppClient as a lookup so that it will be available throughout
+     * the app via {@link #lookup(Class)}
+     */
+    addLookup(new TweetAppClient());
+}
+----
+
+What this does is add the client as a _lookup_ in the application controller.  We can retrieve this object from this controller, or _any_ if its child controllers, via `lookup(TweetAppClient.class)`.  We can also access it from a RAD view using `<var name="someVariableName" lookup="TweetAppClient"/>`.  This has the same effect as using the classic _Singleton_ design pattern, or a static global, except that we don't have to employ static variables, which are generally considered to be "bad" practice.
+
+In this case we are adding the lookup in the application controller so its _scope_ is the entire app.  If we were to add the lookup inside a FormController, or ViewController, then its scope would be limited to just that controller and its children.
+
+Now, let's use this class from our `handleSubmit()` method (in the _SignupPageViewController_ class) to submit a signup request to the server:
+
+[source,java]
+----
+private void handleSubmit(ActionNode.ActionNodeEvent evt) {
+    // ... Validation code omitted here for clarity
+
+    // Get reference to the webservice client
+    TweetAppClient client = lookup(TweetAppClient.class);
+
+    TweetAppClient.SignupRequest request = client.createSignupRequest()
+            .name(viewModel.getName())
+            .birthDate(viewModel.getBirthDate());
+
+    if (viewModel.isUseEmail()) {
+        request.email(viewModel.getEmail());
+    } else {
+        request.phone(viewModel.getPhone());
+    }
+
+    InfiniteProgress progess = new InfiniteProgress();
+    Dialog progressDialog = progess.showInfiniteBlocking();
+    request.signup().onResult((res, err) -> {
+        progressDialog.dispose();
+        if (err != null) {
+            ToastBar.showErrorMessage(err.getMessage());
+            return;
+        }
+        new HomePageController(getApplicationController()).show();
+
+    });
+}
+----
+
+Notice that we obtain a reference to the `TweetAppClient` object via `lookup(TweetAppClient.class)`.
+
+We then create a Signup request via `client.createSignupRequest()`.
+
+Then we set some properties on the request using the appropriate values obtained from the view model.
+
+The `InfiniteProgress` class is used to display a _progress_ indicator and block the UI while the signup request is in progress.
+
+The _actual_ server request is initiated by the `request.signup()` call, and the `onResult()` method allows us to add a callback which will be executed when a response is received.
+
+Upon receiving a response, we call `progressDialog.dispose()` to hide the progress indicator.  Then we check if there was an error, in which case we used `ToastBar.showErrorMessage(...)` to display an error message in the UI.
+
+If there was no error, then we assume the signup was successful and we direct the user to the _HomePage_.
+
+In order for this code to work, we need to create a new view named HomePage.xml.  To start with just include some placeholder contents:
+
+. HomePage.xml
+[source,xml]
+----
+<?xml version="1.0"?>
+<y xsi:noNamespaceSchemaLocation="HomePage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>Homepage</title>
+</y>
+----
+
+TIP: The _HomePageController_ class is a _FormController_ subclass that is generated by the CodeRAD annotation processor for the _HomePage_ view.  It is just a convenience class that makes it easier to display the _HomePage_ view in a form.
+
+One important thing to notice about our call to `HomePageController` is that we set the _Application Controller_ as its parent controller rather than the current controller.
+
+If we had done:
+
+[source,java]
+----
+new HomePageController(this).show();
+----
+
+then the _HomePage_ would be a _child_ of the current form (the _Signup_ form), and thus would include a "back" button to return.  We don't want the user to be able to navigate back to the signup form once they are logged in, so we make the _HomePageController_ a child of the application controller, making it a "root" form controller in the application.
+
+We'll leave the placeholder content in the "HomePage" for now, as we complete the _Login_ and _About_ pages.  Once we finish all of our "pre-login" views, we'll return to the _HomePage_ view to create the "logged in" app experience.
+
+TIP: You can view the current state (as of this point in the tutorial) of all of our source files in https://gist.github.com/shannah/3df2ea9184fd2f2f8ab80e219c73b5c0[this gist].
+
+=== The Login Page
+
+The _Login_ page is quite similar to the signup page, so I won't spend as much time here describing the details.
+
+
+
+
+
+
+
+
+
 
 
 
