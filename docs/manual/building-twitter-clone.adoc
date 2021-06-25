@@ -1806,7 +1806,492 @@ TIP: You can view the current state (as of this point in the tutorial) of all of
 
 === The Login Page
 
-The _Login_ page is quite similar to the signup page, so I won't spend as much time here describing the details.
+The _Login_ page is quite similar to the signup page so I'll skip details that were covered in the creation of the _Signup_ page.
+
+Create a view in the same folder as the SignupPage named "LoginPage.xml", with the following contents:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<border view-controller="com.example.tweetapp.controllers.LoginPageViewController"
+        uiid="SignupPage"
+        safeArea="true"
+        componentForm.formBottomPaddingEditingMode="true"
+        xsi:noNamespaceSchemaLocation="LoginPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+
+    <define-category name="LOGIN"/>
+
+    <define-tag name="phoneEmailOrUsername"/>
+    <define-tag name="password"/>
+
+    <!-- Properties for error messages -->
+    <define-tag name="phoneEmailOrUsernameErrorMessage"/>
+    <define-tag name="passwordErrorMessage"/>
+
+    <title>
+        <label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label>
+    </title>
+    <y layout-constraint="center" uiid="SignupPageContent" scrollableY="true">
+        <label uiid="SignupPageTitle">Login to Tweet App</label>
+        <radTextField
+                tag="phoneEmailOrUsername"
+                component.hint="Phone, email or username"
+                component.uiid="TwitterTextField"
+                component.hintLabel.uiid="TwitterTextFieldHint"
+                component.constraint="TextArea.USERNAME"
+        />
+
+        <radLabel tag="phoneEmailOrUsernameErrorMessage"
+                  bind-hidden="${phoneEmailOrUsernameErrorMessage}.isEmpty()"
+                  rad-transition="hidden 0.3s"
+                  component.uiid="FieldErrorMessage"
+        />
+
+        <radTextField
+                tag="password"
+                component.hint="Password"
+                component.uiid="TwitterTextField"
+                component.hintLabel.uiid="TwitterTextFieldHint"
+                component.constraint="TextArea.PASSWORD"
+        />
+
+
+        <radLabel tag="passwordErrorMessage"
+                  bind-hidden="${passwordErrorMessage}.isEmpty()"
+                  rad-transition="hidden 0.3s"
+                  component.uiid="FieldErrorMessage"
+        />
+
+
+    </y>
+    <border layout-constraint="south" uiid="SignupPageSouth">
+        <x layout-constraint="west">
+            <button  uiid="TwitterFooterAction" rad-href="#ForgotPassword">
+                Forgot Password?
+            </button>
+        </x>
+        <x layout-constraint="east">
+            <button  uiid="TwitterNextButton" text="Log in">
+                <bind-action category="LOGIN"/>
+            </button>
+        </x>
+
+    </border>
+
+
+</border>
+
+
+----
+
+It this looks similar to the _Signup_ page, that's because started by copying and pasting the _signup_ contents into this view, then changed the tags, actions, and fields to suit the login form that we are trying to recreate.
+
+TIP: In order to demonstrate an alternative way to modify the top-level _Form_ object for this view, we used the `componentForm.formBottomPaddingEditingMode="true"` attribute to set the form bottom padding editing property on the form.  In the SignupForm we did this inside one of the `<script>` tags.  It is, perhaps, cleaner to do it this way to retain the declarative definition of the UI.
+
+Notice the `view-controller` attribute which specifies that this view should use the class `com.example.tweetapp.controllers.LoginPageViewController` as its view controller.  Create this class now with the following contents:
+
+[source,java]
+----
+package com.example.tweetapp.controllers;
+
+import com.codename1.components.InfiniteProgress;
+import com.codename1.components.ToastBar;
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.ViewController;
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.rad.util.NonNull;
+import com.codename1.ui.Dialog;
+import com.example.tweetapp.services.TweetAppClient;
+import com.example.tweetapp.views.*;
+
+public class LoginPageViewController extends ViewController {
+    /**
+     * Creates a new ViewController with the given parent controller.
+     *
+     * @param parent
+     */
+    public LoginPageViewController(Controller parent) {
+        super(parent);
+    }
+
+    @Override
+    protected void initControllerActions() {
+        super.initControllerActions();
+        ActionNode.builder()
+                .addToController(this, LoginPage.LOGIN, this::handleSubmit);
+    }
+
+    /**
+     * Handles the registration form submission
+     * @param evt
+     */
+    private void handleSubmit(ActionNode.ActionNodeEvent evt) {
+
+        // We will handle the login action here
+
+    }
+}
+
+----
+
+Referring back to the _LoginPage.xml_ contents, notice that I have a _Forgot Password_ button in the lower left:
+
+[source,xml]
+----
+<button  uiid="TwitterFooterAction" rad-href="#ForgotPassword">
+    Forgot Password?
+</button>
+----
+
+For this link to work, I also created the style _TwitterFooterAction_ to match the style of the buttons I created on the Signup page for toggling between the email and phone fields:
+
+[source,css]
+----
+TextFieldToggleButton, TwitterFooterAction  {
+    ...
+}
+----
+
+Finally, the `rad-href` attribute references a _ForgotPassword_ view, which we'll create a placeholder for now.  Create the view "ForgotPassword.xml" in the same directory as our other views with the following contents:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<y xsi:noNamespaceSchemaLocation="ForgotPassword.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>Forgot Password</title>
+
+</y>
+----
+
+Finally, we need to "link" the _Welcome_ page to our new login page, by adding a `rad-href` attribute to the _Login_ link.  Open the _WelcomePage.xml_ file and change the _login_ link to:
+
+[source,xml]
+----
+<button uiid="TwitterSmallLink" rad-href="#LoginPage">Log in</button>
+----
+
+Now, if you reload the app in the simulator, and click on the _Login_ link, you should see something like:
+
+image::images/tweetapp-login-page-1.png[]
+
+===== Handling the Login
+
+We validate the login using the same technique as we used for the _Signup_ form.  We need to modify the _TweetAppClient_ to support login, and in order to achieve some reuse with the _signup_ flow, I refactored it a bit, but nothing major.
+
+You can review the sources that were added in this section in https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b[this gist].
+
+. https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b#file-loginpage-xml[LoginPage.xml]
+. https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b#file-loginpageviewcontroller-java[LoginPageViewController.java]
+. https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b#file-theme-css[theme.css]
+. https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b#file-tweetappclient-java[TweetAppClient.java]
+
+There are two other pages available to users without logging in:
+
+. ForgotPassword
+. The About Page
+
+These pages don't require anything new that wasn't covered in the _Signup_ and _Login_ pages, so I'm going to skip them for now, so that we can move onto the real meat of this app: _The News Feed_.
+
+=== The News Feed
+
+The _News Feed_ of this app gives us an opportunity to show off some of the powerful "list" features of CodeRAD.  For this tutorial, I'm going to use the https://www.nasa.gov/rss/dyn/breaking_news.rss[NASA breaking news RSS feed] as our data source, as it includes all of the key elements of a news feed: headlines, descriptions, dates, authors, and images.
+
+I'm going to cheat a tiny bit and use some of the models and views in the `tweet-app-ui-kit` cn1lib - a module that I developed to provide some _Twitter-esque_ components out of the box.  In addition to providing our app with some pre-built, polished components, it will demonstrate how to use third-party libraries in your apps.
+
+==== Adding the Tweet App UI Kit Dependency
+
+The Tweet App UI Kit is a library that contains some models and views that are helpful when building a Twitter-like app.  We'll start by adding the Maven dependency for this library.
+
+Open the _common/pom.xml_ file and add the following snippet to the `<dependencies>` section:
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.codenameone</groupId>
+    <artifactId>tweet-app-ui-kit-lib</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <type>pom</type>
+</dependency>
+----
+
+IMPORTANT: The `version` listed here is a SNAPSHOT version because, at the time of writing, I hadn't published it yet to Maven central.  I plan to remove this and update it with a release version ASAP.  If you're reading this comment, then I haven't done that yet.  Try to find a release version on Maven central, or clone the https://github.com/shannah/TweetAppUIKit[github repository] and build it from source using `mvn install` to be able to use the SNAPSHOT version listed here.
+
+After adding the dependency, you can expedite the download of its jar files by right clicking the _pom.xml_ file, and selecting _Maven_ > _Reload Project_.
+
+
+==== The HomePage View
+
+The HomePage view is where we will display our news feed. The swiss army knife for "list" content is the _EntityListView_ which can be created with the `<entityList>` tag.  See <<entity-lists>> in the _Getting Started_ tutorial for an introductory example involving Entity Lists.
+
+There are two parts to an entity list:
+
+. The View (a subclass of _EntityListView_)
+. The provider (usually a subclass of _AbstractEntityListProvider_).
+
+.Providers
+****
+The provider isn't strictly necessary, as the view has its own View model (an _EntityList_) that you can work with directly to provide rows for the list.  E.g. you can construct an _EntityList_ and pass it to the _EntityListView_ for rendering, or you can obtain a reference to the EntityListView's model directly and add, remove, or modify rows directly.
+
+Providers simplify two common patterns in app development:  _Pull to Refresh_ and _Infinite Scroll_.  When you register a provider with an EntityListView, it enables both of these features on the list.
+
+When the user issues a "Pull to refresh" on the list (by pulling down at the top of the list, then releasing), it sends a "Refresh" request to the provider asynchronously.  The provider processes this request and returns an EntityList to the view, which replaces its own rows with the rows returned by the provider.
+
+When the user scrolls to the bottom of the list, the view will send a "Load More" request to the provider, which fill fulfill the request in the same way as it fulfills a "Refresh" request.  The difference is that the view will _append_ the rows it receives back, rather than _replacing_ the existing rows with them.
+
+.This diagram shows how _EntityListView_ loads its data from an `EntityListProvider`.  The EntityListView fires a "request" event which is "handled" by the registered provider by attaching an EntityList to the event, which the EntityListView adds to its own model.  Refresh events result in all rows being replaced.  "Load More" events result in rows being appended.
+image::images/entitylist-provider-diagram.png[]
+****
+
+===== The TweetListView
+
+In <<entity-lists>> in the _Getting Started_ tutorial, I demonstrated how to use the `<entityList>` tag directly to create a list.  For this app, I'm going to use a prebuilt view, _TweetListView_ which _contains_ an EntityListView.  The _TweetListView_ renders a list of _Tweet_ entities similar to the way that the Twitter app renders its tweets.  It also includes some Action categories that will allow us to plug in our own actions in each row.
+
+.Screenshot of the _TweetListView_ component using some sample data.
+image::images/tweetlistview.png[]
+
+You can see an example of the _TweetListView_ in the above screenshow.  All of the content in this list is pulled from ether the row models (`Tweet` entities), or actions defined in the controller and registered in specific categories.  The following diagram shows where each piece of content comes from.
+
+image::images/TweetListView-diagram.png[]
+
+link:images/TweetListView-diagram.png[Open diagram image directly]
+
+TIP: For more detailed information about the _TweetListView_ component, see the https://github.com/shannah/TweetAppUIKit/wiki/TweetListView[TweetListView wiki page].
+
+Before we add this list view to our homepage, let's implement a provider, so that it will have some content to show.
+
+Create a package named `com.example.tweetapp.providers` if you haven't already, and add a new class named "NewsFeedProvider" with the following contents:
+
+[source,java]
+----
+package com.example.tweetapp.providers;
+
+import com.codename1.io.Log;
+import com.codename1.io.rest.Rest;
+import com.codename1.l10n.SimpleDateFormat;
+import com.codename1.rad.io.ParsingService;
+import com.codename1.rad.models.AbstractEntityListProvider;
+import com.codename1.rad.models.EntityList;
+import com.codename1.rad.processing.Result;
+import com.codename1.twitterui.models.TWTAuthor;
+import com.codename1.twitterui.models.TWTAuthorImpl;
+import com.codename1.twitterui.models.Tweet;
+import com.codename1.twitterui.models.TweetImpl;
+import com.codename1.util.StringUtil;
+import com.codename1.xml.Element;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+
+/**
+ * A "provider" class that provides rows to EntityListViews that want to display a news feed.
+ * This uses {@link Tweet} objects as the row models.
+ *
+ * This is used for the news feed in the HomePage.
+ */
+public class NewsFeedProvider extends AbstractEntityListProvider {
+    @Override
+    public Request getEntities(Request request) {
+
+        // Fetch NASA RSS Feed
+        Rest.get("https://www.nasa.gov/rss/dyn/breaking_news.rss")
+                .onError(evt->{
+                    // Propagate error back to the request
+                    request.error(evt.getError());
+                })
+                .fetchAsBytes(v -> {
+                    // The ParsingService will parse XML asynchronously on a background thread
+                    // so that it doesn't impede the EDT
+                    ParsingService parser = new ParsingService();
+
+                    parser.parseXML(new InputStreamReader(new ByteArrayInputStream(v.getResponseData())))
+                        .onResult((res, err) -> {
+                            if (err != null) {
+                                // Error parsing XML.  Propagate up to request.
+                                request.error(err);
+                                return;
+                            }
+
+                            // Create EntityList which will be returned to the request.
+                            EntityList out = new EntityList();
+
+                            // A date formatter to format dates in the RSS feed.
+                            // (Determined format string based on the format in the Feed)
+                            SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm z");
+
+                            // News items are all in <item> tags of the feed.  Get them all as a list
+                            List<Element> items = (List<Element>)res.getDescendantsByTagName("item");
+                            for (Element item : items) {
+                                try {
+                                    // Wrapping item in Result object makes it easier
+                                    // to extract values in correct format and navigate around
+                                    // nulls.
+                                    Result ritem = Result.fromContent(item);
+
+                                    // Tweet is an Entity defined in the tweet-app-ui-kit cn1lib
+                                    // to encapsulate a "Tweet", which is basically a news item.
+                                    // We will use these for the row models of the list.
+                                    Tweet tweet = new TweetImpl();
+                                    tweet.setText(ritem.getAsString("description"));
+                                    String dateString = ritem.getAsString("pubDate");
+                                    dateString = StringUtil.replaceAll(dateString, "EDT", "GMT-4:00");
+                                    dateString = StringUtil.replaceAll(dateString, "EST", "GMT-5:00");
+                                    tweet.setDatePosted(dateFormatter.parse(dateString));
+                                    tweet.setImage(item.getFirstChildByTagName("enclosure").getAttribute("url"));
+                                    tweet.setLink(ritem.getAsString("link"));
+
+                                    // TWTAuthor is an Entity defined in the tweet-app-ui-kit cn1li
+                                    // to encapsulate Tweet author details.
+                                    TWTAuthor author = new TWTAuthorImpl();
+                                    author.setName("NASA");
+                                    author.setThumbnailUrl("https://pluspng.com/img-png/nasa-logo-png-file-nasa-logo-svg-1237.png");
+                                    tweet.setAuthor(author);
+
+                                    // Add tweet to the list.
+                                    out.add(tweet);
+
+
+                                } catch (Exception ex) {
+                                    // Hopefully no exceptions here, but log them anyways
+                                    Log.e(ex);
+                                }
+                            }
+
+                            // Pass the EntityList to the request so that
+                            // it can be used by the requesting EntityListView.
+                            request.complete(out);
+                        });
+
+
+                });
+        return request;
+    }
+}
+
+----
+
+
+The only _mandatory_ method we need to implement in a provider is the `getEntities()` method, which takes a `Request` object and "fills" it with an `EntityList`.  In this class we are asynchronously fetching the NASA RSS feed, and parsing it into `Tweet` entities (_Tweet_ is part of the Tweet App UI Kit cn1lib).
+
+This provider is very basic as it doesn't handle "paging".  It treats every request as a "Refresh" request.  Later we'll learn how to support paging (i.e. _Load More_ requests).
+
+The XML parsing logic is fairly straight forward as it is based on the XML content of the RSS feed.  The following is an excerpt of such a feed.
+
+[source, xml]
+----
+<?xml version="1.0" encoding="utf-8" ?>
+  <rss ...>
+    <channel>
+      <title>NASA Breaking News</title>
+      <description>A RSS news feed containing the latest NASA news articles and press releases.</description>
+      ...
+     <item>
+       <title>NASA to Air Launch, Docking of Roscosmos Cargo Ship to Space Station</title>
+       <link>http://www.nasa.gov/press-release/nasa-to-air-launch-docking-of-roscosmos-cargo-ship-to-space-station</link>
+        <description>Live coverage of Russia’s Progress 78 cargo spacecraft’s launch and docking to the International Space Station will begin at 7 p.m. EDT Tuesday, June 29, on NASA Television, the agency’s website, and the NASA app.</description>
+        <enclosure url="http://www.nasa.gov/sites/default/files/styles/1x1_cardfeed/public/thumbnails/image/iss064e033785_orig.jpg?itok=lLmxLaJj" length="683114" type="image/jpeg" />
+        <guid isPermaLink="false">http://www.nasa.gov/press-release/nasa-to-air-launch-docking-of-roscosmos-cargo-ship-to-space-station</guid>
+        <pubDate>Wed, 23 Jun 2021 17:21 EDT</pubDate>
+        <source url="http://www.nasa.gov/rss/dyn/breaking_news.rss">NASA Breaking News</source>
+        <dc:identifier>472019</dc:identifier>
+</item>
+... more items
+----
+
+We use the _ParsingService_ class for XML parsing because it will perform parsing on a background thread to keep it out of the way of the UI thread.
+
+We fetch all of the `<item>` tags in the feed using `List<Element> items = (List<Element>)res.getDescendantsByTagName("item");`
+
+Then, with each `<item>` element, we build a `Tweet` object and add it to the entity list.
+
+TIP: See the https://github.com/shannah/TweetAppUIKit/wiki/Tweet[Tweet wiki page] for a full list of properties and tags provided by the _Tweet_ entity.
+
+A couple of "ugly" things worth noting here:
+
+. The feed seems to render the date with the `EDT` timezone, and SimpleDateFormat wasn't recognizing this.  Rather than explicitly register the EDT timezone, I did a `replaceAll()` on "EDT" to convert it to "GMT-4:00" which is equivalent (4 hours behind GMT) and in a format that SimpleDateFormat will handle nicely.
+
+. The `Result` class that I use here is the CodeRAD version (`com.codename1.rad.processing.Result`), not the core Codename One `Result` class.  This is because the behaviour of selectors in the core Codename One class doesn't handle contexts (i.e. all queries assumed to be from the root element), and changing the behaviour would have potentially broken a lot of legacy apps.  So I "forked" it for CodeRAD, and changed the behaviour of selectors to support contextual selectors.
+
+Now that we have the provider in place, let's add our `TweetListView` to the Homepage view.  We'll need to import both the provider class and the TweetListView class into our view:
+
+[source,xml]
+----
+<import>
+    import com.codename1.twitterui.views.TweetListView;
+    import com.example.tweetapp.providers.NewsFeedProvider;
+</import>
+----
+
+[TIP]
+====
+The Tweet App UI kit also provides a _Tag Library_ that will allow you to import all of its components into a view using the `<use-taglib>` tag, instead of having to add import statements to each class or package directly.
+
+Using this taglib, we would change the `<import>` statements to:
+
+[source,xml]
+----
+<use-taglib class="com.codename1.twitterui.TagLibrary"/>
+<import>
+    import com.example.tweetapp.providers.NewsFeedProvider;
+</import>
+----
+
+====
+
+Then we can add the list view with the following snippet:
+
+[source,xml]
+----
+<tweetListView
+        layout-constraint="center"
+        provider="NewsFeedProvider.class"
+/>
+----
+
+After adding these snippets, the contents of the HomePage.xml view will be:
+
+[source, xml]
+----
+<?xml version="1.0"?>
+<border xsi:noNamespaceSchemaLocation="HomePage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title><label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label></title>
+
+    <import>
+        import com.codename1.twitterui.views.TweetListView;
+        import com.example.tweetapp.providers.NewsFeedProvider;
+    </import>
+
+    <tweetListView
+            layout-constraint="center"
+            provider="NewsFeedProvider.class"
+    />
+</border>
+----
+
+Now, fire up the simulator, log in (to navigate to the _HomePage_ view), and you should see something like:
+
+image::images/tweetapp-homepage-1.png[]
+
+===== Injecting Actions
+
+At this point we have a nice looking list, but we're just scratching the surface of the `TweetListView` component's capabilities.  It defines a handful of action categories that will allow us to inject our own actions into each row.  Some of these actions will be manifested as buttons. Other will result in a drop-down menu being added to each row, and some of them aren't "rendered" per-se, but will be triggered in response to user actions such as pressing, or long-pressing.
+
+TIP: For a full list of the actions supported by the _TweetRowView_ (the view used to render each row of the list), see the https://github.com/shannah/TweetAppUIKit/wiki/TweetRowView#actions[TweetRowView wiki page].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

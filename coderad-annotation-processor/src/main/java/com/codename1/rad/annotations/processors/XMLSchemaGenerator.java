@@ -395,6 +395,8 @@ public class XMLSchemaGenerator {
 
                             if (methodType != null && methodType.getReturnType() != null) {
                                 if (env.isA(methodType.getReturnType(), "com.codename1.ui.plaf.Style")
+                                        || methodEl.getSimpleName().contentEquals("getComponentForm")
+                                        || methodEl.getSimpleName().contentEquals("getParent")
                                         || env.isA(methodType.getReturnType(), "com.codename1.rad.nodes.ActionNode.Builder")
                                         || (methodEl.getAnnotation(RADDoc.class) != null && methodEl.getAnnotation(RADDoc.class).generateSubattributeHints() && methodType.getReturnType().getKind() == TypeKind.DECLARED)
                                 ) {
@@ -749,7 +751,7 @@ public class XMLSchemaGenerator {
                 DeclaredType returnType = (DeclaredType)methodType.getReturnType();
                 RADDoc radDoc = methodEl.getAnnotation(RADDoc.class);
                 TypeElement returnTypeEl = (TypeElement)((returnType.asElement().getKind() == ElementKind.CLASS || returnType.asElement().getKind() == ElementKind.INTERFACE) ? returnType.asElement() : null);
-                if (returnTypeEl != null && ((radDoc != null && radDoc.generateSubattributeHints()) || returnTypeEl.getQualifiedName().contentEquals("com.codename1.ui.plaf.Style") || env.isA(returnType, "com.codename1.rad.nodes.ActionNode.Builder"))) {
+                if (returnTypeEl != null && ((radDoc != null && radDoc.generateSubattributeHints()) || returnTypeEl.getQualifiedName().contentEquals("com.codename1.ui.plaf.Style") || env.isA(returnType, "com.codename1.rad.nodes.ActionNode.Builder") || methodEl.getSimpleName().contentEquals("getComponentForm") || methodEl.getSimpleName().contentEquals("getParent"))) {
                     indent(sb, indent).append("<xs:attributeGroup ref=\"").append(getAttributeGroupName(returnType, prefix + propertyName + ".", depth-1)).append("\"/>\n");
                     addRequiredAttributeGroup(new AttributeGroup(prefix + propertyName + ".", ((TypeElement)returnTypeEl).getQualifiedName().toString(), depth-1));
                 }

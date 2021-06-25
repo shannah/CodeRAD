@@ -3707,8 +3707,19 @@ public class ViewProcessor extends BaseProcessor {
                 indent(sb, indent);
                 ExecutableElement setter = componentClass.findSetter(name);
                 if (name.contains(".") || setter != null) {
-
-                    componentClass.setProperty(sb, attr, "_cmp");
+                    boolean deferToOnInit = (name.toLowerCase().startsWith("parent.") || name.toLowerCase().startsWith("componentform"));
+                    if (deferToOnInit) {
+                        sb.append("{\n");
+                        indent += 4;
+                        sb.append("final ").append(jenv.findClassThatTagCreates(xmlTag.getTagName()).getQualifiedName()).append(" __fcmp = _cmp;\n");
+                        sb.append("addInitOnceListener(()->");
+                        componentClass.setProperty(sb, attr, "__fcmp");
+                        sb.append(");\n");
+                        indent -= 4;
+                        sb.append("}\n");
+                    } else {
+                        componentClass.setProperty(sb, attr, "_cmp");
+                    }
 
                 }
                 sb.append("\n");
@@ -6001,6 +6012,8 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("private final AppSectionController sectionController;\n");
             indent(sb, indent).append("private final ViewController viewController;\n");
             indent(sb, indent).append("private final FormController parentFormController;\n");
+            indent(sb, indent).append("private java.util.List<Runnable> __initOnceListeners;\n");
+            indent(sb, indent).append("private java.util.List<Runnable> __deinitListeners;\n");
             writeClassVariables(sb);
             writeScriptMethods(sb);
             indent(sb, indent).append("private static ViewContext<").append(viewModelType).append("> wrapContext(ViewContext<").append(viewModelType).append("> context) {\n");
@@ -6095,9 +6108,33 @@ public class ViewProcessor extends BaseProcessor {
             sb.append("        if (type.isAssignableFrom(ViewController.class)) return (T)viewController;\n");
             sb.append("        return null;\n");
             sb.append("    }\n");
-
-            indent -= 4;
+            sb.append("    @Override\n");
+            sb.append("    protected void initComponent() {\n");
+            sb.append("        super.initComponent();\n");
+            sb.append("        if (__initOnceListeners != null && !__initOnceListeners.isEmpty()) {\n");
+            sb.append("            java.util.List<Runnable> toRun = new java.util.ArrayList<Runnable>(__initOnceListeners);\n");
+            sb.append("            __initOnceListeners = null;\n");
+            sb.append("            for (Runnable r : toRun) r.run();\n");
+            sb.append("        }\n");
+            sb.append("    }\n");
+            sb.append("    @Override\n");
+            sb.append("    protected void deinitialize() {\n");
+            sb.append("        if (__deinitListeners != null && !__deinitListeners.isEmpty()) {\n");
+            sb.append("            java.util.List<Runnable> toRun = new java.util.ArrayList<Runnable>(__deinitListeners);\n");
+            sb.append("            for (Runnable r : toRun) r.run();\n");
+            sb.append("        }\n");
+            sb.append("        super.deinitialize();\n");
+            sb.append("    }\n");
+            sb.append("    private void addInitOnceListener(Runnable r) {\n");
+            sb.append("        if (__initOnceListeners == null) __initOnceListeners = new java.util.ArrayList<>();\n");
+            sb.append("        __initOnceListeners.add(r);\n");
+            sb.append("    }\n");
+            sb.append("    private void addDeinitListener(Runnable r) {\n");
+            sb.append("        if (__deinitListeners == null) __deinitListeners = new java.util.ArrayList<>();\n");
+            sb.append("        __deinitListeners.add(r);\n");
+            sb.append("    }\n");
             sb.append("}\n");
+            indent -= 4;
 
 
         }

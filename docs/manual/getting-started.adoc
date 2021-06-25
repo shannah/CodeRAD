@@ -1008,7 +1008,7 @@ Currently transitions don't work with every property.  Transitions are primarily
 
 Style animations are also supported on the "uiid" property, so that changes to colors, font sizes, padding etc, will transition smoothly when the _uiid_ is changed.  Currently style attributes (e.g. _style.fgColor_) won't use transitions, but this will be added soon.
 
-
+[#entity-lists]
 === Entity Lists
 
 So far our examples have involved only views of _single_ models.  Most apps involve _list_ views where multiple models are rendered on a single view.  E.g. In mail apps that include a list of messages, each row of the list corresponds to a distinct _message_ model.  CodeRAD's `<entityList>` tag provides rich support for these kinds of views.

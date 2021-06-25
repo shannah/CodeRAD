@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.text;
 
+import com.codename1.io.Log;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.ParseException;
 import com.codename1.l10n.SimpleDateFormat;
@@ -29,6 +30,8 @@ public class AllFormatsDateFormatter implements DateFormatter {
         dateFormats.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         dateFormats.add(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z"));
         dateFormats.add(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z"));
+        dateFormats.add(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm z"));
+        dateFormats.add(new SimpleDateFormat("EEE, dd MMM yyyy HH:mm Z"));
         dateFormats.add(new SimpleDateFormat("MM/dd/yyyy"));
         dateFormats.add(new SimpleDateFormat("yyyy-MM-dd"));
 
@@ -54,6 +57,10 @@ public class AllFormatsDateFormatter implements DateFormatter {
             try {
                 return fmt.parse(date);
             } catch (ParseException pse) {}
+            catch (Exception ex) {
+                Log.p("Problem parsing date string "+date);
+                Log.e(ex);
+            }
         }
         throw new ParseException("Failed to parse date "+date, 0);
     }
