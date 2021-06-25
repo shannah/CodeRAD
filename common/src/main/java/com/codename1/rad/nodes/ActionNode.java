@@ -390,6 +390,10 @@ public class ActionNode extends Node implements Proxyable {
             }
             
         }
+        ActionNode proxyNode = (ActionNode)getProxying();
+        if (proxyNode != null) {
+            return proxyNode.getCategory();
+        }
         return null;
         
     }
