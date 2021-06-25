@@ -881,6 +881,11 @@ public class ActionNode extends Node implements Proxyable {
             return this;
         }
 
+        public Builder label(StringProvider provider) {
+            action.setAttributes(overwrite, UI.label(provider));
+            return this;
+        }
+
         public void setLabel(String label) {label(label);}
         
         public Builder uiid(String uiid) {

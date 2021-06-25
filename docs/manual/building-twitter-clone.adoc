@@ -2213,6 +2213,17 @@ A couple of "ugly" things worth noting here:
 
 . The `Result` class that I use here is the CodeRAD version (`com.codename1.rad.processing.Result`), not the core Codename One `Result` class.  This is because the behaviour of selectors in the core Codename One class doesn't handle contexts (i.e. all queries assumed to be from the root element), and changing the behaviour would have potentially broken a lot of legacy apps.  So I "forked" it for CodeRAD, and changed the behaviour of selectors to support contextual selectors.
 
+Before we can use our provider, we need to add a lookup to it in the Application delegate class.
+
+TIP: We could also place it in a more specific ViewController class for this view, but having it in the Application delegate makes it available to the entire app.  Not just our one view, and this could come in handy later if we want to display a news list from another view.
+
+Add the following snippet to the `onStartController()` method of the Tweetapp class:
+
+[source,java]
+----
+addLookup(new NewsFeedProvider());
+----
+
 Now that we have the provider in place, let's add our `TweetListView` to the Homepage view.  We'll need to import both the provider class and the TweetListView class into our view:
 
 [source,xml]
@@ -2273,11 +2284,121 @@ Now, fire up the simulator, log in (to navigate to the _HomePage_ view), and you
 
 image::images/tweetapp-homepage-1.png[]
 
-===== Injecting Actions
+==== Injecting Actions
 
 At this point we have a nice looking list, but we're just scratching the surface of the `TweetListView` component's capabilities.  It defines a handful of action categories that will allow us to inject our own actions into each row.  Some of these actions will be manifested as buttons. Other will result in a drop-down menu being added to each row, and some of them aren't "rendered" per-se, but will be triggered in response to user actions such as pressing, or long-pressing.
 
 TIP: For a full list of the actions supported by the _TweetRowView_ (the view used to render each row of the list), see the https://github.com/shannah/TweetAppUIKit/wiki/TweetRowView#actions[TweetRowView wiki page].
+
+We could add our actions inside the Application controller, as that would make them available to our view.  But in this case, I'd like to confine their scope to just the _HomePage_ view.  Therefore, we are going to need to create a view controller for our view.
+
+In the same package as our other view controllers, create a new class named `HomePageViewController` with the following contents.
+
+[source,java]
+----
+package com.example.tweetapp.controllers;
+
+import com.codename1.rad.controllers.Controller;
+import com.codename1.rad.controllers.ViewController;
+import com.codename1.rad.nodes.ActionNode;
+import com.codename1.twitterui.views.TweetRowView;
+import com.codename1.ui.FontImage;
+
+public class HomePageViewController extends ViewController {
+    /**
+     * Creates a new ViewController with the given parent controller.
+     *
+     * @param parent
+     */
+    public HomePageViewController(Controller parent) {
+        super(parent);
+    }
+
+    @Override
+    protected void initControllerActions() {
+        super.initControllerActions();
+
+        ActionNode.builder()
+                .icon(FontImage.MATERIAL_CHAT_BUBBLE_OUTLINE)
+                .addToController(this, TweetRowView.TWEET_ACTIONS, evt -> {});
+
+        ActionNode.builder()
+                .icon(FontImage.MATERIAL_FORWARD)
+                .addToController(this, TweetRowView.TWEET_ACTIONS, evt -> {});
+
+        ActionNode.builder()
+                .icon(FontImage.MATERIAL_FAVORITE_OUTLINE)
+                .addToController(this, TweetRowView.TWEET_ACTIONS, evt -> {});
+
+        ActionNode.builder()
+                .icon(FontImage.MATERIAL_SHARE)
+                .addToController(this, TweetRowView.TWEET_ACTIONS, etc -> {});
+
+    }
+}
+
+----
+
+Notice that I've registered four actions, all in the `TweetRowView.TWEET_ACTIONS` category.  Actions in the `TWEET_ACTIONS` category will be rendered as buttons below each "tweet" in the list.  Right now these actions don't do anything because I've supplied empty action listeners, but the actions will still show up.
+
+If you load up the homepage in the simulator, it should now look something like:
+
+image::images/tweetapp-tweetlistview-with-actions.png[]
+
+We can also add an "overflow" menu to each tweet, by adding actions to the `TWEET_MENU_ACTIONS` category.
+
+Add the following to the `initControllerActions()` method after our existing actions:
+
+[source,java]
+----
+
+        ActionNode.builder()
+            .label("Not interested in this")
+            .icon(FontImage.MATERIAL_MOOD_BAD)
+                .addToController(this, TweetRowView.TWEET_MENU_ACTIONS, evt -> {});
+
+
+        ActionNode.builder()
+            .icon(FontImage.MATERIAL_REMOVE)
+            .label(e->{
+                    Tweet tweet = TweetWrapper.wrap(e);
+                    if (tweet.isEntity(Tweet.author)) {
+                        return "Unfollow "+tweet.getAuthor().getName();
+                    } else if (!tweet.isEmpty(Tweet.authorId)){
+                        return "Unfollow "+tweet.getAuthorId();
+                    }
+                    return "Unfollow this user";
+                })
+                .addToController(this, TweetRowView.TWEET_MENU_ACTIONS, evt -> {});
+
+        ActionNode.builder()
+            .icon(FontImage.MATERIAL_VOLUME_OFF)
+            .label(e->{
+                    Tweet tweet = TweetWrapper.wrap(e);
+                    if (tweet.isEntity(Tweet.author)) {
+                        return "Mute "+tweet.getAuthor().getName();
+                    } else if (!tweet.isEmpty(Tweet.authorId)){
+                        return "Mute "+tweet.getAuthorId();
+                    }
+                    return "Mute this user";
+                })
+            .addToController(this, TweetRowView.TWEET_MENU_ACTIONS, evt -> {});
+----
+
+This adds three more actions.  This time, in the `TweetRowView.TWEET_MENU_ACTIONS`, which will cause an "overflow" menu to appear.
+
+Notice that for the _label_ method of two of these actions, we pass a lambda callback instead of a string.  The lambda is a callback that is processed whenever the view model is updated.  This allows the label to by dynamic - displaying a different string depending on the state of the model.  It receives the view model (in this case the view model is the _Tweet_ entity for the row that the action is rendered into).  I use the `TweetWrapper` to wrap the entity as a `Tweet` so that we can use the nicer Java strongly-typed API.
+
+Now look in the simulator, and you should see a little menu in the upper right of each row:
+
+image::images/tweetapp-newsfeed-with-overflow-menu.png[]
+
+If you click on the menu, it will display the menu options in an action sheet:
+
+image::images/tweetapp-overflow-actionsheet.png[]
+
+
+
 
 
 
