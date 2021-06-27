@@ -2397,20 +2397,452 @@ If you click on the menu, it will display the menu options in an action sheet:
 
 image::images/tweetapp-overflow-actionsheet.png[]
 
+NOTE: TweetListView supports several other action categories that will allow you to respond to events like clicks and long presses on the author, or the tweet itself.  See the https://github.com/shannah/TweetAppUIKit/wiki/TweetListView#actions[TweetListView wiki page] for a full list.
+
+==== Collapsible Header
+
+One nice aspect of the real twitter app is the title area collapses when you scroll down do that the list itself gets more real estate.  The area appears again when you start scrolling up.
+
+We can achieve the same effect using the CodeRAD `<collapsibleHeader>` component.
+
+We're going to make some changes to the HomePage.xml template:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<border view-controller="com.example.tweetapp.controllers.HomePageViewController"
+        xsi:noNamespaceSchemaLocation="HomePage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title hidden="true"/> <1>
+
+    <use-taglib class="com.codename1.twitterui.TagLibrary"/>
+    <import>
+        import com.example.tweetapp.providers.NewsFeedProvider;
+    </import>
+
+    <collapsibleHeader scrollableComponent="#tweetList"> <2>
+        <center><label iconUIID="TwitterIcon" fontIcon="(char)0xe902" ></label></center>
+    </collapsibleHeader>
+
+    <tweetListView
+            name="tweetList" <3>
+            layout-constraint="center"
+            provider="NewsFeedProvider.class"
+    />
+</border>
+----
+<1> We set `<title hidden="true"/>` to hide the default title bar.
+<2> We add `<collapsibleHeader>` which will create a custom collapsible title bar.  This tag expects 1 child XML tag, which it will make the contents of the title bar.
+<3> We add the `name` attribute to the `<tweetListView>` tag so that it can be referenced from the `scrollableComponent` attribute in the `<collapsibleHeader>` tag.  The collapsible header then listens to scroll activity on this component to know when to collapse and expand.
+
+Here is a short video clip of the collapsible header in action:
+
+video::DmquufraQaA[youtube, width=400, height=800]
+
+TIP: For more information about the CollapsibleHeader component see the https://github.com/shannah/CodeRAD/wiki/CollapsibleHeader[CollapsibleHeader wiki page].
 
 
+=== Search Bar and Side Bar
+
+Next we'll be adding the Twitter search bar at the top of the screen.  While we're at it, I'd like to add the side nav menu as well.
+
+We'll place the search bar inside the `<collapsibleHeader>` tag, replacing the icon that we had there before:
+
+[source,xml]
+----
+<collapsibleHeader scrollableComponent="#tweetList">
+    <twtTitle>
+        <twtsearchButton rad-href="#SearchForm" rad-href-trigger="TWTSearchButton.SEARCH_ACTION"/>
+    </twtTitle>
+</collapsibleHeader>
+----
+
+I'm introducing two new tags here:
+
+`<twtTitle>`::
+A title bar that is styled like the Twitter app's title bar, including a profile icon (i.e. avatar of the logged in user) in the upper right.
+
+`<twtsearchButton>`::
+A button that looks like a search field.  When the user presses this button, it should navigate to the actual search form with the search field focused.
+
+The `<txtsearchButton>` is nested in the `<twtTitle>` tag, making it the the title bar contents.
+
+.The `<twtHeader>` tag with embedded `<txtsearchButton>`
+image::images/tweetapp-twtTitle-twtSearchButton.png[]
+
+For the sidebar, we'll use the `<sidebar>` tag (which is a core component of CodeRAD), with a `<twtSidebar>` component as the sidebar contents:
+
+[source,xml]
+----
+<sidebar>
+    <twtSideBarView/>
+</sidebar>
+----
+
+After adding these tags, the HomePage.xml view contents will be:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<border view-controller="com.example.tweetapp.controllers.HomePageViewController"
+        xsi:noNamespaceSchemaLocation="HomePage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title hidden="true"/>
+
+    <use-taglib class="com.codename1.twitterui.TagLibrary"/>
+    <import>
+        import com.example.tweetapp.providers.NewsFeedProvider;
+    </import>
+
+    <collapsibleHeader scrollableComponent="#tweetList">
+        <twtTitle>
+            <twtsearchButton rad-href="#SearchForm" rad-href-trigger="TWTSearchButton.SEARCH_ACTION"/>
+        </twtTitle>
+    </collapsibleHeader>
+    <sidebar>
+        <twtSideBarView/>
+    </sidebar>
+
+    <tweetListView
+            name="tweetList"
+            layout-constraint="center"
+            provider="NewsFeedProvider.class"
+    />
+
+</border>
+----
 
 
+Now, if you press on the "Account" icon in the top left corner, it will expand from the left to reveal a sidebar as shown here:
+
+image::images/tweetapp-sidebar-1.png[]
+
+==== Populating the Sidebar
+
+The `<twtSideBarView>` allows you to add actions in a few different categories in order to populate the menu options.  It will also "look" for a lookup of the type `TWTUserProfile` to get the name, ID, and avatar of the currently logged in user.
+
+Let's start by adding some actions in our Application controller to target the sidebar.  Place the following inside the `initControllerActions()` method of the application controller:
+
+[source,java]
+----
+// Sidebar Actions which will be injected into the TWTSideBarView
+
+ActionNode.builder()
+    .label("Profile")
+    .icon(FontImage.MATERIAL_ACCOUNT_CIRCLE)
+        .addToController(this, TWTSideBarView.SIDEBAR_ACTIONS, evt -> {});
+
+ActionNode.builder()
+    .label("Lists")
+    .icon(FontImage.MATERIAL_LIST)
+        .addToController(this, TWTSideBarView.SIDEBAR_ACTIONS, evt -> {});
+
+ActionNode.builder()
+    .label("Topics")
+    .icon(FontImage.MATERIAL_CATEGORY)
+        .addToController(this, TWTSideBarView.SIDEBAR_ACTIONS, evt -> {});
+
+ActionNode.builder()
+    .label("Bookmarks")
+    .icon(FontImage.MATERIAL_BOOKMARKS)
+        .addToController(this, TWTSideBarView.SIDEBAR_ACTIONS, evt -> {});
+
+ActionNode.builder()
+    .label("Moments")
+    .icon(FontImage.MATERIAL_BOLT)
+        .addToController(this, TWTSideBarView.SIDEBAR_ACTIONS, evt -> {});
+
+ActionNode.builder()
+    .label("Create new account")
+        .addToController(this, TWTSideBarView.SIDEBAR_TOP_OVERFLOW_MENU, evt -> {});
+
+ActionNode.builder()
+    .label("Add Existing Account")
+        .addToController(this, TWTSideBarView.SIDEBAR_TOP_OVERFLOW_MENU, evt -> {});
+
+ActionNode.builder()
+    .label("Settings and privacy")
+        .addToController(this, TWTSideBarView.SIDEBAR_SETTINGS_ACTIONS, evt -> {});
+
+ActionNode.builder()
+    .label("Help Center")
+        .addToController(this, TWTSideBarView.SIDEBAR_SETTINGS_ACTIONS, evt -> {});
+
+ActionNode.builder()
+    .icon(FontImage.MATERIAL_LIGHTBULB_OUTLINE)
+        .addToController(this, TWTSideBarView.SIDEBAR_BOTTOM_LEFT_ACTIONS, evt -> {});
+
+ActionNode.builder()
+    .icon(FontImage.MATERIAL_SCANNER)
+        .addToController(this, TWTSideBarView.SIDEBAR_BOTTOM_RIGHT_ACTIONS, evt -> {});
+
+ActionNode.builder()
+        .icon(FontImage.MATERIAL_ACCOUNT_CIRCLE)
+        .addToController(this, TWTSideBarView.SIDEBAR_TOP_ACTIONS, evt -> {});
+
+ActionNode.builder()
+        .icon(FontImage.MATERIAL_ACCOUNT_BALANCE_WALLET)
+        .addToController(this, TWTSideBarView.SIDEBAR_TOP_ACTIONS, evt -> {});
 
 
+ActionNode.builder()
+        .icon("Following")
+        .label("311")
+        .addToController(this, TWTSideBarView.SIDEBAR_STATS, evt -> {});
+
+ActionNode.builder()
+        .icon("Followers")
+        .label("344")
+        .addToController(this, TWTSideBarView.SIDEBAR_STATS, evt -> {});
 
 
+----
 
+TIP: For a full list of available action categories in the _TWTSideBarView_ see the https://github.com/shannah/TweetAppUIKit/wiki/TWTSideBarView#actions[TWTSideBarView wiki page].
 
+The sidebar view can also be coaxed to display the correct username and avatar of the currently logged in user.  It does a lookup for `TWTUserProfile`, and, if found, it users that profile's username and avatar image.
 
+In order to simplify the example, I'm going to hard-code the user profile to my account.  We can register the profile as follows:
 
+[source,java]
+----
+TWTUserProfile userProfile = new TWTUserProfileImpl();
+userProfile.setName("Steve Hannah");
+userProfile.setIdentifier("@shannah78");
+userProfile.setThumbnailUrl("https://www.codenameone.com/img/steve.jpg");
+addLookup(TWTUserProfile.class, userProfile);
+----
 
+IMPORTANT: One important thing to notice here is that our _addLookup()_ call takes two parameters.  Previously when adding lookups we had just been using the single-arg variant.  The reason is that the TWTSideBar component will be doing a lookup on the `TWTUserProfile` interface, but our profile is actually an instance of `TWTUserProfileImpl`, which implements `TWTUserProfile`.  Lookups need to be exact though, they don't match if a subclass is registered.  Only if the _exact_ class is registered.
 
+This code should be added to the LoginPageViewController at the point when the login is completed:
+
+[source,java]
+----
+client.createLoginRequest()
+        .username(viewModel.getPhoneEmailOrUsername())
+        .password(viewModel.getPassword())
+        .login()
+        .onResult((res, error) -> {
+
+            // ... other content omitted for clarity
+
+            // Login was successful.  Set the `TWTUserProfile` lookup
+            // NOTE: We hardcode it here, but in real app, we would use the login
+            // details to construct an accurate user profile
+            TWTUserProfile userProfile = new TWTUserProfileImpl();
+            userProfile.setName("Steve Hannah");
+            userProfile.setIdentifier("@shannah78");
+            userProfile.setThumbnailUrl("https://www.codenameone.com/img/steve.jpg");
+            getApplicationController().addLookup(TWTUserProfile.class, userProfile);
+            new HomePageController(getApplicationController()).show();
+        });
+----
+
+TIP: See the full listing of _LoginPageViewController_ after this change in https://gist.github.com/shannah/7d75a37bdf6cbfde51ff483a5cae0c19[this gist].
+
+I'm also going to take this opportunity to add support for "remembering" who is logged in, so that when the app refreshes, it will retain this login information.
+
+This will require small changes to the _TweetAppClient_ and the application controller.
+
+Currently the _TweetAppClient_ tracks login status with a _loggedIn_ boolean variable.  Let's wrap this in a private setter method, and also set a _logged in_ property in _Preferences_.  Then we'll set the _loggedIn_ property in the TweetAppClient's constructor based on the value found in preferences.
+
+WARNING: The technique used for remembering login status is simplified for clarity here.  In a real app you would probably store a token instead, and use it to query the login status.
+
+.TweetAppClient will now store the login status in preferences.  This will be set on login, and retrieved in the constructor.
+[source,java]
+----
+public TweetAppClient() {
+
+    // Logged in status tracked in preferences.
+    // In real app, you wouldn't do it this way.  You would track a token
+    // and use it to query the logged in status.
+    loggedIn = Preferences.get("loggedIn", false);
+    if (loggedIn) {
+        // Hardcoded logged in user because this is a demo app.
+        // In real app you would set logged in user according to
+        // who is actually logged in.
+        loggedInUserId = "@shannah78";
+    }
+}
+
+...
+
+private void setLoggedIn(boolean loggedIn) {
+    this.loggedIn = loggedIn;
+
+    // We stored the logged in status in Preferences only for simplicity
+    // because this is a demo app.  In a real app you would probably store
+    // a token instead and use it to test whether the user is currently logged in.
+    Preferences.set("loggedIn", loggedIn);
+}
+----
+
+We also need to find the places where the `loggedIn` variable is set, and change it to use `setLoggedIn()` instead:
+
+[source,java]
+----
+loggedIn = true;
+----
+
+changed to
+
+[source,java]
+----
+setLoggedIn(true);
+----
+
+See the full code listing of _TweetAppClient_ after these changes in https://gist.github.com/shannah/804744f7f734d1c927e9de9879c9db08[this gist].
+
+Finally, now that the app "remembers" who is logged in, we can make it skip directly to the _HomePage_ on start instead showing the welcome page.
+
+Modify the _actionPerformed()_ method of the application controller to check if the user is logged in, and , if so, show the homepage:
+
+[source,java]
+----
+public void actionPerformed(ControllerEvent evt) {
+
+    with(evt, StartEvent.class, startEvent -> {
+        if (!startEvent.isShowingForm()) {
+            startEvent.setShowingForm(true);
+            if (lookup(TweetAppClient.class).isLoggedIn()) {
+                new HomePageController(this).show();
+            } else {
+                new WelcomePageController(this).show();
+            }
+        }
+
+    });
+    super.actionPerformed(evt);
+}
+----
+
+There is still a problem with this, however.  We haven't set the _TWTUserProfile_ lookup in this case, so the _TWTSideBarView_ won't have access to the current user profile.
+
+We'll remedy this by registering the lookup in the `onStartController()` method of the application controller:
+
+[source,java]
+----
+if (client.isLoggedIn()) {
+
+    // The client is logged in.  We hardcode the userprofile here as me
+    // but in real app you would have the profile created based on who is logged in.
+    TWTUserProfile userProfile = new TWTUserProfileImpl();
+    userProfile.setName("Steve Hannah");
+    userProfile.setIdentifier("@shannah78");
+    userProfile.setThumbnailUrl("https://www.codenameone.com/img/steve.jpg");
+    addLookup(TWTUserProfile.class, userProfile);
+
+}
+----
+
+TIP:  See the full listing for _Tweetapp.java_ after this change in https://gist.github.com/shannah/9fed8c117be477d513d5729bb6f0377f[this gist].
+
+Now if we look at the simulator, we'll see a couple of differences.  The title bar now shows my avatar image, as it _also_ does a lookup on _TWTUserProfile_.
+
+image::images/twtTitleBar-with-avatar.png[]
+
+And, if we tap on the avatar, it will expand the sidebar fully populated as shown here:
+
+image::images/twtSideBarView-fully-populated.png[]
+
+=== The Global Navigation Tabs
+
+We will use the `<globalTabs>` component, which is part of the Tweet App UI Kit, to add the twitter-style navigation tabs to the bottom of each page.  Before adding the tag to our view, we'll create the actions that will be used as tabs.  In the application controller, add the following action definitiions as `public static` variables:
+
+[source,java]
+----
+public static final ActionNode HOME_TAB = ActionNode.builder().
+        icon(FontImage.MATERIAL_HOME).
+        addActionListener(evt->{
+            evt.consume();
+            TWTGlobalTabs.showTab(
+                    evt,
+                    new HomePageController(ApplicationController.getApplicationController(evt))
+            );
+        }).
+        build();
+
+public static final ActionNode INBOX_TAB = ActionNode.builder().
+        icon(FontImage.MATERIAL_INBOX).
+        badge("2").
+        addActionListener(evt->{
+            evt.consume();
+            TWTGlobalTabs.showTab(
+                    evt,
+                    new InboxPageController(ApplicationController.getApplicationController(evt))
+            );
+
+        }).
+        build();
+----
+
+NOTE: We create these actions as `public static` variables because we will need to reference the actions directly, and individually, from within the _view_.
+
+We've broken a little bit of new ground with these action definitions.  The `INBOX_TAB` action includes a "badge" directive, which will be rendered on the tab icon as a badge.  The `addActionListener()` method is also new.  It, predictably, will be called when the user clicks on the corresponding tab.
+
+The `TWTGlobalTabs.showTab()` method is a utility method that will automatically transition to the new tab in the correct direction.  E.g. When navigating from a tab to another tab that is to the left, the transition should go to the left.
+
+Now, in the `initControllerActions()` method we need to register these actions with the `TWTGlobalTabs.GLOBAL_TABS` category:
+
+[source,java]
+----
+addActions(TWTGlobalTabs.GLOBAL_TABS,
+        HOME_TAB, INBOX_TAB
+);
+----
+
+In our case our global tabs component will include two tabs: _Home_ and _Inbox_.
+
+We need to create the `InboxPage` view that we reference in our tabs.  Create a view named "InboxPage.xml" in the same directory as your other views:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<border xsi:noNamespaceSchemaLocation="InboxPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title>InBox</title>
+    <use-taglib class="com.codename1.twitterui.TagLibrary"/>
+    <globalTabs layout-constraint="south" selectedTab="com.example.tweetapp.Tweetapp.INBOX_TAB"/>
+
+</border>
+----
+
+We've left this view mostly empty, to be developed later - except for the `<globalTabs>` component:
+
+[source,xml]
+----
+<globalTabs layout-constraint="south"
+    selectedTab="com.example.tweetapp.Tweetapp.INBOX_TAB"/>
+----
+
+The `selectedTab` attribute references the action that should be selected.  In this page, it is the `INBOX_TAB` action.  This _reference_ is why we defined our global tabs actions to be `public static` variables.
+
+Now, add the `<globalTabs>` component to the _HomePage_ view:
+
+[source,xml]
+----
+<globalTabs layout-constraint="south"
+    selectedTab="com.example.tweetapp.Tweetapp.HOME_TAB"/>
+----
+
+After adding the global tabs, our app should resemble the following screenshot:
+
+image::images/tweetapp-globaltabs.png[]
+
+TIP: You can see the full source listings of this example in https://gist.github.com/shannah/be58c81314a32d87f1de5c54216a71b4[this gist].
+
+=== Summary
+
+We have left quite a few loose-ends in our "Tweet" app.  None of the links in our side bar do anything.  We haven't implemented search, and we haven't provided a way to add tweets.  I leave these as exercises for the reader, as you should be able to use the fundamentals in this tutorial to implement these functionalities.
+
+You can use the following resources to help you along the way:
+
+https://github.com/shannah/CodeRAD/wiki[CodeRAD wiki]::
+The CodeRAD wiki includes reference documentation for many of the components available in CodeRAD views.
+
+https://github.com/shannah/TweetAppUIKit/wiki[Tweet App UI Kit wiki]::
+The Tweet App UI Kit wiki includes reference documentation for many of the components avaiable in the tweet app UI kit.
+
+https://www.codenameone.com/javadoc/[Codename One javadocs]::
+API documentation for the Codename One library.  Since _all_ of components in Codename One can be used from CodeRAD views, this is your definitive source for what attributes are available in each tag.
 
 
 

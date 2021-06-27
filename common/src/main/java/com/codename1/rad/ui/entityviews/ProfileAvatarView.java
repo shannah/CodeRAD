@@ -339,13 +339,24 @@ public class ProfileAvatarView extends AbstractEntityView {
              * Optional view property to specify the tags to use for the name property.
              */
             NAME_PROPERTY_TAGS = new ViewProperty(ContentType.createObjectType(Tags.class));
-    private static final ViewPropertyParameter 
-            
-            
+
+    private static final ViewPropertyParameter
             defaultIconPropertyTags = ViewPropertyParameter.createValueParam(ICON_PROPERTY_TAGS, new Tags(icon, Thing.thumbnailUrl)),
             defaultNamePropertyTags = ViewPropertyParameter.createValueParam(NAME_PROPERTY_TAGS, new Tags(name))
             ;
-    
+
+    /**
+     * View property to set the default material icon to a constant.
+     */
+    public static final ViewProperty<Integer>
+        DEFAULT_MATERIAL_ICON = new ViewProperty(ContentType.IntegerType);
+
+    public static final ViewProperty<FallbackSettings>
+        FALLBACK_SETTINGS = new ViewProperty(ContentType.createObjectType(FallbackSettings.class));
+
+    private static final ViewPropertyParameter fallbackSettingsParam = ViewPropertyParameter.createValueParam(FALLBACK_SETTINGS, FallbackSettings.FirstChar);
+
+
     /**
      * Action that will be fired when the avatar is clicked.
      */
@@ -369,6 +380,24 @@ public class ProfileAvatarView extends AbstractEntityView {
     public static final Category PROFILE_AVATAR_LONG_PRESS_MENU = new Category();
     
     private Node node;
+
+    /**
+     * The default material icon to use if no icon/image is provided.
+     */
+    private char defaultMaterialIcon = FontImage.MATERIAL_ACCOUNT_CIRCLE;
+
+
+    private FallbackSettings fallbackSettings = FallbackSettings.FirstChar;
+
+    /**
+     * Enum to set the fallback settings of the avatar profile view, in case there isn't an icon provided.
+     * The default is to render the first letter of the name.  And if the name is empty, then to use the icon.
+     * Setting fallbackSettings to DefaultIcon will prefer to use the default icon instead of the first letter.
+     */
+    public static enum FallbackSettings {
+        FirstChar,
+        DefaultIcon
+    }
     
     
     /**
@@ -439,8 +468,10 @@ public class ProfileAvatarView extends AbstractEntityView {
         
         this.node = node;
         
-       
-        
+        defaultMaterialIcon = (char)(int)node.getViewParameter(DEFAULT_MATERIAL_ICON, ViewPropertyParameter.createValueParam(DEFAULT_MATERIAL_ICON, (int)FontImage.MATERIAL_ACCOUNT_CIRCLE)).getValue();
+        fallbackSettings = (FallbackSettings)node.getViewParameter(FALLBACK_SETTINGS, fallbackSettingsParam).getValue();
+
+
         Tags iconTags = (Tags)node.getViewParameter(
                 ICON_PROPERTY_TAGS,
                 defaultIconPropertyTags
@@ -468,7 +499,7 @@ public class ProfileAvatarView extends AbstractEntityView {
         setLayout(new BorderLayout());
         $(label).selectAllStyles().setPadding(0).setMargin(0).setBorder(Border.createEmpty()).setBgTransparency(0x0);
         $(this).selectAllStyles().setPadding(0).setBorder(Border.createEmpty()).setBgTransparency(0x0).setMarginMillimeters(0.5f);
-        FontImage.setMaterialIcon(label, FontImage.MATERIAL_ACCOUNT_CIRCLE, sizeMM);
+        FontImage.setMaterialIcon(label, defaultMaterialIcon, sizeMM);
         add(CENTER, label);
         setLeadComponent(leadButton);
         leadButton.setHidden(true);
@@ -517,7 +548,7 @@ public class ProfileAvatarView extends AbstractEntityView {
                 
             }
 
-            if (nameProp != null) {
+            if (fallbackSettings == FallbackSettings.FirstChar && nameProp != null && !getEntity().isEmpty(nameProp)) {
                 FirstCharEntityImageRenderer renderer = new FirstCharEntityImageRenderer(sizeMM);
 
                 AsyncImage img = renderer.createImage(this, nameProp, 0, false, false);
@@ -534,10 +565,10 @@ public class ProfileAvatarView extends AbstractEntityView {
                 }
 
             }
-            FontImage.setMaterialIcon(label, FontImage.MATERIAL_ACCOUNT_CIRCLE, sizeMM);
+            FontImage.setMaterialIcon(label, defaultMaterialIcon, sizeMM);
             
         } else {
-            FontImage.setMaterialIcon(label, FontImage.MATERIAL_ACCOUNT_CIRCLE, sizeMM);
+            FontImage.setMaterialIcon(label, defaultMaterialIcon, sizeMM);
         }
     }
     
