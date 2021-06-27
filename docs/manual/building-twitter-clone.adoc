@@ -1,5 +1,7 @@
 == App Example 1: A Twitter Clone
 
+TIP: In this chapter we build a clone of the Twitter mobile app.  You can see the completed project at https://github.com/shannah/tweetapp.
+
 In <<getting-started>> we covered the basics of CodeRAD.  In this chapter we'll put our knowledge to the test as we build a clone of the Twitter mobile app.
 
 As Julie Andrews says, let's start at the very beginning: The start page and signup/signing workflow.  Below are some screenshots from the actual Twitter iOS app running on my iPhone 8.
