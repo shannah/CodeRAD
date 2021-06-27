@@ -884,7 +884,7 @@ For example, let's convert the _name_ text field into its RAD counter part.  Bef
 
 [source,xml]
 ----
-<radTextField
+<textField
   hint="Name"
   uiid="TwitterTextField"
   hintLabel.uiid="TwitterTextFieldHint"

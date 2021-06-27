@@ -24,7 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/docs/manual/building-twitter-clone.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual/building-twitter-clone.adoc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/manual/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual/index.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
