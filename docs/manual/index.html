@@ -473,7 +473,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_models">2.9. Models</a></li>
 <li><a href="#_fun_with_bindings">2.10. Fun with Bindings</a></li>
 <li><a href="#_transitions">2.11. Transitions</a></li>
-<li><a href="#_entity_lists">2.12. Entity Lists</a></li>
+<li><a href="#entity-lists">2.12. Entity Lists</a></li>
 <li><a href="#intraform-navigation">2.13. Intra-Form Navigation</a></li>
 <li><a href="#_custom_view_controllers">2.14. Custom View Controllers</a></li>
 <li><a href="#views-within-views">2.15. Views within Views</a></li>
@@ -488,6 +488,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_the_welcome_page">3.4. The Welcome Page</a></li>
 <li><a href="#_the_signup_page">3.5. The Signup Page</a></li>
 <li><a href="#_the_login_page">3.6. The Login Page</a></li>
+<li><a href="#_the_news_feed">3.7. The News Feed</a></li>
+<li><a href="#_search_bar_and_side_bar">3.8. Search Bar and Side Bar</a></li>
+<li><a href="#_the_global_navigation_tabs">3.9. The Global Navigation Tabs</a></li>
+<li><a href="#_summary">3.10. Summary</a></li>
 </ul>
 </li>
 <li><a href="#_controllers">4. Controllers</a>
@@ -2403,7 +2407,7 @@ The <em>bind-*</em> attributes, by default expect their values to be references 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_entity_lists">2.12. Entity Lists</h3>
+<h3 id="entity-lists">2.12. Entity Lists</h3>
 <div class="paragraph">
 <p>So far our examples have involved only views of <em>single</em> models.  Most apps involve <em>list</em> views where multiple models are rendered on a single view.  E.g. In mail apps that include a list of messages, each row of the list corresponds to a distinct <em>message</em> model.  CodeRAD&#8217;s <code>&lt;entityList&gt;</code> tag provides rich support for these kinds of views.</p>
 </div>
@@ -5208,15 +5212,1918 @@ We used the literal <em>phoneFieldFocused</em> tag name as the attribute value h
 <iframe width="440" height="800" src="https://www.youtube.com/embed/RFteZABnI-g?rel=0" frameborder="0" allowfullscreen></iframe>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_handling_form_submission">3.5.10. Handling Form Submission</h4>
 <div class="paragraph">
-<p>Before we implement that actual <em>signup</em> functionality (i.e. what happens when we click the <em>Next</em> button), I&#8217;d like to create the other views.</p>
+<p>Now that our form looks correct, we can return to the <em>Next</em> action that we started a few sections back.  Open the <em>SignupFormViewController</em> class that we created, and create a new method to handle the form submission:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">void</span> handleSubmit(ActionNode.ActionNodeEvent evt) {
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And change the <code>initControllerActions()</code> method to have the <em>Next</em> action trigger our <code>handleSubmit()</code> method instead of the anonymous callback it currently triggers.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#007">@Override</span>
+<span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">void</span> initControllerActions() {
+    <span style="color:#950">super</span>.initControllerActions();
+    ActionNode.builder()
+            .addToController(<span style="color:#950">this</span>, SignupPage.NEXT, <span style="color:#950">this</span>::handleSubmit);
+}</code></pre>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_field_validation">Field Validation</h5>
+<div class="paragraph">
+<p>The first thing we need to do, when handling the registration request, is validate the user&#8217;s field input.  If validation fails, then an error message should be displayed near the relevant field.  A nice way to achieve this is to create view model properties corresponding to each input field of the signup form to store error messages.  Then we can add labels to the view that are bound to these error messages.</p>
+</div>
+<div class="paragraph">
+<p>We define the view model properties in our view as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#777">&lt;!-- Properties for error messages --&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">nameErrorMessage</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneOrEmailErrorMessage</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">birthDateErrorMessage</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the error message labels we will use <code>&lt;radLabel&gt;</code> components so that they can be bound to the view model easily.  They will be placed just below their corresponding input field in the view.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s take a look at the <em>nameErrorMessage</em> label first:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#777">&lt;!-- Placed just after the &quot;name&quot; field --&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;radLabel</span> <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">nameErrorMessage</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${nameErrorMessage}.isEmpty()</span><span style="color:#710">&quot;</span></span>
+          <span style="color:#b48">rad-transition</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">hidden 0.3s</span><span style="color:#710">&quot;</span></span>
+          <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">FieldErrorMessage</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>tag</code> attribute binds this to the <em>nameErrorMessage</em>.  The <code>bind-hidden</code> attribute ensures that this label is hidden when the <em>nameErrorMessage</em> property is empty.  The <code>rad-transition</code> attribute causes the label to transition in when it is displayed, rather than just abruptly appear.  Finally we assigned the UIID "FieldErrorMessage" to the label via the <code>component.uiid</code> attribute.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Recall that the <code>&lt;radLabel&gt;</code> tag is a <code>LabelPropertyView</code> instance, which is a container that wraps a <code>Label</code> instance.  The <code>Label</code> instance is accessible via the <code>getComponent()</code> method, hence the <code>component.</code> prefix to the UIID, because we want to style the actual <code>Label</code>, and not the property view container.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>I have defined the <em>FieldErrorMessage</em> style in the stylesheet as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="css"><span style="color:#070;font-weight:bold">FieldErrorMessage</span> {
+    <span style="color:#606">cn1-derive</span>: <span style="color:#088">Label</span>;
+    <span style="color:#606">font-size</span>: <span style="color:#60E">0.7</span><span style="color:#088">rem</span>;
+    <span style="color:#606">color</span>: <span style="color:#088">white</span>;
+    <span style="color:#606">background-color</span>:<span style="color:#088">red</span>;
+    <span style="color:#606">padding</span>: <span style="color:#60E">1.5mm</span>;
+    <span style="color:#606">margin-top</span>: <span style="color:#60E">0</span>;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I have also removed the bottom margin from the <em>TwitterTextField</em> style so that the error message will be rendered just underneath the corresponding field.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="css"><span style="color:#070;font-weight:bold">TwitterTextField</span> {
+   ...
+  <span style="color:#606">margin-bottom</span>: <span style="color:#60E">0.5mm</span>;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With these in place, let&#8217;s return to the <code>handleSubmit()</code> method, and implement some validation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">void</span> handleSubmit(ActionNode.ActionNodeEvent evt) {
+    <span style="color:#777">// Get reference to the view's model via the event.</span>
+    SignupPageModel viewModel = SignupPageModelWrapper.wrap(evt.getEntity());
+
+    <span style="color:#777">// Do some validation</span>
+    <span style="color:#339;font-weight:bold">boolean</span> failedValidation = <span style="color:#069">false</span>;
+    <span style="color:#080;font-weight:bold">if</span> (viewModel.isUseEmail() &amp;&amp; NonNull.empty(viewModel.getEmail())) {
+        viewModel.setPhoneOrEmailErrorMessage(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Email address cannot be empty</span><span style="color:#710">&quot;</span></span>);
+        failedValidation = <span style="color:#069">true</span>;
+    } <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (!viewModel.isUseEmail() &amp;&amp; NonNull.empty(viewModel.getPhone())) {
+        viewModel.setPhoneOrEmailErrorMessage(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Phone cannot be empty</span><span style="color:#710">&quot;</span></span>);
+        failedValidation = <span style="color:#069">true</span>;
+    } <span style="color:#080;font-weight:bold">else</span> {
+        viewModel.setPhoneOrEmailErrorMessage(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>);
+    }
+
+    <span style="color:#080;font-weight:bold">if</span> (NonNull.empty(viewModel.getName())) {
+        viewModel.setNameErrorMessage(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Name cannot be empty</span><span style="color:#710">&quot;</span></span>);
+        failedValidation = <span style="color:#069">true</span>;
+    } <span style="color:#080;font-weight:bold">else</span> {
+        viewModel.setNameErrorMessage(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>);
+    }
+
+    <span style="color:#080;font-weight:bold">if</span> (NonNull.empty(viewModel.getBirthDate())) {
+        viewModel.setBirthDateErrorMessage(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Birthdate cannot be empty</span><span style="color:#710">&quot;</span></span>);
+        failedValidation = <span style="color:#069">true</span>;
+    } <span style="color:#080;font-weight:bold">else</span> {
+        viewModel.setBirthDateErrorMessage(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>);
+    }
+
+    <span style="color:#080;font-weight:bold">if</span> (failedValidation) {
+        <span style="color:#080;font-weight:bold">return</span>;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first thing we do here is obtain a reference to the view model with this line:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">SignupPageModel viewModel = SignupPageModelWrapper.wrap(evt.getEntity());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This uses both the <code>SignupViewModel</code> entity interface, and the <code>SignupViewModelWrapper</code> class, which implements <code>SignupViewModel</code>.  Both of these are generated by the CodeRAD annotation processor.  Wrapper classes are generated for each RAD entity (i.e. view model) that you define.  This class enables you to wrap <em>any</em> Entity so that it can be be interacted with via the <code>SignupViewModel</code> interface.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Using this wrapper is not strictly necessary, but it handy as it allows you to use, for example <code>entity.getName()</code> instead of <code>entity.getText(name)</code>, which <em>feels</em> more natural in Java.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Our validator is very basic right now - only checking for empty values.  If it finds a "problem", it sets the relevant <code>xxxErrorMessage</code> property on the view model that we just created.  Setting these view model properties will instantly trigger updates in the view.</p>
+</div>
+<div class="paragraph">
+<p>Now, if we click <em>Next</em> on our form without entering any data we see something like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-signup-page-error-messages.png" alt="tweetapp signup page error messages">
+</div>
+</div>
+<div class="videoblock">
+<div class="title">A video showing the transitions when showing and hiding the error messages.</div>
+<div class="content">
+<iframe width="440" height="800" src="https://www.youtube.com/embed/wWWPEgN9D1E?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_sending_signup_request_to_the_server">Sending Signup Request to the Server</h5>
+<div class="paragraph">
+<p>Once the form input is validated, we can build a request to send to the server.   We will create a <em>service</em> class to encapsulate all interaction with the server.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+For the purpose of this tutorial, we won&#8217;t be connecting to an actual server.  We will just mock these requests.  The API will be designed to be fully asynchronous, however, so that modifying the implementation to make network requests should be straight forward.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Create a new Java package named <code>com.example.tweetapp.services</code>, and create a new class named <code>TweetAppClient</code> inside this package.  Add the following contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.example.tweetapp.services</span>;
+
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.util.NonNull</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.util.AsyncResource</span>;
+
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.util.Date</span>;
+
+<span style="color:#777">/**
+ * A client for interacting with the server.
+ */</span>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">TweetAppClient</span> {
+
+    <span style="color:#777">/**
+     * Flag to indicate that we are currently logged in.
+     */</span>
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">boolean</span> loggedIn;
+
+    <span style="color:#777">/**
+     * The currently logged in user Id.  In this mock implementation the user Id
+     * is just the email address or phone number.
+     */</span>
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#0a8;font-weight:bold">String</span> loggedInUserId;
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">boolean</span> isLoggedIn(){
+        <span style="color:#080;font-weight:bold">return</span> loggedIn;
+    }
+
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#0a8;font-weight:bold">String</span> getLoggedInUserId() {
+        <span style="color:#080;font-weight:bold">return</span> loggedInUserId;
+    }
+
+
+    <span style="color:#777">/**
+     * A response object that is passed to the SignupRequest callback
+     * upon completion.
+     */</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">SignupResponse</span> {
+        <span style="color:#777">/**
+         * Whether the signup was successful
+         */</span>
+        <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">boolean</span> success;
+
+        <span style="color:#777">/**
+         * Reference to request that this response is for.
+         */</span>
+        <span style="color:#088;font-weight:bold">private</span> SignupRequest request;
+
+        <span style="color:#777">/**
+         * The response code.  200 for success.
+         * Make up error codes to fit needs.
+         */</span>
+        <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">int</span> responseCode;
+
+        <span style="color:#777">/**
+         * A message related to the response code.  Contains error message
+         * in case of errors.
+         */</span>
+        <span style="color:#088;font-weight:bold">private</span> <span style="color:#0a8;font-weight:bold">String</span> message;
+
+        <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">boolean</span> isSuccess() {
+            <span style="color:#080;font-weight:bold">return</span> success;
+        }
+
+        <span style="color:#088;font-weight:bold">public</span> SignupRequest getRequest() {
+            <span style="color:#080;font-weight:bold">return</span> request;
+        }
+
+        <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> getResponseCode() {
+            <span style="color:#080;font-weight:bold">return</span> responseCode;
+        }
+
+        <span style="color:#088;font-weight:bold">public</span> <span style="color:#0a8;font-weight:bold">String</span> getMessage() {
+            <span style="color:#080;font-weight:bold">return</span> message;
+        }
+
+
+
+    }
+
+    <span style="color:#777">/**
+     * Encapsulates a signup request to send to the server.  Modify this
+     * class to include the information you require in your signup process.
+     *
+     */</span>
+    <span style="color:#088;font-weight:bold">public</span>  <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">SignupRequest</span> <span style="color:#088;font-weight:bold">extends</span> AsyncResource&lt;SignupResponse&gt; {
+        <span style="color:#777">/**
+         * The email address of the user.
+         */</span>
+        <span style="color:#088;font-weight:bold">private</span> <span style="color:#0a8;font-weight:bold">String</span> email,
+        <span style="color:#777">/**
+         * The phone number of the user.
+          */</span>
+        phone,
+
+        <span style="color:#777">/**
+         * The name of the user.
+         */</span>
+        name;
+
+        <span style="color:#777">/**
+         * The birth date of the user.
+         */</span>
+        <span style="color:#088;font-weight:bold">private</span> <span style="color:#0a8;font-weight:bold">Date</span> birthDate;
+
+        <span style="color:#777">/**
+         * Send the signup request.
+         * @return
+         */</span>
+        <span style="color:#088;font-weight:bold">public</span> SignupRequest signup() {
+            <span style="color:#080;font-weight:bold">return</span> TweetAppClient.this.signup(<span style="color:#950">this</span>);
+        }
+
+        <span style="color:#088;font-weight:bold">public</span> SignupRequest email(<span style="color:#0a8;font-weight:bold">String</span> email) {
+            <span style="color:#950">this</span>.email = email;
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#950">this</span>;
+        }
+
+        <span style="color:#088;font-weight:bold">public</span> SignupRequest phone(<span style="color:#0a8;font-weight:bold">String</span> phone) {
+            <span style="color:#950">this</span>.phone = phone;
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#950">this</span>;
+        }
+
+        <span style="color:#088;font-weight:bold">public</span> SignupRequest birthDate(<span style="color:#0a8;font-weight:bold">Date</span> birthDate) {
+            <span style="color:#950">this</span>.birthDate = birthDate;
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#950">this</span>;
+        }
+
+        <span style="color:#088;font-weight:bold">public</span> SignupRequest name(<span style="color:#0a8;font-weight:bold">String</span> name) {
+            <span style="color:#950">this</span>.name = name;
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#950">this</span>;
+        }
+
+    }
+
+    <span style="color:#777">/**
+     * Creates a new signup request.
+     * @return
+     */</span>
+    <span style="color:#088;font-weight:bold">public</span> SignupRequest createSignupRequest() {
+        <span style="color:#080;font-weight:bold">return</span> <span style="color:#080;font-weight:bold">new</span> SignupRequest();
+    }
+
+    <span style="color:#777">/**
+     * Sends a signup request to the server.
+     * @param request
+     * @return
+     */</span>
+    <span style="color:#088;font-weight:bold">private</span> SignupRequest signup(SignupRequest request) {
+
+        <span style="color:#777">// This is just mocking the signup process.</span>
+        <span style="color:#777">// Change this to contact the server and sign up.</span>
+        SignupResponse response = <span style="color:#080;font-weight:bold">new</span> SignupResponse();
+        response.responseCode = <span style="color:#00D">200</span>;
+        response.message = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Success</span><span style="color:#710">&quot;</span></span>;
+        response.request = request;
+        response.success = <span style="color:#069">true</span>;
+        request.complete(response);
+
+        <span style="color:#777">// To log in we set the loggedInUserId and loggedIn</span>
+        <span style="color:#777">// boolean flag.</span>
+        loggedInUserId = NonNull.nonNull(request.email, request.phone);
+        loggedIn = <span style="color:#069">true</span>;
+        <span style="color:#080;font-weight:bold">return</span> request;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+To simplify things, this class <em>automatically</em> sets the <em>loggedIn</em> flag when a successful response is received from the "server".  In a real app, we would probably have a multi-step registration process that would require the user to respond to a confirmation email or phone text message, but that is beyond the scope of this tutorial.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>We will use a single instance of this class in our application, which we will create inside the <code>onStartController()</code> method of our application delegate class (i.e. the <code>com.example.tweetapp.Tweetapp</code> class).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#007">@Override</span>
+<span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">void</span> onStartController() {
+    <span style="color:#950">super</span>.onStartController();
+
+    <span style="color:#777">/**
+     * Add a TweetAppClient as a lookup so that it will be available throughout
+     * the app via {@link #lookup(Class)}
+     */</span>
+    addLookup(<span style="color:#080;font-weight:bold">new</span> TweetAppClient());
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What this does is add the client as a <em>lookup</em> in the application controller.  We can retrieve this object from this controller, or <em>any</em> if its child controllers, via <code>lookup(TweetAppClient.class)</code>.  We can also access it from a RAD view using <code>&lt;var name="someVariableName" lookup="TweetAppClient"/&gt;</code>.  This has the same effect as using the classic <em>Singleton</em> design pattern, or a static global, except that we don&#8217;t have to employ static variables, which are generally considered to be "bad" practice.</p>
+</div>
+<div class="paragraph">
+<p>In this case we are adding the lookup in the application controller so its <em>scope</em> is the entire app.  If we were to add the lookup inside a FormController, or ViewController, then its scope would be limited to just that controller and its children.</p>
+</div>
+<div class="paragraph">
+<p>Now, let&#8217;s use this class from our <code>handleSubmit()</code> method (in the <em>SignupPageViewController</em> class) to submit a signup request to the server:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">void</span> handleSubmit(ActionNode.ActionNodeEvent evt) {
+    <span style="color:#777">// ... Validation code omitted here for clarity</span>
+
+    <span style="color:#777">// Get reference to the webservice client</span>
+    TweetAppClient client = lookup(TweetAppClient.class);
+
+    TweetAppClient.SignupRequest request = client.createSignupRequest()
+            .name(viewModel.getName())
+            .birthDate(viewModel.getBirthDate());
+
+    <span style="color:#080;font-weight:bold">if</span> (viewModel.isUseEmail()) {
+        request.email(viewModel.getEmail());
+    } <span style="color:#080;font-weight:bold">else</span> {
+        request.phone(viewModel.getPhone());
+    }
+
+    InfiniteProgress progess = <span style="color:#080;font-weight:bold">new</span> InfiniteProgress();
+    <span style="color:#0a8;font-weight:bold">Dialog</span> progressDialog = progess.showInfiniteBlocking();
+    request.signup().onResult((res, err) -&gt; {
+        progressDialog.dispose();
+        <span style="color:#080;font-weight:bold">if</span> (err != <span style="color:#069">null</span>) {
+            ToastBar.showErrorMessage(err.getMessage());
+            <span style="color:#080;font-weight:bold">return</span>;
+        }
+        <span style="color:#080;font-weight:bold">new</span> HomePageController(getApplicationController()).show();
+
+    });
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that we obtain a reference to the <code>TweetAppClient</code> object via <code>lookup(TweetAppClient.class)</code>.</p>
+</div>
+<div class="paragraph">
+<p>We then create a Signup request via <code>client.createSignupRequest()</code>.</p>
+</div>
+<div class="paragraph">
+<p>Then we set some properties on the request using the appropriate values obtained from the view model.</p>
+</div>
+<div class="paragraph">
+<p>The <code>InfiniteProgress</code> class is used to display a <em>progress</em> indicator and block the UI while the signup request is in progress.</p>
+</div>
+<div class="paragraph">
+<p>The <em>actual</em> server request is initiated by the <code>request.signup()</code> call, and the <code>onResult()</code> method allows us to add a callback which will be executed when a response is received.</p>
+</div>
+<div class="paragraph">
+<p>Upon receiving a response, we call <code>progressDialog.dispose()</code> to hide the progress indicator.  Then we check if there was an error, in which case we used <code>ToastBar.showErrorMessage(&#8230;&#8203;)</code> to display an error message in the UI.</p>
+</div>
+<div class="paragraph">
+<p>If there was no error, then we assume the signup was successful and we direct the user to the <em>HomePage</em>.</p>
+</div>
+<div class="paragraph">
+<p>In order for this code to work, we need to create a new view named HomePage.xml.  To start with just include some placeholder contents:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>HomePage.xml</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;?xml version="1.0"?&gt;
+&lt;y xsi:noNamespaceSchemaLocation="HomePage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+    &lt;title&gt;Homepage&lt;/title&gt;
+&lt;/y&gt;</pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+The <em>HomePageController</em> class is a <em>FormController</em> subclass that is generated by the CodeRAD annotation processor for the <em>HomePage</em> view.  It is just a convenience class that makes it easier to display the <em>HomePage</em> view in a form.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>One important thing to notice about our call to <code>HomePageController</code> is that we set the <em>Application Controller</em> as its parent controller rather than the current controller.</p>
+</div>
+<div class="paragraph">
+<p>If we had done:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#080;font-weight:bold">new</span> HomePageController(<span style="color:#950">this</span>).show();</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>then the <em>HomePage</em> would be a <em>child</em> of the current form (the <em>Signup</em> form), and thus would include a "back" button to return.  We don&#8217;t want the user to be able to navigate back to the signup form once they are logged in, so we make the <em>HomePageController</em> a child of the application controller, making it a "root" form controller in the application.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll leave the placeholder content in the "HomePage" for now, as we complete the <em>Login</em> and <em>About</em> pages.  Once we finish all of our "pre-login" views, we&#8217;ll return to the <em>HomePage</em> view to create the "logged in" app experience.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+You can view the current state (as of this point in the tutorial) of all of our source files in <a href="https://gist.github.com/shannah/3df2ea9184fd2f2f8ab80e219c73b5c0">this gist</a>.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_the_login_page">3.6. The Login Page</h3>
 <div class="paragraph">
-<p>The <em>Login</em> page is similar to the <em>Signup</em> page, without the complexity of having to enable toggle between the <em>phone</em> and <em>email</em> fields.</p>
+<p>The <em>Login</em> page is quite similar to the signup page so I&#8217;ll skip details that were covered in the creation of the <em>Signup</em> page.</p>
+</div>
+<div class="paragraph">
+<p>Create a view in the same folder as the SignupPage named "LoginPage.xml", with the following contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">view-controller</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.example.tweetapp.controllers.LoginPageViewController</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPage</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">safeArea</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">componentForm.formBottomPaddingEditingMode</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">LoginPage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+
+
+    <span style="color:#070;font-weight:bold">&lt;define-category</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">LOGIN</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneEmailOrUsername</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">password</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+    <span style="color:#777">&lt;!-- Properties for error messages --&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneEmailOrUsernameErrorMessage</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;define-tag</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">passwordErrorMessage</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;title&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;label</span> <span style="color:#b48">iconUIID</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterIcon</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">fontIcon</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">(char)0xe902</span><span style="color:#710">&quot;</span></span> <span style="color:#070;font-weight:bold">&gt;</span><span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;y</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">center</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPageContent</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">scrollableY</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;label</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPageTitle</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>Login to Tweet App<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;radTextField</span>
+                <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneEmailOrUsername</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Phone, email or username</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextArea.USERNAME</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#070;font-weight:bold">/&gt;</span>
+
+        <span style="color:#070;font-weight:bold">&lt;radLabel</span> <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">phoneEmailOrUsernameErrorMessage</span><span style="color:#710">&quot;</span></span>
+                  <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${phoneEmailOrUsernameErrorMessage}.isEmpty()</span><span style="color:#710">&quot;</span></span>
+                  <span style="color:#b48">rad-transition</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">hidden 0.3s</span><span style="color:#710">&quot;</span></span>
+                  <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">FieldErrorMessage</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#070;font-weight:bold">/&gt;</span>
+
+        <span style="color:#070;font-weight:bold">&lt;radTextField</span>
+                <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">password</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Password</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextField</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.hintLabel.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterTextFieldHint</span><span style="color:#710">&quot;</span></span>
+                <span style="color:#b48">component.constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TextArea.PASSWORD</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#070;font-weight:bold">/&gt;</span>
+
+
+        <span style="color:#070;font-weight:bold">&lt;radLabel</span> <span style="color:#b48">tag</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">passwordErrorMessage</span><span style="color:#710">&quot;</span></span>
+                  <span style="color:#b48">bind-hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${passwordErrorMessage}.isEmpty()</span><span style="color:#710">&quot;</span></span>
+                  <span style="color:#b48">rad-transition</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">hidden 0.3s</span><span style="color:#710">&quot;</span></span>
+                  <span style="color:#b48">component.uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">FieldErrorMessage</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#070;font-weight:bold">/&gt;</span>
+
+
+    <span style="color:#070;font-weight:bold">&lt;/y&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">south</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SignupPageSouth</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;x</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">west</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;button</span>  <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterFooterAction</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#ForgotPassword</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                Forgot Password?
+            <span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/x&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;x</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">east</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;button</span>  <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterNextButton</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">text</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Log in</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;bind-action</span> <span style="color:#b48">category</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">LOGIN</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/x&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;/border&gt;</span>
+
+
+<span style="color:#070;font-weight:bold">&lt;/border&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It this looks similar to the <em>Signup</em> page, that&#8217;s because started by copying and pasting the <em>signup</em> contents into this view, then changed the tags, actions, and fields to suit the login form that we are trying to recreate.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+In order to demonstrate an alternative way to modify the top-level <em>Form</em> object for this view, we used the <code>componentForm.formBottomPaddingEditingMode="true"</code> attribute to set the form bottom padding editing property on the form.  In the SignupForm we did this inside one of the <code>&lt;script&gt;</code> tags.  It is, perhaps, cleaner to do it this way to retain the declarative definition of the UI.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Notice the <code>view-controller</code> attribute which specifies that this view should use the class <code>com.example.tweetapp.controllers.LoginPageViewController</code> as its view controller.  Create this class now with the following contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.example.tweetapp.controllers</span>;
+
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.components.InfiniteProgress</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.components.ToastBar</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.controllers.Controller</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.controllers.ViewController</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.nodes.ActionNode</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.util.NonNull</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.ui.Dialog</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.example.tweetapp.services.TweetAppClient</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.example.tweetapp.views</span>.*;
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">LoginPageViewController</span> <span style="color:#088;font-weight:bold">extends</span> ViewController {
+    <span style="color:#777">/**
+     * Creates a new ViewController with the given parent controller.
+     *
+     * @param parent
+     */</span>
+    <span style="color:#088;font-weight:bold">public</span> LoginPageViewController(Controller parent) {
+        <span style="color:#950">super</span>(parent);
+    }
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">void</span> initControllerActions() {
+        <span style="color:#950">super</span>.initControllerActions();
+        ActionNode.builder()
+                .addToController(<span style="color:#950">this</span>, LoginPage.LOGIN, <span style="color:#950">this</span>::handleSubmit);
+    }
+
+    <span style="color:#777">/**
+     * Handles the registration form submission
+     * @param evt
+     */</span>
+    <span style="color:#088;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">void</span> handleSubmit(ActionNode.ActionNodeEvent evt) {
+
+        <span style="color:#777">// We will handle the login action here</span>
+
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Referring back to the <em>LoginPage.xml</em> contents, notice that I have a <em>Forgot Password</em> button in the lower left:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;button</span>  <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterFooterAction</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#ForgotPassword</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    Forgot Password?
+<span style="color:#070;font-weight:bold">&lt;/button&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For this link to work, I also created the style <em>TwitterFooterAction</em> to match the style of the buttons I created on the Signup page for toggling between the email and phone fields:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="css"><span style="color:#070;font-weight:bold">TextFieldToggleButton</span>, <span style="color:#070;font-weight:bold">TwitterFooterAction</span>  {
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally, the <code>rad-href</code> attribute references a <em>ForgotPassword</em> view, which we&#8217;ll create a placeholder for now.  Create the view "ForgotPassword.xml" in the same directory as our other views with the following contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;y</span> <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">ForgotPassword.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;title&gt;</span>Forgot Password<span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;/y&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally, we need to "link" the <em>Welcome</em> page to our new login page, by adding a <code>rad-href</code> attribute to the <em>Login</em> link.  Open the <em>WelcomePage.xml</em> file and change the <em>login</em> link to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterSmallLink</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#LoginPage</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>Log in<span style="color:#070;font-weight:bold">&lt;/button&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, if you reload the app in the simulator, and click on the <em>Login</em> link, you should see something like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-login-page-1.png" alt="tweetapp login page 1">
+</div>
+</div>
+<div class="sect4">
+<h5 id="_handling_the_login">Handling the Login</h5>
+<div class="paragraph">
+<p>We validate the login using the same technique as we used for the <em>Signup</em> form.  We need to modify the <em>TweetAppClient</em> to support login, and in order to achieve some reuse with the <em>signup</em> flow, I refactored it a bit, but nothing major.</p>
+</div>
+<div class="paragraph">
+<p>You can review the sources that were added in this section in <a href="https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b">this gist</a>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b#file-loginpage-xml">LoginPage.xml</a></p>
+</li>
+<li>
+<p><a href="https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b#file-loginpageviewcontroller-java">LoginPageViewController.java</a></p>
+</li>
+<li>
+<p><a href="https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b#file-theme-css">theme.css</a></p>
+</li>
+<li>
+<p><a href="https://gist.github.com/shannah/246b99b2ec064beaf6c946a2b604ad0b#file-tweetappclient-java">TweetAppClient.java</a></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>There are two other pages available to users without logging in:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>ForgotPassword</p>
+</li>
+<li>
+<p>The About Page</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>These pages don&#8217;t require anything new that wasn&#8217;t covered in the <em>Signup</em> and <em>Login</em> pages, so I&#8217;m going to skip them for now, so that we can move onto the real meat of this app: <em>The News Feed</em>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_news_feed">3.7. The News Feed</h3>
+<div class="paragraph">
+<p>The <em>News Feed</em> of this app gives us an opportunity to show off some of the powerful "list" features of CodeRAD.  For this tutorial, I&#8217;m going to use the <a href="https://www.nasa.gov/rss/dyn/breaking_news.rss">NASA breaking news RSS feed</a> as our data source, as it includes all of the key elements of a news feed: headlines, descriptions, dates, authors, and images.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m going to cheat a tiny bit and use some of the models and views in the <code>tweet-app-ui-kit</code> cn1lib - a module that I developed to provide some <em>Twitter-esque</em> components out of the box.  In addition to providing our app with some pre-built, polished components, it will demonstrate how to use third-party libraries in your apps.</p>
+</div>
+<div class="sect3">
+<h4 id="_adding_the_tweet_app_ui_kit_dependency">3.7.1. Adding the Tweet App UI Kit Dependency</h4>
+<div class="paragraph">
+<p>The Tweet App UI Kit is a library that contains some models and views that are helpful when building a Twitter-like app.  We&#8217;ll start by adding the Maven dependency for this library.</p>
+</div>
+<div class="paragraph">
+<p>Open the <em>common/pom.xml</em> file and add the following snippet to the <code>&lt;dependencies&gt;</code> section:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;dependency&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;groupId&gt;</span>com.codenameone<span style="color:#070;font-weight:bold">&lt;/groupId&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;artifactId&gt;</span>tweet-app-ui-kit-lib<span style="color:#070;font-weight:bold">&lt;/artifactId&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;version&gt;</span>1.0-SNAPSHOT<span style="color:#070;font-weight:bold">&lt;/version&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;type&gt;</span>pom<span style="color:#070;font-weight:bold">&lt;/type&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/dependency&gt;</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+The <code>version</code> listed here is a SNAPSHOT version because, at the time of writing, I hadn&#8217;t published it yet to Maven central.  I plan to remove this and update it with a release version ASAP.  If you&#8217;re reading this comment, then I haven&#8217;t done that yet.  Try to find a release version on Maven central, or clone the <a href="https://github.com/shannah/TweetAppUIKit">github repository</a> and build it from source using <code>mvn install</code> to be able to use the SNAPSHOT version listed here.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After adding the dependency, you can expedite the download of its jar files by right clicking the <em>pom.xml</em> file, and selecting <em>Maven</em> &gt; <em>Reload Project</em>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_the_homepage_view">3.7.2. The HomePage View</h4>
+<div class="paragraph">
+<p>The HomePage view is where we will display our news feed. The swiss army knife for "list" content is the <em>EntityListView</em> which can be created with the <code>&lt;entityList&gt;</code> tag.  See <a href="#entity-lists">Entity Lists</a> in the <em>Getting Started</em> tutorial for an introductory example involving Entity Lists.</p>
+</div>
+<div class="paragraph">
+<p>There are two parts to an entity list:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The View (a subclass of <em>EntityListView</em>)</p>
+</li>
+<li>
+<p>The provider (usually a subclass of <em>AbstractEntityListProvider</em>).</p>
+</li>
+</ol>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Providers</div>
+<div class="paragraph">
+<p>The provider isn&#8217;t strictly necessary, as the view has its own View model (an <em>EntityList</em>) that you can work with directly to provide rows for the list.  E.g. you can construct an <em>EntityList</em> and pass it to the <em>EntityListView</em> for rendering, or you can obtain a reference to the EntityListView&#8217;s model directly and add, remove, or modify rows directly.</p>
+</div>
+<div class="paragraph">
+<p>Providers simplify two common patterns in app development:  <em>Pull to Refresh</em> and <em>Infinite Scroll</em>.  When you register a provider with an EntityListView, it enables both of these features on the list.</p>
+</div>
+<div class="paragraph">
+<p>When the user issues a "Pull to refresh" on the list (by pulling down at the top of the list, then releasing), it sends a "Refresh" request to the provider asynchronously.  The provider processes this request and returns an EntityList to the view, which replaces its own rows with the rows returned by the provider.</p>
+</div>
+<div class="paragraph">
+<p>When the user scrolls to the bottom of the list, the view will send a "Load More" request to the provider, which fill fulfill the request in the same way as it fulfills a "Refresh" request.  The difference is that the view will <em>append</em> the rows it receives back, rather than <em>replacing</em> the existing rows with them.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/entitylist-provider-diagram.png" alt="entitylist provider diagram">
+</div>
+<div class="title">Figure 12. This diagram shows how <em>EntityListView</em> loads its data from an <code>EntityListProvider</code>.  The EntityListView fires a "request" event which is "handled" by the registered provider by attaching an EntityList to the event, which the EntityListView adds to its own model.  Refresh events result in all rows being replaced.  "Load More" events result in rows being appended.</div>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_the_tweetlistview">The TweetListView</h5>
+<div class="paragraph">
+<p>In <a href="#entity-lists">Entity Lists</a> in the <em>Getting Started</em> tutorial, I demonstrated how to use the <code>&lt;entityList&gt;</code> tag directly to create a list.  For this app, I&#8217;m going to use a prebuilt view, <em>TweetListView</em> which <em>contains</em> an EntityListView.  The <em>TweetListView</em> renders a list of <em>Tweet</em> entities similar to the way that the Twitter app renders its tweets.  It also includes some Action categories that will allow us to plug in our own actions in each row.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetlistview.png" alt="tweetlistview">
+</div>
+<div class="title">Figure 13. Screenshot of the <em>TweetListView</em> component using some sample data.</div>
+</div>
+<div class="paragraph">
+<p>You can see an example of the <em>TweetListView</em> in the above screenshow.  All of the content in this list is pulled from ether the row models (<code>Tweet</code> entities), or actions defined in the controller and registered in specific categories.  The following diagram shows where each piece of content comes from.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/TweetListView-diagram.png" alt="TweetListView diagram">
+</div>
+</div>
+<div class="paragraph">
+<p><a href="images/TweetListView-diagram.png">Open diagram image directly</a></p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+For more detailed information about the <em>TweetListView</em> component, see the <a href="https://github.com/shannah/TweetAppUIKit/wiki/TweetListView">TweetListView wiki page</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Before we add this list view to our homepage, let&#8217;s implement a provider, so that it will have some content to show.</p>
+</div>
+<div class="paragraph">
+<p>Create a package named <code>com.example.tweetapp.providers</code> if you haven&#8217;t already, and add a new class named "NewsFeedProvider" with the following contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.example.tweetapp.providers</span>;
+
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.io.Log</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.io.rest.Rest</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.l10n.SimpleDateFormat</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.io.ParsingService</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.models.AbstractEntityListProvider</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.models.EntityList</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.processing.Result</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.twitterui.models.TWTAuthor</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.twitterui.models.TWTAuthorImpl</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.twitterui.models.Tweet</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.twitterui.models.TweetImpl</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.util.StringUtil</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.xml.Element</span>;
+
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.io.ByteArrayInputStream</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.io.InputStreamReader</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">java.util.List</span>;
+
+<span style="color:#777">/**
+ * A &quot;provider&quot; class that provides rows to EntityListViews that want to display a news feed.
+ * This uses {@link Tweet} objects as the row models.
+ *
+ * This is used for the news feed in the HomePage.
+ */</span>
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">NewsFeedProvider</span> <span style="color:#088;font-weight:bold">extends</span> AbstractEntityListProvider {
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">public</span> Request getEntities(Request request) {
+
+        <span style="color:#777">// Fetch NASA RSS Feed</span>
+        Rest.get(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://www.nasa.gov/rss/dyn/breaking_news.rss</span><span style="color:#710">&quot;</span></span>)
+                .onError(evt-&gt;{
+                    <span style="color:#777">// Propagate error back to the request</span>
+                    request.error(evt.getError());
+                })
+                .fetchAsBytes(v -&gt; {
+                    <span style="color:#777">// The ParsingService will parse XML asynchronously on a background thread</span>
+                    <span style="color:#777">// so that it doesn't impede the EDT</span>
+                    ParsingService parser = <span style="color:#080;font-weight:bold">new</span> ParsingService();
+
+                    parser.parseXML(<span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">InputStreamReader</span>(<span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">ByteArrayInputStream</span>(v.getResponseData())))
+                        .onResult((res, err) -&gt; {
+                            <span style="color:#080;font-weight:bold">if</span> (err != <span style="color:#069">null</span>) {
+                                <span style="color:#777">// Error parsing XML.  Propagate up to request.</span>
+                                request.error(err);
+                                <span style="color:#080;font-weight:bold">return</span>;
+                            }
+
+                            <span style="color:#777">// Create EntityList which will be returned to the request.</span>
+                            EntityList out = <span style="color:#080;font-weight:bold">new</span> EntityList();
+
+                            <span style="color:#777">// A date formatter to format dates in the RSS feed.</span>
+                            <span style="color:#777">// (Determined format string based on the format in the Feed)</span>
+                            <span style="color:#0a8;font-weight:bold">SimpleDateFormat</span> dateFormatter = <span style="color:#080;font-weight:bold">new</span> <span style="color:#0a8;font-weight:bold">SimpleDateFormat</span>(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">EEE, dd MMM yyyy HH:mm z</span><span style="color:#710">&quot;</span></span>);
+
+                            <span style="color:#777">// News items are all in &lt;item&gt; tags of the feed.  Get them all as a list</span>
+                            <span style="color:#0a8;font-weight:bold">List</span>&lt;<span style="color:#0a8;font-weight:bold">Element</span>&gt; items = (<span style="color:#0a8;font-weight:bold">List</span>&lt;<span style="color:#0a8;font-weight:bold">Element</span>&gt;)res.getDescendantsByTagName(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">item</span><span style="color:#710">&quot;</span></span>);
+                            <span style="color:#080;font-weight:bold">for</span> (<span style="color:#0a8;font-weight:bold">Element</span> item : items) {
+                                <span style="color:#080;font-weight:bold">try</span> {
+                                    <span style="color:#777">// Wrapping item in Result object makes it easier</span>
+                                    <span style="color:#777">// to extract values in correct format and navigate around</span>
+                                    <span style="color:#777">// nulls.</span>
+                                    <span style="color:#0a8;font-weight:bold">Result</span> ritem = <span style="color:#0a8;font-weight:bold">Result</span>.fromContent(item);
+
+                                    <span style="color:#777">// Tweet is an Entity defined in the tweet-app-ui-kit cn1lib</span>
+                                    <span style="color:#777">// to encapsulate a &quot;Tweet&quot;, which is basically a news item.</span>
+                                    <span style="color:#777">// We will use these for the row models of the list.</span>
+                                    Tweet tweet = <span style="color:#080;font-weight:bold">new</span> TweetImpl();
+                                    tweet.setText(ritem.getAsString(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">description</span><span style="color:#710">&quot;</span></span>));
+                                    <span style="color:#0a8;font-weight:bold">String</span> dateString = ritem.getAsString(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">pubDate</span><span style="color:#710">&quot;</span></span>);
+                                    dateString = StringUtil.replaceAll(dateString, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">EDT</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GMT-4:00</span><span style="color:#710">&quot;</span></span>);
+                                    dateString = StringUtil.replaceAll(dateString, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">EST</span><span style="color:#710">&quot;</span></span>, <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GMT-5:00</span><span style="color:#710">&quot;</span></span>);
+                                    tweet.setDatePosted(dateFormatter.parse(dateString));
+                                    tweet.setImage(item.getFirstChildByTagName(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">enclosure</span><span style="color:#710">&quot;</span></span>).getAttribute(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">url</span><span style="color:#710">&quot;</span></span>));
+                                    tweet.setLink(ritem.getAsString(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">link</span><span style="color:#710">&quot;</span></span>));
+
+                                    <span style="color:#777">// TWTAuthor is an Entity defined in the tweet-app-ui-kit cn1li</span>
+                                    <span style="color:#777">// to encapsulate Tweet author details.</span>
+                                    TWTAuthor author = <span style="color:#080;font-weight:bold">new</span> TWTAuthorImpl();
+                                    author.setName(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NASA</span><span style="color:#710">&quot;</span></span>);
+                                    author.setThumbnailUrl(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://pluspng.com/img-png/nasa-logo-png-file-nasa-logo-svg-1237.png</span><span style="color:#710">&quot;</span></span>);
+                                    tweet.setAuthor(author);
+
+                                    <span style="color:#777">// Add tweet to the list.</span>
+                                    out.add(tweet);
+
+
+                                } <span style="color:#080;font-weight:bold">catch</span> (<span style="color:#C00;font-weight:bold">Exception</span> ex) {
+                                    <span style="color:#777">// Hopefully no exceptions here, but log them anyways</span>
+                                    Log.e(ex);
+                                }
+                            }
+
+                            <span style="color:#777">// Pass the EntityList to the request so that</span>
+                            <span style="color:#777">// it can be used by the requesting EntityListView.</span>
+                            request.complete(out);
+                        });
+
+
+                });
+        <span style="color:#080;font-weight:bold">return</span> request;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only <em>mandatory</em> method we need to implement in a provider is the <code>getEntities()</code> method, which takes a <code>Request</code> object and "fills" it with an <code>EntityList</code>.  In this class we are asynchronously fetching the NASA RSS feed, and parsing it into <code>Tweet</code> entities (<em>Tweet</em> is part of the Tweet App UI Kit cn1lib).</p>
+</div>
+<div class="paragraph">
+<p>This provider is very basic as it doesn&#8217;t handle "paging".  It treats every request as a "Refresh" request.  Later we&#8217;ll learn how to support paging (i.e. <em>Load More</em> requests).</p>
+</div>
+<div class="paragraph">
+<p>The XML parsing logic is fairly straight forward as it is based on the XML content of the RSS feed.  The following is an excerpt of such a feed.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;</span>
+  <span style="color:#070;font-weight:bold">&lt;rss</span> <span style="color:#b48">...</span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;channel&gt;</span>
+      <span style="color:#070;font-weight:bold">&lt;title&gt;</span>NASA Breaking News<span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
+      <span style="color:#070;font-weight:bold">&lt;description&gt;</span>A RSS news feed containing the latest NASA news articles and press releases.<span style="color:#070;font-weight:bold">&lt;/description&gt;</span>
+      ...
+     <span style="color:#070;font-weight:bold">&lt;item&gt;</span>
+       <span style="color:#070;font-weight:bold">&lt;title&gt;</span>NASA to Air Launch, Docking of Roscosmos Cargo Ship to Space Station<span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
+       <span style="color:#070;font-weight:bold">&lt;link&gt;</span>http://www.nasa.gov/press-release/nasa-to-air-launch-docking-of-roscosmos-cargo-ship-to-space-station<span style="color:#070;font-weight:bold">&lt;/link&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;description&gt;</span>Live coverage of Russia’s Progress 78 cargo spacecraft’s launch and docking to the International Space Station will begin at 7 p.m. EDT Tuesday, June 29, on NASA Television, the agency’s website, and the NASA app.<span style="color:#070;font-weight:bold">&lt;/description&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;enclosure</span> <span style="color:#b48">url</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.nasa.gov/sites/default/files/styles/1x1_cardfeed/public/thumbnails/image/iss064e033785_orig.jpg?itok=lLmxLaJj</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">length</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">683114</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">image/jpeg</span><span style="color:#710">&quot;</span></span> <span style="color:#070;font-weight:bold">/&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;guid</span> <span style="color:#b48">isPermaLink</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>http://www.nasa.gov/press-release/nasa-to-air-launch-docking-of-roscosmos-cargo-ship-to-space-station<span style="color:#070;font-weight:bold">&lt;/guid&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;pubDate&gt;</span>Wed, 23 Jun 2021 17:21 EDT<span style="color:#070;font-weight:bold">&lt;/pubDate&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;source</span> <span style="color:#b48">url</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.nasa.gov/rss/dyn/breaking_news.rss</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>NASA Breaking News<span style="color:#070;font-weight:bold">&lt;/source&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;dc:identifier&gt;</span>472019<span style="color:#070;font-weight:bold">&lt;/dc:identifier&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/item&gt;</span>
+... more items</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We use the <em>ParsingService</em> class for XML parsing because it will perform parsing on a background thread to keep it out of the way of the UI thread.</p>
+</div>
+<div class="paragraph">
+<p>We fetch all of the <code>&lt;item&gt;</code> tags in the feed using <code>List&lt;Element&gt; items = (List&lt;Element&gt;)res.getDescendantsByTagName("item");</code></p>
+</div>
+<div class="paragraph">
+<p>Then, with each <code>&lt;item&gt;</code> element, we build a <code>Tweet</code> object and add it to the entity list.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+See the <a href="https://github.com/shannah/TweetAppUIKit/wiki/Tweet">Tweet wiki page</a> for a full list of properties and tags provided by the <em>Tweet</em> entity.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>A couple of "ugly" things worth noting here:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The feed seems to render the date with the <code>EDT</code> timezone, and SimpleDateFormat wasn&#8217;t recognizing this.  Rather than explicitly register the EDT timezone, I did a <code>replaceAll()</code> on "EDT" to convert it to "GMT-4:00" which is equivalent (4 hours behind GMT) and in a format that SimpleDateFormat will handle nicely.</p>
+</li>
+<li>
+<p>The <code>Result</code> class that I use here is the CodeRAD version (<code>com.codename1.rad.processing.Result</code>), not the core Codename One <code>Result</code> class.  This is because the behaviour of selectors in the core Codename One class doesn&#8217;t handle contexts (i.e. all queries assumed to be from the root element), and changing the behaviour would have potentially broken a lot of legacy apps.  So I "forked" it for CodeRAD, and changed the behaviour of selectors to support contextual selectors.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Before we can use our provider, we need to add a lookup to it in the Application delegate class.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+We could also place it in a more specific ViewController class for this view, but having it in the Application delegate makes it available to the entire app.  Not just our one view, and this could come in handy later if we want to display a news list from another view.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Add the following snippet to the <code>onStartController()</code> method of the Tweetapp class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">addLookup(<span style="color:#080;font-weight:bold">new</span> NewsFeedProvider());</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now that we have the provider in place, let&#8217;s add our <code>TweetListView</code> to the Homepage view.  We&#8217;ll need to import both the provider class and the TweetListView class into our view:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;import&gt;</span>
+    import com.codename1.twitterui.views.TweetListView;
+    import com.example.tweetapp.providers.NewsFeedProvider;
+<span style="color:#070;font-weight:bold">&lt;/import&gt;</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The Tweet App UI kit also provides a <em>Tag Library</em> that will allow you to import all of its components into a view using the <code>&lt;use-taglib&gt;</code> tag, instead of having to add import statements to each class or package directly.</p>
+</div>
+<div class="paragraph">
+<p>Using this taglib, we would change the <code>&lt;import&gt;</code> statements to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;use-taglib</span> <span style="color:#b48">class</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.codename1.twitterui.TagLibrary</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;import&gt;</span>
+    import com.example.tweetapp.providers.NewsFeedProvider;
+<span style="color:#070;font-weight:bold">&lt;/import&gt;</span></code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Then we can add the list view with the following snippet:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;tweetListView</span>
+        <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">center</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">provider</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NewsFeedProvider.class</span><span style="color:#710">&quot;</span></span>
+<span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After adding these snippets, the contents of the HomePage.xml view will be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">HomePage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;title&gt;</span><span style="color:#070;font-weight:bold">&lt;label</span> <span style="color:#b48">iconUIID</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterIcon</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">fontIcon</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">(char)0xe902</span><span style="color:#710">&quot;</span></span> <span style="color:#070;font-weight:bold">&gt;</span><span style="color:#070;font-weight:bold">&lt;/label&gt;</span><span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;import&gt;</span>
+        import com.codename1.twitterui.views.TweetListView;
+        import com.example.tweetapp.providers.NewsFeedProvider;
+    <span style="color:#070;font-weight:bold">&lt;/import&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;tweetListView</span>
+            <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">center</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">provider</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NewsFeedProvider.class</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/border&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, fire up the simulator, log in (to navigate to the <em>HomePage</em> view), and you should see something like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-homepage-1.png" alt="tweetapp homepage 1">
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_injecting_actions">3.7.3. Injecting Actions</h4>
+<div class="paragraph">
+<p>At this point we have a nice looking list, but we&#8217;re just scratching the surface of the <code>TweetListView</code> component&#8217;s capabilities.  It defines a handful of action categories that will allow us to inject our own actions into each row.  Some of these actions will be manifested as buttons. Other will result in a drop-down menu being added to each row, and some of them aren&#8217;t "rendered" per-se, but will be triggered in response to user actions such as pressing, or long-pressing.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+For a full list of the actions supported by the <em>TweetRowView</em> (the view used to render each row of the list), see the <a href="https://github.com/shannah/TweetAppUIKit/wiki/TweetRowView#actions">TweetRowView wiki page</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>We could add our actions inside the Application controller, as that would make them available to our view.  But in this case, I&#8217;d like to confine their scope to just the <em>HomePage</em> view.  Therefore, we are going to need to create a view controller for our view.</p>
+</div>
+<div class="paragraph">
+<p>In the same package as our other view controllers, create a new class named <code>HomePageViewController</code> with the following contents.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#080;font-weight:bold">package</span> <span style="color:#707;font-weight:bold">com.example.tweetapp.controllers</span>;
+
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.controllers.Controller</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.controllers.ViewController</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.nodes.ActionNode</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.twitterui.views.TweetRowView</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.ui.FontImage</span>;
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">HomePageViewController</span> <span style="color:#088;font-weight:bold">extends</span> ViewController {
+    <span style="color:#777">/**
+     * Creates a new ViewController with the given parent controller.
+     *
+     * @param parent
+     */</span>
+    <span style="color:#088;font-weight:bold">public</span> HomePageViewController(Controller parent) {
+        <span style="color:#950">super</span>(parent);
+    }
+
+    <span style="color:#007">@Override</span>
+    <span style="color:#088;font-weight:bold">protected</span> <span style="color:#339;font-weight:bold">void</span> initControllerActions() {
+        <span style="color:#950">super</span>.initControllerActions();
+
+        ActionNode.builder()
+                .icon(FontImage.MATERIAL_CHAT_BUBBLE_OUTLINE)
+                .addToController(<span style="color:#950">this</span>, TweetRowView.TWEET_ACTIONS, evt -&gt; {});
+
+        ActionNode.builder()
+                .icon(FontImage.MATERIAL_FORWARD)
+                .addToController(<span style="color:#950">this</span>, TweetRowView.TWEET_ACTIONS, evt -&gt; {});
+
+        ActionNode.builder()
+                .icon(FontImage.MATERIAL_FAVORITE_OUTLINE)
+                .addToController(<span style="color:#950">this</span>, TweetRowView.TWEET_ACTIONS, evt -&gt; {});
+
+        ActionNode.builder()
+                .icon(FontImage.MATERIAL_SHARE)
+                .addToController(<span style="color:#950">this</span>, TweetRowView.TWEET_ACTIONS, etc -&gt; {});
+
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that I&#8217;ve registered four actions, all in the <code>TweetRowView.TWEET_ACTIONS</code> category.  Actions in the <code>TWEET_ACTIONS</code> category will be rendered as buttons below each "tweet" in the list.  Right now these actions don&#8217;t do anything because I&#8217;ve supplied empty action listeners, but the actions will still show up.</p>
+</div>
+<div class="paragraph">
+<p>If you load up the homepage in the simulator, it should now look something like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-tweetlistview-with-actions.png" alt="tweetapp tweetlistview with actions">
+</div>
+</div>
+<div class="paragraph">
+<p>We can also add an "overflow" menu to each tweet, by adding actions to the <code>TWEET_MENU_ACTIONS</code> category.</p>
+</div>
+<div class="paragraph">
+<p>Add the following to the <code>initControllerActions()</code> method after our existing actions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">        ActionNode.builder()
+            .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Not interested in this</span><span style="color:#710">&quot;</span></span>)
+            .icon(FontImage.MATERIAL_MOOD_BAD)
+                .addToController(<span style="color:#950">this</span>, TweetRowView.TWEET_MENU_ACTIONS, evt -&gt; {});
+
+
+        ActionNode.builder()
+            .icon(FontImage.MATERIAL_REMOVE)
+            .label(e-&gt;{
+                    Tweet tweet = TweetWrapper.wrap(e);
+                    <span style="color:#080;font-weight:bold">if</span> (tweet.isEntity(Tweet.author)) {
+                        <span style="color:#080;font-weight:bold">return</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Unfollow </span><span style="color:#710">&quot;</span></span>+tweet.getAuthor().getName();
+                    } <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (!tweet.isEmpty(Tweet.authorId)){
+                        <span style="color:#080;font-weight:bold">return</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Unfollow </span><span style="color:#710">&quot;</span></span>+tweet.getAuthorId();
+                    }
+                    <span style="color:#080;font-weight:bold">return</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Unfollow this user</span><span style="color:#710">&quot;</span></span>;
+                })
+                .addToController(<span style="color:#950">this</span>, TweetRowView.TWEET_MENU_ACTIONS, evt -&gt; {});
+
+        ActionNode.builder()
+            .icon(FontImage.MATERIAL_VOLUME_OFF)
+            .label(e-&gt;{
+                    Tweet tweet = TweetWrapper.wrap(e);
+                    <span style="color:#080;font-weight:bold">if</span> (tweet.isEntity(Tweet.author)) {
+                        <span style="color:#080;font-weight:bold">return</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Mute </span><span style="color:#710">&quot;</span></span>+tweet.getAuthor().getName();
+                    } <span style="color:#080;font-weight:bold">else</span> <span style="color:#080;font-weight:bold">if</span> (!tweet.isEmpty(Tweet.authorId)){
+                        <span style="color:#080;font-weight:bold">return</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Mute </span><span style="color:#710">&quot;</span></span>+tweet.getAuthorId();
+                    }
+                    <span style="color:#080;font-weight:bold">return</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Mute this user</span><span style="color:#710">&quot;</span></span>;
+                })
+            .addToController(<span style="color:#950">this</span>, TweetRowView.TWEET_MENU_ACTIONS, evt -&gt; {});</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This adds three more actions.  This time, in the <code>TweetRowView.TWEET_MENU_ACTIONS</code>, which will cause an "overflow" menu to appear.</p>
+</div>
+<div class="paragraph">
+<p>Notice that for the <em>label</em> method of two of these actions, we pass a lambda callback instead of a string.  The lambda is a callback that is processed whenever the view model is updated.  This allows the label to by dynamic - displaying a different string depending on the state of the model.  It receives the view model (in this case the view model is the <em>Tweet</em> entity for the row that the action is rendered into).  I use the <code>TweetWrapper</code> to wrap the entity as a <code>Tweet</code> so that we can use the nicer Java strongly-typed API.</p>
+</div>
+<div class="paragraph">
+<p>Now look in the simulator, and you should see a little menu in the upper right of each row:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-newsfeed-with-overflow-menu.png" alt="tweetapp newsfeed with overflow menu">
+</div>
+</div>
+<div class="paragraph">
+<p>If you click on the menu, it will display the menu options in an action sheet:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-overflow-actionsheet.png" alt="tweetapp overflow actionsheet">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+TweetListView supports several other action categories that will allow you to respond to events like clicks and long presses on the author, or the tweet itself.  See the <a href="https://github.com/shannah/TweetAppUIKit/wiki/TweetListView#actions">TweetListView wiki page</a> for a full list.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_collapsible_header">3.7.4. Collapsible Header</h4>
+<div class="paragraph">
+<p>One nice aspect of the real twitter app is the title area collapses when you scroll down do that the list itself gets more real estate.  The area appears again when you start scrolling up.</p>
+</div>
+<div class="paragraph">
+<p>We can achieve the same effect using the CodeRAD <code>&lt;collapsibleHeader&gt;</code> component.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;re going to make some changes to the HomePage.xml template:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">view-controller</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.example.tweetapp.controllers.HomePageViewController</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">HomePage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;title</span> <span style="color:#b48">hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <b class="conum">(1)</b>
+
+    <span style="color:#070;font-weight:bold">&lt;use-taglib</span> <span style="color:#b48">class</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.codename1.twitterui.TagLibrary</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;import&gt;</span>
+        import com.example.tweetapp.providers.NewsFeedProvider;
+    <span style="color:#070;font-weight:bold">&lt;/import&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;collapsibleHeader</span> <span style="color:#b48">scrollableComponent</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#tweetList</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <b class="conum">(2)</b>
+        <span style="color:#070;font-weight:bold">&lt;center&gt;</span><span style="color:#070;font-weight:bold">&lt;label</span> <span style="color:#b48">iconUIID</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TwitterIcon</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">fontIcon</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">(char)0xe902</span><span style="color:#710">&quot;</span></span> <span style="color:#070;font-weight:bold">&gt;</span><span style="color:#070;font-weight:bold">&lt;/label&gt;</span><span style="color:#070;font-weight:bold">&lt;/center&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/collapsibleHeader&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;tweetListView</span>
+            <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">tweetList</span><span style="color:#710">&quot;</span></span> <b class="conum">(3)</b>
+            <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">center</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">provider</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NewsFeedProvider.class</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/border&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>We set <code>&lt;title hidden="true"/&gt;</code> to hide the default title bar.</p>
+</li>
+<li>
+<p>We add <code>&lt;collapsibleHeader&gt;</code> which will create a custom collapsible title bar.  This tag expects 1 child XML tag, which it will make the contents of the title bar.</p>
+</li>
+<li>
+<p>We add the <code>name</code> attribute to the <code>&lt;tweetListView&gt;</code> tag so that it can be referenced from the <code>scrollableComponent</code> attribute in the <code>&lt;collapsibleHeader&gt;</code> tag.  The collapsible header then listens to scroll activity on this component to know when to collapse and expand.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Here is a short video clip of the collapsible header in action:</p>
+</div>
+<div class="videoblock">
+<div class="content">
+<iframe width="400" height="800" src="https://www.youtube.com/embed/DmquufraQaA?rel=0" frameborder="0" allowfullscreen></iframe>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+For more information about the CollapsibleHeader component see the <a href="https://github.com/shannah/CodeRAD/wiki/CollapsibleHeader">CollapsibleHeader wiki page</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_search_bar_and_side_bar">3.8. Search Bar and Side Bar</h3>
+<div class="paragraph">
+<p>Next we&#8217;ll be adding the Twitter search bar at the top of the screen.  While we&#8217;re at it, I&#8217;d like to add the side nav menu as well.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll place the search bar inside the <code>&lt;collapsibleHeader&gt;</code> tag, replacing the icon that we had there before:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;collapsibleHeader</span> <span style="color:#b48">scrollableComponent</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#tweetList</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;twtTitle&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;twtsearchButton</span> <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#SearchForm</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">rad-href-trigger</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TWTSearchButton.SEARCH_ACTION</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/twtTitle&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/collapsibleHeader&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m introducing two new tags here:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>&lt;twtTitle&gt;</code></dt>
+<dd>
+<p>A title bar that is styled like the Twitter app&#8217;s title bar, including a profile icon (i.e. avatar of the logged in user) in the upper right.</p>
+</dd>
+<dt class="hdlist1"><code>&lt;twtsearchButton&gt;</code></dt>
+<dd>
+<p>A button that looks like a search field.  When the user presses this button, it should navigate to the actual search form with the search field focused.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>The <code>&lt;txtsearchButton&gt;</code> is nested in the <code>&lt;twtTitle&gt;</code> tag, making it the the title bar contents.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-twtTitle-twtSearchButton.png" alt="tweetapp twtTitle twtSearchButton">
+</div>
+<div class="title">Figure 14. The <code>&lt;twtHeader&gt;</code> tag with embedded <code>&lt;txtsearchButton&gt;</code></div>
+</div>
+<div class="paragraph">
+<p>For the sidebar, we&#8217;ll use the <code>&lt;sidebar&gt;</code> tag (which is a core component of CodeRAD), with a <code>&lt;twtSidebar&gt;</code> component as the sidebar contents:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;sidebar&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;twtSideBarView</span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/sidebar&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After adding these tags, the HomePage.xml view contents will be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">view-controller</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.example.tweetapp.controllers.HomePageViewController</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">HomePage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;title</span> <span style="color:#b48">hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;use-taglib</span> <span style="color:#b48">class</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.codename1.twitterui.TagLibrary</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;import&gt;</span>
+        import com.example.tweetapp.providers.NewsFeedProvider;
+    <span style="color:#070;font-weight:bold">&lt;/import&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;collapsibleHeader</span> <span style="color:#b48">scrollableComponent</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#tweetList</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;twtTitle&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;twtsearchButton</span> <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">#SearchForm</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">rad-href-trigger</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">TWTSearchButton.SEARCH_ACTION</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/twtTitle&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/collapsibleHeader&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;sidebar&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;twtSideBarView</span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/sidebar&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;tweetListView</span>
+            <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">tweetList</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">center</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">provider</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">NewsFeedProvider.class</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;/border&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, if you press on the "Account" icon in the top left corner, it will expand from the left to reveal a sidebar as shown here:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-sidebar-1.png" alt="tweetapp sidebar 1">
+</div>
+</div>
+<div class="sect3">
+<h4 id="_populating_the_sidebar">3.8.1. Populating the Sidebar</h4>
+<div class="paragraph">
+<p>The <code>&lt;twtSideBarView&gt;</code> allows you to add actions in a few different categories in order to populate the menu options.  It will also "look" for a lookup of the type <code>TWTUserProfile</code> to get the name, ID, and avatar of the currently logged in user.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s start by adding some actions in our Application controller to target the sidebar.  Place the following inside the <code>initControllerActions()</code> method of the application controller:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#777">// Sidebar Actions which will be injected into the TWTSideBarView</span>
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Profile</span><span style="color:#710">&quot;</span></span>)
+    .icon(FontImage.MATERIAL_ACCOUNT_CIRCLE)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Lists</span><span style="color:#710">&quot;</span></span>)
+    .icon(FontImage.MATERIAL_LIST)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Topics</span><span style="color:#710">&quot;</span></span>)
+    .icon(FontImage.MATERIAL_CATEGORY)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Bookmarks</span><span style="color:#710">&quot;</span></span>)
+    .icon(FontImage.MATERIAL_BOOKMARKS)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Moments</span><span style="color:#710">&quot;</span></span>)
+    .icon(FontImage.MATERIAL_BOLT)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Create new account</span><span style="color:#710">&quot;</span></span>)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_TOP_OVERFLOW_MENU, evt -&gt; {});
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Add Existing Account</span><span style="color:#710">&quot;</span></span>)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_TOP_OVERFLOW_MENU, evt -&gt; {});
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Settings and privacy</span><span style="color:#710">&quot;</span></span>)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_SETTINGS_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+    .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Help Center</span><span style="color:#710">&quot;</span></span>)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_SETTINGS_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+    .icon(FontImage.MATERIAL_LIGHTBULB_OUTLINE)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_BOTTOM_LEFT_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+    .icon(FontImage.MATERIAL_SCANNER)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_BOTTOM_RIGHT_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+        .icon(FontImage.MATERIAL_ACCOUNT_CIRCLE)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_TOP_ACTIONS, evt -&gt; {});
+
+ActionNode.builder()
+        .icon(FontImage.MATERIAL_ACCOUNT_BALANCE_WALLET)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_TOP_ACTIONS, evt -&gt; {});
+
+
+ActionNode.builder()
+        .icon(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Following</span><span style="color:#710">&quot;</span></span>)
+        .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">311</span><span style="color:#710">&quot;</span></span>)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_STATS, evt -&gt; {});
+
+ActionNode.builder()
+        .icon(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Followers</span><span style="color:#710">&quot;</span></span>)
+        .label(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">344</span><span style="color:#710">&quot;</span></span>)
+        .addToController(<span style="color:#950">this</span>, TWTSideBarView.SIDEBAR_STATS, evt -&gt; {});</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+For a full list of available action categories in the <em>TWTSideBarView</em> see the <a href="https://github.com/shannah/TweetAppUIKit/wiki/TWTSideBarView#actions">TWTSideBarView wiki page</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The sidebar view can also be coaxed to display the correct username and avatar of the currently logged in user.  It does a lookup for <code>TWTUserProfile</code>, and, if found, it users that profile&#8217;s username and avatar image.</p>
+</div>
+<div class="paragraph">
+<p>In order to simplify the example, I&#8217;m going to hard-code the user profile to my account.  We can register the profile as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">TWTUserProfile userProfile = <span style="color:#080;font-weight:bold">new</span> TWTUserProfileImpl();
+userProfile.setName(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Steve Hannah</span><span style="color:#710">&quot;</span></span>);
+userProfile.setIdentifier(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">@shannah78</span><span style="color:#710">&quot;</span></span>);
+userProfile.setThumbnailUrl(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://www.codenameone.com/img/steve.jpg</span><span style="color:#710">&quot;</span></span>);
+addLookup(TWTUserProfile.class, userProfile);</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+One important thing to notice here is that our <em>addLookup()</em> call takes two parameters.  Previously when adding lookups we had just been using the single-arg variant.  The reason is that the TWTSideBar component will be doing a lookup on the <code>TWTUserProfile</code> interface, but our profile is actually an instance of <code>TWTUserProfileImpl</code>, which implements <code>TWTUserProfile</code>.  Lookups need to be exact though, they don&#8217;t match if a subclass is registered.  Only if the <em>exact</em> class is registered.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This code should be added to the LoginPageViewController at the point when the login is completed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">client.createLoginRequest()
+        .username(viewModel.getPhoneEmailOrUsername())
+        .password(viewModel.getPassword())
+        .login()
+        .onResult((res, error) -&gt; {
+
+            <span style="color:#777">// ... other content omitted for clarity</span>
+
+            <span style="color:#777">// Login was successful.  Set the `TWTUserProfile` lookup</span>
+            <span style="color:#777">// NOTE: We hardcode it here, but in real app, we would use the login</span>
+            <span style="color:#777">// details to construct an accurate user profile</span>
+            TWTUserProfile userProfile = <span style="color:#080;font-weight:bold">new</span> TWTUserProfileImpl();
+            userProfile.setName(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Steve Hannah</span><span style="color:#710">&quot;</span></span>);
+            userProfile.setIdentifier(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">@shannah78</span><span style="color:#710">&quot;</span></span>);
+            userProfile.setThumbnailUrl(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://www.codenameone.com/img/steve.jpg</span><span style="color:#710">&quot;</span></span>);
+            getApplicationController().addLookup(TWTUserProfile.class, userProfile);
+            <span style="color:#080;font-weight:bold">new</span> HomePageController(getApplicationController()).show();
+        });</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+See the full listing of <em>LoginPageViewController</em> after this change in <a href="https://gist.github.com/shannah/7d75a37bdf6cbfde51ff483a5cae0c19">this gist</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>I&#8217;m also going to take this opportunity to add support for "remembering" who is logged in, so that when the app refreshes, it will retain this login information.</p>
+</div>
+<div class="paragraph">
+<p>This will require small changes to the <em>TweetAppClient</em> and the application controller.</p>
+</div>
+<div class="paragraph">
+<p>Currently the <em>TweetAppClient</em> tracks login status with a <em>loggedIn</em> boolean variable.  Let&#8217;s wrap this in a private setter method, and also set a <em>logged in</em> property in <em>Preferences</em>.  Then we&#8217;ll set the <em>loggedIn</em> property in the TweetAppClient&#8217;s constructor based on the value found in preferences.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+The technique used for remembering login status is simplified for clarity here.  In a real app you would probably store a token instead, and use it to query the login status.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">TweetAppClient will now store the login status in preferences.  This will be set on login, and retrieved in the constructor.</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#088;font-weight:bold">public</span> TweetAppClient() {
+
+    <span style="color:#777">// Logged in status tracked in preferences.</span>
+    <span style="color:#777">// In real app, you wouldn't do it this way.  You would track a token</span>
+    <span style="color:#777">// and use it to query the logged in status.</span>
+    loggedIn = <span style="color:#0a8;font-weight:bold">Preferences</span>.get(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">loggedIn</span><span style="color:#710">&quot;</span></span>, <span style="color:#069">false</span>);
+    <span style="color:#080;font-weight:bold">if</span> (loggedIn) {
+        <span style="color:#777">// Hardcoded logged in user because this is a demo app.</span>
+        <span style="color:#777">// In real app you would set logged in user according to</span>
+        <span style="color:#777">// who is actually logged in.</span>
+        loggedInUserId = <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">@shannah78</span><span style="color:#710">&quot;</span></span>;
+    }
+}
+
+...
+
+private <span style="color:#339;font-weight:bold">void</span> setLoggedIn(<span style="color:#339;font-weight:bold">boolean</span> loggedIn) {
+    <span style="color:#950">this</span>.loggedIn = loggedIn;
+
+    <span style="color:#777">// We stored the logged in status in Preferences only for simplicity</span>
+    <span style="color:#777">// because this is a demo app.  In a real app you would probably store</span>
+    <span style="color:#777">// a token instead and use it to test whether the user is currently logged in.</span>
+    <span style="color:#0a8;font-weight:bold">Preferences</span>.set(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">loggedIn</span><span style="color:#710">&quot;</span></span>, loggedIn);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We also need to find the places where the <code>loggedIn</code> variable is set, and change it to use <code>setLoggedIn()</code> instead:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">loggedIn = <span style="color:#069">true</span>;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>changed to</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">setLoggedIn(<span style="color:#069">true</span>);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>See the full code listing of <em>TweetAppClient</em> after these changes in <a href="https://gist.github.com/shannah/804744f7f734d1c927e9de9879c9db08">this gist</a>.</p>
+</div>
+<div class="paragraph">
+<p>Finally, now that the app "remembers" who is logged in, we can make it skip directly to the <em>HomePage</em> on start instead showing the welcome page.</p>
+</div>
+<div class="paragraph">
+<p>Modify the <em>actionPerformed()</em> method of the application controller to check if the user is logged in, and , if so, show the homepage:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> actionPerformed(ControllerEvent evt) {
+
+    with(evt, StartEvent.class, startEvent -&gt; {
+        <span style="color:#080;font-weight:bold">if</span> (!startEvent.isShowingForm()) {
+            startEvent.setShowingForm(<span style="color:#069">true</span>);
+            <span style="color:#080;font-weight:bold">if</span> (lookup(TweetAppClient.class).isLoggedIn()) {
+                <span style="color:#080;font-weight:bold">new</span> HomePageController(<span style="color:#950">this</span>).show();
+            } <span style="color:#080;font-weight:bold">else</span> {
+                <span style="color:#080;font-weight:bold">new</span> WelcomePageController(<span style="color:#950">this</span>).show();
+            }
+        }
+
+    });
+    <span style="color:#950">super</span>.actionPerformed(evt);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There is still a problem with this, however.  We haven&#8217;t set the <em>TWTUserProfile</em> lookup in this case, so the <em>TWTSideBarView</em> won&#8217;t have access to the current user profile.</p>
+</div>
+<div class="paragraph">
+<p>We&#8217;ll remedy this by registering the lookup in the <code>onStartController()</code> method of the application controller:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#080;font-weight:bold">if</span> (client.isLoggedIn()) {
+
+    <span style="color:#777">// The client is logged in.  We hardcode the userprofile here as me</span>
+    <span style="color:#777">// but in real app you would have the profile created based on who is logged in.</span>
+    TWTUserProfile userProfile = <span style="color:#080;font-weight:bold">new</span> TWTUserProfileImpl();
+    userProfile.setName(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Steve Hannah</span><span style="color:#710">&quot;</span></span>);
+    userProfile.setIdentifier(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">@shannah78</span><span style="color:#710">&quot;</span></span>);
+    userProfile.setThumbnailUrl(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://www.codenameone.com/img/steve.jpg</span><span style="color:#710">&quot;</span></span>);
+    addLookup(TWTUserProfile.class, userProfile);
+
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+See the full listing for <em>Tweetapp.java</em> after this change in <a href="https://gist.github.com/shannah/9fed8c117be477d513d5729bb6f0377f">this gist</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Now if we look at the simulator, we&#8217;ll see a couple of differences.  The title bar now shows my avatar image, as it <em>also</em> does a lookup on <em>TWTUserProfile</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/twtTitleBar-with-avatar.png" alt="twtTitleBar with avatar">
+</div>
+</div>
+<div class="paragraph">
+<p>And, if we tap on the avatar, it will expand the sidebar fully populated as shown here:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/twtSideBarView-fully-populated.png" alt="twtSideBarView fully populated">
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_global_navigation_tabs">3.9. The Global Navigation Tabs</h3>
+<div class="paragraph">
+<p>We will use the <code>&lt;globalTabs&gt;</code> component, which is part of the Tweet App UI Kit, to add the twitter-style navigation tabs to the bottom of each page.  Before adding the tag to our view, we&#8217;ll create the actions that will be used as tabs.  In the application controller, add the following action definitiions as <code>public static</code> variables:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> ActionNode HOME_TAB = ActionNode.builder().
+        icon(FontImage.MATERIAL_HOME).
+        addActionListener(evt-&gt;{
+            evt.consume();
+            TWTGlobalTabs.showTab(
+                    evt,
+                    <span style="color:#080;font-weight:bold">new</span> HomePageController(ApplicationController.getApplicationController(evt))
+            );
+        }).
+        build();
+
+<span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> ActionNode INBOX_TAB = ActionNode.builder().
+        icon(FontImage.MATERIAL_INBOX).
+        badge(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2</span><span style="color:#710">&quot;</span></span>).
+        addActionListener(evt-&gt;{
+            evt.consume();
+            TWTGlobalTabs.showTab(
+                    evt,
+                    <span style="color:#080;font-weight:bold">new</span> InboxPageController(ApplicationController.getApplicationController(evt))
+            );
+
+        }).
+        build();</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+We create these actions as <code>public static</code> variables because we will need to reference the actions directly, and individually, from within the <em>view</em>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve broken a little bit of new ground with these action definitions.  The <code>INBOX_TAB</code> action includes a "badge" directive, which will be rendered on the tab icon as a badge.  The <code>addActionListener()</code> method is also new.  It, predictably, will be called when the user clicks on the corresponding tab.</p>
+</div>
+<div class="paragraph">
+<p>The <code>TWTGlobalTabs.showTab()</code> method is a utility method that will automatically transition to the new tab in the correct direction.  E.g. When navigating from a tab to another tab that is to the left, the transition should go to the left.</p>
+</div>
+<div class="paragraph">
+<p>Now, in the <code>initControllerActions()</code> method we need to register these actions with the <code>TWTGlobalTabs.GLOBAL_TABS</code> category:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java">addActions(TWTGlobalTabs.GLOBAL_TABS,
+        HOME_TAB, INBOX_TAB
+);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our case our global tabs component will include two tabs: <em>Home</em> and <em>Inbox</em>.</p>
+</div>
+<div class="paragraph">
+<p>We need to create the <code>InboxPage</code> view that we reference in our tabs.  Create a view named "InboxPage.xml" in the same directory as your other views:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;border</span> <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">InboxPage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;title&gt;</span>InBox<span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;use-taglib</span> <span style="color:#b48">class</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.codename1.twitterui.TagLibrary</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;globalTabs</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">south</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">selectedTab</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.example.tweetapp.Tweetapp.INBOX_TAB</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;/border&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We&#8217;ve left this view mostly empty, to be developed later - except for the <code>&lt;globalTabs&gt;</code> component:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;globalTabs</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">south</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">selectedTab</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.example.tweetapp.Tweetapp.INBOX_TAB</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>selectedTab</code> attribute references the action that should be selected.  In this page, it is the <code>INBOX_TAB</code> action.  This <em>reference</em> is why we defined our global tabs actions to be <code>public static</code> variables.</p>
+</div>
+<div class="paragraph">
+<p>Now, add the <code>&lt;globalTabs&gt;</code> component to the <em>HomePage</em> view:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;globalTabs</span> <span style="color:#b48">layout-constraint</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">south</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">selectedTab</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">com.example.tweetapp.Tweetapp.HOME_TAB</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After adding the global tabs, our app should resemble the following screenshot:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tweetapp-globaltabs.png" alt="tweetapp globaltabs">
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+You can see the full source listings of this example in <a href="https://gist.github.com/shannah/be58c81314a32d87f1de5c54216a71b4">this gist</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_summary">3.10. Summary</h3>
+<div class="paragraph">
+<p>We have left quite a few loose-ends in our "Tweet" app.  None of the links in our side bar do anything.  We haven&#8217;t implemented search, and we haven&#8217;t provided a way to add tweets.  I leave these as exercises for the reader, as you should be able to use the fundamentals in this tutorial to implement these functionalities.</p>
+</div>
+<div class="paragraph">
+<p>You can use the following resources to help you along the way:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="https://github.com/shannah/CodeRAD/wiki">CodeRAD wiki</a></dt>
+<dd>
+<p>The CodeRAD wiki includes reference documentation for many of the components available in CodeRAD views.</p>
+</dd>
+<dt class="hdlist1"><a href="https://github.com/shannah/TweetAppUIKit/wiki">Tweet App UI Kit wiki</a></dt>
+<dd>
+<p>The Tweet App UI Kit wiki includes reference documentation for many of the components avaiable in the tweet app UI kit.</p>
+</dd>
+<dt class="hdlist1"><a href="https://www.codenameone.com/javadoc/">Codename One javadocs</a></dt>
+<dd>
+<p>API documentation for the Codename One library.  Since <em>all</em> of components in Codename One can be used from CodeRAD views, this is your definitive source for what attributes are available in each tag.</p>
+</dd>
+</dl>
 </div>
 </div>
 </div>
@@ -5331,13 +7238,13 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-021231.287.png" alt="Image 300320 021231.287">
 </div>
-<div class="title">Figure 12. A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.</div>
+<div class="title">Figure 15. A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/Image-300320-020346.131.png" alt="Image 300320 020346.131">
 </div>
-<div class="title">Figure 13. A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.</div>
+<div class="title">Figure 16. A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.</div>
 </div>
 <div class="paragraph">
 <p>In fact, we derive many benefits from the fact that the UI can be mapped to a tree data structure.  Trees are nice to work with because they lend themselves nicely to software.  If you can write a function that operates on a single node of the tree, you can easily expand this function to operate on the entire tree.</p>
@@ -5355,7 +7262,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-023353.927.png" alt="Image 300320 023353.927">
 </div>
-<div class="title">Figure 14. Screenshots from the Twitter mobile app.</div>
+<div class="title">Figure 17. Screenshots from the Twitter mobile app.</div>
 </div>
 <div class="paragraph">
 <p>The app structure of Twitter has 4 top-level FormControllers corresponding to the tabs at the bottom of the app:  Home, Search, Alerys, and Inbox.  The "Home" tab contains a list of tweets, and clicking on any of these tweets will bring the user to a "Tweet Details" form.  Hence in the controller hierarchy, the "Home" tab is a top-level form (a child of the ApplicationController), and it has at least one child, the "Tweet Details" form controller.</p>
@@ -5364,7 +7271,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-023007.132.png" alt="Image 300320 023007.132">
 </div>
-<div class="title">Figure 15. A partial controller hierarchy for the Twitter mobile app.  <strong>Note that this is not a class hierarchy</strong>, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".</div>
+<div class="title">Figure 18. A partial controller hierarchy for the Twitter mobile app.  <strong>Note that this is not a class hierarchy</strong>, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".</div>
 </div>
 </div>
 <div class="sect2">
@@ -5373,7 +7280,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-015455.241.png" alt="Image 300320 015455.241">
 </div>
-<div class="title">Figure 16. The main controller classes provided by CodeRAD.</div>
+<div class="title">Figure 19. The main controller classes provided by CodeRAD.</div>
 </div>
 <div class="paragraph">
 <p>CodeRAD provides a set of fundamental controller classes to help structure your app in this way:</p>
@@ -5506,7 +7413,7 @@ The following examples all use an ApplicationController as the root of the contr
 <div class="content">
 <img src="images/Image-300320-014315.510.png" alt="Image 300320 014315.510">
 </div>
-<div class="title">Figure 17. The flow of the <code>FormBackEvent</code> as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.</div>
+<div class="title">Figure 20. The flow of the <code>FormBackEvent</code> as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.</div>
 </div>
 </div>
 </div>
