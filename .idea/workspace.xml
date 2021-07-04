@@ -23,7 +23,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_28_SNAPSHOT.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_29.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_28_SNAPSHOT.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_29.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/XMLSchemaGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/XMLSchemaGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/coderad-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/manual/building-twitter-clone.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual/building-twitter-clone.adoc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/javase/coderad-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/javase/coderad-javase.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -166,28 +173,28 @@
     </state>
     <state x="-2560" y="-250" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623329356364" />
     <state x="825" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618523791228" />
-    <state width="1884" height="230" key="GridCell.Tab.0.bottom" timestamp="1624560452818">
+    <state width="1884" height="230" key="GridCell.Tab.0.bottom" timestamp="1625414228435">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="1884" height="230" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1624560452818" />
+    <state width="1884" height="230" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625414228435" />
     <state width="1638" height="280" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132475" />
     <state width="2518" height="409" key="GridCell.Tab.0.bottom/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171393" />
-    <state width="1884" height="230" key="GridCell.Tab.0.center" timestamp="1624560452817">
+    <state width="1884" height="230" key="GridCell.Tab.0.center" timestamp="1625414228434">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="1884" height="230" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1624560452817" />
+    <state width="1884" height="230" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625414228434" />
     <state width="1638" height="280" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132474" />
     <state width="2518" height="409" key="GridCell.Tab.0.center/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171392" />
-    <state width="1884" height="230" key="GridCell.Tab.0.left" timestamp="1624560452816">
+    <state width="1884" height="230" key="GridCell.Tab.0.left" timestamp="1625414228434">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="1884" height="230" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1624560452816" />
+    <state width="1884" height="230" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625414228434" />
     <state width="1638" height="280" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132473" />
     <state width="2518" height="409" key="GridCell.Tab.0.left/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171392" />
-    <state width="1884" height="230" key="GridCell.Tab.0.right" timestamp="1624560452817">
+    <state width="1884" height="230" key="GridCell.Tab.0.right" timestamp="1625414228435">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="1884" height="230" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1624560452817" />
+    <state width="1884" height="230" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625414228435" />
     <state width="1638" height="280" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619387132474" />
     <state width="2518" height="409" key="GridCell.Tab.0.right/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171393" />
     <state width="1105" height="467" key="GridCell.Tab.1.bottom" timestamp="1617710132503">
@@ -219,10 +226,10 @@
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
     <state x="-1819" y="334" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623864908003" />
-    <state x="-1745" y="216" width="1066" height="755" key="find.popup" timestamp="1623856683776">
+    <state x="-1745" y="216" width="1066" height="755" key="find.popup" timestamp="1624969036532">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1745" y="216" width="1066" height="755" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623856683776" />
+    <state x="-1745" y="216" width="1066" height="755" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1624969036532" />
     <state x="535" y="361" width="699" height="547" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619386220903" />
     <state x="815" y="489" width="1065" height="754" key="find.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618414094499" />
     <state width="600" height="428" key="javadoc.popup" timestamp="1619876204348">
@@ -235,10 +242,10 @@
     </state>
     <state x="-2154" y="22" key="new project wizard/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621435494975" />
     <state x="406" y="295" width="913" height="579" key="new project wizard/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618842387165" />
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1624709885639">
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1625412889862">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1624709885639" />
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625412889862" />
     <state x="517" y="334" width="670" height="490" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619385890360" />
     <state x="443" y="272" width="670" height="430" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1618261010075" />
     <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618847296129" />

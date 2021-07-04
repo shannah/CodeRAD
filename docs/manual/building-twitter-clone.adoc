@@ -1,6 +1,6 @@
 == App Example 1: A Twitter Clone
 
-TIP: In this chapter we build a clone of the Twitter mobile app.  You can see the completed project at https://github.com/shannah/tweetapp.
+TIP: In this chapter we build a clone of the Twitter mobile app.  You can see the completed project at https://github.com/shannah/tweetapp.  You can also use the completed app as a template for building your own project on https://start.codenameone.com/index.php?-table=app_templates&-action=browse&app_template_id=%3D6[Codename One Initializr].
 
 In <<getting-started>> we covered the basics of CodeRAD.  In this chapter we'll put our knowledge to the test as we build a clone of the Twitter mobile app.
 

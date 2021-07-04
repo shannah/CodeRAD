@@ -406,8 +406,8 @@ public class XMLSchemaGenerator {
                                         TypeElement retType = (TypeElement) ((DeclaredType) retTypeMirror).asElement();//processingEnvironment.getElementUtils().getTypeElement("com.codename1.ui.plaf.Style");
 
                                         if (useAttributeGroups) {
-                                            indent(sb, indent).append("<xs:attributeGroup ref=\"").append(getAttributeGroupName((DeclaredType)retTypeMirror, propertyName+".", 3)).append("\" />\n");
-                                            addRequiredAttributeGroup(new AttributeGroup(propertyName+".", retType.getQualifiedName().toString(), 3));
+                                            indent(sb, indent).append("<xs:attributeGroup ref=\"").append(getAttributeGroupName((DeclaredType)retTypeMirror, propertyName+".", 2)).append("\" />\n");
+                                            addRequiredAttributeGroup(new AttributeGroup(propertyName+".", retType.getQualifiedName().toString(), 2));
 
                                         } else {
 

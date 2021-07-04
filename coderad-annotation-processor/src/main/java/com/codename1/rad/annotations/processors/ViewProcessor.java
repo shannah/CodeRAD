@@ -3636,6 +3636,33 @@ public class ViewProcessor extends BaseProcessor {
         }
 
 
+        private boolean isMarginOrPadding(String pname) {
+            if (!pname.contains(".")) return false;
+            String leaf = pname.substring(pname.lastIndexOf(".")+1);
+            return leaf.startsWith("padding") || leaf.startsWith("margin");
+        }
+
+        private String getMarginOrPaddingUnitPropertyName(String pname) {
+            String base = getMarginOrPaddingUnitPropertyBase(pname);
+            String leaf = pname.substring(base.length()+1);
+            if (leaf.startsWith("padding")) {
+                return base + ".paddingUnit"+leaf.substring("padding".length());
+            } else if (leaf.startsWith("margin")) {
+                return base + ".marginUnit"+leaf.substring("margin".length());
+            } else {
+                throw new IllegalArgumentException("getUnitPropertyName expects padding or margin unit");
+            }
+        }
+
+        private String getMarginOrPaddingUnitPropertyBase(String pname) {
+            if (!pname.contains(".")) throw new IllegalArgumentException("getUnitPropertyName expects at least one .");
+            String base = pname.substring(0, pname.lastIndexOf("."));
+            if (base.startsWith("bind-")) {
+                base = base.substring(base.indexOf("-")+1);
+            }
+            return base;
+        }
+
         /**
          * Writes the component properties using attributes and child elements.  This happens after writing the builder properties.
          * @param sb
@@ -3670,6 +3697,10 @@ public class ViewProcessor extends BaseProcessor {
                         }
 
                     }
+                }
+                if (isMarginOrPadding(attName)) {
+
+                    addedAtts.put(getMarginOrPaddingUnitPropertyName(attName), "com.codename1.ui.plaf.Style.UNIT_TYPE_PIXELS");
                 }
 
             }
