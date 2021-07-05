@@ -1190,6 +1190,9 @@ public class ViewProcessor extends BaseProcessor {
                 }
                 if (tagContext.hasAttribute("view-model")) {
                     String vmString = tagContext.getAttribute("view-model");
+                    if (vmString.startsWith("java:")) {
+                        vmString = vmString.substring(vmString.indexOf(":")+1);
+                    }
                     if ("new".equals(vmString)) {
                         if (entityImplClass == null) {
 
@@ -1197,7 +1200,7 @@ public class ViewProcessor extends BaseProcessor {
                         }
                         appendTo.append("new ").append(entityImplClass.getQualifiedName()).append("()");
                     } else {
-                        appendTo.append(expandRADModelVars(rootBuilder.jenv, tagContext.getAttribute("view-model"), false));
+                        appendTo.append(expandRADModelVars(rootBuilder.jenv, vmString, false));
                     }
                 } else {
                     appendTo.append("context.getEntity()");
@@ -3548,7 +3551,7 @@ public class ViewProcessor extends BaseProcessor {
                                 break;
                             }
                             if (!rowView.hasAttribute("view-model")) {
-                                rowView.setAttribute("view-model", "java:rowModel");
+                                rowView.setAttribute("view-model", "rowModel");
                             }
 
                             indent(sb, indent).append("return (EntityView) createComponent").append(rowView.getAttribute("rad-id")).append("();\n");

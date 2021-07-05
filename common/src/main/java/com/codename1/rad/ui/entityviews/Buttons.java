@@ -77,7 +77,7 @@ public class Buttons extends AbstractEntityView {
         Actions overflowActions = null;
 
         actions = actions.proxy(getViewNode());
-        if (overflowMenuStyle != OverflowMenuStyle.None && limit >= 0 && actions.size() >= limit) { // Note: >= because need to fit overflow button under limit
+        if (limit >= 0 && actions.size() >= limit) { // Note: >= because need to fit overflow button under limit
             overflowActions = new Actions();
             Actions tempActions = new Actions();
             int len = actions.size();
@@ -87,7 +87,7 @@ public class Buttons extends AbstractEntityView {
 
                 index++;
 
-                if (index < limit - 1) {
+                if (index < limit - (overflowMenuStyle == OverflowMenuStyle.None ? 0 : 1)) {
                     tempActions.add(action);
                 } else {
                     overflowActions.add(action);
@@ -113,7 +113,9 @@ public class Buttons extends AbstractEntityView {
                     e.consume();
                     showOverflowMenu(fOverflowActions);
                 });
-                actions.add(overflowAction);
+                if (overflowMenuStyle != OverflowMenuStyle.None) {
+                    actions.add(overflowAction);
+                }
             }
 
 
