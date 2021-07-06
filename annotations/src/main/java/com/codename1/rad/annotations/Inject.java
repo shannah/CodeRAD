@@ -17,6 +17,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Inject {
-
+    public String name() default "";
 
 }

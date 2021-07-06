@@ -20,10 +20,7 @@ import com.codename1.rad.ui.Actions;
 import com.codename1.rad.ui.EntityListCellRenderer;
 import com.codename1.rad.ui.EntityView;
 import com.codename1.rad.ui.UI;
-import com.codename1.ui.Button;
-import com.codename1.ui.Component;
-import com.codename1.ui.Container;
-import com.codename1.ui.Form;
+import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
 import static com.codename1.ui.layouts.BorderLayout.EAST;
 import static com.codename1.ui.layouts.BorderLayout.NORTH;
@@ -81,7 +78,11 @@ public class ProfileListView extends EntityListView {
     }
 
     public ProfileListView(@Inject EntityList list, @Inject ListNode node) {
-        this(list, node, 5);
+        this(list, node, 5f);
+    }
+
+    public ProfileListView(@Inject EntityList list, @Inject ListNode node, @Inject(name="avatarSize") int avatarSizePx) {
+        super(list, decorateNode(node, avatarSizePx/(float) CN.convertToPixels(1f)));
     }
 
     public ProfileListView(@Inject EntityList list, @Inject ListNode node, float avatarSizeMM) {
@@ -222,5 +223,7 @@ public class ProfileListView extends EntityListView {
         }
         
     }
+
+
     
 }

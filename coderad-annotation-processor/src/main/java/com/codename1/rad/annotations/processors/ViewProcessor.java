@@ -2370,26 +2370,37 @@ public class ViewProcessor extends BaseProcessor {
                 throw new IllegalStateException("No parameter type found for first parameter of setter method "+setter);
             }
 
-            boolean treatAsString = paramType.getQualifiedName().contentEquals("java.lang.String") && !setter.isArrayParameter(0);
+
+            value = new AttributeSanitizer(env).sanitize(setter.getParameterType(0), setter.isArrayParameter(0), value);
+            propertySelector.setProperty(appendTo, receiverVar, value);
 
 
-            if (value.startsWith("java:")) {
-                treatAsString = false;
-                value = value.substring(value.indexOf(":")+1);
-            } else if (value.startsWith("string:")) {
-                treatAsString = true;
+
+
+
+        }
+
+        public boolean isContainer() {
+            return isComponent() && ViewProcessor.this.isContainer(typeEl);
+        }
+
+
+    }
+
+    public class AttributeSanitizer {
+        private final JavaEnvironment env;
+
+        public AttributeSanitizer(JavaEnvironment env) {
+            this.env = env;
+        }
+
+        public String sanitize(TypeElement parameterType, boolean isArray, String value) {
+            boolean treatAsString = (!isArray && isA(parameterType, "java.lang.String")) || value.startsWith("string:");
+            if (value.startsWith("java:") || value.startsWith("string:")) {
                 value = value.substring(value.indexOf(":")+1);
             }
-
-            // Special cases:
-            // Dates
-            // Numbers rgb(...), rgba(....), #FFFFFF, 0xFFFFFF, 0FFFFFF
-            // Tags
-            // Action categories
-            // Enums
-            //
             if (!treatAsString) {
-                TypeElement parameterType = propertySelector.setter().getParameterType(0);
+                //TypeElement parameterType = propertySelector.setter().getParameterType(0);
                 List<String> enumValues =
                         parameterType.getEnclosedElements().stream()
                                 .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
@@ -2410,7 +2421,7 @@ public class ViewProcessor extends BaseProcessor {
                     StringBuilder mediaParamBuilder = new StringBuilder();
                     mediaParams.writeAsURLMedia(mediaParamBuilder, env);
                     value = mediaParamBuilder.toString();
-                } else if ((value.startsWith("csv:") || value.startsWith("strings:")) && parameterType.getQualifiedName().contentEquals("java.lang.String") && setter.isArrayParameter(0)) {
+                } else if ((value.startsWith("csv:") || value.startsWith("strings:")) && parameterType.getQualifiedName().contentEquals("java.lang.String") && isArray) {
                     StringBuilder csvBuilder = new StringBuilder();
                     String csvValues = value.substring(value.indexOf(":")+1);
                     StringTokenizer strtok = new StringTokenizer(csvValues, ",");
@@ -2429,7 +2440,7 @@ public class ViewProcessor extends BaseProcessor {
                     value = csvBuilder.toString();
                 } else if (isScalar(value)) {
                     value = formatScalarAsArgumentValue(value);
-                } else if (paramType.getQualifiedName().contentEquals("com.codename1.ui.Font") && isFontLiteral(value)) {
+                } else if (parameterType.getQualifiedName().contentEquals("com.codename1.ui.Font") && isFontLiteral(value)) {
                     value = formatFontAsArgumentValue(value);
                 }
 
@@ -2440,21 +2451,8 @@ public class ViewProcessor extends BaseProcessor {
             } else {
                 value = expandRADModelVars(env, value, false);
             }
-
-
-            propertySelector.setProperty(appendTo, receiverVar, value);
-
-
-
-
-
+            return value;
         }
-
-        public boolean isContainer() {
-            return isComponent() && ViewProcessor.this.isContainer(typeEl);
-        }
-
-
     }
 
     public class MediaParameters {
@@ -4838,6 +4836,28 @@ public class ViewProcessor extends BaseProcessor {
                     if (constructor == null) {
                         throw new XMLParseException("Cannot find suitable constructor for EntityListView subclass "+componentClass+".", xmlTag, null);
                     }
+
+                    // Now that we have a constructor, let's see if we can improve upon it
+                    int numConstructorParams = constructor.getNumParams();
+                    for (JavaMethodProxy m : componentClass.getPublicConstructors()) {
+                        if (m.getNumParams() <= numConstructorParams) {
+                            continue;
+                        }
+                        boolean isBetter = true;
+                        for (int i=numConstructorParams; i<m.getNumParams(); i++) {
+                            VariableElement varEl = m.methodEl.getParameters().get(i);
+                            Inject anno = varEl.getAnnotation(Inject.class);
+                            if (anno != null && !anno.name().isEmpty() && xmlTag.hasAttribute(anno.name())) {
+
+                            } else {
+                                isBetter = false;
+                            }
+                        }
+                        if (isBetter) {
+                            constructor = m;
+                            numConstructorParams = m.getNumParams();
+                        }
+                    }
                     if (isA(constructor.getParameterType(0), "com.codename1.rad.models.EntityList")) {
                         String entityListType = constructor.getParameterType(0).getQualifiedName().toString();
                         indent(sb, indent).append("if (!").append(entityListType).append(".class.isAssignableFrom(listModel.getClass())) {\n");
@@ -4847,6 +4867,8 @@ public class ViewProcessor extends BaseProcessor {
                         indent(sb, indent).append("}\n");
 
                     }
+
+
                     indent(sb, indent).append("return new ").append(componentClass.getQualifiedName()).append("(");
                     if (constructor.getNumParams() > 0) {
                         sb.append("(").append(constructor.getParameterType(0).getQualifiedName()).append(")");
@@ -4867,6 +4889,13 @@ public class ViewProcessor extends BaseProcessor {
                             sb.append("listNode");
                         } else {
                             throw new XMLParseException("EntityListView subclasses should have public constructor that accepts either an EntityList or ListNode as the second argument.", xmlTag, null);
+                        }
+                    }
+                    if (constructor.getNumParams() > 2) {
+                        for (int i=2; i < constructor.getNumParams(); i++) {
+                            String val = xmlTag.getAttribute(constructor.methodEl.getParameters().get(i).getAnnotation(Inject.class).name());
+                            val = new AttributeSanitizer(constructor.classProxy.env).sanitize(constructor.getParameterType(i), constructor.isArrayParameter(i), val);
+                            sb.append(", ").append(val);
                         }
                     }
 
