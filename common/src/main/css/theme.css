@@ -7,3 +7,9 @@ PopupMenu {
 PopupMenuContent {
     cn1-derive: PopupContentPane;
 }
+
+AccountAvatarsTitleComponentText {
+    font-family: 'native:MainLight';
+    font-size: 0.4rem;
+    color: #666666;
+}

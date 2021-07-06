@@ -134,7 +134,7 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
      * Wrapper containing all of the avatars.
      */
     private Container wrapper;
-    private ViewNode node;
+
     private float avatarSizeMM = 5f;
     
     /**
@@ -145,9 +145,9 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
     private final ViewController avatarWrapperViewController = new ViewController(null) {
 
         public ViewNode getViewNode() {
-            return ProfileAvatarsTitleComponent.this.node;
+            return (ViewNode)ProfileAvatarsTitleComponent.this.getViewNode();
         }
-        
+
         private void handleClick(ControllerEvent evt) {
             handleEvent(evt, interceptAvatarClicked, PROFILE_AVATAR_TITLE_COMPONENT_CLICKED, PROFILE_AVATAR_TITLE_COMPONENT_CLICKED_MENU, PROFILE_AVATAR_CLICKED, PROFILE_AVATAR_CLICKED_MENU);
         }
@@ -217,7 +217,7 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
                    // Let's find out if it is worth displaying the menu at all.  Need to check if any of the
                    // avatars have click actions or click menus registered.
                    EntityList filteredProfiles = new EntityList();
-                   ViewNode viewNode = ProfileAvatarsTitleComponent.this.node;
+                   ViewNode viewNode = (ViewNode)ProfileAvatarsTitleComponent.this.getViewNode();
                    Actions clickMenu = getViewNode().getInheritedActions(avatarMenuCatetory);
                    ActionNode clickAction = getViewNode().getInheritedAction(avatarActionCategory);
                    for (Entity profile : getEntity()) {
@@ -278,7 +278,7 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
                     UI.actions(ProfileAvatarView.PROFILE_AVATAR_CLICKED, interceptAvatarClicked),
                     UI.actions(ProfileAvatarView.PROFILE_AVATAR_LONG_PRESS, interceptAvatarLongPress)
             );
-            childNode.setParent(node);
+            childNode.setParent(getViewNode());
             ProfileAvatarView v = new ProfileAvatarView(row, childNode, avatarSizeMM);
             
             return v;
@@ -351,8 +351,8 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
      * @param avatarSizeMM The size in millimeters of the avatars.
      */
     public ProfileAvatarsTitleComponent(@Inject EntityList entity, @Inject ViewNode node, float avatarSizeMM) {
-        super(entity);
-        this.node = node;
+        super(entity, node);
+
         this.avatarSizeMM = avatarSizeMM;
         initUI();
         
@@ -432,9 +432,4 @@ public class ProfileAvatarsTitleComponent extends AbstractEntityView<EntityList<
         
     }
 
-    @Override
-    public Node getViewNode() {
-        return node;
-    }
-    
 }
