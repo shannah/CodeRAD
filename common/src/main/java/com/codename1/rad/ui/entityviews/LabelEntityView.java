@@ -23,6 +23,7 @@ import com.codename1.rad.nodes.Node;
 import com.codename1.rad.nodes.ViewNode;
 import com.codename1.rad.schemas.Thing;
 import com.codename1.rad.ui.AbstractEntityView;
+import com.codename1.rad.ui.ViewContext;
 import com.codename1.rad.ui.image.ImageContainer;
 import com.codename1.ui.EncodedImage;
 import com.codename1.ui.Form;
@@ -43,13 +44,37 @@ import com.codename1.rad.models.Entity;
  */
 public class LabelEntityView extends AbstractEntityView {
     private Label label;
-    private ViewNode node;
+    
     private Property iconProperty, nameProperty;
     private int iconWidth, iconHeight;
     
-    public LabelEntityView(@Inject Entity entity, @Inject ViewNode node, @Inject Label label, int iconWidth, int iconHeight) {
-        super(entity);
-        this.node = node;
+    public LabelEntityView(@Inject ViewContext context, @Inject Label label, int iconWidth, int iconHeight) {
+        super(context);
+        this.label = label;
+        this.iconWidth = iconWidth;
+        this.iconHeight = iconHeight;
+
+        setLayout(new BorderLayout());
+        getStyle().stripMarginAndPadding();
+        add(BorderLayout.CENTER, label);
+        iconProperty = findProperty(Thing.thumbnailUrl, Thing.image);
+        nameProperty = findProperty(Thing.name);
+
+        update();
+    }
+
+    /**
+     * 
+     * @param entity
+     * @param node
+     * @param label
+     * @param iconWidth
+     * @param iconHeight
+     * @deprecated Use {@link #LabelEntityView(ViewContext, Label, int, int)}
+     */
+    public LabelEntityView(Entity entity, ViewNode node, Label label, int iconWidth, int iconHeight) {
+        super(entity, node);
+        
         this.label = label;
         this.iconWidth = iconWidth;
         this.iconHeight = iconHeight;
@@ -92,9 +117,11 @@ public class LabelEntityView extends AbstractEntityView {
                 imgCnt.setUIID(label.getIconUIID());
                 imgCnt.setWidth(iconWidth);
                 imgCnt.setHeight(iconHeight);
+                imgCnt.setAspectRatio(iconWidth / (double)iconHeight);
                 imgCnt.layoutContainer();
-                
-                label.setIcon(new ComponentImage(imgCnt, iconWidth, iconHeight));
+                ComponentImage cimg = new ComponentImage(imgCnt, iconWidth, iconHeight);
+                cimg.setAnimation(true);
+                label.setIcon(cimg);
             }
         }
         
@@ -112,10 +139,6 @@ public class LabelEntityView extends AbstractEntityView {
         
     }
 
-    @Override
-    public Node getViewNode() {
-        return node;
-    }
     
     public Label getLabel() {
         return label;
