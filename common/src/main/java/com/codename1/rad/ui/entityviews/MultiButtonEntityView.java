@@ -40,7 +40,8 @@ import com.codename1.rad.models.Entity;
 /**
  * A view that renders an {@link Entity} as a MultiButton.  
  * 
- * TODO Add documentation about view properties, bindings and actions.
+ * @deprecated With CodeRAD 2.0 bindings and views, it is now just as easy to use a MultiButton directly
+ * and bind properties to model properties as required.
  * @author shannah
  */
 public class MultiButtonEntityView<T extends Entity> extends MultiButton implements EntityView<T> {
