@@ -77,9 +77,13 @@ public class ProfileListView extends EntityListView {
     
     
     public ProfileListView(@Inject EntityList list) {
-        this(list, null, 5);
+        this(list, null);
     }
-    
+
+    public ProfileListView(@Inject EntityList list, @Inject ListNode node) {
+        this(list, node, 5);
+    }
+
     public ProfileListView(@Inject EntityList list, @Inject ListNode node, float avatarSizeMM) {
         super(list, decorateNode(node, avatarSizeMM));
     }
