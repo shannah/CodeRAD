@@ -719,6 +719,11 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         private Node parentNode;
         private EntityListViewFactory factory;
 
+
+        public EntityList getModel() {
+            return model;
+        }
+
         public Builder scrollableY(boolean scrollableY) {
             this.scrollableY = scrollableY;
             return this;

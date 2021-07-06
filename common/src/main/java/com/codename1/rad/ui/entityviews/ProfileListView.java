@@ -23,6 +23,7 @@ import com.codename1.rad.ui.UI;
 import com.codename1.ui.Button;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
+import com.codename1.ui.Form;
 import com.codename1.ui.layouts.BorderLayout;
 import static com.codename1.ui.layouts.BorderLayout.EAST;
 import static com.codename1.ui.layouts.BorderLayout.NORTH;
@@ -118,7 +119,6 @@ public class ProfileListView extends EntityListView {
          * @see ProfileListView#ACCOUNT_LIST_ROW_SELECTED
          */
         public static final Category ACCOUNT_LIST_ROW_SELECTED = ProfileListView.ACCOUNT_LIST_ROW_SELECTED;
-        private ViewNode node;
         
         private Property nameProp;
         private com.codename1.ui.Label nameLabel;
@@ -132,10 +132,10 @@ public class ProfileListView extends EntityListView {
          * @param avatarSizeMM The size to render the avatar in mm.
          */
         public ProfileListRowView(Entity profile, ViewNode node, float avatarSizeMM) {
-            super(profile);
+            super(profile, node);
             setGrabsPointerEvents(true);
             setFocusable(true);
-            this.node = node;
+
             
             setLayout(new BorderLayout());
             ProfileAvatarView avatar = new ProfileAvatarView(profile, avatarSizeMM);
@@ -178,6 +178,10 @@ public class ProfileListView extends EntityListView {
             }
             if (!Objects.equals(name, nameLabel.getText())) {
                 nameLabel.setText(name);
+                Form f = getComponentForm();
+                if (f != null) {
+                    getComponentForm().revalidateLater();
+                }
             }
                     
         }
@@ -187,10 +191,6 @@ public class ProfileListView extends EntityListView {
             
         }
 
-        @Override
-        public Node getViewNode() {
-            return node;
-        }
         
     }
     

@@ -284,7 +284,21 @@ public class Controller implements ActionListener<ControllerEvent> {
      * @param parent 
      */
     public void setParent(Controller parent) {
+        if (parent == this) {
+            throw new IllegalArgumentException("Cannot setParent to self");
+        }
+        if (parent != null && parent.hasParentImpl(this)) {
+            throw new IllegalStateException("Attempt to set parent controller "+parent+" on "+this+" but this would create a cycle as "+this+" is already a parent of "+parent);
+        }
         this.parent = parent;
+    }
+
+    private boolean hasParentImpl(Controller cnt) {
+        if (cnt == parent) return true;
+        if (parent != null) {
+            return parent.hasParentImpl(cnt);
+        }
+        return false;
     }
     
     /**

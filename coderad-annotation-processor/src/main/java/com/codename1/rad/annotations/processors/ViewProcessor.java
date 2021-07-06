@@ -4807,6 +4807,12 @@ public class ViewProcessor extends BaseProcessor {
                         !componentClass.typeEl.getQualifiedName().contentEquals("com.codename1.rad.ui.entityviews.EntityListView") &&
                         builderClass.getQualifiedName().contentEquals("com.codename1.rad.ui.builders.EntityListViewBuilder")
                 ) {
+                    if (xmlTag.hasAttribute("view-model") && !xmlTag.hasAttribute("model")) {
+                        // The EntityListViewBuilder uses the "model" attribute to specify the view model.
+                        // To retain consistency with EntityViews, copy the view-model attribute to
+                        // model.
+                        xmlTag.setAttribute("model", xmlTag.getAttribute("view-model"));
+                    }
                     // This is a subclass of EntityListView so we are using the EntityListView builder - but
                     // it requires that we provide a factory
                     indent(sb, indent).append("_builder.listViewFactory((listModel, listNode) -> {\n");
