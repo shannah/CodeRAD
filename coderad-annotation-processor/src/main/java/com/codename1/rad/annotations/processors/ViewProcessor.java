@@ -2370,8 +2370,8 @@ public class ViewProcessor extends BaseProcessor {
                 throw new IllegalStateException("No parameter type found for first parameter of setter method "+setter);
             }
 
-
-            value = new AttributeSanitizer(env).sanitize(setter.getParameterType(0), setter.isArrayParameter(0), value);
+            VariableElement paramVar = setter.methodEl.getParameters().get(0);
+            value = new AttributeSanitizer(env).sanitize(paramType, paramVar, setter.isArrayParameter(0), value);
             propertySelector.setProperty(appendTo, receiverVar, value);
 
 
@@ -2394,8 +2394,11 @@ public class ViewProcessor extends BaseProcessor {
             this.env = env;
         }
 
-        public String sanitize(TypeElement parameterType, boolean isArray, String value) {
+        public String sanitize(TypeElement parameterType, VariableElement paramVar, boolean isArray, String value) {
             boolean treatAsString = (!isArray && isA(parameterType, "java.lang.String")) || value.startsWith("string:");
+            if (value.startsWith("java:")) {
+                treatAsString = false;
+            }
             if (value.startsWith("java:") || value.startsWith("string:")) {
                 value = value.substring(value.indexOf(":")+1);
             }
@@ -2438,7 +2441,46 @@ public class ViewProcessor extends BaseProcessor {
                     }
                     csvBuilder.append("}");
                     value = csvBuilder.toString();
-                } else if (isScalar(value)) {
+                } else if ((value.startsWith("csv:") || value.startsWith("strings:")) && isStringListModel(parameterType, paramVar)) {
+                    StringBuilder csvBuilder = new StringBuilder();
+                    String csvValues = value.substring(value.indexOf(":")+1);
+                    StringTokenizer strtok = new StringTokenizer(csvValues, ",");
+                    boolean first = true;
+                    if (isA(parameterType, "com.codename1.ui.list.MultipleSelectionListModel")) {
+                        csvBuilder.append("com.codename1.rad.ui.builders.ButtonListPropertyViewBuilder.createMultipleSelectionListModel(String.class, ");
+                    } else {
+                        csvBuilder.append("com.codename1.rad.ui.builders.ButtonListPropertyViewBuilder.createSingleSelectionListModel(String.class, ");
+                    }
+
+                    while (strtok.hasMoreTokens()) {
+                        String nextTok = strtok.nextToken().trim();
+                        if (first) {
+                            first = false;
+                        } else {
+                            csvBuilder.append(", ");
+                        }
+                        csvBuilder.append("\"").append(StringEscapeUtils.escapeJava(nextTok)).append("\"");
+                    }
+                    csvBuilder.append(")");
+                    value = csvBuilder.toString();
+                }else if ((value.startsWith("list:") || value.startsWith("objects:")) && isArray) {
+                    StringBuilder csvBuilder = new StringBuilder();
+                    String csvValues = value.substring(value.indexOf(":")+1);
+                    StringTokenizer strtok = new StringTokenizer(csvValues, ",");
+                    boolean first = true;
+                    csvBuilder.append("new ").append(parameterType.getQualifiedName()).append("[]{");
+                    while (strtok.hasMoreTokens()) {
+                        String nextTok = strtok.nextToken().trim();
+                        if (first) {
+                            first = false;
+                        } else {
+                            csvBuilder.append(", ");
+                        }
+                        csvBuilder.append(nextTok);
+                    }
+                    csvBuilder.append("}");
+                    value = csvBuilder.toString();
+                }else if (isScalar(value)) {
                     value = formatScalarAsArgumentValue(value);
                 } else if (parameterType.getQualifiedName().contentEquals("com.codename1.ui.Font") && isFontLiteral(value)) {
                     value = formatFontAsArgumentValue(value);
@@ -2453,6 +2495,28 @@ public class ViewProcessor extends BaseProcessor {
             }
             return value;
         }
+    }
+
+    public boolean isStringListModel(TypeElement typeEl, VariableElement typeVar) {
+        if (!typeEl.getQualifiedName().contentEquals("com.codename1.ui.list.ListModel") && !typeEl.getQualifiedName().contentEquals("com.codename1.ui.list.MultipleSelectionListModel")) {
+            return false;
+        }
+        TypeMirror tmpMirror = typeVar.asType();
+        if (tmpMirror.getKind() != TypeKind.DECLARED) {
+            return false;
+        }
+        DeclaredType mirror = (DeclaredType)tmpMirror;
+        if (mirror.getTypeArguments().isEmpty()) {
+            return true;
+        }
+        TypeMirror typeArg = mirror.getTypeArguments().get(0);
+        if (typeArg.getKind() == TypeKind.DECLARED) {
+            TypeElement stringType = elements().getTypeElement("java.lang.String");
+            if (isA(stringType, typeArg.toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public class MediaParameters {
@@ -4894,7 +4958,7 @@ public class ViewProcessor extends BaseProcessor {
                     if (constructor.getNumParams() > 2) {
                         for (int i=2; i < constructor.getNumParams(); i++) {
                             String val = xmlTag.getAttribute(constructor.methodEl.getParameters().get(i).getAnnotation(Inject.class).name());
-                            val = new AttributeSanitizer(constructor.classProxy.env).sanitize(constructor.getParameterType(i), constructor.isArrayParameter(i), val);
+                            val = new AttributeSanitizer(constructor.classProxy.env).sanitize(constructor.getParameterType(i), constructor.methodEl.getParameters().get(i), constructor.isArrayParameter(i), val);
                             sb.append(", ").append(val);
                         }
                     }

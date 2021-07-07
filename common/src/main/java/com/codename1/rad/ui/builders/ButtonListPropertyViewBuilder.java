@@ -8,6 +8,7 @@ import com.codename1.rad.propertyviews.LabelPropertyView;
 import com.codename1.rad.schemas.Thing;
 import com.codename1.rad.ui.ViewContext;
 import com.codename1.ui.Label;
+import com.codename1.ui.list.DefaultListModel;
 
 import java.util.Map;
 
@@ -38,4 +39,18 @@ public class ButtonListPropertyViewBuilder extends PropertyViewBuilder<ButtonLis
     public ButtonListPropertyView getComponent() {
         return (ButtonListPropertyView)super.getComponent();
     }
+
+    public static <T> DefaultListModel<T> createSingleSelectionListModel(Class<T> type, T... items) {
+        DefaultListModel<T> out = new DefaultListModel<T>(items);
+        out.setMultiSelectionMode(false);
+        return out;
+    }
+
+    public static <T> DefaultListModel<T> createMultipleSelectionListModel(Class<T> type, T... items) {
+        DefaultListModel<T> out =  new DefaultListModel<T>(items);
+        out.setMultiSelectionMode(true);
+        return out;
+    }
+
+
 }

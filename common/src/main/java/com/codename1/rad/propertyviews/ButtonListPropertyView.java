@@ -34,10 +34,9 @@ import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.list.DefaultListModel;
 import com.codename1.ui.list.ListModel;
 import com.codename1.ui.list.MultipleSelectionListModel;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
+
 import com.codename1.rad.models.Entity;
 
 /**
@@ -333,8 +332,131 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
                 throw new IllegalStateException("Unsupported property content type for property");
             }
         } else {
-            Object selectedObject = getComponent().getModel().getItemAt(selectedIndex);
-            e.getEntity().set(p, selectedObject);
+            ListModel model = getComponent().getModel();
+            if (model instanceof MultipleSelectionListModel) {
+                MultipleSelectionListModel multiModel = (MultipleSelectionListModel)model;
+                int[] selectedIndices = multiModel.getSelectedIndices();
+                boolean changed = false;
+                Set selectedObjects = new HashSet();
+                for (int i=0; i<selectedIndices.length; i++) {
+                    selectedObjects.add(multiModel.getItemAt(selectedIndices[i]));
+                }
+                Set oldSelectedObjects = new HashSet();
+                if (Iterable.class.isAssignableFrom(p.getContentType().getRepresentationClass())) {
+                    Iterable it = e.getEntity().getAs(p, Iterable.class);
+                    if (it != null) {
+                        for (Object i : it) {
+                            oldSelectedObjects.add(i);
+                        }
+                    }
+                }
+
+                changed = !(oldSelectedObjects.containsAll(selectedObjects) && selectedObjects.containsAll(oldSelectedObjects));
+                if (!changed) return;
+
+                if (p.getContentType().isEntityList()) {
+                    EntityList el = e.getEntity().getEntityList(p);
+                    if (el == null) {
+                        el = new EntityList();
+                        e.getEntity().set(p, el);
+                    }
+                    for (Object o : selectedObjects) {
+                        if (!(o instanceof Entity)) {
+                            throw new IllegalStateException("Cannot add non-entity to entity list for property "+p);
+                        }
+                        if (!el.contains(o)) {
+                            el.add((Entity)o);
+                        }
+                    }
+                    List<Entity> toRemove = new ArrayList<>();
+                    for (Object entity : el) {
+                        if (!selectedObjects.contains(entity)) {
+                            toRemove.add((Entity)entity);
+                        }
+                    }
+                    if (!toRemove.isEmpty()) {
+                        for (Entity entity : toRemove) {
+                            el.remove(entity);
+                        }
+                    }
+                    e.setChanged(p, true);
+                } else if (Collection.class.isAssignableFrom(p.getContentType().getRepresentationClass())) {
+                    Collection c = e.getAs(p, Collection.class);
+                    if (c == null) {
+                        if (p.getContentType().getRepresentationClass().isAssignableFrom(List.class)) {
+                            c = new ArrayList();
+                            e.getEntity().set(p, c);
+                        } else if (p.getContentType().getRepresentationClass().isAssignableFrom(Set.class)) {
+                            c = new HashSet();
+                            e.getEntity().set(p, c);
+                        } else {
+                            throw new IllegalStateException("Cannot set item in collection of property "+p+" because the collection is null.");
+                        }
+                    }
+                    for (Object o : selectedObjects) {
+                        if (!c.contains(o)) {
+                            c.add(o);
+                        }
+                    }
+                    List toRemove = new ArrayList<>();
+                    for (Object entity : c) {
+                        if (!selectedObjects.contains(entity)) {
+                            toRemove.add(entity);
+                        }
+                    }
+                    if (!toRemove.isEmpty()) {
+                        for (Object entity : toRemove) {
+                            c.remove(entity);
+                        }
+                    }
+                    e.setChanged(p, true);
+
+                }
+            } else {
+                Object selectedObject = getComponent().getModel().getItemAt(selectedIndex);
+                if (p.getContentType().isEntityList()) {
+                    if (!(selectedObject instanceof Entity)) {
+                        throw new IllegalStateException("Attempt to add non-entity "+selectedObject+" to property of type entity list");
+                    }
+                    EntityList el = e.getEntity().getEntityList(p);
+                    if (el == null) {
+                        el = new EntityList();
+                        e.getEntity().set(p, el);
+                    }
+
+                    if (el.size() == 1 && el.contains(selectedObject)) {
+                        return;
+                    }
+                    if (el.size() != 0) {
+                        el.clear();
+                    }
+                    el.add((Entity)selectedObject);
+                    e.setChanged(p, true);
+                } else if (Collection.class.isAssignableFrom(p.getContentType().getRepresentationClass())) {
+                    Collection c = (Collection)e.getEntity().getAs(p, Collection.class);
+                    if (c == null) {
+                        if (p.getContentType().getRepresentationClass().isAssignableFrom(List.class)) {
+                            c = new ArrayList();
+                            e.getEntity().set(p, c);
+                        } else if (p.getContentType().getRepresentationClass().isAssignableFrom(Set.class)) {
+                            c = new HashSet();
+                            e.getEntity().set(p, c);
+                        } else {
+                            throw new IllegalStateException("Cannot set item in collection of property "+p+" because the collection is null.");
+                        }
+                    }
+                    if (c.size() == 1 && c.contains(selectedObject)) {
+                        return;
+                    }
+                    if (!c.isEmpty()) {
+                        c.clear();
+                    }
+                    c.add(selectedObject);
+                    e.setChanged(p, true);
+
+                }
+                e.getEntity().set(p, selectedObject);
+            }
         }
     }
     

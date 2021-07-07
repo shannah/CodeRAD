@@ -278,20 +278,27 @@ public class ContentType<T> {
             if (cls == Integer.class || cls == Double.class || cls == Float.class || cls == Boolean.class) {
                 return String.valueOf(data);
             }
-            
-            return super.from(otherType, data);
+            if (super.canConvertFrom(otherType)) {
+                return super.from(otherType, data);
+            } else {
+                return String.valueOf(data);
+            }
             
             
         }
 
         @Override
         public boolean canConvertFrom(ContentType otherType) {
+            return true;
+            /*
             Class cls = otherType.getRepresentationClass();
             return super.canConvertFrom(otherType) ||
                     cls == Integer.class ||
                     cls == Double.class ||
                     cls == Float.class ||
                     cls == Boolean.class;
+                    */
+
         }
         
  
@@ -504,7 +511,8 @@ public class ContentType<T> {
             if (otherType == LongType) {
                 return new Date((Long)data);
             }
-            return super.from(otherType, data); 
+            return super.from(otherType, data);
+
         }
         
         @Override

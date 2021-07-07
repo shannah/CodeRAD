@@ -673,5 +673,9 @@ public class EntityList<T extends Entity> extends BaseEntity implements Iterable
             listeners.removeListener(l);
         }
     }
+
+    public boolean contains(Object o) {
+        return entities().contains(o);
+    }
     
 }

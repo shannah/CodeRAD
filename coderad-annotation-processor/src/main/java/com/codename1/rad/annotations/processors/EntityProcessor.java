@@ -830,8 +830,16 @@ public class EntityProcessor extends BaseProcessor {
                                     TypeElement typeEl = (TypeElement)((DeclaredType)entityProperty.type).asElement();
                                     if (typeEl != null) {
                                         if (typeEl.getKind() == ElementKind.INTERFACE) {
-                                            String implName = typeEl.getQualifiedName()+"Impl";
-                                            value = "new "+implName+"()";
+                                            if (isA(typeEl, "com.codename1.rad.models.Entity")) {
+                                                String implName = typeEl.getQualifiedName() + "Impl";
+                                                value = "new " + implName + "()";
+                                            } else if (typeEl.getQualifiedName().contentEquals("java.util.List") || typeEl.getQualifiedName().contentEquals("java.util.Collection")) {
+                                                value = "new java.util.ArrayList()";
+                                            } else if (typeEl.getQualifiedName().contentEquals("java.util.Set")) {
+                                                value = "new java.util.HashSet()";
+                                            } else {
+                                                processingEnv.getMessager().printMessage(Kind.ERROR, "Cannot find class to create new inital value for property "+entityProperty.name, entityProperty.methodElement);
+                                            }
                                         } else {
                                             value = "new "+typeEl.getQualifiedName()+"()";
                                         }
