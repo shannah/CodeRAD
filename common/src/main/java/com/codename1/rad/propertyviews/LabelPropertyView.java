@@ -22,6 +22,7 @@ import com.codename1.rad.ui.UI;
 import com.codename1.rad.ui.image.PropertyImageRenderer;
 import com.codename1.rad.ui.image.RoundImageRenderer;
 import com.codename1.rad.ui.image.RoundRectImageRenderer;
+import com.codename1.ui.Form;
 import com.codename1.ui.Image;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.DataChangedListener;
@@ -124,9 +125,11 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
         String oldVal = getComponent().getText();
         
         String newVal = iconOnly ? "" : getText();
+        boolean changed = false;
         
         if (!Objects.equals(oldVal, newVal)) {
             getComponent().setText(newVal);
+            changed = true;
         }
         
         if (iconField != null) {
@@ -135,8 +138,16 @@ public class LabelPropertyView extends PropertyView<com.codename1.ui.Label> {
                 if (!getIconPropertySelector().getText("").equals(lastIcon)) {
                     lastIcon = getIconPropertySelector().getText("");
                     Image icon = iconRenderer.createImage(iconPropertySelector);
+                    changed = true;
                     getComponent().setIcon(icon);
                 }
+            }
+        }
+
+        if (changed) {
+            Form f = getComponent().getComponentForm();
+            if (f != null) {
+                f.revalidateLater();
             }
         }
     }

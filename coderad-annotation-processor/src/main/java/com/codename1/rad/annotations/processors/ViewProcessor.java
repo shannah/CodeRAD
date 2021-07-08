@@ -6464,6 +6464,10 @@ public class ViewProcessor extends BaseProcessor {
                                 .filter(e->e.getKind() == ElementKind.METHOD && e.getSimpleName().contentEquals("getComponent")).findFirst().orElse(null);
                         ExecutableType getComponentMethodType = (ExecutableType) types().asMemberOf((DeclaredType)typeEl.asType(), getComponentMethod);
                         TypeElement componentElement = elements().getTypeElement(getComponentMethodType.getReturnType().toString());
+                        if (componentElement == null) {
+                            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Could not find type element for "+getComponentMethodType.getReturnType()+" while trying to determine the component type of a ComponentBuilder "+typeEl.getQualifiedName(), element);
+                            throw new IllegalStateException("Could not find type element for "+getComponentMethodType.getReturnType()+" while trying to determine the component type of a ComponentBuilder "+typeEl.getQualifiedName());
+                        }
                         if (pair == null) {
                             pair = nameMap.get(componentElement.getQualifiedName().toString());
 

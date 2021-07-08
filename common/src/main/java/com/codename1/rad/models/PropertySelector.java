@@ -370,7 +370,11 @@ public class PropertySelector {
     
     private Property property;
     private PropertySelector parent;
-    
+
+    public boolean set(Object value) {
+        return set(getLeafProperty().getContentType(), value);
+    }
+
     public <T> boolean set(ContentType<T> type, T value) {
         Entity e = null;
         if (parent != null) {
@@ -447,6 +451,10 @@ public class PropertySelector {
             }
         }
         return defaultValue;
+    }
+
+    public Object get(Object defaultValue) {
+        return get(getLeafProperty().getContentType(), null);
     }
 
     /**
