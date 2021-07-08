@@ -211,7 +211,7 @@ public class ButtonListPropertyView extends PropertyView<ButtonList> {
                 } else {
                     // Not using IDS.  We will use direct matching.
                     for (int i=0; i<len; i++) {
-                        if (selectedObjects.contains(model.getItemAt(i))) {
+                        if (el.contains(model.getItemAt(i))) {
                             selectedIndices.add(i);
                         }
                     }

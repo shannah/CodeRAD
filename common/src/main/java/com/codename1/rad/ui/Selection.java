@@ -104,7 +104,16 @@ public class Selection {
         hash = 89 * hash + this.lastColumn;
         return hash;
     }
-    
+
+
+    public void accept(SelectionVisitor sel) {
+        sel.visit(this);
+    }
+
+
+    public static interface SelectionVisitor {
+        public void visit(Selection sel);
+    }
     
     
 }

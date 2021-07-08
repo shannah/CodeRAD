@@ -6,12 +6,17 @@
 package com.codename1.rad.models;
 
 import com.codename1.rad.controllers.ControllerEvent;
+import com.codename1.rad.ui.ComplexSelection;
+import com.codename1.rad.ui.Selection;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.ui.events.DataChangedListener;
+import com.codename1.ui.events.SelectionListener;
+import com.codename1.ui.list.ListModel;
+import com.codename1.ui.list.MultipleSelectionListModel;
 import com.codename1.ui.util.EventDispatcher;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.*;
 
 /**
  * Encapsulates a list of entities. This list is observable, as it will fire {@link EntityListEvent} events when items are added 
@@ -677,5 +682,312 @@ public class EntityList<T extends Entity> extends BaseEntity implements Iterable
     public boolean contains(Object o) {
         return entities().contains(o);
     }
+
+    public ListModel<T> toListModel() {
+        return new ListModel<T>() {
+            private int selectedIndex = -1;
+            private List<SelectionListener> selectionListeners;
+
+            @Override
+            public T getItemAt(int i) {
+                return EntityList.this.get(i);
+            }
+
+            @Override
+            public int getSize() {
+                return EntityList.this.size();
+            }
+
+            @Override
+            public int getSelectedIndex() {
+                return selectedIndex;
+
+            }
+
+            @Override
+            public void setSelectedIndex(int i) {
+                if (selectedIndex != i) {
+                    int old = selectedIndex;
+                    selectedIndex = i;
+                    if (selectionListeners != null && !selectionListeners.isEmpty()) {
+                        List<SelectionListener> toSend = new ArrayList<>();
+                        for (SelectionListener l : toSend) {
+                            l.selectionChanged(old, selectedIndex);
+                        }
+                    }
+                }
+
+            }
+            class DataChangedListenerWrapper implements ActionListener<EntityListEvent> {
+                DataChangedListener l;
+
+                DataChangedListenerWrapper(DataChangedListener l) {
+                    this.l = l;
+                }
+
+                @Override
+                public void actionPerformed(EntityListEvent entityListEvent) {
+                    if (entityListEvent instanceof EntityAddedEvent) {
+                        EntityAddedEvent e = (EntityAddedEvent)entityListEvent;
+                        l.dataChanged(DataChangedListener.ADDED, e.getIndex());
+                    } else if (entityListEvent instanceof EntityRemovedEvent) {
+                        EntityRemovedEvent e = (EntityRemovedEvent)entityListEvent;
+                        l.dataChanged(DataChangedListener.REMOVED, e.getIndex());
+                    }
+                }
+            }
+
+            private List<DataChangedListenerWrapper> dataChangedListenerWrappers;
+            @Override
+            public void addDataChangedListener(DataChangedListener dataChangedListener) {
+                if (dataChangedListenerWrappers == null) {
+                    dataChangedListenerWrappers = new ArrayList<>();
+                }
+                DataChangedListenerWrapper w = new DataChangedListenerWrapper(dataChangedListener);
+                dataChangedListenerWrappers.add(w);
+                EntityList.this.addActionListener(w);
+            }
+
+            @Override
+            public void removeDataChangedListener(DataChangedListener dataChangedListener) {
+                DataChangedListenerWrapper w = null;
+                if (dataChangedListenerWrappers == null || dataChangedListenerWrappers.isEmpty()) return;
+                for (DataChangedListenerWrapper candidate : dataChangedListenerWrappers) {
+                    if (candidate.l == dataChangedListener) {
+                        w = candidate;
+                        break;
+                    }
+                }
+                if (w == null) return;
+                EntityList.this.removeActionListener(w);
+            }
+
+
+            @Override
+            public void addSelectionListener(SelectionListener selectionListener) {
+                if (selectionListeners == null) selectionListeners = new ArrayList<>();
+                selectionListeners.add(selectionListener);
+            }
+
+            @Override
+            public void removeSelectionListener(SelectionListener selectionListener) {
+                if (selectionListeners == null) return;
+                selectionListeners.remove(selectionListener);
+            }
+
+            @Override
+            public void addItem(T o) {
+
+                EntityList.this.add((T) o);
+            }
+
+            @Override
+            public void removeItem(int i) {
+                Object o = EntityList.this.get(i);
+                if (o != null) {
+                    EntityList.this.remove((T)o);
+                }
+            }
+        };
+    }
+
+
+    public MultipleSelectionListModel<T> toMultipleSelectionListModel() {
+
+        return new MultipleSelectionListModel<T>() {
+            private List<SelectionListener> selectionListeners;
+            private Set<Integer> selectedIndices = new HashSet<>();
+            @Override
+            public void addSelectedIndices(int... ints) {
+                List<Integer> added = new ArrayList();
+                for (int i : ints) {
+                    if (selectedIndices.contains(i)) continue;
+                    selectedIndices.add(i);
+                    added.add(i);
+                }
+
+                if (selectionListeners != null && !selectionListeners.isEmpty() && !added.isEmpty()) {
+                    List<SelectionListener> toSend = new ArrayList<>(selectionListeners);
+                    for (Integer i : added) {
+                        for (SelectionListener l : toSend) {
+                            l.selectionChanged(-1, i);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void removeSelectedIndices(int... ints) {
+                List<Integer> removed = new ArrayList<>();
+                for (int i : ints) {
+                    if (!selectedIndices.contains(i)) {
+                        continue;
+                    }
+                    selectedIndices.remove(i);
+                    removed.add(i);
+                }
+                if (selectionListeners != null && !selectionListeners.isEmpty() && !removed.isEmpty()) {
+                    List<SelectionListener> toSend = new ArrayList<>(selectionListeners);
+                    for (Integer i : removed) {
+                        for (SelectionListener l : toSend) {
+                            l.selectionChanged(i, -1);
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void setSelectedIndices(int... ints) {
+                int[] existing = getSelectedIndices();
+                Set<Integer> existingInts = new HashSet<>();
+                Set<Integer> newInts = new HashSet<>();
+                Set<Integer> toAdd = new HashSet<>();
+                Set<Integer> toRemove = new HashSet<>();
+                for (int i : ints) {
+                    newInts.add(i);
+                }
+                for (int i : existing) {
+                    existingInts.add(i);
+                }
+                for (int i : newInts) {
+                    if (!existingInts.contains(i)) {
+                        toAdd.add(i);
+                    }
+                }
+                for (int i : existingInts) {
+                    if (!newInts.contains(i)) {
+                        toRemove.add(i);
+                    }
+                }
+                if (!toRemove.isEmpty()) {
+                    int[] toRemoveArr = new int[toRemove.size()];
+                    int index = 0;
+                    for (Integer remI : toRemove) {
+                        toRemoveArr[index++] = remI;
+                    }
+                    removeSelectedIndices(toRemoveArr);
+                }
+                if (!toAdd.isEmpty()) {
+                    int[] toAddArr = new int[toAdd.size()];
+                    int index = 0;
+                    for (Integer addI : toAdd) {
+                        toAddArr[index++] = addI;
+                    }
+                    addSelectedIndices(toAddArr);
+                }
+            }
+
+            @Override
+            public int[] getSelectedIndices() {
+                List<Integer> ints = new ArrayList<>(selectedIndices);
+                Collections.sort(ints);
+                int[] out = new int[ints.size()];
+                int index = 0;
+                for (Integer i : ints) {
+                    out[index++] = i;
+                }
+                return out;
+            }
+
+            @Override
+            public T getItemAt(int i) {
+                return EntityList.this.get(i);
+            }
+
+            @Override
+            public int getSize() {
+                return EntityList.this.size();
+            }
+
+            @Override
+            public int getSelectedIndex() {
+                if (selectedIndices.isEmpty()) return -1;
+                return selectedIndices.iterator().next();
+            }
+
+            @Override
+            public void setSelectedIndex(int i) {
+                if (i < 0) {
+                    if (!selectedIndices.isEmpty()) {
+                        removeSelectedIndices(getSelectedIndices());
+                    }
+                }
+                else setSelectedIndices(i);
+            }
+            class DataChangedListenerWrapper implements ActionListener<EntityListEvent> {
+                DataChangedListener l;
+
+                DataChangedListenerWrapper(DataChangedListener l) {
+                    this.l = l;
+                }
+
+                @Override
+                public void actionPerformed(EntityListEvent entityListEvent) {
+                    if (entityListEvent instanceof EntityAddedEvent) {
+                        EntityAddedEvent e = (EntityAddedEvent)entityListEvent;
+                        l.dataChanged(DataChangedListener.ADDED, e.getIndex());
+                    } else if (entityListEvent instanceof EntityRemovedEvent) {
+                        EntityRemovedEvent e = (EntityRemovedEvent)entityListEvent;
+                        l.dataChanged(DataChangedListener.REMOVED, e.getIndex());
+                    }
+                }
+            }
+
+            private List<DataChangedListenerWrapper> dataChangedListenerWrappers;
+            @Override
+            public void addDataChangedListener(DataChangedListener dataChangedListener) {
+                if (dataChangedListenerWrappers == null) {
+                    dataChangedListenerWrappers = new ArrayList<>();
+                }
+                DataChangedListenerWrapper w = new DataChangedListenerWrapper(dataChangedListener);
+                dataChangedListenerWrappers.add(w);
+                EntityList.this.addActionListener(w);
+            }
+
+            @Override
+            public void removeDataChangedListener(DataChangedListener dataChangedListener) {
+                DataChangedListenerWrapper w = null;
+                if (dataChangedListenerWrappers == null || dataChangedListenerWrappers.isEmpty()) return;
+                for (DataChangedListenerWrapper candidate : dataChangedListenerWrappers) {
+                    if (candidate.l == dataChangedListener) {
+                        w = candidate;
+                        break;
+                    }
+                }
+                if (w == null) return;
+                EntityList.this.removeActionListener(w);
+            }
+
+
+
+            @Override
+            public void addSelectionListener(SelectionListener selectionListener) {
+                if (selectionListeners == null) selectionListeners = new ArrayList<>();
+                selectionListeners.add(selectionListener);
+            }
+
+            @Override
+            public void removeSelectionListener(SelectionListener selectionListener) {
+                if (selectionListeners == null || selectionListeners.isEmpty()) return;
+                selectionListeners.remove(selectionListener);
+            }
+
+            @Override
+            public void addItem(T o) {
+
+                EntityList.this.add((T) o);
+            }
+
+            @Override
+            public void removeItem(int i) {
+                Object o = EntityList.this.get(i);
+                if (o != null) {
+                    EntityList.this.remove((T)o);
+                }
+            }
+        };
+    }
+
     
 }

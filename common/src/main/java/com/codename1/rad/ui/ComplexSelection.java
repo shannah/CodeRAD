@@ -155,7 +155,16 @@ public class ComplexSelection extends Selection implements Iterable<Selection> {
         hash = 79 * hash + Objects.hashCode(this.selections);
         return hash;
     }
-    
+
+    public void accept(SelectionVisitor visitor) {
+        for (Selection sel : selections) {
+            if (sel instanceof ComplexSelection) {
+                ((ComplexSelection)sel).accept(visitor);
+            } else {
+                visitor.visit(sel);
+            }
+        }
+    }
     
     
 }

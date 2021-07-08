@@ -5,6 +5,7 @@
  */
 package com.codename1.rad.models;
 
+import com.codename1.rad.schemas.Thing;
 import com.codename1.rad.ui.UI;
 import com.codename1.ui.CN;
 import com.codename1.ui.Display;
@@ -1663,5 +1664,23 @@ public class BaseEntity extends Observable implements Entity  {
     @Override
     public BaseEntity getEntity() {
         return this;
+    }
+
+    @Override
+    public String toString() {
+        String val = getEntityType().getText(Thing.name, this);
+        if (val != null) return val;
+        val = getEntityType().getText(Thing.description, this);
+        if (val != null) return val;
+        val = getEntityType().getText(Thing.identifier, this);
+        if (val != null) return val;
+        for (Property p : getEntityType()) {
+            if (p.getContentType().getRepresentationClass() == String.class) {
+                val = getText(p);
+                if (val != null) return val;
+            }
+        }
+        return super.toString();
+
     }
 }

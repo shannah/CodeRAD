@@ -486,5 +486,8 @@ public class SimpleEntityWrapper implements Entity {
         return entity.toMap(keys);
     }
 
-    
+    @Override
+    public String toString() {
+        return entity.toString();
+    }
 }
