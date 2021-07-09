@@ -4,6 +4,7 @@ import com.codename1.components.CheckBoxList;
 import com.codename1.components.RadioButtonList;
 import com.codename1.rad.annotations.RAD;
 import com.codename1.rad.ui.ViewContext;
+import com.codename1.ui.Component;
 import com.codename1.ui.list.DefaultListModel;
 import com.codename1.ui.list.ListModel;
 import com.codename1.ui.list.MultipleSelectionListModel;
@@ -22,7 +23,13 @@ public class RadioButtonListBuilder extends AbstractButtonListBuilder<RadioButto
         if (model == null) {
             throw new IllegalArgumentException("A model is required for CheckBoxList");
         }
-        return new RadioButtonList(model);
+        return new RadioButtonList(model) {
+            @Override
+            protected Component decorateComponent(Object modelItem, Component b) {
+                decorateButton(b);
+                return super.decorateComponent(modelItem, b);
+            }
+        };
     }
 
 

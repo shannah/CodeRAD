@@ -23,13 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/ComboBoxPropertyViewBuilder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/PropertySelector.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/models/PropertySelector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/propertyviews/ComboBoxPropertyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/propertyviews/ComboBoxPropertyView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/propertyviews/LabelPropertyView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/propertyviews/LabelPropertyView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/AbstractButtonListBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/AbstractButtonListBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/CheckBoxListBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/CheckBoxListBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/RadioButtonListBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/RadioButtonListBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/manual/getting-started.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual/getting-started.adoc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,10 +139,10 @@
       <screen x="0" y="23" width="2560" height="1417" />
     </state>
     <state x="823" y="541" key="#com.intellij.fileTypes.FileTypeChooser/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618852082723" />
-    <state x="-1467" y="183" key="#com.intellij.ide.util.MemberChooser" timestamp="1625758316334">
+    <state x="-1467" y="183" key="#com.intellij.ide.util.MemberChooser" timestamp="1625780214586">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1467" y="183" key="#com.intellij.ide.util.MemberChooser/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625758316334" />
+    <state x="-1467" y="183" key="#com.intellij.ide.util.MemberChooser/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625780214586" />
     <state x="1093" y="456" key="#com.intellij.ide.util.MemberChooser/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618842720392" />
     <state x="1015" y="543" key="#com.intellij.ide.util.PackageChooserDialog" timestamp="1618835921851">
       <screen x="0" y="23" width="2560" height="1417" />
@@ -225,10 +223,10 @@
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
     <state x="-1819" y="334" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623864908003" />
-    <state x="-1745" y="216" width="1066" height="755" key="find.popup" timestamp="1625660296167">
+    <state x="-1745" y="216" width="1066" height="755" key="find.popup" timestamp="1625862387715">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1745" y="216" width="1066" height="755" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625660296167" />
+    <state x="-1745" y="216" width="1066" height="755" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625862387715" />
     <state x="535" y="361" width="699" height="547" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619386220903" />
     <state x="815" y="489" width="1065" height="754" key="find.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618414094499" />
     <state width="600" height="428" key="javadoc.popup" timestamp="1619876204348">
@@ -241,10 +239,10 @@
     </state>
     <state x="-2154" y="22" key="new project wizard/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621435494975" />
     <state x="406" y="295" width="913" height="579" key="new project wizard/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618842387165" />
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1625765792610">
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1625855388023">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625765792610" />
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625855388022" />
     <state x="517" y="334" width="670" height="490" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625588401127" />
     <state x="443" y="272" width="670" height="430" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1618261010075" />
     <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618847296129" />

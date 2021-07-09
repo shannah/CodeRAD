@@ -1160,7 +1160,7 @@ And clicking the _ShowProfile_ button on any row, will show the _UserProfilePage
 
 image::images/shai-user-profile-page.png[]
 
-
+[#using-lead-component]
 ==== Using a Lead Component
 
 It seems a bit redundant to have a "Show Profile" button on each row.  Why not just show the profile when the user presses anywhere on the row.  This can be achieved by setting the button as the _lead component_ for the row's container.  Then the container will pipe all of its events to the button for handling.  We would generally, then, hide the button from view.

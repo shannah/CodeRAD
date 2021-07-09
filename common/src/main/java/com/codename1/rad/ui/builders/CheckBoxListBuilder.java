@@ -2,6 +2,7 @@ package com.codename1.rad.ui.builders;
 
 import com.codename1.components.CheckBoxList;
 import com.codename1.rad.ui.ViewContext;
+import com.codename1.ui.Component;
 import com.codename1.ui.list.DefaultListModel;
 import com.codename1.ui.list.ListModel;
 import com.codename1.ui.list.MultipleSelectionListModel;
@@ -24,7 +25,13 @@ public class CheckBoxListBuilder extends AbstractButtonListBuilder<CheckBoxList>
         if (!(model instanceof MultipleSelectionListModel)) {
             throw new IllegalArgumentException("CheckBoxList required multiple selection list model");
         }
-        return new CheckBoxList((MultipleSelectionListModel)model);
+        return new CheckBoxList((MultipleSelectionListModel)model) {
+            @Override
+            protected Component decorateComponent(Object modelItem, Component b) {
+                decorateButton(b);
+                return super.decorateComponent(modelItem, b);
+            }
+        };
     }
 
     @Override
