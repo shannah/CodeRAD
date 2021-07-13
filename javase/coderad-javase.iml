@@ -16,8 +16,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.codenameone:codenameone-javase:7.0.29" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: com.codenameone:codenameone-core:7.0.29" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.codenameone:codenameone-javase:8.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.codenameone:codenameone-core:8.0-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.xerial:sqlite-jdbc:3.7.15-M1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.jhlabs:filters:2.0.235-1" level="project" />
     <orderEntry type="module" module-name="coderad-common" />

@@ -24,10 +24,10 @@
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/AbstractButtonListBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/AbstractButtonListBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/CheckBoxListBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/CheckBoxListBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/RadioButtonListBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/builders/RadioButtonListBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/manual/getting-started.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/docs/manual/getting-started.adoc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/coderad-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ViewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ViewController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/javase/coderad-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/javase/coderad-javase.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -170,28 +170,28 @@
     </state>
     <state x="-2560" y="-250" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1623329356364" />
     <state x="825" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618523791228" />
-    <state width="1982" height="242" key="GridCell.Tab.0.bottom" timestamp="1625759246596">
+    <state width="1982" height="242" key="GridCell.Tab.0.bottom" timestamp="1626198704821">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="1982" height="242" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625759246596" />
+    <state width="1982" height="242" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626198704821" />
     <state width="1884" height="230" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625522861332" />
     <state width="2518" height="409" key="GridCell.Tab.0.bottom/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171393" />
-    <state width="1982" height="242" key="GridCell.Tab.0.center" timestamp="1625759246595">
+    <state width="1982" height="242" key="GridCell.Tab.0.center" timestamp="1626198704820">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="1982" height="242" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625759246595" />
+    <state width="1982" height="242" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626198704820" />
     <state width="1884" height="230" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625522861331" />
     <state width="2518" height="409" key="GridCell.Tab.0.center/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171392" />
-    <state width="1982" height="242" key="GridCell.Tab.0.left" timestamp="1625759246595">
+    <state width="1982" height="242" key="GridCell.Tab.0.left" timestamp="1626198704820">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="1982" height="242" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625759246595" />
+    <state width="1982" height="242" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626198704820" />
     <state width="1884" height="230" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625522861330" />
     <state width="2518" height="409" key="GridCell.Tab.0.left/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171392" />
-    <state width="1982" height="242" key="GridCell.Tab.0.right" timestamp="1625759246596">
+    <state width="1982" height="242" key="GridCell.Tab.0.right" timestamp="1626198704821">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state width="1982" height="242" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625759246596" />
+    <state width="1982" height="242" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626198704821" />
     <state width="1884" height="230" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625522861331" />
     <state width="2518" height="409" key="GridCell.Tab.0.right/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1619043171393" />
     <state width="1105" height="467" key="GridCell.Tab.1.bottom" timestamp="1617710132503">
@@ -239,10 +239,10 @@
     </state>
     <state x="-2154" y="22" key="new project wizard/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621435494975" />
     <state x="406" y="295" width="913" height="579" key="new project wizard/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618842387165" />
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1625855388023">
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1626195464756">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625855388022" />
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626195464756" />
     <state x="517" y="334" width="670" height="490" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625588401127" />
     <state x="443" y="272" width="670" height="430" key="search.everywhere.popup/0.0.1440.900@0.0.1440.900" timestamp="1618261010075" />
     <state x="788" y="452" width="670" height="676" key="search.everywhere.popup/2560.23.1680.1027/0.23.2560.1417@0.23.2560.1417" timestamp="1618847296129" />

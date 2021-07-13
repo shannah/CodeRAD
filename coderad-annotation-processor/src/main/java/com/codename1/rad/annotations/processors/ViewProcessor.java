@@ -4273,6 +4273,7 @@ public class ViewProcessor extends BaseProcessor {
                     for (org.w3c.dom.Element slotChild : getChildElements(childEl)) {
                         if (jenv.isComponentTag(slotChild.getTagName())) {
                             indent(sb, indent).append("viewController.fillSlot(").append(slotId).append(", evt -> {\n");
+                            indent(sb, indent).append("    if (!_cmp.contains(evt.getSlot())) return;\n");
                             indent(sb, indent).append("    evt.getSlot().setContent(createComponent").append(slotChild.getAttribute("rad-id")).append("());\n");
                             indent(sb, indent).append("});\n");
                             break;
@@ -6220,19 +6221,9 @@ public class ViewProcessor extends BaseProcessor {
 
             sb.append("    @Override\n");
             sb.append("    public void commit() {}\n");
-            //sb.append("    private java.util.List<Runnable> _onUpdate;\n");
-            //sb.append("    private void _onUpdate(Runnable runnable) {\n");
-            //sb.append("        if (_onUpdate == null) _onUpdate = new java.util.ArrayList<Runnable>();\n");
-            //sb.append("        _onUpdate.add(runnable);\n");
-            //sb.append("    }\n");
             sb.append("    @Override\n");
-            sb.append("    public void update() {\n");
-            //sb.append("        if (_onUpdate != null && !_onUpdate.isEmpty()) {\n");
-            //sb.append("            for (Runnable r : _onUpdate) {\n");
-            //sb.append("                r.run();\n");
-            //sb.append("            }\n");
-            //sb.append("        }\n");
-            sb.append("    }\n");
+            sb.append("    public void update() {}\n");
+
 
 
             sb.append("    @Override\n");

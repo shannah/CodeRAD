@@ -12,6 +12,7 @@ import com.codename1.rad.ui.Slot;
 import com.codename1.rad.ui.ViewContext;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
+import com.codename1.ui.Form;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.events.ActionSource;
@@ -170,8 +171,9 @@ public class ViewController extends Controller {
                 ((ActionSource)this.view).addActionListener(viewListener);
             }
             this.view.putClientProperty(KEY, this);
-
-            activate(this.view);
+            if (this.view instanceof Form) {
+                activate(this.view);
+            }
             dispatchEvent(new DidSetViewEvent(this, this.view));
             if (viewDecorators != null && !viewDecorators.isEmpty()) {
                 viewDecorators.clear();
