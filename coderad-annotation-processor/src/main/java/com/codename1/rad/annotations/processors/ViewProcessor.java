@@ -4242,7 +4242,12 @@ public class ViewProcessor extends BaseProcessor {
                     if (constraint == null || constraint.isEmpty()) {
                         indent(sb, indent).append("_cmp.addComponent(_slot);\n");
                     } else {
-                        indent(sb, indent).append("_cmp.addComponent(_builder.parseConstraint(\"").append(StringEscapeUtils.escapeJava(constraint)).append("\"), _slot);\n");
+                        if (!constraint.startsWith("java:")) {
+                            constraint = "_builder.parseConstraint(\"" + StringEscapeUtils.escapeJava(constraint) + "\")";
+                        } else {
+                            constraint = constraint.substring(constraint.indexOf(":")+1);
+                        }
+                        indent(sb, indent).append("_cmp.addComponent(").append(constraint).append(", _slot);\n");
                     }
                     indent -= 4;
                     indent(sb, indent).append("}\n");
@@ -4324,7 +4329,12 @@ public class ViewProcessor extends BaseProcessor {
                         indent(sb, indent).append("    }\n");
                         indent(sb, indent).append("}\n");
                     } else {
-                        indent(sb, indent).append("_cmp.addComponent(_builder.parseConstraint(\"").append(StringEscapeUtils.escapeJava(constraint)).append("\"), ").append(createCall).append(");\n");
+                        if (!constraint.startsWith("java:")) {
+                            constraint = "_builder.parseConstraint(\"" + StringEscapeUtils.escapeJava(constraint) + "\")";
+                        } else {
+                            constraint = constraint.substring(constraint.indexOf(":")+1);
+                        }
+                        indent(sb, indent).append("_cmp.addComponent(").append(constraint).append(", ").append(createCall).append(");\n");
                     }
                     if (!condition.isEmpty()) {
                         indent -= 4;
