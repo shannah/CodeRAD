@@ -127,6 +127,8 @@ public class EntityProcessor extends BaseProcessor {
     }
 
 
+
+
     private int roundNum = 1;
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -662,6 +664,7 @@ public class EntityProcessor extends BaseProcessor {
             HashSet<String> sandbox = new HashSet<String>();
             sandbox.addAll(prop.tags);
             int numTags = sandbox.size();
+            if (numTags == 0) return true;
             for (EntityProperty otherProp : properties.values()) {
                 if (otherProp == prop) continue;
                 sandbox.removeAll(otherProp.tags);

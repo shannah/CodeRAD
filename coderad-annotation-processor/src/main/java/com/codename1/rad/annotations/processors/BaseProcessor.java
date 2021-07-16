@@ -251,12 +251,14 @@ public abstract class BaseProcessor extends AbstractProcessor {
         if (el == null) return out;
 
         el.getEnclosedElements().stream()
+        //processingEnv.getElementUtils().getAllMembers(el).stream()
                 .filter(e -> e.getKind() == ElementKind.METHOD)
                 .filter(e -> e.getAnnotation(RAD.class) != null)
                 .filter(e -> e.getAnnotation(RAD.class).tag().length > 0)
                 .forEach(e-> {
                     fout.add((ExecutableElement)e);
                 });
+
         getAllTaggedAndAbstractMethods(out,(TypeElement) processingEnv.getTypeUtils().asElement(el.getSuperclass()));
         for (TypeMirror iface : el.getInterfaces()) {
             getAllTaggedAndAbstractMethods(out, (TypeElement)processingEnv.getTypeUtils().asElement(iface));

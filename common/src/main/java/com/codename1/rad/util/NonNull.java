@@ -1,6 +1,8 @@
 package com.codename1.rad.util;
 
 import com.codename1.io.Log;
+import com.codename1.ui.Component;
+import com.codename1.ui.Container;
 import com.codename1.util.SuccessCallback;
 
 public class NonNull {
@@ -40,6 +42,24 @@ public class NonNull {
         } catch (Exception ex) {
             Log.e(ex);
             return null;
+        }
+    }
+
+
+
+    public  static <T extends Container> T findAncestorContainer(Component cmp, Class<T> type) {
+        if (cmp == null) return null;
+        if (type.isAssignableFrom(cmp.getClass())) {
+            return (T)cmp;
+        }
+        Container parent = cmp.getParent();
+        return findAncestorContainer(parent, type);
+    }
+
+    public static <T extends Container> void withAncestorContainer(Component cmp, Class<T> type, SuccessCallback<T> callback) {
+        T container = findAncestorContainer(cmp, type);
+        if (container != null) {
+            callback.onSucess(container);
         }
     }
 }

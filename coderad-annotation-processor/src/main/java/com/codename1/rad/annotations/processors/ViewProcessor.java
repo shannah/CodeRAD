@@ -4324,6 +4324,7 @@ public class ViewProcessor extends BaseProcessor {
                     String constraint = childEl.getAttribute("layout-constraint");
                     String condition = childEl.getAttribute("rad-condition");
                     if (!condition.isEmpty()) {
+                        condition = expandRADModelVars(jenv, condition, false);
                         indent(sb, indent).append("if (").append(condition).append(") {\n");
                         indent += 4;
                     }
@@ -4438,10 +4439,16 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("// Binding for ").append(attName).append("=").append(attValue).append("\n");
             indent(sb, indent).append("final ").append(componentClass.getQualifiedName()).append(" _fcmp = _cmp;\n");
             boolean parseAsJava = false;
-            if (attValue.startsWith("java:")) {
+            if (attValue.startsWith("string:")) {
+                attValue = expandRADModelVars(jenv, attValue.substring(attValue.indexOf(":")+1), true);
+                parseAsJava = true;
+            } else if (attValue.startsWith("java:")) {
                 attValue = expandRADModelVars(jenv, attValue.substring(attValue.indexOf(":")+1), false);
                 parseAsJava = true;
             } else if (attValue.contains("$") || attValue.contains("{") || attValue.contains(",")) {
+                if ("text".equalsIgnoreCase(leafPropName)) {
+                    attValue = expandRADModelVars(jenv, attValue.substring(attValue.indexOf(":")+1), true);
+                }
                 parseAsJava = true;
             }
             indent(sb, indent).append("PropertySelector _propertySelector = ");
@@ -5894,10 +5901,14 @@ public class ViewProcessor extends BaseProcessor {
                 indent -= 4;
                 indent(sb, indent).append("}\n");
                 TypeElement viewModelTypeEl = jenv.lookupClass(viewModelType);
+                if (viewModelTypeEl == null) {
+                    viewModelTypeEl = elements().getTypeElement(viewModelType);
+                }
                 TypeElement viewModelClassEl = viewModelTypeEl;
                 if (viewModelTypeEl != null) {
                     if (viewModelTypeEl.getKind() == ElementKind.INTERFACE || viewModelTypeEl.getModifiers().contains(Modifier.ABSTRACT)) {
                         viewModelClassEl = jenv.lookupClass(viewModelTypeEl+"Impl");
+                        if (viewModelClassEl == null) viewModelClassEl = elements().getTypeElement(viewModelTypeEl + "Impl");
                         if (viewModelClassEl == null) {
                             List<JavaClassProxy> candidates = jenv.findInstantiatableClassesAssignableTo(elements().getPackageOf(viewModelTypeEl),
                                     rootEl.getOwnerDocument().createElement(viewModelTypeEl.getSimpleName().toString()),
@@ -5910,7 +5921,14 @@ public class ViewProcessor extends BaseProcessor {
                     }
                 }
                 if (viewModelClassEl == null) {
-                    throw new IllegalArgumentException("Cannot find view model for "+viewModelType+" while generating form controller for " +className);
+                    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Cannot find view model for "+viewModelType+" while generating form controller for " +className, jenv.rootBuilder.parentClass);
+                    if (viewModelTypeEl == null) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Did not find any matching types for "+viewModelType, jenv.rootBuilder.parentClass);
+                    } else if (viewModelClassEl == null) {
+                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Found type for "+viewModelType+" but failed to find an instantiatable implementation", jenv.rootBuilder.parentClass);
+                    }
+                    //throw new IllegalArgumentException("Cannot find view model for "+viewModelType+" while generating form controller for " +className);
+                    return;
                 }
                 indent(sb, indent).append("public ").append(viewModelType).append(" createViewModel() {\n");
 
@@ -6163,6 +6181,7 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("private final FormController parentFormController;\n");
             indent(sb, indent).append("private java.util.List<Runnable> __initOnceListeners;\n");
             indent(sb, indent).append("private java.util.List<Runnable> __deinitListeners;\n");
+
             writeClassVariables(sb);
             writeScriptMethods(sb);
             indent(sb, indent).append("private static ViewContext<").append(viewModelType).append("> wrapContext(ViewContext<").append(viewModelType).append("> context) {\n");
@@ -6185,7 +6204,8 @@ public class ViewProcessor extends BaseProcessor {
 
             indent -= 4;
             indent(sb, indent).append("}\n\n");
-
+            indent(sb, indent).append("@Override\n");
+            indent(sb, indent).append("public ").append(viewModelType).append(" getEntity(){ return (").append(viewModelType).append(")super.getEntity();}\n");
             indent(sb, indent).append("public ").append(className).append("(@Inject ViewContext<").append(viewModelType).append("> context) {\n");
             indent += 4;
             indent(sb, indent).append("super(wrapContext(context));\n");
