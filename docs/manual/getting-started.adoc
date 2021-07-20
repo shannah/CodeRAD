@@ -1,14 +1,15 @@
 [#getting-started]
 == Getting Started
 
-To get started, download the CodeRAD starter project from https://github.com/shannah/coderad2-starter-template/archive/refs/heads/master.zip[here].
+To get started, go to https://start.codenameone.com, and select "Code RAD (MVC) Starter Project" from the _Templates_ menu.
 
-Extract the .zip file and then open the project in IntelliJ IDEA
+image::images/initializr-select-coderad-starter-project.png[]
 
-NOTE: The CodeRAD starter project is a maven project which can be opened in any Maven-compatible IDE (e.g. NetBeans, Eclipse, IntelliJ, etc...).  For this tutorial, I'll be using IntelliJ.
+For the package name, leave it as "com.example.myapp", but change the _Main Class_ to "MyRADApp".
 
-.The Code RAD starter project opened in IntelliJ IDEA
-image::images/intellij-starter-project.png[]
+The press the _Download_ button.
+
+After a few seconds you should be prompted to download the project as a ZIP file.  Save this zip file somewhere on your local drive, extract it, then open it in IntelliJ IDEA.
 
 Once the project is opened, press the
 image:images/intellij-run-button.png[]
@@ -17,28 +18,8 @@ image:images/intellij-run-button.png[]
 NOTE: The first time you run and build the project it will take some time because it needs to download all of the project dependencies.  Subsequent builds should only take a few seconds.
 
 .The starter project running inside the Codename One simulator
-image::images/hello-world-in-simulator.png[]
 
-[#cloning-project]
-=== Customizing the Maven Artifact Coordinates
-
-The starter project comes preconfigured with placeholder coordinates for `groupId` and `artifactId`.  For the purposes of this tutorial, I will be using these default coordinates.  However, for a _real_ app, you will want to change these coordinates to your own `groupId` and `artifactId`.  The easiest way to change these coordinates is using the `cn1:clone` maven goal.
-
-WARNING: If you clone the project and change the `groupId` and `artifactId`, this will also change package structure in the project, so your package structure will be different than the one I use in the rest of this tutorial.  E.g. Instead of your project files being in the _com.example.myapp_ package, they will be in a package named after your _groupId_.
-
-You can run this goal in IntelliJ by first expanding the "Maven" tab from the tabs in the right side of the window:
-
-image::images/intellij-maven-tab.png[]
-
-Once the _Maven_ sidebar is opened, expand the _myapp_ node, and the _Run Configurations_ sub-node, and then double-click the _Clone Project_ option shown here:
-
-image::images/intellij-clone-project.png[]
-
-It should display a dialog prompt for you to enter the new coordinates and location for your Maven project:
-
-image::images/clone-project-dialog.png[]
-
-After entering the project details into the dialog, press _OK_.  If all goes well, you should see a _BUILD SUCCESS_ message in the output log of IntelliJ, and you should find your new project at the location that you specified.  You can then close this project, and open your newly created project.
+image::images/starter-project-run.png[]
 
 
 [#under-the-hood]
@@ -92,15 +73,59 @@ The contents are shown below:
 [source,xml]
 ----
 <?xml version="1.0"?>
+<y style.bgColor="0xffffff" style.bgTransparency="0xff" safeArea="true" scrollableY="true" style.paddingLeft="5vw" style.paddingRight="5vw" style.paddingTop="5vw" style.paddingBottom="5vw"
+   xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <title hidden="true"/>
+
+    <center style.marginBottom="2rem">
+        <label icon="https://www.codenameone.com/wp-content/uploads/2020/08/footer-logo.png height:24vh; aspect:1.5; scale:fit"/>
+    </center>
+
+
+    <spanLabel textUIID="StartPageText" style.marginBottom="1rem">This is the CodeRAD2 starter template for building native mobile apps in Java and Kotlin</spanLabel>
+
+    <spanLabel textUIID="StartPageText">CodeRAD is an MVC framework for Codename One that will help to build better, more maintainable apps in less time.</spanLabel>
+
+    <button rad-href="https://shannah.github.io/CodeRAD/manual _blank">Learn more</button>
+
+    <label uiid="StartPageH2">Source Code Overview</label>
+
+    <spanLabel textUIID="StartPageText">This template is barebones, consisting of one view, one controller, and a stylesheet.</spanLabel>
+
+
+    <button uiid="StartPageLink"
+            materialIcon="FontImage.MATERIAL_ARROW_RIGHT"
+            textPosition="Component.LEFT"
+            rad-href="https://github.com/shannah/coderad2-starter-template/blob/master/common/src/main/rad/views/com/example/myapp/StartPage.xml _blank">See "View" source</button>
+    <button uiid="StartPageLink"
+            materialIcon="FontImage.MATERIAL_ARROW_RIGHT"
+            textPosition="Component.LEFT"
+            rad-href="https://github.com/shannah/coderad2-starter-template/blob/master/common/src/main/java/com/example/myapp/MyRADApp.java _blank">See "Controller" source</button>
+    <button uiid="StartPageLink"
+            materialIcon="FontImage.MATERIAL_ARROW_RIGHT"
+            textPosition="Component.LEFT"
+            rad-href="https://github.com/shannah/coderad2-starter-template/blob/master/common/src/main/css/theme.css _blank">See Stylesheet source</button>
+</y>
+----
+
+TIP: The boilerplate attributes `xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"` are injected automatically by the annotation processor.  You can leave those out when you create your own views.
+
+For this tutorial, I want to start from scratch, so let's delete all of the contents from _StartPage.xml_, and replace it with the following:
+
+[source,xml]
+----
+<?xml version="1.0"?>
 <y xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <title>Hi World</title>
     <label>Hello World</label>
 </y>
 ----
 
-TIP: The boilerplate attributes `xsi:noNamespaceSchemaLocation="StartPage.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"` are injected automatically by the annotation processor.  You can leave those out when you create your own views.
+Upon restarting the app in simulator, it should now look like:
 
-Let's walk through this file line by line:
+image::images/hello-world-in-simulator.png[]
+
+Let's go through this code line by line.
 
 `<?xml version="1.0"?>`::
 Obligatory XML boilerplate.

@@ -462,22 +462,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#getting-started">2. Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#cloning-project">2.1. Customizing the Maven Artifact Coordinates</a></li>
-<li><a href="#under-the-hood">2.2. Under the Hood</a></li>
-<li><a href="#hot-reload">2.3. Hot Reload</a></li>
-<li><a href="#_changing_the_styles">2.4. Changing the Styles</a></li>
-<li><a href="#_adding_more_components">2.5. Adding More Components</a></li>
-<li><a href="#adding-actions">2.6. Adding Actions</a></li>
-<li><a href="#_creating_menus">2.7. Creating Menus</a></li>
-<li><a href="#form-navigation">2.8. Form Navigation</a></li>
-<li><a href="#_models">2.9. Models</a></li>
-<li><a href="#_fun_with_bindings">2.10. Fun with Bindings</a></li>
-<li><a href="#_transitions">2.11. Transitions</a></li>
-<li><a href="#entity-lists">2.12. Entity Lists</a></li>
-<li><a href="#intraform-navigation">2.13. Intra-Form Navigation</a></li>
-<li><a href="#_custom_view_controllers">2.14. Custom View Controllers</a></li>
-<li><a href="#views-within-views">2.15. Views within Views</a></li>
-<li><a href="#_developing_custom_components">2.16. Developing Custom Components</a></li>
+<li><a href="#under-the-hood">2.1. Under the Hood</a></li>
+<li><a href="#hot-reload">2.2. Hot Reload</a></li>
+<li><a href="#_changing_the_styles">2.3. Changing the Styles</a></li>
+<li><a href="#_adding_more_components">2.4. Adding More Components</a></li>
+<li><a href="#adding-actions">2.5. Adding Actions</a></li>
+<li><a href="#_creating_menus">2.6. Creating Menus</a></li>
+<li><a href="#form-navigation">2.7. Form Navigation</a></li>
+<li><a href="#_models">2.8. Models</a></li>
+<li><a href="#_fun_with_bindings">2.9. Fun with Bindings</a></li>
+<li><a href="#_transitions">2.10. Transitions</a></li>
+<li><a href="#entity-lists">2.11. Entity Lists</a></li>
+<li><a href="#intraform-navigation">2.12. Intra-Form Navigation</a></li>
+<li><a href="#_custom_view_controllers">2.13. Custom View Controllers</a></li>
+<li><a href="#views-within-views">2.14. Views within Views</a></li>
+<li><a href="#_developing_custom_components">2.15. Developing Custom Components</a></li>
 </ul>
 </li>
 <li><a href="#_app_example_1_a_twitter_clone">3. App Example 1: A Twitter Clone</a>
@@ -931,28 +930,21 @@ detailsController.show();</code></pre>
 <h2 id="getting-started">2. Getting Started</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To get started, download the CodeRAD starter project from <a href="https://github.com/shannah/coderad2-starter-template/archive/refs/heads/master.zip">here</a>.</p>
-</div>
-<div class="paragraph">
-<p>Extract the .zip file and then open the project in IntelliJ IDEA</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-The CodeRAD starter project is a maven project which can be opened in any Maven-compatible IDE (e.g. NetBeans, Eclipse, IntelliJ, etc&#8230;&#8203;).  For this tutorial, I&#8217;ll be using IntelliJ.
-</td>
-</tr>
-</table>
+<p>To get started, go to <a href="https://start.codenameone.com" class="bare">https://start.codenameone.com</a>, and select "Code RAD (MVC) Starter Project" from the <em>Templates</em> menu.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/intellij-starter-project.png" alt="intellij starter project">
+<img src="images/initializr-select-coderad-starter-project.png" alt="initializr select coderad starter project">
 </div>
-<div class="title">Figure 2. The Code RAD starter project opened in IntelliJ IDEA</div>
+</div>
+<div class="paragraph">
+<p>For the package name, leave it as "com.example.myapp", but change the <em>Main Class</em> to "MyRADApp".</p>
+</div>
+<div class="paragraph">
+<p>The press the <em>Download</em> button.</p>
+</div>
+<div class="paragraph">
+<p>After a few seconds you should be prompted to download the project as a ZIP file.  Save this zip file somewhere on your local drive, extract it, then open it in IntelliJ IDEA.</p>
 </div>
 <div class="paragraph">
 <p>Once the project is opened, press the
@@ -973,57 +965,12 @@ The first time you run and build the project it will take some time because it n
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="images/hello-world-in-simulator.png" alt="hello world in simulator">
+<img src="images/starter-project-run.png" alt="starter project run">
 </div>
-<div class="title">Figure 3. The starter project running inside the Codename One simulator</div>
-</div>
-<div class="sect2">
-<h3 id="cloning-project">2.1. Customizing the Maven Artifact Coordinates</h3>
-<div class="paragraph">
-<p>The starter project comes preconfigured with placeholder coordinates for <code>groupId</code> and <code>artifactId</code>.  For the purposes of this tutorial, I will be using these default coordinates.  However, for a <em>real</em> app, you will want to change these coordinates to your own <code>groupId</code> and <code>artifactId</code>.  The easiest way to change these coordinates is using the <code>cn1:clone</code> maven goal.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Warning</div>
-</td>
-<td class="content">
-If you clone the project and change the <code>groupId</code> and <code>artifactId</code>, this will also change package structure in the project, so your package structure will be different than the one I use in the rest of this tutorial.  E.g. Instead of your project files being in the <em>com.example.myapp</em> package, they will be in a package named after your <em>groupId</em>.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>You can run this goal in IntelliJ by first expanding the "Maven" tab from the tabs in the right side of the window:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-maven-tab.png" alt="intellij maven tab">
-</div>
-</div>
-<div class="paragraph">
-<p>Once the <em>Maven</em> sidebar is opened, expand the <em>myapp</em> node, and the <em>Run Configurations</em> sub-node, and then double-click the <em>Clone Project</em> option shown here:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-clone-project.png" alt="intellij clone project">
-</div>
-</div>
-<div class="paragraph">
-<p>It should display a dialog prompt for you to enter the new coordinates and location for your Maven project:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/clone-project-dialog.png" alt="clone project dialog">
-</div>
-</div>
-<div class="paragraph">
-<p>After entering the project details into the dialog, press <em>OK</em>.  If all goes well, you should see a <em>BUILD SUCCESS</em> message in the output log of IntelliJ, and you should find your new project at the location that you specified.  You can then close this project, and open your newly created project.</p>
-</div>
+<div class="title">Figure 2. The starter project running inside the Codename One simulator</div>
 </div>
 <div class="sect2">
-<h3 id="under-the-hood">2.2. Under the Hood</h3>
+<h3 id="under-the-hood">2.1. Under the Hood</h3>
 <div class="paragraph">
 <p>Let&#8217;s take look under the hood to see how this "Hello World" app is producted.</p>
 </div>
@@ -1087,9 +1034,38 @@ If you clone the project and change the <code>groupId</code> and <code>artifactI
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
-<span style="color:#070;font-weight:bold">&lt;y</span> <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
-    <span style="color:#070;font-weight:bold">&lt;title&gt;</span>Hi World<span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
-    <span style="color:#070;font-weight:bold">&lt;label&gt;</span>Hello World<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;y</span> <span style="color:#b48">style.bgColor</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0xffffff</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style.bgTransparency</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0xff</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">safeArea</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">scrollableY</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style.paddingLeft</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">5vw</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style.paddingRight</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">5vw</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style.paddingTop</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">5vw</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style.paddingBottom</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">5vw</span><span style="color:#710">&quot;</span></span>
+   <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;title</span> <span style="color:#b48">hidden</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;center</span> <span style="color:#b48">style.marginBottom</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2rem</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;label</span> <span style="color:#b48">icon</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://www.codenameone.com/wp-content/uploads/2020/08/footer-logo.png height:24vh; aspect:1.5; scale:fit</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/center&gt;</span>
+
+
+    <span style="color:#070;font-weight:bold">&lt;spanLabel</span> <span style="color:#b48">textUIID</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPageText</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style.marginBottom</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1rem</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>This is the CodeRAD2 starter template for building native mobile apps in Java and Kotlin<span style="color:#070;font-weight:bold">&lt;/spanLabel&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;spanLabel</span> <span style="color:#b48">textUIID</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPageText</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>CodeRAD is an MVC framework for Codename One that will help to build better, more maintainable apps in less time.<span style="color:#070;font-weight:bold">&lt;/spanLabel&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://shannah.github.io/CodeRAD/manual _blank</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>Learn more<span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;label</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPageH2</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>Source Code Overview<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;spanLabel</span> <span style="color:#b48">textUIID</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPageText</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>This template is barebones, consisting of one view, one controller, and a stylesheet.<span style="color:#070;font-weight:bold">&lt;/spanLabel&gt;</span>
+
+
+    <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPageLink</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">materialIcon</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">FontImage.MATERIAL_ARROW_RIGHT</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">textPosition</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Component.LEFT</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://github.com/shannah/coderad2-starter-template/blob/master/common/src/main/rad/views/com/example/myapp/StartPage.xml _blank</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>See &quot;View&quot; source<span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPageLink</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">materialIcon</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">FontImage.MATERIAL_ARROW_RIGHT</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">textPosition</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Component.LEFT</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://github.com/shannah/coderad2-starter-template/blob/master/common/src/main/java/com/example/myapp/MyRADApp.java _blank</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>See &quot;Controller&quot; source<span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;button</span> <span style="color:#b48">uiid</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPageLink</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">materialIcon</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">FontImage.MATERIAL_ARROW_RIGHT</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">textPosition</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Component.LEFT</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">rad-href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://github.com/shannah/coderad2-starter-template/blob/master/common/src/main/css/theme.css _blank</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>See Stylesheet source<span style="color:#070;font-weight:bold">&lt;/button&gt;</span>
 <span style="color:#070;font-weight:bold">&lt;/y&gt;</span></code></pre>
 </div>
 </div>
@@ -1106,7 +1082,27 @@ The boilerplate attributes <code>xsi:noNamespaceSchemaLocation="StartPage.xsd" x
 </table>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s walk through this file line by line:</p>
+<p>For this tutorial, I want to start from scratch, so let&#8217;s delete all of the contents from <em>StartPage.xml</em>, and replace it with the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;y</span> <span style="color:#b48">xsi:noNamespaceSchemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">StartPage.xsd</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;title&gt;</span>Hi World<span style="color:#070;font-weight:bold">&lt;/title&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;label&gt;</span>Hello World<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/y&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Upon restarting the app in simulator, it should now look like:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/hello-world-in-simulator.png" alt="hello world in simulator">
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s go through this code line by line.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -1130,7 +1126,7 @@ The boilerplate attributes <code>xsi:noNamespaceSchemaLocation="StartPage.xsd" x
 </div>
 </div>
 <div class="sect2">
-<h3 id="hot-reload">2.3. Hot Reload</h3>
+<h3 id="hot-reload">2.2. Hot Reload</h3>
 <div class="paragraph">
 <p>The Codename One simulator supports a "Hot Reload" feature that can dramatically improve productivity.  Especially if you&#8217;re like me, and you like to experiment with the UI by trial and error.</p>
 </div>
@@ -1165,7 +1161,7 @@ Technically these <em>hot reload</em> options aren&#8217;t a "hot" reload, since
 </div>
 </div>
 <div class="sect2">
-<h3 id="_changing_the_styles">2.4. Changing the Styles</h3>
+<h3 id="_changing_the_styles">2.3. Changing the Styles</h3>
 <div class="paragraph">
 <p>Keep the simulator running, and open the CSS style stylesheet for the project, located at <em>common/src/main/css/theme.css</em>.</p>
 </div>
@@ -1229,7 +1225,7 @@ Technically these <em>hot reload</em> options aren&#8217;t a "hot" reload, since
 <p>The above stylesheet change will change the color of <em>all</em> labels to <em>blue</em>.  What if we want to change only the color of <em>this</em> label without affecting the other labels in the app?  There are two ways to do this.  The first way is to override the <em>fgColor</em> style inline on the <code>&lt;label&gt;</code> tag itself.</p>
 </div>
 <div class="sect3">
-<h4 id="_inline_styles">2.4.1. Inline Styles</h4>
+<h4 id="_inline_styles">2.3.1. Inline Styles</h4>
 <div class="paragraph">
 <p>In the <em>StartPage.xml</em> file, add the <code>style.fgColor</code> attribute to the <code>&lt;label&gt;</code> tag with the value "0xff0000".</p>
 </div>
@@ -1237,7 +1233,7 @@ Technically these <em>hot reload</em> options aren&#8217;t a "hot" reload, since
 <div class="content">
 <img src="images/xml-attribute-style-fgColor-typehints.png" alt="xml attribute style fgColor typehints">
 </div>
-<div class="title">Figure 4. In IntelliJ&#8217;s XML editor, you&#8217;ll receive type hints for all tags and attributes as shown here.</div>
+<div class="title">Figure 3. In IntelliJ&#8217;s XML editor, you&#8217;ll receive type hints for all tags and attributes as shown here.</div>
 </div>
 <div class="paragraph">
 <p>Notice that, as soon as you start typing inside the <code>&lt;label&gt;</code> tag, the editor presents a drop-down list of options for completion.  This is made possible by the schema (StartPage.xsd located in the same directory as your StartPage.xml file) that the CodeRAD annotation processor automatically generates for you.  This schema doesn&#8217;t include <em>all</em> of the possible attributes you can use, but it does include most of the common ones.</p>
@@ -1315,7 +1311,7 @@ Technically these <em>hot reload</em> options aren&#8217;t a "hot" reload, since
 </div>
 </div>
 <div class="sect3">
-<h4 id="_custom_uiids">2.4.2. Custom UIIDs</h4>
+<h4 id="_custom_uiids">2.3.2. Custom UIIDs</h4>
 <div class="paragraph">
 <p>The second (preferred) way to override the style of a particular Label without affecting other labels in the app is to create a custom UIID for the label.</p>
 </div>
@@ -1369,7 +1365,7 @@ Technically these <em>hot reload</em> options aren&#8217;t a "hot" reload, since
 </div>
 </div>
 <div class="sect2">
-<h3 id="_adding_more_components">2.5. Adding More Components</h3>
+<h3 id="_adding_more_components">2.4. Adding More Components</h3>
 <div class="paragraph">
 <p>So far we&#8217;ve only used the <code>&lt;label&gt;</code> tag, which corresponds to the <code>Label</code> component.  You are not limited to <code>&lt;label&gt;</code>, nor are you limited to any particular subset of "supported" components.  You can use <em>any</em> Component in your XML files that you could use with Java or Kotlin directly.  You can even use your own custom components.</p>
 </div>
@@ -1476,7 +1472,7 @@ import com.xyz.otherwidgets.*;
 </div>
 </div>
 <div class="sect2">
-<h3 id="adding-actions">2.6. Adding Actions</h3>
+<h3 id="adding-actions">2.5. Adding Actions</h3>
 <div class="paragraph">
 <p>CodeRAD is built around the Model-View-Controller (MVC) philosophy which asserts that the <em>View</em> logic (i.e. how the app looks) should be separated from the <em>Controller</em> logic (i.e. what the app does with user input).  <em>Actions</em> form the cornerstone of how CodeRAD keeps these concerns separate.  They provide a sort of communication channel between the controller and the view, kind of like a set of Walkie-talkies.</p>
 </div>
@@ -1502,7 +1498,7 @@ import com.xyz.otherwidgets.*;
 <p>In the above metaphor, the <em>frequency</em> represents an instance of the <code>ActionNode.Category</code> class, and the walkie-talkies represent an instance of the <code>ActionNode</code> class.  The <em>View</em> declares which <em>Categories</em> it supports, how it will interpret them.  The <em>Controller</em> defines <em>Actions</em> and registers them with the view in the prescribed categories.  When the <em>View</em> is instantiated, it looks for these actions, and will use them to affect how it renders itself.  Typically actions are manifested in the View as a button or menu item, but not necessarily.  <code>EntityListView</code>, for example, supports the <code>LIST_REFRESH_ACTION</code> and <code>LIST_LOAD_MORE_ACTION</code> categories which will broadcast events when the list model should be refreshed, or when more entries should be loaded at the end of the list.  They don&#8217;t manifest in any particular button or menu.</p>
 </div>
 <div class="sect3">
-<h4 id="_adding_our_first_action">2.6.1. Adding our first action</h4>
+<h4 id="_adding_our_first_action">2.5.1. Adding our first action</h4>
 <div class="paragraph">
 <p>Let&#8217;s begin by restoring the <em>StartPage.xml</em> template to its initial state:</p>
 </div>
@@ -1596,7 +1592,7 @@ import com.xyz.otherwidgets.*;
 </div>
 </div>
 <div class="sect3">
-<h4 id="_customizing_action_rendering">2.6.2. Customizing Action Rendering</h4>
+<h4 id="_customizing_action_rendering">2.5.2. Customizing Action Rendering</h4>
 <div class="paragraph">
 <p>In the previous example, the controller didn&#8217;t make any recommendations to the view over how it wanted its <em>HELLO_CLICKED</em> action to be rendered.  It simply registered an <code>ActionListener</code> and waited to be notified when it is "triggered".   Let&#8217;s go a step further now, and specify an icon and label to use for the action.  We will use the <code>ActionNode.Builder</code> class to build an action with the icon and label that we desire, and add it to the controller using the <code>addToController()</code> method of <code>ActionNode.Builder</code>.</p>
 </div>
@@ -1630,7 +1626,7 @@ import com.xyz.otherwidgets.*;
 </div>
 </div>
 <div class="sect2">
-<h3 id="_creating_menus">2.7. Creating Menus</h3>
+<h3 id="_creating_menus">2.6. Creating Menus</h3>
 <div class="paragraph">
 <p>Whereas the <code>&lt;button&gt;</code> tag will create a single button, which can be optionally "bound" to a single action, the <code>&lt;buttons&gt;</code> renders multiple buttons to the view according to the actions that it finds in a given category.  Let&#8217;s change the example from the previous section display a menu of buttons.  We will:</p>
 </div>
@@ -1699,7 +1695,7 @@ ActionNode.builder().
 </div>
 </div>
 <div class="sect3">
-<h4 id="_buttons_layout">2.7.1. Buttons Layout</h4>
+<h4 id="_buttons_layout">2.6.1. Buttons Layout</h4>
 <div class="paragraph">
 <p>The <code>&lt;buttons&gt;</code> tag laid out all of the buttons in its specific action category.  Currently they are all laid out on a single line.  The default layout manager for the "Buttons" component is <code>FlowLayout</code>, which means that it will lay out actions horizontally from left to right (or right to left for RTL locales), and wrap to the next line when it runs out of space.  It gives you quite a bit of flexibility for how the buttons are arranged and rendered, though.  You can set the layout of <code>Buttons</code> to any layout manager that doesn&#8217;t require a layout constraint.  E.g. <em>BoxLayout</em>, <em>GridLayout</em>, and <em>FlowLayout</em>.</p>
 </div>
@@ -1731,7 +1727,7 @@ ActionNode.builder().
 </div>
 </div>
 <div class="sect3">
-<h4 id="_action_styles">2.7.2. Action Styles</h4>
+<h4 id="_action_styles">2.6.2. Action Styles</h4>
 <div class="paragraph">
 <p>Actions may include many preferences about how they should be rendered.  The view is not obligated to abide by these preferences, but it usually at least considers them.  We&#8217;ve already seen how actions can specify their preferred icons, labels, and badges, but there are several other properties available as well.  One simple, but useful property is the <em>action style</em> which indicates whether the action should be rendered with both its icon and text, only its icon, or only its text.  This is often overridden by the view based on the context.  E.g. The view may include a menu of actions, and it only wants to display the action icons.</p>
 </div>
@@ -1750,38 +1746,38 @@ ActionNode.builder().
 <div class="content">
 <img src="images/action-style-icon-bottom.png" alt="action style icon bottom">
 </div>
-<div class="title">Figure 5. IconBottom</div>
+<div class="title">Figure 4. IconBottom</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/action-style-icon-top.png" alt="action style icon top">
 </div>
-<div class="title">Figure 6. IconTop</div>
+<div class="title">Figure 5. IconTop</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/action-style-icon-left.png" alt="action style icon left">
 </div>
-<div class="title">Figure 7. IconLeft</div>
+<div class="title">Figure 6. IconLeft</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/action-style-icon-right.png" alt="action style icon right">
 </div>
-<div class="title">Figure 8. IconRight</div>
+<div class="title">Figure 7. IconRight</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/action-style-icon-only.png" alt="action style icon only">
 </div>
-<div class="title">Figure 9. IconOnly</div>
+<div class="title">Figure 8. IconOnly</div>
 </div>
 <div class="paragraph">
 <p>You can also specify UIIDs for the actions to customize things like font, color, borders, padding, etc&#8230;&#8203;  To learn more about the various options available, see the Actions chapter of the manual.  (TODO: Create actions section of manual).</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_overflow_menus">2.7.3. Overflow Menus</h4>
+<h4 id="_overflow_menus">2.6.3. Overflow Menus</h4>
 <div class="paragraph">
 <p>In some cases, your view may only have room for one or two buttons in the space provided, but you want to be able to support more actions than that.  You can use the <em>limit</em> attribute to specify the maximum number of buttons to render.  If the number of actions in the action category is greater than this limit, it will automatically add an overflow menu for the remainder of the actions.</p>
 </div>
@@ -1825,7 +1821,7 @@ ActionNode.builder().
 </div>
 </div>
 <div class="sect2">
-<h3 id="form-navigation">2.8. Form Navigation</h3>
+<h3 id="form-navigation">2.7. Form Navigation</h3>
 <div class="paragraph">
 <p>It&#8217;s time to grow beyond our single-form playpen, and step into the world of multi-form apps.  Let&#8217;s create another view in the same folder as <em>StartPage.xml</em>.  We&#8217;ll name this <em>AboutPage.xml</em>.  If you&#8217;re using IntelliJ, like me, you can create this file by right clicking the "myapp" directory in the project inspector, and select <em>New</em> &gt; <em>File</em> as shown here:</p>
 </div>
@@ -1898,7 +1894,7 @@ This section described only how to navigate to a different form.  It is also pos
 </div>
 </div>
 <div class="sect2">
-<h3 id="_models">2.9. Models</h3>
+<h3 id="_models">2.8. Models</h3>
 <div class="paragraph">
 <p>So far we&#8217;ve been working only with the <em>V</em> and <em>C</em> portions of <em>MVC</em>.  In this section, I introduce the final pillar in the trinity: <em>the Model</em>.  Model objects store the data of the application.  In CodeRAD, <em>model</em> objects implement the <em>com.codename1.rad.models.Entity</em> interface.  We&#8217;re going to skip the conceptual discussion of <em>Models</em> in this tutorial, and dive directly into an example so you can see how they work.  After we&#8217;ve played with some models, we&#8217;ll circle back and discuss the theories and concepts in greater depth.</p>
 </div>
@@ -2208,7 +2204,7 @@ import com.example.myapp.models.UserProfile;
 </div>
 </div>
 <div class="sect2">
-<h3 id="_fun_with_bindings">2.10. Fun with Bindings</h3>
+<h3 id="_fun_with_bindings">2.9. Fun with Bindings</h3>
 <div class="admonitionblock tip">
 <table>
 <tr>
@@ -2279,7 +2275,7 @@ The <em>bind-*</em> attributes, by default expect their values to be references 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_transitions">2.11. Transitions</h3>
+<h3 id="_transitions">2.10. Transitions</h3>
 <div class="paragraph">
 <p>By default, changes to bound properties take effect immediately upon property change.  For example, if you bind the <em>visible</em> property of a label, then it will instantly appear when the value changes to true, and instantly disappear when the value changes to false.  Interfaces feel <em>better</em> when changes are animated.</p>
 </div>
@@ -2397,7 +2393,7 @@ The <em>bind-*</em> attributes, by default expect their values to be references 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_supported_properties">2.11.1. Supported Properties</h4>
+<h4 id="_supported_properties">2.10.1. Supported Properties</h4>
 <div class="paragraph">
 <p>Currently transitions don&#8217;t work with every property.  Transitions are primarily useful only for properties that change the size or layout of the view.  For example, currently if you add a transition to a binding on the "text" property of a label, the text itself will change <em>instantly</em>, but if the bounds of the new text is different than the old text, you will see the text bounds grow or shrink according to the transition.</p>
 </div>
@@ -2407,7 +2403,7 @@ The <em>bind-*</em> attributes, by default expect their values to be references 
 </div>
 </div>
 <div class="sect2">
-<h3 id="entity-lists">2.12. Entity Lists</h3>
+<h3 id="entity-lists">2.11. Entity Lists</h3>
 <div class="paragraph">
 <p>So far our examples have involved only views of <em>single</em> models.  Most apps involve <em>list</em> views where multiple models are rendered on a single view.  E.g. In mail apps that include a list of messages, each row of the list corresponds to a distinct <em>message</em> model.  CodeRAD&#8217;s <code>&lt;entityList&gt;</code> tag provides rich support for these kinds of views.</p>
 </div>
@@ -2496,7 +2492,7 @@ The <em>bind-*</em> attributes, by default expect their values to be references 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_list_row_renderers">2.12.1. List Row Renderers</h4>
+<h4 id="_list_row_renderers">2.11.1. List Row Renderers</h4>
 <div class="paragraph">
 <p>I&#8217;ll be the first to admit that our list looks a little plain.  Let&#8217;s spice it up a bit by customizing its row renderer.  We will tell the list view how to render the rows of the list by providing a <code>&lt;row-template&gt;</code> as shown below:</p>
 </div>
@@ -2565,7 +2561,7 @@ This example used the <code>Person.name</code> tag whereas we could have used th
 </div>
 </div>
 <div class="sect3">
-<h4 id="_responding_to_list_row_events">2.12.2. Responding to List Row Events</h4>
+<h4 id="_responding_to_list_row_events">2.11.2. Responding to List Row Events</h4>
 <div class="paragraph">
 <p>Suppose we want the app to navigate to a UserProfile form for the selected user, when the user clicks on one of the rows of the list.</p>
 </div>
@@ -2599,7 +2595,7 @@ This example used the <code>Person.name</code> tag whereas we could have used th
 </div>
 </div>
 <div class="sect3">
-<h4 id="using-lead-component">2.12.3. Using a Lead Component</h4>
+<h4 id="using-lead-component">2.11.3. Using a Lead Component</h4>
 <div class="paragraph">
 <p>It seems a bit redundant to have a "Show Profile" button on each row.  Why not just show the profile when the user presses anywhere on the row.  This can be achieved by setting the button as the <em>lead component</em> for the row&#8217;s container.  Then the container will pipe all of its events to the button for handling.  We would generally, then, hide the button from view.</p>
 </div>
@@ -2659,7 +2655,7 @@ This example used the <code>Person.name</code> tag whereas we could have used th
 </div>
 </div>
 <div class="sect2">
-<h3 id="intraform-navigation">2.13. Intra-Form Navigation</h3>
+<h3 id="intraform-navigation">2.12. Intra-Form Navigation</h3>
 <div class="paragraph">
 <p>Earlier, in <a href="#form-navigation">Form Navigation</a>, we learned how to navigate between forms using a <em>button</em> tag with the <code>rad-href</code> attribute.  When developing for tablet and desktop, you may want to navigate to a different view within the same form; sort of like using frames in HTML.  A <em>mail</em> app will often have a list of messages on the left side of the screen, and details of the currently selected message on the right, as shown in the Gmail app screenshot below:</p>
 </div>
@@ -2777,7 +2773,7 @@ The above example demonstrates the <code>&lt;splitPane&gt;</code> component that
 <p>You can also control the position of where the sheet will be shown by using one <code>sheet-top</code>, <code>sheet-left</code>, <code>sheet-right</code>, or <code>sheet-center</code> instead of the <code>sheet</code> option that we used in this example.</p>
 </div>
 <div class="sect3">
-<h4 id="_navigation_transitions">2.13.1. Navigation Transitions</h4>
+<h4 id="_navigation_transitions">2.12.1. Navigation Transitions</h4>
 <div class="paragraph">
 <p>You can use the <code>rad-transition</code> attribute in conjuction with the <code>rad-href</code> attribute also, to specify a transition to be used when replacing a container&#8217;s content with a new view.</p>
 </div>
@@ -2803,7 +2799,7 @@ The above example demonstrates the <code>&lt;splitPane&gt;</code> component that
 </div>
 </div>
 <div class="sect2">
-<h3 id="_custom_view_controllers">2.14. Custom View Controllers</h3>
+<h3 id="_custom_view_controllers">2.13. Custom View Controllers</h3>
 <div class="paragraph">
 <p>Up until now, we haven&#8217;t created any custom controllers for our views, other than the application controller (the <em>MyRadApp</em> class).  Since all events propagate up the controller hierarchy, it is possible just to handle all of the events in the application controller, as we&#8217;ve been doing.  Keeping all of our logic inside a single <em>application-wide</em> controller has some benefits for small, example apps, but for most real-world apps, you&#8217;ll want to be intentional about your application&#8217;s architecture.</p>
 </div>
@@ -2940,7 +2936,7 @@ The above example demonstrates the <code>&lt;splitPane&gt;</code> component that
 </div>
 </div>
 <div class="sect2">
-<h3 id="views-within-views">2.15. Views within Views</h3>
+<h3 id="views-within-views">2.14. Views within Views</h3>
 <div class="paragraph">
 <p>Since RAD views are Components themselves, they can be used inside other views, just like other components are.  To demonstrate this,
 let&#8217;s create create a form to allow users to enter contact information such as name, email, billing address, and shipping address.  Since the billing address and shipping address will likely use the same fields, we&#8217;ll create a <em>AddressView</em> view and use it from the main form.</p>
@@ -3156,7 +3152,7 @@ context.getEntity().getEntity(shippingAddress)</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_developing_custom_components">2.16. Developing Custom Components</h3>
+<h3 id="_developing_custom_components">2.15. Developing Custom Components</h3>
 <div class="paragraph">
 <p>Since you can use <em>any</em> component (i.e. <code>com.codename1.ui.Component</code> subclass) in your views, it follows that you can also develop your own components and use them in your views.  You&#8217;ve already seen a special case of this in <a href="#views-within-views">Views within Views</a>, where we used a view that we created from another view.</p>
 </div>
@@ -3264,7 +3260,7 @@ RAD views automatically import several of the core packages containing component
 </div>
 </div>
 <div class="sect3">
-<h4 id="_entityview_and_propertyview">2.16.1. EntityView and PropertyView</h4>
+<h4 id="_entityview_and_propertyview">2.15.1. EntityView and PropertyView</h4>
 <div class="paragraph">
 <p>If your component is meant to "bind" to a model, then you should consider extending either <code>AbstractEntityView</code> or <code>PropertyView</code>, as these include built-in support for binding to entities.  If your component is meant to be a view for a single property, then <code>PropertyView</code> would make sense.  If, however, it is meant to bind to multiple properties on a model, then you should extend <code>AbstractEntityView</code>.  As we&#8217;ve seen before, in <a href="#views-within-views">Views within Views</a>, you could create an <em>EntityView</em> entirely in XML, RAD views <em>do</em> get compiled to subclasses of <code>AbstractEntityView</code>.  The choice is yours.</p>
 </div>
@@ -3938,7 +3934,7 @@ In this version it was necessary to cast the <code>0xe902</code> to <code>char</
 <div class="content">
 <img src="images/tweetapp-welcome-page-final-result.png" alt="tweetapp welcome page final result">
 </div>
-<div class="title">Figure 10. The final result of our WelcomePage</div>
+<div class="title">Figure 9. The final result of our WelcomePage</div>
 </div>
 <div class="listingblock">
 <div class="title">WelcomePage.xml</div>
@@ -4565,7 +4561,7 @@ When <code>&lt;bind-action&gt;</code> is added to a <code>&lt;button&gt;</code>,
 <div class="content">
 <img src="images/tweetapp-next-you-clicked-me-android.png" alt="tweetapp next you clicked me android">
 </div>
-<div class="title">Figure 11. Dialog shown when clicking the <em>Next</em> button on Android.  Notice that this dialog uses the native Android styles.  On iOS the dialog would look slightly different - matching the iOS native theme.</div>
+<div class="title">Figure 10. Dialog shown when clicking the <em>Next</em> button on Android.  Notice that this dialog uses the native Android styles.  On iOS the dialog would look slightly different - matching the iOS native theme.</div>
 </div>
 </div>
 <div class="sect3">
@@ -6059,7 +6055,7 @@ The <code>version</code> listed here is a SNAPSHOT version because, at the time 
 <div class="content">
 <img src="images/entitylist-provider-diagram.png" alt="entitylist provider diagram">
 </div>
-<div class="title">Figure 12. This diagram shows how <em>EntityListView</em> loads its data from an <code>EntityListProvider</code>.  The EntityListView fires a "request" event which is "handled" by the registered provider by attaching an EntityList to the event, which the EntityListView adds to its own model.  Refresh events result in all rows being replaced.  "Load More" events result in rows being appended.</div>
+<div class="title">Figure 11. This diagram shows how <em>EntityListView</em> loads its data from an <code>EntityListProvider</code>.  The EntityListView fires a "request" event which is "handled" by the registered provider by attaching an EntityList to the event, which the EntityListView adds to its own model.  Refresh events result in all rows being replaced.  "Load More" events result in rows being appended.</div>
 </div>
 </div>
 </div>
@@ -6072,7 +6068,7 @@ The <code>version</code> listed here is a SNAPSHOT version because, at the time 
 <div class="content">
 <img src="images/tweetlistview.png" alt="tweetlistview">
 </div>
-<div class="title">Figure 13. Screenshot of the <em>TweetListView</em> component using some sample data.</div>
+<div class="title">Figure 12. Screenshot of the <em>TweetListView</em> component using some sample data.</div>
 </div>
 <div class="paragraph">
 <p>You can see an example of the <em>TweetListView</em> in the above screenshow.  All of the content in this list is pulled from ether the row models (<code>Tweet</code> entities), or actions defined in the controller and registered in specific categories.  The following diagram shows where each piece of content comes from.</p>
@@ -6639,7 +6635,7 @@ For more information about the CollapsibleHeader component see the <a href="http
 <div class="content">
 <img src="images/tweetapp-twtTitle-twtSearchButton.png" alt="tweetapp twtTitle twtSearchButton">
 </div>
-<div class="title">Figure 14. The <code>&lt;twtHeader&gt;</code> tag with embedded <code>&lt;txtsearchButton&gt;</code></div>
+<div class="title">Figure 13. The <code>&lt;twtHeader&gt;</code> tag with embedded <code>&lt;txtsearchButton&gt;</code></div>
 </div>
 <div class="paragraph">
 <p>For the sidebar, we&#8217;ll use the <code>&lt;sidebar&gt;</code> tag (which is a core component of CodeRAD), with a <code>&lt;twtSidebar&gt;</code> component as the sidebar contents:</p>
@@ -7250,13 +7246,13 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-021231.287.png" alt="Image 300320 021231.287">
 </div>
-<div class="title">Figure 15. A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.</div>
+<div class="title">Figure 14. A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/Image-300320-020346.131.png" alt="Image 300320 020346.131">
 </div>
-<div class="title">Figure 16. A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.</div>
+<div class="title">Figure 15. A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.</div>
 </div>
 <div class="paragraph">
 <p>In fact, we derive many benefits from the fact that the UI can be mapped to a tree data structure.  Trees are nice to work with because they lend themselves nicely to software.  If you can write a function that operates on a single node of the tree, you can easily expand this function to operate on the entire tree.</p>
@@ -7274,7 +7270,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-023353.927.png" alt="Image 300320 023353.927">
 </div>
-<div class="title">Figure 17. Screenshots from the Twitter mobile app.</div>
+<div class="title">Figure 16. Screenshots from the Twitter mobile app.</div>
 </div>
 <div class="paragraph">
 <p>The app structure of Twitter has 4 top-level FormControllers corresponding to the tabs at the bottom of the app:  Home, Search, Alerys, and Inbox.  The "Home" tab contains a list of tweets, and clicking on any of these tweets will bring the user to a "Tweet Details" form.  Hence in the controller hierarchy, the "Home" tab is a top-level form (a child of the ApplicationController), and it has at least one child, the "Tweet Details" form controller.</p>
@@ -7283,7 +7279,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-023007.132.png" alt="Image 300320 023007.132">
 </div>
-<div class="title">Figure 18. A partial controller hierarchy for the Twitter mobile app.  <strong>Note that this is not a class hierarchy</strong>, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".</div>
+<div class="title">Figure 17. A partial controller hierarchy for the Twitter mobile app.  <strong>Note that this is not a class hierarchy</strong>, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".</div>
 </div>
 </div>
 <div class="sect2">
@@ -7292,7 +7288,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-015455.241.png" alt="Image 300320 015455.241">
 </div>
-<div class="title">Figure 19. The main controller classes provided by CodeRAD.</div>
+<div class="title">Figure 18. The main controller classes provided by CodeRAD.</div>
 </div>
 <div class="paragraph">
 <p>CodeRAD provides a set of fundamental controller classes to help structure your app in this way:</p>
@@ -7425,7 +7421,7 @@ The following examples all use an ApplicationController as the root of the contr
 <div class="content">
 <img src="images/Image-300320-014315.510.png" alt="Image 300320 014315.510">
 </div>
-<div class="title">Figure 20. The flow of the <code>FormBackEvent</code> as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.</div>
+<div class="title">Figure 19. The flow of the <code>FormBackEvent</code> as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.</div>
 </div>
 </div>
 </div>
