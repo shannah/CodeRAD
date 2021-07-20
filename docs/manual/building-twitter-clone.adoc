@@ -12,36 +12,27 @@ image::images/twitter-entrance-flowchart.png[]
 
 === Creating the Project
 
-To get started, download the CodeRAD starter project from https://github.com/shannah/coderad2-starter-template/archive/refs/heads/master.zip[here].
+To get started, go to https://start.codenameone.com, and select "Code RAD (MVC) Starter Project" from the _Templates_ menu.
 
-Extract the .zip file and then open the project in IntelliJ IDEA
+image::images/initializr-select-coderad-starter-project.png[]
+
+For the package name, change it to "com.example.tweetapp", and also change the _Main Class_ to "Tweetapp".
+
+The press the _Download_ button.
+
+After a few seconds you should be prompted to download the project as a ZIP file.  Save this zip file somewhere on your local drive, extract it, then open it in IntelliJ IDEA.
+
+Once the project is opened, press the
+image:images/intellij-run-button.png[]
+icon on the toolbar to run the project in the Codename One simulator.
+
+NOTE: The first time you run and build the project it will take some time because it needs to download all of the project dependencies.  Subsequent builds should only take a few seconds.
+
+.The starter project running inside the Codename One simulator
+
+image::images/starter-project-run.png[]
 
 TIP: This is the same starter project that we used in the <<getting-started>> tutorial. I recommend you go through the <<getting-started>> tutorial before starting this one as it will provide you with the fundamentals required to move forward.
-
-The starter project comes preconfigured with placeholders for the maven `groupId` and `artifactId` properties.
-
-Before we begin, let's change the `groupId` and `archetypeId` to better reflect our application.  We'll do this by _cloning_ the project using the `cn1:clone` maven goal.
-
-First expand the _Maven_ side panel (if it isn't already expanded) by clicking on the "Maven" tab on the right side of the IntelliJ window.
-
-image::images/intellij-maven-tab.png[]
-
-Then expand the _myapp_ > _Run Configuration_ node, and double click the _Clone Project_ option.
-
-image::images/intellij-clone-project.png[]
-
-In the dialog prompt, enter the new _groupId_ and _artifactId_ for the project, and select a destination for the new project.  My settings are shown in the screenshot below:
-
-image::images/clone-as-tweet-app-dialog.png[]
-
-After you press _OK_ it will create a new project for you at the location you provided.  In my case, the project will be found at `$HOME/Downloads/tweetapp`.
-
-Clone the current project, and then open the _cloned_ project in IntelliJ.
-
-We are now ready to proceed.
-
-
-
 
 
 === Creating the Views

@@ -168,6 +168,8 @@ Label {
 }
 ----
 
+NOTE: There will be some existing CSS rules in there from the default template.  You can remove all of these rules except for the `#Constants{...}` section, as it is required to load the native theme.
+
 Within a second or two after you save the file, you should notice that the "Hello World" label in the simulator has turned blue.
 
 image::images/hello-world-blue.png[]

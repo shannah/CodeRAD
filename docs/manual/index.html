@@ -1180,6 +1180,18 @@ Technically these <em>hot reload</em> options aren&#8217;t a "hot" reload, since
 }</code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+There will be some existing CSS rules in there from the default template.  You can remove all of these rules except for the <code>#Constants{&#8230;&#8203;}</code> section, as it is required to load the native theme.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Within a second or two after you save the file, you should notice that the "Hello World" label in the simulator has turned blue.</p>
 </div>
@@ -3309,10 +3321,44 @@ In this chapter we will replicate these forms and workflow using CodeRAD.  This 
 <div class="sect2">
 <h3 id="_creating_the_project">3.1. Creating the Project</h3>
 <div class="paragraph">
-<p>To get started, download the CodeRAD starter project from <a href="https://github.com/shannah/coderad2-starter-template/archive/refs/heads/master.zip">here</a>.</p>
+<p>To get started, go to <a href="https://start.codenameone.com" class="bare">https://start.codenameone.com</a>, and select "Code RAD (MVC) Starter Project" from the <em>Templates</em> menu.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/initializr-select-coderad-starter-project.png" alt="initializr select coderad starter project">
+</div>
 </div>
 <div class="paragraph">
-<p>Extract the .zip file and then open the project in IntelliJ IDEA</p>
+<p>For the package name, change it to "com.example.tweetapp", and also change the <em>Main Class</em> to "Tweetapp".</p>
+</div>
+<div class="paragraph">
+<p>The press the <em>Download</em> button.</p>
+</div>
+<div class="paragraph">
+<p>After a few seconds you should be prompted to download the project as a ZIP file.  Save this zip file somewhere on your local drive, extract it, then open it in IntelliJ IDEA.</p>
+</div>
+<div class="paragraph">
+<p>Once the project is opened, press the
+<span class="image"><img src="images/intellij-run-button.png" alt="intellij run button"></span>
+icon on the toolbar to run the project in the Codename One simulator.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The first time you run and build the project it will take some time because it needs to download all of the project dependencies.  Subsequent builds should only take a few seconds.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/starter-project-run.png" alt="starter project run">
+</div>
+<div class="title">Figure 9. The starter project running inside the Codename One simulator</div>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -3325,45 +3371,6 @@ This is the same starter project that we used in the <a href="#getting-started">
 </td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>The starter project comes preconfigured with placeholders for the maven <code>groupId</code> and <code>artifactId</code> properties.</p>
-</div>
-<div class="paragraph">
-<p>Before we begin, let&#8217;s change the <code>groupId</code> and <code>archetypeId</code> to better reflect our application.  We&#8217;ll do this by <em>cloning</em> the project using the <code>cn1:clone</code> maven goal.</p>
-</div>
-<div class="paragraph">
-<p>First expand the <em>Maven</em> side panel (if it isn&#8217;t already expanded) by clicking on the "Maven" tab on the right side of the IntelliJ window.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-maven-tab.png" alt="intellij maven tab">
-</div>
-</div>
-<div class="paragraph">
-<p>Then expand the <em>myapp</em> &gt; <em>Run Configuration</em> node, and double click the <em>Clone Project</em> option.</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/intellij-clone-project.png" alt="intellij clone project">
-</div>
-</div>
-<div class="paragraph">
-<p>In the dialog prompt, enter the new <em>groupId</em> and <em>artifactId</em> for the project, and select a destination for the new project.  My settings are shown in the screenshot below:</p>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="images/clone-as-tweet-app-dialog.png" alt="clone as tweet app dialog">
-</div>
-</div>
-<div class="paragraph">
-<p>After you press <em>OK</em> it will create a new project for you at the location you provided.  In my case, the project will be found at <code>$HOME/Downloads/tweetapp</code>.</p>
-</div>
-<div class="paragraph">
-<p>Clone the current project, and then open the <em>cloned</em> project in IntelliJ.</p>
-</div>
-<div class="paragraph">
-<p>We are now ready to proceed.</p>
 </div>
 </div>
 <div class="sect2">
@@ -3934,7 +3941,7 @@ In this version it was necessary to cast the <code>0xe902</code> to <code>char</
 <div class="content">
 <img src="images/tweetapp-welcome-page-final-result.png" alt="tweetapp welcome page final result">
 </div>
-<div class="title">Figure 9. The final result of our WelcomePage</div>
+<div class="title">Figure 10. The final result of our WelcomePage</div>
 </div>
 <div class="listingblock">
 <div class="title">WelcomePage.xml</div>
@@ -4561,7 +4568,7 @@ When <code>&lt;bind-action&gt;</code> is added to a <code>&lt;button&gt;</code>,
 <div class="content">
 <img src="images/tweetapp-next-you-clicked-me-android.png" alt="tweetapp next you clicked me android">
 </div>
-<div class="title">Figure 10. Dialog shown when clicking the <em>Next</em> button on Android.  Notice that this dialog uses the native Android styles.  On iOS the dialog would look slightly different - matching the iOS native theme.</div>
+<div class="title">Figure 11. Dialog shown when clicking the <em>Next</em> button on Android.  Notice that this dialog uses the native Android styles.  On iOS the dialog would look slightly different - matching the iOS native theme.</div>
 </div>
 </div>
 <div class="sect3">
@@ -6055,7 +6062,7 @@ The <code>version</code> listed here is a SNAPSHOT version because, at the time 
 <div class="content">
 <img src="images/entitylist-provider-diagram.png" alt="entitylist provider diagram">
 </div>
-<div class="title">Figure 11. This diagram shows how <em>EntityListView</em> loads its data from an <code>EntityListProvider</code>.  The EntityListView fires a "request" event which is "handled" by the registered provider by attaching an EntityList to the event, which the EntityListView adds to its own model.  Refresh events result in all rows being replaced.  "Load More" events result in rows being appended.</div>
+<div class="title">Figure 12. This diagram shows how <em>EntityListView</em> loads its data from an <code>EntityListProvider</code>.  The EntityListView fires a "request" event which is "handled" by the registered provider by attaching an EntityList to the event, which the EntityListView adds to its own model.  Refresh events result in all rows being replaced.  "Load More" events result in rows being appended.</div>
 </div>
 </div>
 </div>
@@ -6068,7 +6075,7 @@ The <code>version</code> listed here is a SNAPSHOT version because, at the time 
 <div class="content">
 <img src="images/tweetlistview.png" alt="tweetlistview">
 </div>
-<div class="title">Figure 12. Screenshot of the <em>TweetListView</em> component using some sample data.</div>
+<div class="title">Figure 13. Screenshot of the <em>TweetListView</em> component using some sample data.</div>
 </div>
 <div class="paragraph">
 <p>You can see an example of the <em>TweetListView</em> in the above screenshow.  All of the content in this list is pulled from ether the row models (<code>Tweet</code> entities), or actions defined in the controller and registered in specific categories.  The following diagram shows where each piece of content comes from.</p>
@@ -6635,7 +6642,7 @@ For more information about the CollapsibleHeader component see the <a href="http
 <div class="content">
 <img src="images/tweetapp-twtTitle-twtSearchButton.png" alt="tweetapp twtTitle twtSearchButton">
 </div>
-<div class="title">Figure 13. The <code>&lt;twtHeader&gt;</code> tag with embedded <code>&lt;txtsearchButton&gt;</code></div>
+<div class="title">Figure 14. The <code>&lt;twtHeader&gt;</code> tag with embedded <code>&lt;txtsearchButton&gt;</code></div>
 </div>
 <div class="paragraph">
 <p>For the sidebar, we&#8217;ll use the <code>&lt;sidebar&gt;</code> tag (which is a core component of CodeRAD), with a <code>&lt;twtSidebar&gt;</code> component as the sidebar contents:</p>
@@ -7246,13 +7253,13 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-021231.287.png" alt="Image 300320 021231.287">
 </div>
-<div class="title">Figure 14. A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.</div>
+<div class="title">Figure 15. A simple Form UI presented here as a diagram that emphasizes containment.  The next figure shows the same UI expressed in a tree diagram.</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/Image-300320-020346.131.png" alt="Image 300320 020346.131">
 </div>
-<div class="title">Figure 15. A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.</div>
+<div class="title">Figure 16. A UI component visualized as a tree, with the Form as the "root" node, each container a branch, and atomic components (e.g. Label, Button, TextField) as leaf nodes.</div>
 </div>
 <div class="paragraph">
 <p>In fact, we derive many benefits from the fact that the UI can be mapped to a tree data structure.  Trees are nice to work with because they lend themselves nicely to software.  If you can write a function that operates on a single node of the tree, you can easily expand this function to operate on the entire tree.</p>
@@ -7270,7 +7277,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-023353.927.png" alt="Image 300320 023353.927">
 </div>
-<div class="title">Figure 16. Screenshots from the Twitter mobile app.</div>
+<div class="title">Figure 17. Screenshots from the Twitter mobile app.</div>
 </div>
 <div class="paragraph">
 <p>The app structure of Twitter has 4 top-level FormControllers corresponding to the tabs at the bottom of the app:  Home, Search, Alerys, and Inbox.  The "Home" tab contains a list of tweets, and clicking on any of these tweets will bring the user to a "Tweet Details" form.  Hence in the controller hierarchy, the "Home" tab is a top-level form (a child of the ApplicationController), and it has at least one child, the "Tweet Details" form controller.</p>
@@ -7279,7 +7286,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-023007.132.png" alt="Image 300320 023007.132">
 </div>
-<div class="title">Figure 17. A partial controller hierarchy for the Twitter mobile app.  <strong>Note that this is not a class hierarchy</strong>, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".</div>
+<div class="title">Figure 18. A partial controller hierarchy for the Twitter mobile app.  <strong>Note that this is not a class hierarchy</strong>, as many of these nodes are instances of the same class.  It reflects the structure of the app in the sense that a node A is a child of node "B" if the user can navigate from node "A" to node "B".</div>
 </div>
 </div>
 <div class="sect2">
@@ -7288,7 +7295,7 @@ f2.show();</code></pre>
 <div class="content">
 <img src="images/Image-300320-015455.241.png" alt="Image 300320 015455.241">
 </div>
-<div class="title">Figure 18. The main controller classes provided by CodeRAD.</div>
+<div class="title">Figure 19. The main controller classes provided by CodeRAD.</div>
 </div>
 <div class="paragraph">
 <p>CodeRAD provides a set of fundamental controller classes to help structure your app in this way:</p>
@@ -7421,7 +7428,7 @@ The following examples all use an ApplicationController as the root of the contr
 <div class="content">
 <img src="images/Image-300320-014315.510.png" alt="Image 300320 014315.510">
 </div>
-<div class="title">Figure 19. The flow of the <code>FormBackEvent</code> as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.</div>
+<div class="title">Figure 20. The flow of the <code>FormBackEvent</code> as it propagates up to the first FormController, which consumes the event, and navigates back to the previous/parent form.</div>
 </div>
 </div>
 </div>
