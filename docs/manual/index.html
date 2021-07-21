@@ -929,6 +929,18 @@ detailsController.show();</code></pre>
 <div class="sect1">
 <h2 id="getting-started">2. Getting Started</h2>
 <div class="sectionbody">
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+This tutorial is available as a <a href="https://youtu.be/QdyO4tpYOHs">video screencast</a>.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>To get started, go to <a href="https://start.codenameone.com" class="bare">https://start.codenameone.com</a>, and select "Code RAD (MVC) Starter Project" from the <em>Templates</em> menu.</p>
 </div>
@@ -3127,11 +3139,11 @@ context.getEntity().getEntity(shippingAddress)</code></pre>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#777">&lt;!-- Embed an AddressForm view for the billing address --&gt;</span>
 <span style="color:#070;font-weight:bold">&lt;label&gt;</span>Billing Address<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
-<span style="color:#070;font-weight:bold">&lt;addressForm</span> <span style="color:#b48">view-model</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${billingAddress}</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;addressForm</span> <span style="color:#b48">view-model</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${billingAddress}.entity</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
 
 <span style="color:#777">&lt;!-- Embed another AddressForm view for the shipping address --&gt;</span>
 <span style="color:#070;font-weight:bold">&lt;label&gt;</span>Shipping Address<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
-<span style="color:#070;font-weight:bold">&lt;addressForm</span> <span style="color:#b48">view-model</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${shippingAddress}</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+<span style="color:#070;font-weight:bold">&lt;addressForm</span> <span style="color:#b48">view-model</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${shippingAddress}.entity</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -3148,11 +3160,11 @@ context.getEntity().getEntity(shippingAddress)</code></pre>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#777">&lt;!-- Embed an AddressForm view for the billing address --&gt;</span>
 <span style="color:#070;font-weight:bold">&lt;label&gt;</span>Billing Address<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
-<span style="color:#070;font-weight:bold">&lt;addressForm</span> <span style="color:#b48">view-model</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${billingAddress}</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;addressForm</span> <span style="color:#b48">view-model</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${billingAddress}.entity</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
 
 <span style="color:#777">&lt;!-- Embed another AddressForm view for the shipping address --&gt;</span>
 <span style="color:#070;font-weight:bold">&lt;label&gt;</span>Shipping Address<span style="color:#070;font-weight:bold">&lt;/label&gt;</span>
-<span style="color:#070;font-weight:bold">&lt;addressForm</span> <span style="color:#b48">view-model</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${billingAddress}</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+<span style="color:#070;font-weight:bold">&lt;addressForm</span> <span style="color:#b48">view-model</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">${billingAddress}.entity</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">

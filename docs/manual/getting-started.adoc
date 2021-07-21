@@ -1,6 +1,8 @@
 [#getting-started]
 == Getting Started
 
+TIP: This tutorial is available as a https://youtu.be/QdyO4tpYOHs[video screencast].
+
 To get started, go to https://start.codenameone.com, and select "Code RAD (MVC) Starter Project" from the _Templates_ menu.
 
 image::images/initializr-select-coderad-starter-project.png[]
@@ -1595,11 +1597,11 @@ Later on you'll learn another, more succinct, way to access properties of the vi
 ----
 <!-- Embed an AddressForm view for the billing address -->
 <label>Billing Address</label>
-<addressForm view-model="${billingAddress}"/>
+<addressForm view-model="${billingAddress}.entity"/>
 
 <!-- Embed another AddressForm view for the shipping address -->
 <label>Shipping Address</label>
-<addressForm view-model="${shippingAddress}"/>
+<addressForm view-model="${shippingAddress}.entity"/>
 ----
 
 [NOTE]
@@ -1610,11 +1612,11 @@ Later on you'll learn another, more succinct, way to access properties of the vi
 ----
 <!-- Embed an AddressForm view for the billing address -->
 <label>Billing Address</label>
-<addressForm view-model="${billingAddress}"/>
+<addressForm view-model="${billingAddress}.entity"/>
 
 <!-- Embed another AddressForm view for the shipping address -->
 <label>Shipping Address</label>
-<addressForm view-model="${billingAddress}"/>
+<addressForm view-model="${billingAddress}.entity"/>
 ----
 
 In this case, if you start typing into any fields in _billing address_, it will also update the corresponding fields in _shipping address_.
