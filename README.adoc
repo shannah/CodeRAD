@@ -8,8 +8,8 @@ Watch the https://youtu.be/x7qaWBTjwMI[CodeRAD 2 Introduction Video] for a short
 
 . *Reusable Components* - Facilitates the creation of View components that can be easily reused across projects without requiring any dependencies.
 . *Rich UI Components* - Components built with CodeRAD are richer than the standard Codename One UI components.  They are designed to be useful right out of the box, while still being customizable.
-. *Clean Separation of Code* - Provides model, view, and https://shannah.github.io/CodeRAD/javadoc/overview-summary.html#controllers-and-actions[controller classes] which facilitate the clean separation of code following MVC (Model-View-Controller) principles.
-. *Loose Coupling* - Views can be "loosely" coupled to their model, allowing them to be used with many different model classes.  https://shannah.github.io/CodeRAD/javadoc/overview-summary.html#entities-properties-schemas-and-tags[Learn more]
+. *Clean Separation of Code* - Provides model, view, and https://github.com/shannah/CodeRAD/wiki/Controllers[controller classes] which facilitate the clean separation of code following MVC (Model-View-Controller) principles.
+. *Loose Coupling* - Views can be "loosely" coupled to their model, allowing them to be used with many different model classes.  https://shannah.github.io/CodeRAD/manual/#entities-properties-schemas-tags[Learn more]
 . *Declarative UI Syntax* - Build your user interfaces declaratively using a light and expressive XML-based syntax.
 
 
