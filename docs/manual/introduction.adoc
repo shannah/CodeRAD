@@ -99,14 +99,23 @@ The following figure shows the definition of a very simple entity class:
 ----
 import com.codename1.rad.schemas.Person;
 import com.codename1.rad.models.Entity;
+import com.codename1.rad.schemas.Person;
 
 @RAD <1>
 public interface UserProfile extends Entity <2> {
-    @RAD(tag="Person.name") <3>
+
+    // Define "tags" for properties.  Make references
+    // to generic tags in Person schema for compatibility
+    // With Views that were build to work with the Person
+    // schema.
+    public static final Tag name = Person.name;
+    public static final Tag description = Person.description;
+
+    @RAD(tag="name") <3>
     public String getName();
     public void setName(String name);
 
-    @RAD(tag="Person.description")
+    @RAD(tag="description")
     public String getDescription();
     public void setDescription(String description);
 
@@ -114,7 +123,7 @@ public interface UserProfile extends Entity <2> {
 ----
 <1> The `@RAD` annotation tells the CodeRAD annotation processor to generate a concrete implementation for this class, as well as a Wrapper class.
 <2> We extend the `Entity` interface which all model classes must implement.
-<3> The `@RAD(tag="Person.name")` annotation tells the CodeRAD annotation processor to bind the `getName()` method to the `Person.name` tag.  This means that `myProfile.getName()` would be the same as `myProfile.getText(Person.name)`, and `myProfile.setName(name)` is the same as `myProfile.setText(Person.name, name)`.
+<3> The `@RAD(tag="name")` annotation tells the CodeRAD annotation processor to bind the `getName()` method to the `name` tag.  This means that `myProfile.getName()` would be the same as `myProfile.getText(Person.name)`, and `myProfile.setName(name)` is the same as `myProfile.setText(Person.name, name)`.
 
 The CodeRAD annotation processor will generate two concrete implementations of our `UserProfile` interface during compilation:
 

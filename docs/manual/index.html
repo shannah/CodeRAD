@@ -694,14 +694,23 @@ Codename One apps are written in Java or Kotlin, giving you access to its well e
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="java"><span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.schemas.Person</span>;
 <span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.models.Entity</span>;
+<span style="color:#080;font-weight:bold">import</span> <span style="color:#B44;font-weight:bold">com.codename1.rad.schemas.Person</span>;
 
 <span style="color:#007">@RAD</span> <b class="conum">(1)</b>
 <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">interface</span> <span style="color:#B06;font-weight:bold">UserProfile</span> <span style="color:#088;font-weight:bold">extends</span> <span style="color:#0a8;font-weight:bold">Entity</span> &lt;<span style="color:#00D">2</span>&gt; {
-    <span style="color:#007">@RAD</span>(tag=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.name</span><span style="color:#710">&quot;</span></span>) <b class="conum">(3)</b>
+
+    <span style="color:#777">// Define &quot;tags&quot; for properties.  Make references</span>
+    <span style="color:#777">// to generic tags in Person schema for compatibility</span>
+    <span style="color:#777">// With Views that were build to work with the Person</span>
+    <span style="color:#777">// schema.</span>
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> Tag name = Person.name;
+    <span style="color:#088;font-weight:bold">public</span> <span style="color:#088;font-weight:bold">static</span> <span style="color:#088;font-weight:bold">final</span> Tag description = Person.description;
+
+    <span style="color:#007">@RAD</span>(tag=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">name</span><span style="color:#710">&quot;</span></span>) <b class="conum">(3)</b>
     <span style="color:#088;font-weight:bold">public</span> <span style="color:#0a8;font-weight:bold">String</span> getName();
     <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> setName(<span style="color:#0a8;font-weight:bold">String</span> name);
 
-    <span style="color:#007">@RAD</span>(tag=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Person.description</span><span style="color:#710">&quot;</span></span>)
+    <span style="color:#007">@RAD</span>(tag=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">description</span><span style="color:#710">&quot;</span></span>)
     <span style="color:#088;font-weight:bold">public</span> <span style="color:#0a8;font-weight:bold">String</span> getDescription();
     <span style="color:#088;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">void</span> setDescription(<span style="color:#0a8;font-weight:bold">String</span> description);
 
@@ -717,7 +726,7 @@ Codename One apps are written in Java or Kotlin, giving you access to its well e
 <p>We extend the <code>Entity</code> interface which all model classes must implement.</p>
 </li>
 <li>
-<p>The <code>@RAD(tag="Person.name")</code> annotation tells the CodeRAD annotation processor to bind the <code>getName()</code> method to the <code>Person.name</code> tag.  This means that <code>myProfile.getName()</code> would be the same as <code>myProfile.getText(Person.name)</code>, and <code>myProfile.setName(name)</code> is the same as <code>myProfile.setText(Person.name, name)</code>.</p>
+<p>The <code>@RAD(tag="name")</code> annotation tells the CodeRAD annotation processor to bind the <code>getName()</code> method to the <code>name</code> tag.  This means that <code>myProfile.getName()</code> would be the same as <code>myProfile.getText(Person.name)</code>, and <code>myProfile.setName(name)</code> is the same as <code>myProfile.setText(Person.name, name)</code>.</p>
 </li>
 </ol>
 </div>
