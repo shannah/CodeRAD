@@ -983,6 +983,18 @@ The first time you run and build the project it will take some time because it n
 </div>
 <div class="sect2">
 <h3 id="under-the-hood">2.1. Under the Hood</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=191">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Let&#8217;s take look under the hood to see how this "Hello World" app is producted.</p>
 </div>
@@ -1139,6 +1151,18 @@ The boilerplate attributes <code>xsi:noNamespaceSchemaLocation="StartPage.xsd" x
 </div>
 <div class="sect2">
 <h3 id="hot-reload">2.2. Hot Reload</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=471">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>The Codename One simulator supports a "Hot Reload" feature that can dramatically improve productivity.  Especially if you&#8217;re like me, and you like to experiment with the UI by trial and error.</p>
 </div>
@@ -1174,6 +1198,18 @@ Technically these <em>hot reload</em> options aren&#8217;t a "hot" reload, since
 </div>
 <div class="sect2">
 <h3 id="_changing_the_styles">2.3. Changing the Styles</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=598">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Keep the simulator running, and open the CSS style stylesheet for the project, located at <em>common/src/main/css/theme.css</em>.</p>
 </div>
@@ -1390,6 +1426,18 @@ There will be some existing CSS rules in there from the default template.  You c
 </div>
 <div class="sect2">
 <h3 id="_adding_more_components">2.4. Adding More Components</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=1118">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>So far we&#8217;ve only used the <code>&lt;label&gt;</code> tag, which corresponds to the <code>Label</code> component.  You are not limited to <code>&lt;label&gt;</code>, nor are you limited to any particular subset of "supported" components.  You can use <em>any</em> Component in your XML files that you could use with Java or Kotlin directly.  You can even use your own custom components.</p>
 </div>
@@ -1497,6 +1545,18 @@ import com.xyz.otherwidgets.*;
 </div>
 <div class="sect2">
 <h3 id="adding-actions">2.5. Adding Actions</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=1586">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>CodeRAD is built around the Model-View-Controller (MVC) philosophy which asserts that the <em>View</em> logic (i.e. how the app looks) should be separated from the <em>Controller</em> logic (i.e. what the app does with user input).  <em>Actions</em> form the cornerstone of how CodeRAD keeps these concerns separate.  They provide a sort of communication channel between the controller and the view, kind of like a set of Walkie-talkies.</p>
 </div>
@@ -1651,6 +1711,18 @@ import com.xyz.otherwidgets.*;
 </div>
 <div class="sect2">
 <h3 id="_creating_menus">2.6. Creating Menus</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=1983">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Whereas the <code>&lt;button&gt;</code> tag will create a single button, which can be optionally "bound" to a single action, the <code>&lt;buttons&gt;</code> renders multiple buttons to the view according to the actions that it finds in a given category.  Let&#8217;s change the example from the previous section display a menu of buttons.  We will:</p>
 </div>
@@ -1846,6 +1918,18 @@ ActionNode.builder().
 </div>
 <div class="sect2">
 <h3 id="form-navigation">2.7. Form Navigation</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=2392">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>It&#8217;s time to grow beyond our single-form playpen, and step into the world of multi-form apps.  Let&#8217;s create another view in the same folder as <em>StartPage.xml</em>.  We&#8217;ll name this <em>AboutPage.xml</em>.  If you&#8217;re using IntelliJ, like me, you can create this file by right clicking the "myapp" directory in the project inspector, and select <em>New</em> &gt; <em>File</em> as shown here:</p>
 </div>
@@ -1919,6 +2003,18 @@ This section described only how to navigate to a different form.  It is also pos
 </div>
 <div class="sect2">
 <h3 id="_models">2.8. Models</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=2650">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>So far we&#8217;ve been working only with the <em>V</em> and <em>C</em> portions of <em>MVC</em>.  In this section, I introduce the final pillar in the trinity: <em>the Model</em>.  Model objects store the data of the application.  In CodeRAD, <em>model</em> objects implement the <em>com.codename1.rad.models.Entity</em> interface.  We&#8217;re going to skip the conceptual discussion of <em>Models</em> in this tutorial, and dive directly into an example so you can see how they work.  After we&#8217;ve played with some models, we&#8217;ll circle back and discuss the theories and concepts in greater depth.</p>
 </div>
@@ -2236,6 +2332,18 @@ import com.example.myapp.models.UserProfile;
 <div class="title">Tip</div>
 </td>
 <td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=3568">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
 Throughout this guide I use the terms <em>model</em> and <em>entity</em> interchangeably because CodeRAD names it&#8217;s <em>model</em> class <code>Entity</code>.
 </td>
 </tr>
@@ -2300,6 +2408,18 @@ The <em>bind-*</em> attributes, by default expect their values to be references 
 </div>
 <div class="sect2">
 <h3 id="_transitions">2.10. Transitions</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=3897">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>By default, changes to bound properties take effect immediately upon property change.  For example, if you bind the <em>visible</em> property of a label, then it will instantly appear when the value changes to true, and instantly disappear when the value changes to false.  Interfaces feel <em>better</em> when changes are animated.</p>
 </div>
@@ -2428,6 +2548,18 @@ The <em>bind-*</em> attributes, by default expect their values to be references 
 </div>
 <div class="sect2">
 <h3 id="entity-lists">2.11. Entity Lists</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=4324">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>So far our examples have involved only views of <em>single</em> models.  Most apps involve <em>list</em> views where multiple models are rendered on a single view.  E.g. In mail apps that include a list of messages, each row of the list corresponds to a distinct <em>message</em> model.  CodeRAD&#8217;s <code>&lt;entityList&gt;</code> tag provides rich support for these kinds of views.</p>
 </div>
@@ -2680,6 +2812,18 @@ This example used the <code>Person.name</code> tag whereas we could have used th
 </div>
 <div class="sect2">
 <h3 id="intraform-navigation">2.12. Intra-Form Navigation</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=5391">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Earlier, in <a href="#form-navigation">Form Navigation</a>, we learned how to navigate between forms using a <em>button</em> tag with the <code>rad-href</code> attribute.  When developing for tablet and desktop, you may want to navigate to a different view within the same form; sort of like using frames in HTML.  A <em>mail</em> app will often have a list of messages on the left side of the screen, and details of the currently selected message on the right, as shown in the Gmail app screenshot below:</p>
 </div>
@@ -2824,6 +2968,18 @@ The above example demonstrates the <code>&lt;splitPane&gt;</code> component that
 </div>
 <div class="sect2">
 <h3 id="_custom_view_controllers">2.13. Custom View Controllers</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=5976">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Up until now, we haven&#8217;t created any custom controllers for our views, other than the application controller (the <em>MyRadApp</em> class).  Since all events propagate up the controller hierarchy, it is possible just to handle all of the events in the application controller, as we&#8217;ve been doing.  Keeping all of our logic inside a single <em>application-wide</em> controller has some benefits for small, example apps, but for most real-world apps, you&#8217;ll want to be intentional about your application&#8217;s architecture.</p>
 </div>
@@ -2961,6 +3117,18 @@ The above example demonstrates the <code>&lt;splitPane&gt;</code> component that
 </div>
 <div class="sect2">
 <h3 id="views-within-views">2.14. Views within Views</h3>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+Watch the companion <a href="https://youtu.be/QdyO4tpYOHs?t=6290">screencast</a> for this section.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Since RAD views are Components themselves, they can be used inside other views, just like other components are.  To demonstrate this,
 let&#8217;s create create a form to allow users to enter contact information such as name, email, billing address, and shipping address.  Since the billing address and shipping address will likely use the same fields, we&#8217;ll create a <em>AddressView</em> view and use it from the main form.</p>

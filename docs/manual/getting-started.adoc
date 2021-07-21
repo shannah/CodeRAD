@@ -27,6 +27,8 @@ image::images/starter-project-run.png[]
 [#under-the-hood]
 === Under the Hood
 
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=191[screencast] for this section.
+
 Let's take look under the hood to see how this "Hello World" app is producted.
 
 The _starting point_ for your app is the `com.example.myapp.MyRADApp` class, located in the _common/src/main/java_ directory.
@@ -141,6 +143,8 @@ A Label component with the text "Hello World"
 [#hot-reload]
 === Hot Reload
 
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=471[screencast] for this section.
+
 The Codename One simulator supports a "Hot Reload" feature that can dramatically improve productivity.  Especially if you're like me, and you like to experiment with the UI by trial and error.
 
 Hot Reload is disabled by default, but you can enable it using the _Tools_ > _Hot Reload_ menu.
@@ -156,6 +160,8 @@ TIP: Technically these _hot reload_ options aren't a "hot" reload, since it actu
 **The remainder of this tutorial will assume that you have _Hot Reload_ enabled**
 
 === Changing the Styles
+
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=598[screencast] for this section.
 
 Keep the simulator running, and open the CSS style stylesheet for the project, located at _common/src/main/css/theme.css_.
 
@@ -301,6 +307,9 @@ image::images/simulator-hello-world-custom-uiid.png[]
 
 === Adding More Components
 
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=1118[screencast] for this section.
+
+
 So far we've only used the `<label>` tag, which corresponds to the `Label` component.  You are not limited to `<label>`, nor are you limited to any particular subset of "supported" components.  You can use _any_ Component in your XML files that you could use with Java or Kotlin directly.  You can even use your own custom components.
 
 The tag name will be the same as the simple class name of the component you want to use.  By convention, the tag names begin with a lowercase letter.  E.g. The _TextField_ class would correspond to the `<textField>` tag.
@@ -393,6 +402,9 @@ image::images/simulator-fun-with-components.png[]
 
 [#adding-actions]
 === Adding Actions
+
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=1586[screencast] for this section.
+
 
 CodeRAD is built around the Model-View-Controller (MVC) philosophy which asserts that the _View_ logic (i.e. how the app looks) should be separated from the _Controller_ logic (i.e. what the app does with user input).  _Actions_ form the cornerstone of how CodeRAD keeps these concerns separate.  They provide a sort of communication channel between the controller and the view, kind of like a set of Walkie-talkies.
 
@@ -507,6 +519,9 @@ image::images/action-overridden-in-controller.png[]
 There's quite a bit more that you can do with actions, but this small bit of foundation will suffice for our purposes for now.
 
 === Creating Menus
+
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=1983[screencast] for this section.
+
 
 Whereas the `<button>` tag will create a single button, which can be optionally "bound" to a single action, the `<buttons>` renders multiple buttons to the view according to the actions that it finds in a given category.  Let's change the example from the previous section display a menu of buttons.  We will:
 
@@ -642,6 +657,9 @@ image::images/buttons-limit-2.png[]
 [#form-navigation]
 === Form Navigation
 
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=2392[screencast] for this section.
+
+
 It's time to grow beyond our single-form playpen, and step into the world of multi-form apps.  Let's create another view in the same folder as _StartPage.xml_.  We'll name this _AboutPage.xml_.  If you're using IntelliJ, like me, you can create this file by right clicking the "myapp" directory in the project inspector, and select _New_ > _File_ as shown here:
 
 image::images/intellij-new-view-xml-file.png[]
@@ -683,6 +701,9 @@ Notice that the _About Us_ form includes a _Back_ button that returns you to the
 TIP: This section described only how to navigate to a different form.  It is also possible to load views within the current form using the `rad-href` attribute.  This is commonly used on tablet and desktop to create a _master-detail_ view.  See <<intraform-navigation>> for some examples.
 
 === Models
+
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=2650[screencast] for this section.
+
 
 So far we've been working only with the _V_ and _C_ portions of _MVC_.  In this section, I introduce the final pillar in the trinity: _the Model_.  Model objects store the data of the application.  In CodeRAD, _model_ objects implement the _com.codename1.rad.models.Entity_ interface.  We're going to skip the conceptual discussion of _Models_ in this tutorial, and dive directly into an example so you can see how they work.  After we've played with some models, we'll circle back and discuss the theories and concepts in greater depth.
 
@@ -896,6 +917,9 @@ You can disable this feature when you are finished working on the _My Profile_ f
 
 === Fun with Bindings
 
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=3568[screencast] for this section.
+
+
 TIP: Throughout this guide I use the terms _model_ and _entity_ interchangeably because CodeRAD names it's _model_ class `Entity`.
 
 CodeRAD models are designed to allow for easy binding to other models and to user interface components.  We've already seen how the `<radLabel>` tag can be bound to a model property using the `tag` attribute, but you aren't limited to static labels.  There are `radXXX` components for many of the fundamental Codename One components.  E.g. `<radTextField>`, `<radTextArea>`, `<radSpanLabel>`, and many more.  Later on, you'll also learn how to build your own _binding_ components, but for now, let's have a little bit of fun with the standard ones.
@@ -934,6 +958,9 @@ In this example we bound the _enabled_ property of _Button_ so that it would be 
 In the above example, the button text will be red when the email field is empty, and black otherwise.
 
 === Transitions
+
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=3897[screencast] for this section.
+
 
 By default, changes to bound properties take effect immediately upon property change.  For example, if you bind the _visible_ property of a label, then it will instantly appear when the value changes to true, and instantly disappear when the value changes to false.  Interfaces feel _better_ when changes are animated.
 
@@ -1039,6 +1066,8 @@ Style animations are also supported on the "uiid" property, so that changes to c
 
 [#entity-lists]
 === Entity Lists
+
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=4324[screencast] for this section.
 
 So far our examples have involved only views of _single_ models.  Most apps involve _list_ views where multiple models are rendered on a single view.  E.g. In mail apps that include a list of messages, each row of the list corresponds to a distinct _message_ model.  CodeRAD's `<entityList>` tag provides rich support for these kinds of views.
 
@@ -1235,6 +1264,9 @@ And clicking on any row will trigger the `rad-href` attribute on the button, whi
 [#intraform-navigation]
 === Intra-Form Navigation
 
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=5391[screencast] for this section.
+
+
 Earlier, in <<form-navigation>>, we learned how to navigate between forms using a _button_ tag with the `rad-href` attribute.  When developing for tablet and desktop, you may want to navigate to a different view within the same form; sort of like using frames in HTML.  A _mail_ app will often have a list of messages on the left side of the screen, and details of the currently selected message on the right, as shown in the Gmail app screenshot below:
 
 image::images/gmail-app-screenshot.png[]
@@ -1329,6 +1361,9 @@ Some other transition types include _fade_, _slide_, _cover_, and _uncover_ with
 See <<chapter-transitions>> for more details and examples using transitions.
 
 === Custom View Controllers
+
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=5976[screencast] for this section.
+
 
 Up until now, we haven't created any custom controllers for our views, other than the application controller (the _MyRadApp_ class).  Since all events propagate up the controller hierarchy, it is possible just to handle all of the events in the application controller, as we've been doing.  Keeping all of our logic inside a single _application-wide_ controller has some benefits for small, example apps, but for most real-world apps, you'll want to be intentional about your application's architecture.
 
@@ -1443,6 +1478,9 @@ image::images/custom-controller-you-clicked-me.png[]
 
 [#views-within-views]
 === Views within Views
+
+TIP: Watch the companion https://youtu.be/QdyO4tpYOHs?t=6290[screencast] for this section.
+
 
 Since RAD views are Components themselves, they can be used inside other views, just like other components are.  To demonstrate this,
 let's create create a form to allow users to enter contact information such as name, email, billing address, and shipping address.  Since the billing address and shipping address will likely use the same fields, we'll create a _AddressView_ view and use it from the main form.
