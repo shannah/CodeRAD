@@ -51,6 +51,17 @@ _The following tutorials were written for CodeRAD 1.0 and are in the process of 
 .. https://youtu.be/QdyO4tpYOHs?t=5976[Custom View Controllers]
 .. https://youtu.be/QdyO4tpYOHs?t=6290[Views within Views]
 
+== Sample Projects
+
+. https://github.com/shannah/tweetapp[Tweetapp] - A Twitter mobile app clone.  (For demonstration only - is not a complete clone).
+. https://github.com/shannah/RADChatApp/tree/master/cn1chat-demo[RADChat Demo] - RADChatApp is a full-featured chat room app UI component.  UI only.  For demonstration purposes. _Developed using CodeRAD 1.0.  Currently being updated to use 2.0_.
+. https://github.com/sergeyCodenameOne/UberEatsClone[Grub] - UberEats Clone.  _Developed using CodeRAD 1.0_
+. https://github.com/shannah/coderad2-samples[CodeRAD2 Samples] - A collection of samples using CodeRAD components.  This serves as a living testbed for CodeRAD components.
+
+== UI Kits (Libraries)
+
+. https://github.com/shannah/TweetAppUIKit/[Tweet App UI Kit] - A CodeRAD 2 library with several Twitter-like UI components.  Developed for CodeRAD 2.0.
+. https://github.com/shannah/RADChatApp[RADChat App] - A library including full-featured components for building a Chat application.  (Currently for CodeRAD 1.0, and being adapted to CodeRAD 2).
 
 == Building from Source
 
