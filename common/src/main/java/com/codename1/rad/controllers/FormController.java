@@ -7,6 +7,7 @@ package com.codename1.rad.controllers;
 
 import ca.weblite.shared.components.CollapsibleHeaderContainer;
 import com.codename1.rad.annotations.Inject;
+import com.codename1.rad.nodes.ActionNode;
 import com.codename1.ui.Button;
 import com.codename1.ui.CN;
 import com.codename1.ui.Command;
@@ -21,6 +22,7 @@ import com.codename1.ui.Toolbar;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.plaf.Style;
 
 /**
@@ -281,6 +283,8 @@ public class FormController extends ViewController implements Runnable {
             };
 
             boolean hasTitle = !addTitleBar;
+            Component titleBarEast = null;
+            Component titleBarWest = null;
             if (!hasTitle) {
                 for (Component c : $("*", cmp).add(cmp, true)) {
                     if (c instanceof CollapsibleHeaderContainer) {
@@ -291,10 +295,19 @@ public class FormController extends ViewController implements Runnable {
                         hasTitle = true;
                         break;
                     }
+                    if ("TitleBarEast".equalsIgnoreCase(c.getName())) {
+                        titleBarEast = c;
+                    } else if ("TitleBarWest".equalsIgnoreCase(c.getName())) {
+                        titleBarWest = c;
+                    }
                 }
             }
+            if (titleBarEast != null) titleBarEast.remove();
+            if (titleBarWest != null) titleBarWest.remove();
+
             f.addShowListener(showListener());
             f.getToolbar().hideToolbar();
+
             Container titleBar = new Container(new BorderLayout(BorderLayout.CENTER_BEHAVIOR_CENTER_ABSOLUTE));
             titleBar.setSafeArea(true);
             titleBar.setUIID("TitleArea");
@@ -302,7 +315,8 @@ public class FormController extends ViewController implements Runnable {
             if (hasBackCommand()) {
                 Button back = new Button();
                 FontImage.setIcon(back, FontImage.MATERIAL_ARROW_BACK_IOS, -1);
-                titleBar.add(BorderLayout.WEST, back);
+                titleBarWest = titleBarWest == null ? back : BoxLayout.encloseX(back, titleBarWest);
+                //titleBar.add(BorderLayout.WEST, back);
                 back.addActionListener(evt->{
                     evt.consume();
                     ActionSupport.dispatchEvent(new FormController.FormBackEvent(back));
@@ -317,7 +331,8 @@ public class FormController extends ViewController implements Runnable {
                     evt.consume();
                     ActionSupport.dispatchEvent(new AppSectionController.ExitSectionEvent(done));
                 });
-                titleBar.add(BorderLayout.EAST, done);
+                titleBarEast = titleBarEast == null ? done : BoxLayout.encloseX(titleBarEast, done);
+                //titleBar.add(BorderLayout.EAST, done);
             }
 
             if (titleComponent != null) {
@@ -330,6 +345,10 @@ public class FormController extends ViewController implements Runnable {
                 }
                 titleBar.add(BorderLayout.CENTER, titleLbl);
             }
+
+            if (titleBarEast != null) titleBar.add(BorderLayout.EAST, titleBarEast);
+            if (titleBarWest != null) titleBar.add(BorderLayout.WEST, titleBarWest);
+
             if (!hasTitle) f.add(BorderLayout.NORTH, titleBar);
             f.add(BorderLayout.CENTER, decorateView(cmp));
             f.revalidateLater();
