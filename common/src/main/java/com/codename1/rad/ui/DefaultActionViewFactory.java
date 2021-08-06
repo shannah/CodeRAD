@@ -77,11 +77,15 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                 btn.setText(newTextVal);
                 repaint = true;
             }
+            
+            
         }
         if (!action.isTextStyle() && !"".equals(btn.getText().trim())) {
             btn.setText("");
             repaint = true;
         }
+        
+        
 
         if (action.getUIID() != null) {
             String currUiid = btn.getUIID();
@@ -126,6 +130,8 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                 btn.setBadgeUIID(badgeUiid.getValue());
             }
         }
+        
+        
         if (revalidate || repaint) {
             Form f = btn.getComponentForm();
             if (f != null) {
@@ -424,6 +430,8 @@ public class DefaultActionViewFactory implements ActionViewFactory {
                         button.setTextPosition(LEFT);
                 }
             }
+            
+            
         }
         if (!text) {
             button.setText("");

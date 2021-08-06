@@ -301,6 +301,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
                             // We just swallow errors.
                             // The provider can return an error to indicate that it's done but no data.
                             // But it is up to the provider to propagate errors up the UI or log if necessary.
+                            InfiniteScrollAdapter.addMoreComponents(wrapper, new Component[0], req.hasMore());
                             return;
                         }
                         nextProviderRequest = req.getNextRequest();
@@ -323,6 +324,8 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
                                 getComponentForm().revalidateWithAnimationSafety();
                             }
 
+                        } else {
+                            InfiniteScrollAdapter.addMoreComponents(wrapper, new Component[0], req.hasMore());
                         }
                     });
                 }

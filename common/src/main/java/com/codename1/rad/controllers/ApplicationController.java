@@ -86,6 +86,7 @@ public class ApplicationController extends Controller {
         updateNetworkThreadCount(2);
 
         theme = UIManager.initFirstTheme("/theme");
+        addLookup(Resources.class, theme);
 
         // Enable Toolbar on all Forms by default
         Toolbar.setGlobalToolbar(true);
@@ -154,6 +155,7 @@ public class ApplicationController extends Controller {
 
         public StartEvent(Form currentForm) {
             this.currentForm = currentForm;
+            showingForm = currentForm != null;
         }
 
         /**

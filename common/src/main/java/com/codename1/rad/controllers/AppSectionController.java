@@ -16,6 +16,7 @@
 package com.codename1.rad.controllers;
 
 import com.codename1.ui.Component;
+import com.codename1.util.promise.Promise;
 
 /**
  * A controller for a section of an app.  The primary purpose of this is to group a set of 
@@ -38,14 +39,16 @@ public class AppSectionController extends Controller {
         }
     }
 
+
+
     @Override
     public void actionPerformed(ControllerEvent evt) {
         if (evt instanceof ExitSectionEvent) {
             evt.consume();
+
             dispatchEvent(new FormController.FormBackEvent(evt.getSource()));
         }
         super.actionPerformed(evt);
     }
-    
-    
+
 }

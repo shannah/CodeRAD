@@ -9,6 +9,7 @@ import com.codename1.rad.models.Attribute;
 
 import com.codename1.rad.nodes.ActionNode;
 import com.codename1.rad.nodes.Node;
+import com.codename1.ui.ComponentSelector;
 import com.codename1.ui.Container;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
@@ -84,17 +85,29 @@ public class Actions implements Iterable<ActionNode> {
     public ActionNode[] toArray() {
         return actions.toArray(new ActionNode[actions.size()]);
     }
-    
+
     public void addToContainer(Container cnt, Entity entity) {
+        addToContainer(cnt, entity, null);
+    }
+
+    public void addToContainer(Container cnt, Entity entity, ComponentSelector.ComponentMapper wrapper) {
         boolean requiresFlowLayoutWrapperForBadge = (cnt.getLayout() instanceof GridLayout || cnt.getLayout() instanceof BorderLayout || cnt.getLayout() instanceof BoxLayout);
         for (ActionNode n : this) {
             if (requiresFlowLayoutWrapperForBadge && n.getBadge() != null) {
                 // If there is a badge, we'll wrap it in a flowlayout
                 Container fl = FlowLayout.encloseCenter(n.createView(entity));
                 fl.getStyle().stripMarginAndPadding();
-                cnt.addComponent(fl);
+                if (wrapper == null) {
+                    cnt.addComponent(fl);
+                } else {
+                    cnt.addComponent(wrapper.map(fl));
+                }
             } else {
-                cnt.addComponent(n.createView(entity));
+                if (wrapper == null) {
+                    cnt.addComponent(n.createView(entity));
+                } else {
+                    cnt.addComponent(wrapper.map(n.createView(entity)));
+                }
             }
         }
     }

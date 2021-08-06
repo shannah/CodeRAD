@@ -216,6 +216,10 @@ public class ActionNode extends Node implements Proxyable {
     public ComponentDecorators getComponentDecorators() {
         return new ComponentDecorators(getChildNodes(ComponentDecoratorNode.class));
     }
+
+    public void addDecorator(ComponentDecorator decorator) {
+        setAttributes(new ComponentDecoratorNode(decorator));
+    }
    
     /**
      * Decorates the given component using the registered component decorators.
@@ -878,6 +882,11 @@ public class ActionNode extends Node implements Proxyable {
         
         public Builder label(String label) {
             action.setAttributes(overwrite, UI.label(label));
+            return this;
+        }
+
+        public Builder decorator(ComponentDecorator decorator) {
+            action.addDecorator(decorator);
             return this;
         }
 

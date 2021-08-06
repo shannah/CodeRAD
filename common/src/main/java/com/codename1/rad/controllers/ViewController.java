@@ -302,8 +302,28 @@ public class ViewController extends Controller {
         if (view instanceof EntityView) {
             return ((EntityView)view).getEntity();
         }
-       
         return null;
+    }
+
+    /**
+     * Crawls up controller hierarchy until it finds a controller with an attached view model.
+     * @return The nearest view model or null.
+     */
+    public Entity getNearestViewModel() {
+        Entity vm = getViewModel();
+        Controller parent = getParent();
+        while (parent != null) {
+            if (parent instanceof ViewController) {
+                ViewController parentVC = (ViewController)parent;
+                vm = parentVC.getViewModel();
+                if (vm != null) {
+                    return vm;
+                }
+            }
+            parent = parent.getParent();
+        }
+        return null;
+
     }
 
 

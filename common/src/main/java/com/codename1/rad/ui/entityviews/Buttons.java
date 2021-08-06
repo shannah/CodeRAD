@@ -9,12 +9,24 @@ import com.codename1.rad.ui.ViewContext;
 import com.codename1.rad.ui.menus.ActionSheet;
 import com.codename1.rad.ui.menus.PopupActionsMenu;
 import com.codename1.ui.CN;
+import com.codename1.ui.Component;
+import com.codename1.ui.ComponentSelector;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.layouts.BoxLayout;
 
 public class Buttons extends AbstractEntityView {
     private ActionNode.Category actionCategory;
+    private int align = -1;
 
+    private ComponentSelector.ComponentMapper buttonWrapper = cmp -> {
+        switch(align) {
+            case Component.LEFT: return BoxLayout.encloseX(cmp);
+            case Component.RIGHT: return BoxLayout.encloseXRight(cmp);
+            case Component.CENTER: return BoxLayout.encloseXCenter(cmp);
+        }
+        return cmp;
+    };
     private ActionNode.Builder actionTemplate = ActionNode.builder();
     private ActionNode.Builder overflowActionTemplate = ActionNode.builder();
     private ActionNode.Builder overflowButtonAction = ActionNode.builder();
@@ -35,6 +47,14 @@ public class Buttons extends AbstractEntityView {
         None
     }
 
+    public void setAlign(int align) {
+        this.align = align;
+    }
+
+
+    public int getAlign() {
+        return align;
+    }
 
 
     public Buttons(@Inject ViewContext context) {
@@ -123,7 +143,8 @@ public class Buttons extends AbstractEntityView {
 
 
         actions.copyAttributesIfNotExists(actionTemplate.build());
-        actions.addToContainer(this, getEntity());
+
+        actions.addToContainer(this, getEntity(), buttonWrapper);
         revalidateWithAnimationSafety();
     }
 
