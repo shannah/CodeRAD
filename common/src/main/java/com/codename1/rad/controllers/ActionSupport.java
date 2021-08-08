@@ -5,6 +5,8 @@
  */
 package com.codename1.rad.controllers;
 
+import com.codename1.rad.models.Entity;
+import com.codename1.rad.nodes.ActionNode;
 import com.codename1.ui.Component;
 import com.codename1.ui.Dialog;
 import com.codename1.ui.Form;
@@ -51,7 +53,13 @@ public class ActionSupport<T extends ActionEvent> {
             ((ActionSource)cmp).removeActionListener(l);
         }
     }
-    
+
+    public static ActionEvent dispatchEvent(ActionNode.Category category, Entity entity, Component source) {
+        ViewController controller = ViewController.getViewController(source);
+        if (controller == null)  throw new IllegalStateException("Cannot find view controller for source "+source);
+        return controller.getAction(category).fireEvent(entity, source);
+    }
+
     /**
      * Dispatches an event, first using the source's action support,
      * if it implements EventProducer interface.  If event not consumed,
