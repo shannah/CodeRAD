@@ -22,7 +22,7 @@
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.7.15-M1" level="project" />
     <orderEntry type="library" name="Maven: com.jhlabs:filters:2.0.235-1" level="project" />
     <orderEntry type="module" module-name="coderad-tests-common" />
-    <orderEntry type="module" module-name="coderad-common" />
+    <orderEntry type="library" name="Maven: com.codenameone:coderad-common:2.0-SNAPSHOT" level="project" />
     <orderEntry type="module" module-name="coderad-tests-common" scope="TEST" production-on-test="" />
     <orderEntry type="module" module-name="coderad-annotation-processor" />
     <orderEntry type="module" module-name="annotations" />

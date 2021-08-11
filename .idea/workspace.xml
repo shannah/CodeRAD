@@ -23,10 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_coderad_common_1_0_2_SNAPSHOT.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_coderad_common_2_0_SNAPSHOT.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/coderad-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/common/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
