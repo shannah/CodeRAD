@@ -2,6 +2,8 @@
 
 Rapid Application Development toolkit and templates for Java developers using https://www.codenameone.com/[Codename One]. It focuses on higher reusability, rich UI components and MVC (Model-View-Controller) principles.
 
+image::https://www.codenameone.com/wp-content/uploads/2021/08/CodeRAD-GitHub.jpg[width=1500]
+
 Watch the https://youtu.be/x7qaWBTjwMI[CodeRAD 2 Introduction Video] for a short introduction to features and concepts.
 
 == Features
