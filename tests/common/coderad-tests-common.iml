@@ -20,7 +20,7 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.codenameone:codenameone-javase:7.0.22" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.xerial:sqlite-jdbc:3.7.15-M1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.jhlabs:filters:2.0.235-1" level="project" />
-    <orderEntry type="library" name="Maven: com.codenameone:coderad-common:1.0.2-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="coderad-common" />
     <orderEntry type="module" module-name="coderad-annotation-processor" />
     <orderEntry type="module" module-name="annotations" />
     <orderEntry type="library" name="Maven: com.squareup:javapoet:1.13.0" level="project" />

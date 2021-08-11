@@ -23,21 +23,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/NavigationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_7_0_32.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_8_0_SNAPSHOT.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_javase_7_0_32.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_codenameone_core_8_0_SNAPSHOT.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_codenameone_coderad_common_1_0_2_SNAPSHOT.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/coderad-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/AppSectionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/AppSectionController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ApplicationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ApplicationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/Controller.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ViewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/controllers/ViewController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/ActionNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/nodes/ActionNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/Actions.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/DefaultActionViewFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/DefaultActionViewFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/Buttons.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/Buttons.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/EntityListView.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/codename1/rad/ui/entityviews/EntityListView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -185,7 +175,6 @@
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
     <state x="-1745" y="216" width="1066" height="755" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625862387715" />
-    <state x="535" y="361" width="699" height="547" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1619386220903" />
     <state width="600" height="428" key="javadoc.popup" timestamp="1619876204348">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
@@ -194,10 +183,10 @@
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
     <state x="-2154" y="22" key="new project wizard/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1621435494975" />
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1627913878336">
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1628512427527">
       <screen x="-2560" y="-250" width="2560" height="1417" />
     </state>
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1627913878336" />
+    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1628512427527" />
     <state x="517" y="334" width="670" height="490" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625588401127" />
   </component>
 </project>
