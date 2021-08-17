@@ -73,6 +73,7 @@ public class CollapsibleHeaderContainer extends Container {
     
     private class TWTTitleBarPaneLayout extends Layout {
         private boolean firstLayout = true;
+        private int lastTitlebarPreferredH;
         @Override
         public void layoutContainer(Container parent) {
             int paddingTop = Display.getInstance().getDisplaySafeArea(safeArea).getY();
@@ -83,7 +84,12 @@ public class CollapsibleHeaderContainer extends Container {
             }
             if (firstLayout) {
                 slidePos = titleBar.getPreferredH();
+                lastTitlebarPreferredH = slidePos;
                 firstLayout = false;
+            }
+            if (lastTitlebarPreferredH != titleBar.getPreferredH()) {
+                slidePos = titleBar.getPreferredH();
+                lastTitlebarPreferredH = slidePos;
             }
             
             titleBar.setX(0);
@@ -244,12 +250,13 @@ public class CollapsibleHeaderContainer extends Container {
                 return;
             }
             int deltaY = scrollY - oldscrollY;
+            int origSlidePos = slidePos;
             if (deltaY > 0 && slidePos >= 0) {
                 slidePos = Math.max(0, slidePos - deltaY);
             } else if (deltaY < 0 && slidePos < titleBar.getPreferredH()) {
-                slidePos = Math.min(titleBar.getPreferredH(), slidePos - deltaY);
+                slidePos = Math.min(titleBar.getPreferredH(), Math.max(0, slidePos - deltaY));
             }
-            if (deltaY != 0) {
+            if (deltaY != 0 && slidePos != origSlidePos) {
                 CN.callSerially(()->{
                     revalidateWithAnimationSafety();
                 });
