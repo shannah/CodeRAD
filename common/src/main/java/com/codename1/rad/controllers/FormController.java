@@ -246,7 +246,7 @@ public class FormController extends ViewController implements Runnable {
                 @Override
                 public void layoutContainer() {
                    super.layoutContainer();
-                   
+                   if (true) return;
                    int maxLeftX = 0;
                    ComponentSelector cmps =  $(".left-inset", this);
                    for (Component c : cmps) {

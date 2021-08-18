@@ -15,6 +15,7 @@
  */
 package ca.weblite.shared.components;
 
+import com.codename1.components.InfiniteProgress;
 import com.codename1.ui.CN;
 import com.codename1.ui.Component;
 import com.codename1.ui.ComponentSelector;
@@ -55,6 +56,7 @@ public class CollapsibleHeaderContainer extends Container {
     private Container body;
     private Container verticalScroller;
     private Rectangle safeArea = new Rectangle();
+    private long lastScrollTime;
     
     // UIIDs to use for full and partial collapse.  In partial collapse mode
     // even when the title is collapsed, the body still includes its own header.
@@ -82,20 +84,26 @@ public class CollapsibleHeaderContainer extends Container {
                 titleBar.getStyle().setPaddingTop(paddingTop);
                 //titleBar.setShouldCalcPreferredSize(true);
             }
+
             if (firstLayout) {
                 slidePos = titleBar.getPreferredH();
                 lastTitlebarPreferredH = slidePos;
                 firstLayout = false;
             }
-            if (lastTitlebarPreferredH != titleBar.getPreferredH()) {
-                slidePos = titleBar.getPreferredH();
-                lastTitlebarPreferredH = slidePos;
+            if (lastTitlebarPreferredH != titleBar.getPreferredH() && System.currentTimeMillis() - lastScrollTime > 1000l) {
+
+                // The titlebar preferred height has changed
+
+                int diff = titleBar.getPreferredH() - lastTitlebarPreferredH;
+                slidePos = Math.max(0, Math.min(titleBar.getPreferredH(), slidePos));
+                lastTitlebarPreferredH = titleBar.getPreferredH();
+
             }
             
             titleBar.setX(0);
-            titleBar.setY(slidePos - titleBar.getPreferredH());
+            titleBar.setY(slidePos - lastTitlebarPreferredH);
             titleBar.setWidth(parent.getLayoutWidth());
-            titleBar.setHeight(titleBar.getPreferredH());
+            titleBar.setHeight(lastTitlebarPreferredH);
             
             body.setX(0);
             if (collapseMode == CollapseMode.PartialCollapse) {
@@ -150,7 +158,8 @@ public class CollapsibleHeaderContainer extends Container {
     private boolean pressed;
     ;
     private int startDragY, startSlidePos;
-    
+
+    /*
     private ActionListener formPressListener = new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
             if (Display.getInstance().isScrollWheeling()) {
@@ -226,6 +235,8 @@ public class CollapsibleHeaderContainer extends Container {
 
         }
     };
+
+     */
     private long lastPullToRefresh;
     
     public CollapsibleHeaderContainer(Container titleBar, Container body, Container verticalScroller) {
@@ -238,13 +249,14 @@ public class CollapsibleHeaderContainer extends Container {
             currentScroller.setScrollableY(true);
         }
         Container fCurrentScroller = currentScroller;
-
         currentScroller.addScrollListener((int scrollX, int scrollY, int oldscrollX, int oldscrollY)->{
+            long time = System.currentTimeMillis();
+            lastScrollTime = time;
             if (fCurrentScroller.getClientProperty("$pullToRelease") != null) {
                 lastPullToRefresh = System.currentTimeMillis();
                 return;
             }
-            if (System.currentTimeMillis() - lastPullToRefresh < 500 ) {
+            if (time - lastPullToRefresh < 500 ) {
                 // Wait after a pull-to-refresh before adjusting the header because
                 // the scroll to refresh will do some scrolling that we want to ignore.
                 return;
@@ -252,9 +264,15 @@ public class CollapsibleHeaderContainer extends Container {
             int deltaY = scrollY - oldscrollY;
             int origSlidePos = slidePos;
             if (deltaY > 0 && slidePos >= 0) {
+                // Scrolled down, and title is still visible.
+                // Slide the title up a bit.
                 slidePos = Math.max(0, slidePos - deltaY);
+
             } else if (deltaY < 0 && slidePos < titleBar.getPreferredH()) {
+                // Scrolled up and title hasn't yet reached full height.
+                // We slide the title down a bit
                 slidePos = Math.min(titleBar.getPreferredH(), Math.max(0, slidePos - deltaY));
+
             }
             if (deltaY != 0 && slidePos != origSlidePos) {
                 CN.callSerially(()->{
@@ -309,7 +327,7 @@ public class CollapsibleHeaderContainer extends Container {
     @Override
     public void layoutContainer() {
         super.layoutContainer();
-        
+        /*
         int maxLeftX = 0;
         ComponentSelector cmps =  $(".left-inset", this);
         for (Component c : cmps) {
@@ -335,7 +353,7 @@ public class CollapsibleHeaderContainer extends Container {
                 c.getAllStyles().setMarginLeft(marginLeft + maxLeftX - absX);
             }
         }
-        
+        */
     }
 
     @Override
