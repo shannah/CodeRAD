@@ -503,7 +503,7 @@ public class ResultParser implements EntityFactory {
             try {
                 return dateFormat.parse(str);
             } catch (ParseException ex) {
-                Log.e(ex);
+                //Log.e(ex);
                 return null;
             }
 

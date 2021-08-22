@@ -115,17 +115,17 @@ public class CollapsibleHeaderContainerBuilder extends AbstractComponentBuilder<
             if (titleBar.getParent() != null) {
                 throw new IllegalStateException("Error creating collapsible header.  titleBar container is already added to another parent.  titleBar container was "+titleBar+". Parent is "+titleBar.getParent());
             }
-            System.out.println("TitleBar="+titleBar);
-            System.out.println("TitleBar.parent="+titleBar.getParent());
-            System.out.println("Body="+body);
-            System.out.println("Body.parent="+body.getParent());
-            System.out.println("scrollable="+scrollable);
 
-            return new CollapsibleHeaderContainer(
+
+            CollapsibleHeaderContainer chc = new CollapsibleHeaderContainer(
                     (Container)titleBar,
                     (Container)body,
                     (Container)scrollable
             );
+
+            chc.setSurface(out.isSurface());
+            chc.setUIID(out.getUIID());
+            return chc;
 
 
         });

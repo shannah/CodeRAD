@@ -24,6 +24,8 @@ import com.codename1.ui.Container;
 import com.codename1.ui.Display;
 import com.codename1.ui.Form;
 import com.codename1.ui.Graphics;
+import com.codename1.ui.animations.Animation;
+import com.codename1.ui.animations.ComponentAnimation;
 import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.geom.Dimension;
@@ -68,6 +70,7 @@ public class CollapsibleHeaderContainer extends Container {
         FullCollapse,
         PartialCollapse
     }
+    private int lastTitlebarPreferredH;
     
     private CollapseMode collapseMode = CollapseMode.FullCollapse;
     
@@ -75,21 +78,23 @@ public class CollapsibleHeaderContainer extends Container {
     
     private class TWTTitleBarPaneLayout extends Layout {
         private boolean firstLayout = true;
-        private int lastTitlebarPreferredH;
+
         @Override
         public void layoutContainer(Container parent) {
-            int paddingTop = Display.getInstance().getDisplaySafeArea(safeArea).getY();
+            int paddingTop = parent.getStyle().getPaddingTop();
+            /*
             if (titleBar.getStyle().getPaddingTop() != paddingTop) {
                 titleBar.getStyle().setPaddingUnitTop(Style.UNIT_TYPE_PIXELS);
                 titleBar.getStyle().setPaddingTop(paddingTop);
                 //titleBar.setShouldCalcPreferredSize(true);
             }
-
+            */
             if (firstLayout) {
                 slidePos = titleBar.getPreferredH();
                 lastTitlebarPreferredH = slidePos;
                 firstLayout = false;
             }
+            /*
             if (lastTitlebarPreferredH != titleBar.getPreferredH() && System.currentTimeMillis() - lastScrollTime > 1000l) {
 
                 // The titlebar preferred height has changed
@@ -99,20 +104,20 @@ public class CollapsibleHeaderContainer extends Container {
                 lastTitlebarPreferredH = titleBar.getPreferredH();
 
             }
+            */
+            titleBar.setX(parent.getStyle().getPaddingLeftNoRTL());
+            titleBar.setY(paddingTop + slidePos - lastTitlebarPreferredH + titleBar.getStyle().getMarginTop());
+            titleBar.setWidth(parent.getLayoutWidth() - parent.getStyle().getHorizontalPadding() - titleBar.getStyle().getHorizontalMargins());
+            titleBar.setHeight(titleBar.getPreferredH());
             
-            titleBar.setX(0);
-            titleBar.setY(slidePos - lastTitlebarPreferredH);
-            titleBar.setWidth(parent.getLayoutWidth());
-            titleBar.setHeight(lastTitlebarPreferredH);
-            
-            body.setX(0);
+            body.setX(parent.getStyle().getPaddingLeftNoRTL());
             if (collapseMode == CollapseMode.PartialCollapse) {
-                body.setY(Math.max(paddingTop, titleBar.getY() + titleBar.getHeight()));
+                body.setY(Math.max(paddingTop, titleBar.getY() + titleBar.getHeight() + paddingTop + titleBar.getStyle().getMarginBottom() + body.getStyle().getMarginTop()));
             } else {
-                body.setY(titleBar.getY() + titleBar.getHeight());
+                body.setY(paddingTop + titleBar.getY() + titleBar.getHeight() + titleBar.getStyle().getVerticalMargins() + body.getStyle().getMarginTop());
             }
-            body.setHeight(parent.getHeight() - body.getY());
-            body.setWidth(parent.getWidth());
+            body.setHeight(parent.getLayoutHeight() - parent.getStyle().getPaddingBottom() - body.getStyle().getMarginBottom() - body.getY());
+            body.setWidth(parent.getWidth() - parent.getStyle().getHorizontalPadding() - body.getStyle().getHorizontalMargins());
         }
 
         @Override
@@ -159,13 +164,10 @@ public class CollapsibleHeaderContainer extends Container {
     ;
     private int startDragY, startSlidePos;
 
-    /*
+
     private ActionListener formPressListener = new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
-            if (Display.getInstance().isScrollWheeling()) {
-                pressed = false;
-                return;
-            }
+
             Container currentScroller = verticalScroller;
             if (currentScroller instanceof ScrollableContainer) {
                 currentScroller = ((ScrollableContainer)currentScroller).getVerticalScroller();
@@ -173,6 +175,52 @@ public class CollapsibleHeaderContainer extends Container {
             if (!currentScroller.isScrollableY()) {
                 return;
             }
+            if (Display.getInstance().isScrollWheeling()) {
+                pressed = false;
+                pauseScrollListener = true;
+                stateCounter++;
+                /*
+                if (currentScroller != null) {
+                    pauseScrollListener = false;
+                    stateCounter++;
+                    startScrollY = currentScroller.getScrollY();
+                }*/
+                return;
+            }
+            switch (evt.getEventType()) {
+                case PointerPressed:
+                    pressed = true;
+                    if (currentScroller != null) {
+                        pauseScrollListener = false;
+                        stateCounter++;
+                        startScrollY = currentScroller.getScrollY();
+                    }
+                    break;
+                case PointerReleased:
+                    pressed = false;
+                    break;
+                case DragFinished:
+                    pressed = false;
+                    break;
+                case PointerDrag:
+                    if (evt.isPointerPressedDuringDrag()) {
+                        // Sometimes a pointer press is swalled by a drag event if scrolling is
+                        // in progress so we need to handle a press in this case too.
+                        if (currentScroller != null) {
+                            pauseScrollListener = false;
+                            stateCounter++;
+                            startScrollY = currentScroller.getScrollY();
+                        }
+                    }
+                    pressed = true;
+            }
+            if (true) return;
+
+            if (Display.getInstance().isScrollWheeling()) {
+                pressed = false;
+                return;
+            }
+
 
             Form f = CN.getCurrentForm();
 
@@ -236,9 +284,21 @@ public class CollapsibleHeaderContainer extends Container {
         }
     };
 
-     */
+
     private long lastPullToRefresh;
-    
+    private boolean pauseScrollListener;
+    private int lastDy = 0;
+
+    private void animateThen(int duration, Runnable onComplete) {
+        ComponentAnimation anim = createAnimateLayout(200);
+        anim.addOnCompleteCall(onComplete);
+        getAnimationManager().addAnimation(anim);
+
+    }
+
+    int startScrollY;
+    long stateCounter;
+
     public CollapsibleHeaderContainer(Container titleBar, Container body, Container verticalScroller) {
         $(this).addTags("CollapsibleHeaderContainer");
         Container currentScroller = verticalScroller;
@@ -249,29 +309,116 @@ public class CollapsibleHeaderContainer extends Container {
             currentScroller.setScrollableY(true);
         }
         Container fCurrentScroller = currentScroller;
-        currentScroller.addScrollListener((int scrollX, int scrollY, int oldscrollX, int oldscrollY)->{
-            long time = System.currentTimeMillis();
-            lastScrollTime = time;
+        currentScroller.addScrollListener((int scrollX, int scrollY, int oldscrollX, int oldscrollY)-> {
+            if (pauseScrollListener) return;
+            int threshold = CN.convertToPixels(5, Style.UNIT_TYPE_VH);
+            if (scrollY - startScrollY > threshold) {
+                // scrolling up
+                if (slidePos == 0) return;
+                stateCounter++;
+                pauseScrollListener = true;
+                slidePos = 0;
+                lastTitlebarPreferredH = titleBar.getPreferredH();
+                final long state = stateCounter;
+
+                animateThen(200, () -> {
+                    if (state == stateCounter) {
+                        //pauseScrollListener = false;
+                        stateCounter++;
+                    }
+                });
+                return;
+            } else if (startScrollY - scrollY > threshold) {
+                if (slidePos == titleBar.getPreferredH()) return;
+                stateCounter++;
+                pauseScrollListener = true;
+                slidePos = titleBar.getPreferredH();
+                lastTitlebarPreferredH = titleBar.getPreferredH();
+                final long state = stateCounter;
+                animateThen(200, () -> {
+                    if (state == stateCounter) {
+                        //pauseScrollListener = false;
+                        stateCounter++;
+                    }
+                });
+            }
+        });
+        /*currentScroller.addScrollListener((int scrollX, int scrollY, int oldscrollX, int oldscrollY)->{
+            if (pauseScrollListener) return;
             if (fCurrentScroller.getClientProperty("$pullToRelease") != null) {
                 lastPullToRefresh = System.currentTimeMillis();
                 return;
             }
+            long time = System.currentTimeMillis();
             if (time - lastPullToRefresh < 500 ) {
                 // Wait after a pull-to-refresh before adjusting the header because
                 // the scroll to refresh will do some scrolling that we want to ignore.
                 return;
             }
+            if (fCurrentScroller.getScrollDimension().getHeight() <= fCurrentScroller.getHeight() * 2) {
+                // We don't need to scroll
+                if (slidePos < titleBar.getPreferredH()) {
+                    slidePos = titleBar.getPreferredH();
+                    lastTitlebarPreferredH = slidePos;
+                    pauseScrollListener = true;
+                    animateThen(200, () -> {pauseScrollListener = false;});
+                }
+                return;
+            }
+
             int deltaY = scrollY - oldscrollY;
+
+            if (lastDy * deltaY < 0 || (scrollY < 0 && lastDy != 0)) {
+                // We are changing directions
+                pauseScrollListener = true;
+
+                if (lastDy > 0 && slidePos > 0) {
+                    slidePos = 0;
+                    lastTitlebarPreferredH = titleBar.getPreferredH();
+                    animateLayout(200);
+                } else if (lastDy < 0 && slidePos < titleBar.getPreferredH()) {
+                    slidePos = titleBar.getPreferredH();
+                    lastTitlebarPreferredH = titleBar.getPreferredH();
+                    animateLayout(200);
+
+                }
+                lastDy = 0;
+                return;
+            }
+            //System.out.println("scrollY="+scrollY+", oldscrolly="+oldscrollY);
+
+            lastScrollTime = time;
+
+
+            if (scrollY < 0) {
+                // Tensile makes weird stuff happen
+                if (slidePos < titleBar.getPreferredH()) {
+                    slidePos = lastTitlebarPreferredH;
+                    lastTitlebarPreferredH = slidePos;
+                    pauseScrollListener = true;
+                    animateThen(200, () -> {pauseScrollListener = false;});
+                }
+                return;
+            }
+
+            if (!pressed) {
+                // Only do it while pressed ... maybe this will help
+                //return;
+            }
+
+
+            lastDy = deltaY;
             int origSlidePos = slidePos;
             if (deltaY > 0 && slidePos >= 0) {
                 // Scrolled down, and title is still visible.
                 // Slide the title up a bit.
                 slidePos = Math.max(0, slidePos - deltaY);
 
-            } else if (deltaY < 0 && slidePos < titleBar.getPreferredH()) {
+            } else if (deltaY < 0 && slidePos < lastTitlebarPreferredH) {
                 // Scrolled up and title hasn't yet reached full height.
                 // We slide the title down a bit
-                slidePos = Math.min(titleBar.getPreferredH(), Math.max(0, slidePos - deltaY));
+
+                slidePos = Math.min(lastTitlebarPreferredH, Math.max(0, slidePos - deltaY));
 
             }
             if (deltaY != 0 && slidePos != origSlidePos) {
@@ -281,13 +428,13 @@ public class CollapsibleHeaderContainer extends Container {
 
             }
 
-        });
-        int paddingTop = Display.getInstance().getDisplaySafeArea(safeArea).getY() + CN.convertToPixels(1f);
-        if (titleBar.getStyle().getPaddingTop() != paddingTop) {
-            titleBar.getStyle().setPaddingUnitTop(Style.UNIT_TYPE_PIXELS);
-            titleBar.getStyle().setPaddingTop(paddingTop);
-            //titleBar.setShouldCalcPreferredSize(true);
-        }
+        });*/
+        //int paddingTop = Display.getInstance().getDisplaySafeArea(safeArea).getY() + CN.convertToPixels(1f);
+        //if (titleBar.getStyle().getPaddingTop() != paddingTop) {
+        //    titleBar.getStyle().setPaddingUnitTop(Style.UNIT_TYPE_PIXELS);
+        //    titleBar.getStyle().setPaddingTop(paddingTop);
+        //    //titleBar.setShouldCalcPreferredSize(true);
+        //}
         slidePos = titleBar.getPreferredH();
         this.titleBar = titleBar;
         this.body = body;
@@ -302,10 +449,11 @@ public class CollapsibleHeaderContainer extends Container {
         super.initComponent();
         form = getComponentForm();
         if (form != null) {
-            //form.addPointerPressedListener(formPressListener);
-            //form.addPointerDraggedListener(formPressListener);
-            //form.addPointerReleasedListener(formPressListener);
-            //form.addDragFinishedListener(formPressListener);
+            form.addPointerPressedListener(formPressListener);
+            form.addPointerDraggedListener(formPressListener);
+            form.addPointerReleasedListener(formPressListener);
+            form.addDragFinishedListener(formPressListener);
+
         }
         
     }
@@ -313,10 +461,12 @@ public class CollapsibleHeaderContainer extends Container {
     @Override
     protected void deinitialize() {
         if (form != null) {
-            //form.removePointerPressedListener(formPressListener);
-            //form.removePointerDraggedListener(formPressListener);
-            //form.removePointerReleasedListener(formPressListener);
-            //form = null;
+            form.removePointerPressedListener(formPressListener);
+            form.removePointerDraggedListener(formPressListener);
+            form.removePointerReleasedListener(formPressListener);
+            form.removeDragFinishedListener(formPressListener);
+
+            form = null;
         }
         super.deinitialize();
     }
