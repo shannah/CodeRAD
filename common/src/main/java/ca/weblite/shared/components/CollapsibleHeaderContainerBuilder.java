@@ -10,6 +10,7 @@ import com.codename1.rad.ui.ComponentBuilder;
 import com.codename1.rad.ui.ViewContext;
 import com.codename1.ui.*;
 import com.codename1.ui.layouts.BorderLayout;
+import com.codename1.ui.plaf.Style;
 
 import java.util.Map;
 
@@ -46,11 +47,8 @@ public class CollapsibleHeaderContainerBuilder extends AbstractComponentBuilder<
 
     @Override
     public CollapsibleHeaderContainer build() {
-        Container tb = new Container(new BorderLayout());
-        Container bd = new Container(new BorderLayout());
 
-
-        CollapsibleHeaderContainer out = new CollapsibleHeaderContainer(tb, bd, bd);
+        CollapsibleHeaderContainer out = new CollapsibleHeaderContainer();
 
         getContext().getController().addViewDecorator(view -> {
             if (view instanceof Form) {
@@ -117,15 +115,15 @@ public class CollapsibleHeaderContainerBuilder extends AbstractComponentBuilder<
             }
 
 
-            CollapsibleHeaderContainer chc = new CollapsibleHeaderContainer(
+            out.init(
                     (Container)titleBar,
                     (Container)body,
                     (Container)scrollable
             );
 
-            chc.setSurface(out.isSurface());
-            chc.setUIID(out.getUIID());
-            return chc;
+            
+
+            return out;
 
 
         });

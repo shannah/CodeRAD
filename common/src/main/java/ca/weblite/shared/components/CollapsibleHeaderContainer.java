@@ -299,7 +299,16 @@ public class CollapsibleHeaderContainer extends Container {
     int startScrollY;
     long stateCounter;
 
+
+    public CollapsibleHeaderContainer() {
+
+    }
+
     public CollapsibleHeaderContainer(Container titleBar, Container body, Container verticalScroller) {
+        init(titleBar, body, verticalScroller);
+    }
+
+    public void init(Container titleBar, Container body, Container verticalScroller) {
         $(this).addTags("CollapsibleHeaderContainer");
         Container currentScroller = verticalScroller;
         if (currentScroller instanceof ScrollableContainer) {
