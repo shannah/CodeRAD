@@ -158,10 +158,14 @@ public class FormController extends ViewController implements Runnable {
      * @param form 
      */
     public void setView(Form form) {
-        super.setView(form);
         Form currView = getView();
+
         if (currView != null) {
             currView.removeShowListener(showListener());
+        }
+        super.setView(form);
+        if (form != null) {
+            form.addShowListener(showListener());
         }
         if (form != null && hasBackCommand()) {
             form.setBackCommand(new Command("") {
