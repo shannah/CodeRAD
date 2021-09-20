@@ -67,6 +67,8 @@ public class XMLSchemaGenerator {
         subGenerators.add(generator);
     }
 
+    private Set<String> alreadyIncludedSet = new HashSet<>();
+
     /**
      * Writes to file. Will not overwrite existing file at location.  Will create parent directory if necessary.
      * @throws IOException
@@ -151,7 +153,7 @@ public class XMLSchemaGenerator {
     public StringBuilder writeSchema(StringBuilder sb, boolean writeHeader) throws IOException {
         if (writeHeader) {
             sb.append("<?xml version=\"1.0\"?>\n");
-
+            alreadyIncludedSet.clear();
         }
         if (writeElements) {
             sb.append("<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n");
@@ -195,6 +197,10 @@ public class XMLSchemaGenerator {
                             throw new IOException("Cannot find attribute group file at "+attgroupFile+" required by "+includeFile+" while processing schema for "+javaClass);
 
                         }
+                        if (alreadyIncludedSet.contains(attgroupFile.getAbsolutePath())) {
+                            continue;
+                        }
+                        alreadyIncludedSet.add(attgroupFile.getAbsolutePath());
                         try (FileInputStream fis = new FileInputStream(attgroupFile)) {
                             byte[] bytes = new byte[(int)attgroupFile.length()];
                             fis.read(bytes);
@@ -211,6 +217,11 @@ public class XMLSchemaGenerator {
                             if (!requiredTypeFile.exists()) {
                                 throw new IOException("Cannot find type schema "+requiredTypeFile+" required by "+includeFile+" while processing schema for "+javaClass);
                             }
+                            if (alreadyIncludedSet.contains(requiredType.getQualifiedName().toString())) {
+                                continue;
+                            }
+                            alreadyIncludedSet.add(requiredType.getQualifiedName().toString());
+                            System.out.println("including "+requiredType);
                             try (FileInputStream fis = new FileInputStream(requiredTypeFile)) {
                                 byte[] bytes = new byte[(int)requiredTypeFile.length()];
                                 fis.read(bytes);
@@ -226,6 +237,10 @@ public class XMLSchemaGenerator {
                     }
                 }
 
+            } else {
+                if (content.startsWith("<?xml")) {
+                    content = content.substring(content.indexOf("?>")+2).trim();
+                }
             }
             indent(sb, indent).append(content).append("\n");
 
@@ -233,11 +248,6 @@ public class XMLSchemaGenerator {
         }
 
         if (!writeElements) {
-            //Set<String> tagNames = new HashSet<String>();
-
-            //String tagName0 = toCamelCase(javaClass.getSimpleName().toString());
-
-            //tagNames.add(tagName0);
             Set<Element> parentMembers = new HashSet<>();
 
             String extensionBase = null;
@@ -265,11 +275,9 @@ public class XMLSchemaGenerator {
                     }
                     parentMembers.add(e);
                 });
-                //parentMembers.addAll(processingEnvironment.getElementUtils().getAllMembers(superType));
+
             }
 
-            //indent(sb, indent).append("<xs:element  name=\"").append(tagName).append("\">\n");
-            //indent += 2;
             String complexTypeName = javaClass.getQualifiedName().toString().replace('.', '_');
 
 
@@ -406,8 +414,8 @@ public class XMLSchemaGenerator {
                                         TypeElement retType = (TypeElement) ((DeclaredType) retTypeMirror).asElement();//processingEnvironment.getElementUtils().getTypeElement("com.codename1.ui.plaf.Style");
 
                                         if (useAttributeGroups) {
-                                            indent(sb, indent).append("<xs:attributeGroup ref=\"").append(getAttributeGroupName((DeclaredType)retTypeMirror, propertyName+".", 2)).append("\" />\n");
-                                            addRequiredAttributeGroup(new AttributeGroup(propertyName+".", retType.getQualifiedName().toString(), 2));
+                                            indent(sb, indent).append("<xs:attributeGroup ref=\"").append(getAttributeGroupName((DeclaredType)retTypeMirror, propertyName+".", 1)).append("\" />\n");
+                                            addRequiredAttributeGroup(new AttributeGroup(propertyName+".", retType.getQualifiedName().toString(), 1));
 
                                         } else {
 
@@ -462,21 +470,6 @@ public class XMLSchemaGenerator {
                 indent(sb, indent).append("</xs:complexType>\n");
 
 
-            }
-            for (TypeElement enumType : enumTypes) {
-                indent(sb, indent).append("<xs:simpleType name=\"").append(enumType.getQualifiedName().toString().replace('.', '_')).append("\">\n");
-                indent(sb, indent).append("  <xs:restriction base=\"xs:string\">\n");
-
-                List<String> enumValues =
-                        enumType.getEnclosedElements().stream()
-                                .filter(element -> element.getKind().equals(ElementKind.ENUM_CONSTANT))
-                                .map(Object::toString)
-                                .collect(Collectors.toList());
-                for (String enumVal : enumValues) {
-                    indent(sb, indent).append("    <xs:enumeration value=\"").append(enumVal).append("\" />\n");
-                }
-                indent(sb, indent).append("  </xs:restriction>\n");
-                indent(sb, indent).append("</xs:simpleType>\n");
             }
 
             for (XMLSchemaGenerator subGenerator : subGenerators) {
@@ -645,6 +638,10 @@ public class XMLSchemaGenerator {
         }
         return sb;
 
+    }
+
+    private File getXMLSchemasDir() {
+        return new File(getCommonDir(), "target" + File.separator + "generated-sources" + File.separator + "rad" + File.separator + "xmlSchemas");
     }
 
     private File getClassSchemaFile(TypeElement enumType) {

@@ -23,7 +23,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -6366,20 +6370,24 @@ public class ViewProcessor extends BaseProcessor {
         }
 
 
+
+
+
         public void createXMLSchemaSourceFile() throws XMLParseException, IOException {
             parse();
 
             File rootDirectory = findPom(new File(System.getProperty("user.dir"))).getParentFile();
             File cn1Settings = new File(rootDirectory, "codenameone_settings.properties");
             if (!cn1Settings.exists()) {
-                cn1Settings = new File(rootDirectory.getParentFile(), cn1Settings.getName());
-            }
-            if (!cn1Settings.exists()) {
                 cn1Settings = new File(rootDirectory, "common" + File.separator + cn1Settings.getName());
             }
             if (!cn1Settings.exists()) {
                 cn1Settings = new File(rootDirectory.getParentFile(), "common" + File.separator + cn1Settings.getName());
             }
+            if (!cn1Settings.exists()) {
+                cn1Settings = new File(rootDirectory.getParentFile(), cn1Settings.getName());
+            }
+
             if (!cn1Settings.exists()) {
                 throw new IOException("Cannot find Codename One project directory in which to generate XML schemas.");
             }
@@ -6399,7 +6407,7 @@ public class ViewProcessor extends BaseProcessor {
             for (String importStr : jenv.imports) {
                 imports.append(importStr).append("\n");
             }
-
+            String pathChecksum = null;
             try {
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 md.update(imports.toString().getBytes("utf-8"));
@@ -6408,6 +6416,28 @@ public class ViewProcessor extends BaseProcessor {
             } catch (Exception ex){
                 throw new IOException("Failed to create checksum for imports on "+schemaFile);
             }
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                md.update(imports.toString().getBytes("utf-8"));
+                byte[] digest = md.digest();
+                pathChecksum = Base64.getEncoder().encodeToString(digest);
+            } catch (Exception ex){
+                throw new IOException("Failed to create checksum for imports on "+schemaFile);
+            }
+
+            File touchFile = new File(xmlSchemasDirectory, pathChecksum);
+
+            if (!touchFile.exists()) {
+                System.out.println("Deleting schema "+schemaFile);
+                schemaFile.delete();
+            } else {
+                System.out.println("Touch file "+touchFile);
+                System.out.println("NOT FUKCING Deleting schema "+schemaFile);
+            }
+            if (!xmlSchemasDirectory.exists()) {
+                xmlSchemasDirectory.mkdirs();
+            }
+            touch(touchFile.toPath());
             if (schemaFile.exists()) {
 
                 String fileContents;
@@ -7056,4 +7086,12 @@ public class ViewProcessor extends BaseProcessor {
         }
     }
 
+    private static void touch(final Path path) throws IOException {
+        if (path == null) throw new IllegalArgumentException("touch path is null");
+        if (Files.exists(path)) {
+            Files.setLastModifiedTime(path, FileTime.from(Instant.now()));
+        } else {
+            Files.createFile(path);
+        }
+    }
 }
