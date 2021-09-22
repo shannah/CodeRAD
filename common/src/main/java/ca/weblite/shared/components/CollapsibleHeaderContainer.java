@@ -319,7 +319,12 @@ public class CollapsibleHeaderContainer extends Container {
         }
         Container fCurrentScroller = currentScroller;
         currentScroller.addScrollListener((int scrollX, int scrollY, int oldscrollX, int oldscrollY)-> {
+
             if (pauseScrollListener) return;
+            if (fCurrentScroller.getHeight() < CN.getDisplayHeight() * 0.75) {
+                pauseScrollListener = true;
+                return;
+            }
             int threshold = CN.convertToPixels(5, Style.UNIT_TYPE_VH);
             if (scrollY - startScrollY > threshold) {
                 // scrolling up
