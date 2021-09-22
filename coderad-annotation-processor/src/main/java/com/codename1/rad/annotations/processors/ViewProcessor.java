@@ -6421,6 +6421,7 @@ public class ViewProcessor extends BaseProcessor {
                 md.update(imports.toString().getBytes("utf-8"));
                 byte[] digest = md.digest();
                 pathChecksum = Base64.getEncoder().encodeToString(digest);
+                pathChecksum = pathChecksum.replace("=", "");
             } catch (Exception ex){
                 throw new IOException("Failed to create checksum for imports on "+schemaFile);
             }
@@ -6428,16 +6429,14 @@ public class ViewProcessor extends BaseProcessor {
             File touchFile = new File(xmlSchemasDirectory, pathChecksum);
 
             if (!touchFile.exists()) {
-                System.out.println("Deleting schema "+schemaFile);
                 schemaFile.delete();
-            } else {
-                System.out.println("Touch file "+touchFile);
-                System.out.println("NOT FUKCING Deleting schema "+schemaFile);
             }
             if (!xmlSchemasDirectory.exists()) {
                 xmlSchemasDirectory.mkdirs();
             }
-            touch(touchFile.toPath());
+            try {
+                touch(touchFile.toPath());
+            } catch (Exception ex){}
             if (schemaFile.exists()) {
 
                 String fileContents;

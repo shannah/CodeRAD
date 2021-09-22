@@ -221,7 +221,7 @@ public class XMLSchemaGenerator {
                                 continue;
                             }
                             alreadyIncludedSet.add(requiredType.getQualifiedName().toString());
-                            System.out.println("including "+requiredType);
+                            //System.out.println("including "+requiredType);
                             try (FileInputStream fis = new FileInputStream(requiredTypeFile)) {
                                 byte[] bytes = new byte[(int)requiredTypeFile.length()];
                                 fis.read(bytes);
