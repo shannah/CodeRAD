@@ -586,7 +586,7 @@ Creating view classes is more complex than creating models or controllers becaus
 </ol>
 </div>
 <h4 id="no-application-or-business-logic-allowed">NO Application or Business Logic Allowed</h4>
-<p>In order to get the benefits of MVC, you shouldn&#8217;t put any program login inside the view, outside of logic required to make the view function as a view.  If you&#8217;re used to calling <code>addActionListener()</code> directly on your buttons inside your view, thing may take some getting used to.  It requires some discipline.</p>
+<p>In order to get the benefits of MVC, you shouldn&#8217;t put any program logic inside the view, outside of logic required to make the view function as a view.  If you&#8217;re used to calling <code>addActionListener()</code> directly on your buttons inside your view, thing may take some getting used to.  It requires some discipline.</p>
 <p><strong>Use Actions</strong></p>
 <p>Rather than embed logic directly inside the view, you should use actions to propagate relevant events up to the controller.  The <code>ChatRoomView</code>, for example, needs to let the controller know when the user has clicked the "Send" button in the chat room so that it can process the user input. In order to facilitate this, it defines an action category named <code>SEND_ACTION</code>, which the controller can use to register its own sent action to process such events.  When a user clicks the "Send" button of the view, the view checks to see if there is an action registered in this catgory, and, if so, it will fire the action.</p>
 <div class="listingblock">
