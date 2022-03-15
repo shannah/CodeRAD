@@ -2704,7 +2704,7 @@ public class ViewProcessor extends BaseProcessor {
             }
 
             buf.append("com.codename1.rad.ui.UI.createImageToStorage(\"").append(StringEscapeUtils.escapeJava(url)).append("\", ")
-                    .append("com.codename1.rad.ui.image.ImageUtil.createPlaceholder(").append(w).append(",").append(h).append("), \"").append(StringEscapeUtils.escapeJava(storageKey)).append("\", ").append(adapterParam).append(")");
+                    .append("com.codename1.rad.ui.image.ImageUtil.createPlaceholder(").append(w).append(",").append(h).append("), \"").append(StringEscapeUtils.escapeJava(storageKey)).append("@\"+CN.getDisplayWidth()+\"x\"+CN.getDisplayHeight(), ").append(adapterParam).append(")");
 
         }
 
