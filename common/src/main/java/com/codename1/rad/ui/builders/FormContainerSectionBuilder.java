@@ -10,33 +10,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RAD(tag = "form")
-public class FormContainerBuilder extends AbstractComponentBuilder<FormContainer> {
+@RAD(tag = "section")
+public class FormContainerSectionBuilder extends AbstractComponentBuilder<FormContainer.Section> {
     private List<Component> queuedChildren = new ArrayList<Component>();
-    
+    private int columns=1;
 
-    public FormContainerBuilder(ViewContext context, String tagName, Map<String, String> attributes) {
+    public FormContainerSectionBuilder(ViewContext context, String tagName, Map<String, String> attributes) {
         super(context, tagName, attributes);
     }
 
 
 
     public void addChild(Component component) {
-        if (component instanceof FormContainer.Section || component instanceof FormContainer.Field) {
+        if (component instanceof FormContainer.Field) {
             queuedChildren.add(component);
         } else {
             throw new IllegalArgumentException("FormContainer can only have FormContainer.Section and FormContainer.Field components as children");
         }
     }
 
+    public void setColumns(int columns) {
+        this.columns = columns;
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
     @Override
-    public FormContainer build() {
-        FormContainer out = new FormContainer();
+    public FormContainer.Section build() {
+        FormContainer.Section out = new FormContainer.Section();
+        out.setColumns(columns);
         for (Component child : queuedChildren) {
             if (child instanceof FormContainer.Field) {
                 out.addField((FormContainer.Field)child);
-            } else if (child instanceof FormContainer.Section){
-                out.addSection((FormContainer.Section)child);
             } else {
                 throw new IllegalStateException("Attempt to add child to FormContainer of type "+child.getClass()+".  Only FormContainer.Section and FormContainer.Field supported");
             }
