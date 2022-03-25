@@ -1,6 +1,5 @@
 package com.codename1.rad.annotations.processors;
 
-import com.codename1.rad.annotations.RAD;
 import com.codename1.rad.annotations.RADDoc;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -15,6 +14,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.codename1.rad.annotations.processors.HelperFunctions.toCamelCase;
 
 public class XMLSchemaGenerator {
     private ViewProcessor.JavaEnvironment env;
@@ -96,6 +97,41 @@ public class XMLSchemaGenerator {
         return null;
     }
 
+    /**
+     * Gets the Java source file associated with this schema, if it is in the common/src/main/java directory
+     * @return
+     */
+    public File getJavaSourceFile() {
+        // IF we are writing the elements, then we are going to be working with the xsd file in the same directory
+        // as the original view's xml file.
+        File commonDir = getCommonDir();
+        if (commonDir == null) {
+            commonDir = new File("common");
+        }
+
+        File javaSourceDir = new File(commonDir, "src" + File.separator + "main" + File.separator + "java");
+        return new File(javaSourceDir, javaClass.getQualifiedName().toString().replace('.', File.separatorChar) + ".java");
+    }
+
+    /**
+     * Checks if the Java source file has changed since the schema file was generated.
+     * If no java source file is found, this returns false.
+     * If schema file doesn't exist, this returns true.
+     * If both Java source file and schema file exists, this returns true if the source file
+     * has been modified after the schema file was modified.
+     * @return
+     */
+    public boolean isJavaSourceChanged() {
+        File schemaFile;
+        try {
+            schemaFile = getSchemaFile();
+        } catch (IOException ex) {
+            return true;
+        }
+        File javaSourceFile = getJavaSourceFile();
+        return (javaSourceFile.exists() && !schemaFile.exists() || javaSourceFile.lastModified() > schemaFile.lastModified());
+    }
+
     public File getSchemaFile() throws IOException {
         if (writeElements) {
             // IF we are writing the elements, then we are going to be working with the xsd file in the same directory
@@ -116,26 +152,6 @@ public class XMLSchemaGenerator {
         return out;
     }
 
-    private String toCamelCase(String str) {
-        int lowerCaseIndex = -1;
-        int len = str.length();
-        for (int i=0; i<len; i++) {
-            if (Character.isLowerCase(str.charAt(i))) {
-                lowerCaseIndex = i;
-                break;
-            }
-        }
-        if(lowerCaseIndex < 0) {
-            // No lowercase found.  Change full string to lowercase.
-            return str.toLowerCase();
-        } else if (lowerCaseIndex == 0) {
-            // First character is lower case.  We're good.
-            return str;
-        } else {
-            // First character was capital but next was lowercase.  Just lc the first char.
-            return str.substring(0, lowerCaseIndex).toLowerCase() + str.substring(lowerCaseIndex);
-        }
-    }
 
 
     public void setWriteElements(boolean writeElements) {

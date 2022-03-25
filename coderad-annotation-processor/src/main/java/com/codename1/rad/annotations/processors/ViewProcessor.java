@@ -23,17 +23,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
-import java.time.Instant;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.w3c.dom.Node.ELEMENT_NODE;
+import static com.codename1.rad.annotations.processors.HelperFunctions.*;
 
 public class ViewProcessor extends BaseProcessor {
     private static final boolean ENABLE_INDEX = false;
@@ -49,7 +44,6 @@ public class ViewProcessor extends BaseProcessor {
 
     }
 
-
     private void clearRoundCache() {
         cache.remove(RoundCache.class);
     }
@@ -63,10 +57,6 @@ public class ViewProcessor extends BaseProcessor {
         return out;
     }
 
-
-
-
-
     ViewProcessor(ProcessingEnvironment processingEnvironment) {
 
         super.processingEnv = processingEnvironment;
@@ -76,8 +66,6 @@ public class ViewProcessor extends BaseProcessor {
     void installTypes(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
 
-
-
         // First we process all views with the RAD annoation
         // This will create Stubs
         for (Element el : annotatedElements) {
@@ -86,11 +74,8 @@ public class ViewProcessor extends BaseProcessor {
             if (!isEntityView(typeEl)) {
                 continue;
             }
-
             installTypes(typeEl);
-
         }
-
     }
 
     public boolean isEntityView(TypeElement el) {
@@ -138,8 +123,6 @@ public class ViewProcessor extends BaseProcessor {
         this.roundEnv = roundEnv;
         Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
 
-
-
         // First we process all views with the RAD annoation
         // This will create Stubs
         for (Element el : annotatedElements) {
@@ -153,7 +136,6 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
-
         return out;
     }
 
@@ -163,8 +145,6 @@ public class ViewProcessor extends BaseProcessor {
         clearRoundCache();
         Set<? extends Element> annotatedElements = (Set<? extends TypeElement>)roundEnv.getElementsAnnotatedWith(RAD.class);
 
-
-
         // First we process all views with the RAD annoation
         // This will create Stubs
         for (Element el : annotatedElements) {
@@ -173,17 +153,10 @@ public class ViewProcessor extends BaseProcessor {
             if (!isEntityView(typeEl)) {
                 continue;
             }
-
             processFragment(typeEl);
-
         }
-
-
-        //roundEntityViewBuilders.clear();
         return true;
     }
-
-
 
     private EntityViewBuilder entityViewBuilderForType(TypeElement el) {
         if (true) return new EntityViewBuilder(el);
@@ -195,10 +168,8 @@ public class ViewProcessor extends BaseProcessor {
         return out;
     }
 
-
     private void installTypes(TypeElement typeEl) {
         try {
-
             EntityViewBuilder builder = entityViewBuilderForType(typeEl);
             builder.installTypes((ProcessingEnvironmentWrapper) processingEnv);
         } catch (XMLParseException ex) {
@@ -207,8 +178,6 @@ public class ViewProcessor extends BaseProcessor {
         }
 
     }
-
-
 
     private void processFragment(TypeElement typeEl) {
         try {
@@ -225,21 +194,30 @@ public class ViewProcessor extends BaseProcessor {
         } catch (IOException io) {
             env().getMessager().printMessage(Diagnostic.Kind.ERROR, "Failed to write view for "+typeEl+":"+io.getMessage(), typeEl);
             io.printStackTrace();
-
         }
     }
-
-
-
 
     /**
      * Encapsulates the Java environment for the View class.
      */
     public class JavaEnvironment {
         private Map<String,JavaClassProxy> javaClassProxyMap = new HashMap<>();
+        final Map<String,TypeElement> tagCache = new HashMap<>();
+        final Map<String,TypeElement> lookupClassCache = new HashMap<>();
+        final Map<String,TypeElement> simpleNameClassCache = new HashMap<>();
+        private Map<String, Boolean> tagHasComponentBuilder = new HashMap<>();
+        private Map<String, TypeElement> tagComponentBuilderClass = new HashMap<>();
+
+        final org.w3c.dom.Element rootElement;
+
+        /**
+         * The type used for the view model of this view
+         */
+        private JavaClassProxy viewModelType;
+
+        private EntityViewBuilder rootBuilder;
 
         private class ClassIndex {
-
             // FQNs of Component classes
             private Set<String> componentIndex = new HashSet<>();
 
@@ -253,8 +231,6 @@ public class ViewProcessor extends BaseProcessor {
 
             // Maps Tags to Component classes.
             private Map<String, TypeElement> tagToComponentMap = new HashMap<>();
-
-
         }
 
         public JavaClassProxy newJavaClassProxy(String qualifiedName) throws ClassNotFoundException {
@@ -274,11 +250,9 @@ public class ViewProcessor extends BaseProcessor {
             return javaClassProxyMap.get(qualifiedName);
         }
 
-
         private boolean buildingIndex = false;
         public void buildIndex() {
             if (!ENABLE_INDEX) return;
-
             cache.clear();
             buildingIndex = true;
             ClassIndex classIndex = new ClassIndex();
@@ -308,8 +282,6 @@ public class ViewProcessor extends BaseProcessor {
                         typeElements.add(typeElement);
                     }
                 }
-
-
             }
             for (TypeElement typeElement : (List<TypeElement>)typeElements) {
                 if (isComponent(typeElement)) {
@@ -348,30 +320,11 @@ public class ViewProcessor extends BaseProcessor {
                             }
                         }
                     }
-
-
-
                 }
             }
             cache.put(ClassIndex.class, classIndex);
             buildingIndex = false;
-
-
         }
-
-
-        final Map<String,TypeElement> tagCache = new HashMap<>();
-        final Map<String,TypeElement> lookupClassCache = new HashMap<>();
-        final Map<String,TypeElement> simpleNameClassCache = new HashMap<>();
-
-        final org.w3c.dom.Element rootElement;
-
-        /**
-         * The type used for the view model of this view
-         */
-        private JavaClassProxy viewModelType;
-
-        private EntityViewBuilder rootBuilder;
 
         String getRootViewQualifiedName() {
             return rootBuilder.packageName + "." + rootBuilder.className;
@@ -385,8 +338,6 @@ public class ViewProcessor extends BaseProcessor {
          * List of import statements.
          */
         private List<String> imports = new ArrayList<String>();
-
-
 
         public boolean isA(TypeMirror m, String qualifiedName) {
             return ViewProcessor.this.isA(m, qualifiedName);
@@ -406,7 +357,6 @@ public class ViewProcessor extends BaseProcessor {
 
             this.viewModelType = newJavaClassProxy(typeEl);
         }
-
 
         private List<org.w3c.dom.Element> getChildrenOfType(org.w3c.dom.Element root, String type) {
             List<org.w3c.dom.Element> out = new ArrayList<>();
@@ -496,9 +446,6 @@ public class ViewProcessor extends BaseProcessor {
             return false;
         }
 
-
-
-
         // TODO: Make this more efficient (using index) so we don't need to crawl full import path to look for a match.
         private List<JavaClassProxy> findInstantiatableClassesAssignableTo(PackageElement _contextPackage, org.w3c.dom.Element xmlTag, String... types) {
             final PackageElement contextPackage = wrap(_contextPackage);
@@ -533,26 +480,19 @@ public class ViewProcessor extends BaseProcessor {
             }
 
             return candidateProxies;
-
-
         }
 
         private List<TypeElement> findClassesAssignableTo(List<TypeElement> out, TypeElement root, String... types) {
-
             boolean isAssignable = true;
             for (String type : types) {
-
                 if (!isA(root, type)) {
-
                     isAssignable = false;
                     break;
                 }
-
             }
             if (isAssignable) {
                 out.add(root);
             }
-
             return out;
         }
 
@@ -572,10 +512,7 @@ public class ViewProcessor extends BaseProcessor {
                 }
             }
             return new ArrayList<>(outSet);
-
         }
-
-
 
         /**
          * Writes Java import statements to the string buffer.
@@ -584,7 +521,6 @@ public class ViewProcessor extends BaseProcessor {
         private void writeImports(StringBuilder sb) {
             for (String importPath : imports) {
                 if (importPath.endsWith("**")) {
-
                     importPath = importPath.substring(0, importPath.length()-1);
                     if (imports.contains(importPath)) {
                         continue;
@@ -597,6 +533,7 @@ public class ViewProcessor extends BaseProcessor {
         void createRADPropertySelector(StringBuilder sb, String tagPath) {
             createRADPropertySelector(sb, tagPath, "context.getEntity()");
         }
+
         /**
          * Appends a new PropertySelector() instantiation to the string buffer, representing
          * the provided tag path.
@@ -604,7 +541,6 @@ public class ViewProcessor extends BaseProcessor {
          * @param tagPath The tag path.  Chained tags separated by forward slash '/' character.
          * @return
          */
-
         void createRADPropertySelector(StringBuilder sb, String tagPath, String rootElement) {
             sb.append("new PropertySelector(").append(rootElement).append(", ");
             StringTokenizer stringTokenizer = new StringTokenizer(tagPath, "/");
@@ -636,27 +572,20 @@ public class ViewProcessor extends BaseProcessor {
             return el != null && (isNode(el));
         }
 
-
-
         /**
          * Checks if the given tag name will produce a Container component.
          * @param tagName The tag name to check.
          * @return True if the tag name will produce a java.ui.Container or subclass.
          */
         boolean isContainerTag(String tagName) {
-
             TypeElement el = findClassThatTagCreates(tagName);
-
             if (el != null && isContainer(el)) return true;
-
             return false;
         }
 
         TypeElement findClassThatTagCreates(String tag) {
             return findClassThatTagCreates(tag, null);
         }
-
-
 
         /**
          * Given a tag name, this returns the TypeElement for the class that it would create.  It does this by
@@ -677,20 +606,16 @@ public class ViewProcessor extends BaseProcessor {
                     if (index != null) {
                         return index.tagToComponentMap.get(tag.toLowerCase());
                     }
-
                 }
                 JavaClassProxy builderClass = findComponentBuilderForTag(tag);
                 if (builderClass != null) {
                     TypeElement el = builderClass.findMethodProxy("getComponent", 0).getReturnType();
                     if (el != null) {
                         tagCache.put(tagKey, el);
-
                         return el;
                     }
-
                 }
             }
-
 
             if (isa != null && isa.equals("com.codename1.rad.nodes.Node")) {
                 JavaClassProxy builderClass = findNodeBuilderForTag(tag);
@@ -698,10 +623,8 @@ public class ViewProcessor extends BaseProcessor {
                     TypeElement el = builderClass.findMethodProxy("getNode", 0).getReturnType();
                     if (el != null) {
                         tagCache.put(tagKey, el);
-
                         return el;
                     }
-
                 }
             }
 
@@ -714,7 +637,6 @@ public class ViewProcessor extends BaseProcessor {
             }
             if (cls != null) {
                 tagCache.put(tagKey, cls);
-
                 return cls;
             }
 
@@ -729,7 +651,6 @@ public class ViewProcessor extends BaseProcessor {
          */
 
         TypeElement lookupClass(String className) {
-
             if (lookupClassCache.containsKey(className)) {
                 return lookupClassCache.get(className);
             }
@@ -755,7 +676,6 @@ public class ViewProcessor extends BaseProcessor {
                         if (el != null) {
                             return el;
                         }
-
                     }
                 } else {
                     TypeElement el = elements().getTypeElement(importPath);
@@ -769,14 +689,10 @@ public class ViewProcessor extends BaseProcessor {
                             }
                         }
                     }
-
                 }
-
             }
-
             return null;
         }
-
 
         /**
          * Searches a package for a class with the matching simple name.  Search is case insensitive.
@@ -787,10 +703,8 @@ public class ViewProcessor extends BaseProcessor {
          */
         TypeElement findClassBySimpleName(PackageElement searchRoot, String className, boolean deep, String isa) {
             if (searchRoot == null) return null;
-
             searchRoot = wrap(searchRoot);
             List<TypeElement> classes = (List<TypeElement>)searchRoot.getEnclosedElements().stream().filter(e -> e.getKind() == ElementKind.CLASS || e.getKind() == ElementKind.INTERFACE).collect(Collectors.toList());
-
             for (TypeElement cls : classes) {
                 if (className.equalsIgnoreCase(cls.getSimpleName().toString())) {
                     if (isa == null || isA(cls, isa)) {
@@ -818,7 +732,6 @@ public class ViewProcessor extends BaseProcessor {
             return null;
         }
 
-
         /**
          * Finds type element for class with given simple name
          * @param searchRoot The starting point for the search.  If the searchRoot matches (case-insensitively) the className parameter.
@@ -829,7 +742,6 @@ public class ViewProcessor extends BaseProcessor {
          * @return The matching TypeElement or null if none is found.
          */
         TypeElement findClassBySimpleName(TypeElement searchRoot, String className, boolean glob, boolean deep, String isa) {
-
             if (!glob && searchRoot.getSimpleName().toString().equalsIgnoreCase(className) && (isa == null || isA(searchRoot, isa))) {
                 return searchRoot;
             }
@@ -899,19 +811,11 @@ public class ViewProcessor extends BaseProcessor {
                             simpleNameClassCache.put(key, builder);
                             return builder;
                         }
-
                     }
                 }
-
             }
             return null;
         }
-
-        private Map<String, Boolean> tagHasComponentBuilder = new HashMap<>();
-        private Map<String, TypeElement> tagComponentBuilderClass = new HashMap<>();
-
-
-
 
         /**
          * Finds the builder class that is registered to handle the given tag name.
@@ -1059,7 +963,6 @@ public class ViewProcessor extends BaseProcessor {
             }
         }
 
-
         /**
          * Finds a bulider for the given tag.
          * @param tag
@@ -1085,9 +988,7 @@ public class ViewProcessor extends BaseProcessor {
             TypeElement builderEl = findNodeBuilderClass(tag);
             if (builderEl == null) return null;
             return newJavaClassProxy(builderEl);
-
         }
-
 
         /**
          * Some types are too generic to try to get via lookup.  This checks a type to see if it can be injected via lookup.
@@ -1113,7 +1014,6 @@ public class ViewProcessor extends BaseProcessor {
                     !name.startsWith("com.codename1.rad.models.Tag") &&
                     !name.startsWith("com.codename1.rad.controllers.") &&
                     !name.startsWith("com.codename1.ui.");
-
         }
 
         /**
@@ -5115,12 +5015,6 @@ public class ViewProcessor extends BaseProcessor {
 
     }
 
-    private static StringBuilder indent(StringBuilder sb, int num) {
-        for (int i=0; i<num; i++) {
-            sb.append(' ');
-        }
-        return sb;
-    }
 
 
     private class XMLParseException extends Exception {
@@ -5137,113 +5031,9 @@ public class ViewProcessor extends BaseProcessor {
 
 
 
-    private static void forEach(org.w3c.dom.Element root, Function<org.w3c.dom.Element, Void> callback) {
-        callback.apply(root);
-        NodeList children = root.getChildNodes();
-        int len = children.getLength();
-        for (int i=0; i<len; i++) {
-            Node n = (Node)children.item(i);
-            if (n instanceof org.w3c.dom.Element) {
-                org.w3c.dom.Element childEl = (org.w3c.dom.Element)n;
-                forEach(childEl, callback);
-            }
-        }
-
-    }
-
-
-    private static void forEachChild(org.w3c.dom.Element root, Function<org.w3c.dom.Element, Void> callback) {
-        NodeList children = root.getChildNodes();
-        int len = children.getLength();
-        for (int i=0; i<len; i++) {
-            Node n = (Node)children.item(i);
-            if (n instanceof org.w3c.dom.Element) {
-
-                org.w3c.dom.Element childEl = (org.w3c.dom.Element)n;
-                callback.apply(childEl);
-            }
-        }
-
-    }
-
-    private static List<org.w3c.dom.Element> getChildElements(org.w3c.dom.Element root) {
-        List<org.w3c.dom.Element> out = new ArrayList<org.w3c.dom.Element>();
-        NodeList children = root.getChildNodes();
-        int len = children.getLength();
-        for (int i=0; i<len; i++) {
-            Node n = (Node)children.item(i);
-            if (n.getNodeType() == ELEMENT_NODE) {
-
-                org.w3c.dom.Element childEl = (org.w3c.dom.Element)n;
-                out.add(childEl);
-            }
-        }
-        return out;
-    }
-
-    private static String getTextContent(org.w3c.dom.Element root) {
-        if (getDescendantTextContent(root).isEmpty()) {
-            return root.getTextContent().trim();
-        } else {
-            return "";
-        }
-    }
-
-    private static String getDescendantTextContent(org.w3c.dom.Element root) {
-        StringBuilder out = new StringBuilder();
-        NodeList children = root.getChildNodes();
-        int len = children.getLength();
-        for (int i=0; i<len; i++) {
-            Node n = (Node)children.item(i);
-            if (n.getNodeType() == ELEMENT_NODE) {
-                out.append(n.getTextContent()).append(" ");
-            }
-        }
-        return out.toString().trim();
-    }
-
-
-    private static List<org.w3c.dom.Element> getDescendantElements(List<org.w3c.dom.Element> out, org.w3c.dom.Element root) {
-        NodeList children = root.getChildNodes();
-        int len = children.getLength();
-        for (int i=0; i<len; i++) {
-            Node n = (Node)children.item(i);
-            if (n.getNodeType() == ELEMENT_NODE) {
-
-                org.w3c.dom.Element childEl = (org.w3c.dom.Element)n;
-                out.add(childEl);
-                getDescendantElements(out, childEl);
-            }
-        }
-        return out;
-    }
 
 
 
-    private static List<org.w3c.dom.Element> getChildElementsByTagName(org.w3c.dom.Element root, String tagName) {
-        return getChildElements(root).stream().filter(e -> e.getTagName().equalsIgnoreCase(tagName)).collect(Collectors.toList());
-    }
-
-    private static List<org.w3c.dom.Element> getDescendantElementsByTagName(org.w3c.dom.Element root, String tagName) {
-        return getDescendantElements(new ArrayList<>(), root).stream().filter(e -> e.getTagName().equalsIgnoreCase(tagName)).collect(Collectors.toList());
-    }
-
-
-    private static org.w3c.dom.Element getChildElementByTagName(org.w3c.dom.Element root, String tagName) {
-        for (org.w3c.dom.Element child : getChildElements(root)) {
-            if (child.getTagName().equals(tagName)) return child;
-        }
-        return null;
-    }
-
-    private static void forEachAttribute(org.w3c.dom.Element el, Function<org.w3c.dom.Attr, Void> callback) {
-        NamedNodeMap attributes = el.getAttributes();
-        int len = attributes.getLength();
-        for (int i=0; i<len; i++) {
-            Attr attr = (Attr)attributes.item(i);
-            callback.apply(attr);
-        }
-    }
 
 
 
@@ -6358,40 +6148,10 @@ public class ViewProcessor extends BaseProcessor {
 
         }
 
-        private File findPom(File startingPoint) {
-            if (startingPoint == null) return null;
-            if (startingPoint.isDirectory()) {
-                File pom = new File(startingPoint, "pom.xml");
-                if (pom.exists()) return pom;
-                return findPom(startingPoint.getParentFile());
-            } else {
-                return findPom(startingPoint.getParentFile());
-            }
-        }
-
-
-
-
-
         public void createXMLSchemaSourceFile() throws XMLParseException, IOException {
             parse();
-
-            File rootDirectory = findPom(new File(System.getProperty("user.dir"))).getParentFile();
-            File cn1Settings = new File(rootDirectory, "codenameone_settings.properties");
-            if (!cn1Settings.exists()) {
-                cn1Settings = new File(rootDirectory, "common" + File.separator + cn1Settings.getName());
-            }
-            if (!cn1Settings.exists()) {
-                cn1Settings = new File(rootDirectory.getParentFile(), "common" + File.separator + cn1Settings.getName());
-            }
-            if (!cn1Settings.exists()) {
-                cn1Settings = new File(rootDirectory.getParentFile(), cn1Settings.getName());
-            }
-
-            if (!cn1Settings.exists()) {
-                throw new IOException("Cannot find Codename One project directory in which to generate XML schemas.");
-            }
-            rootDirectory = cn1Settings.getParentFile();
+            File cn1Settings = HelperFunctions.getCodenameOneSettingProperties();
+            File rootDirectory = cn1Settings.getParentFile();
 
             File targetDirectory = new File(rootDirectory, "target");
             if (!targetDirectory.exists()) {
@@ -6593,6 +6353,9 @@ public class ViewProcessor extends BaseProcessor {
                 dependentClasses.addAll(getParentsOf(e.getValue().componentClass));
                 usedClasses.add(e.getValue().componentClass);
                 XMLSchemaGenerator xmlSchemaGenerator = new XMLSchemaGenerator(env(), jenv, xmlSchemasDirectory, e.getValue().componentClass, e.getValue().builderClass);
+                if (xmlSchemaGenerator.isJavaSourceChanged() && xmlSchemaGenerator.getSchemaFile().exists()) {
+                    xmlSchemaGenerator.getSchemaFile().delete();
+                }
                 xmlSchemaGenerator.writeToFile();
                 viewSchemaGenerator.addInclude(xmlSchemaGenerator.getSchemaFile());
 
@@ -6604,6 +6367,9 @@ public class ViewProcessor extends BaseProcessor {
             for (TypeElement cls : dependentClasses) {
                 XMLSchemaGenerator xmlSchemaGenerator = new XMLSchemaGenerator(env(), jenv, xmlSchemasDirectory, cls, null);
                 xmlSchemaGenerator.setPartialSchema(true);
+                if (xmlSchemaGenerator.isJavaSourceChanged() && xmlSchemaGenerator.getSchemaFile().exists()) {
+                    xmlSchemaGenerator.getSchemaFile().delete();
+                }
                 xmlSchemaGenerator.writeToFile();
                 viewSchemaGenerator.addInclude(xmlSchemaGenerator.getSchemaFile());
 
@@ -6784,118 +6550,11 @@ public class ViewProcessor extends BaseProcessor {
         throw new IllegalArgumentException("Cannot convert type mirror "+mirror+" to type element");
     }
 
-
-
-    private static String reformat(String content, int indentLevel) {
-        int oldLevel = getIndentLevel(content);
-        StringBuilder sb = new StringBuilder();
-        Scanner scanner = new Scanner(content);
-        int delta = indentLevel - oldLevel;
-        String lineSeparator = getLineSeparator(content);
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-
-            if (delta > 0) {
-                for (int i=0; i<delta; i++) {
-                    sb.append(' ');
-                }
-                sb.append(line);
-                sb.append(lineSeparator);
-            } else {
-                int lineIndent = getIndentLevel(line);
-                if (lineIndent + delta >= 0) {
-                    sb.append(line.substring(-delta));
-                } else {
-                    sb.append(line.substring(lineIndent));
-                }
-                sb.append(lineSeparator);
-            }
-        }
-        return sb.toString();
-    }
-
-    private static int getIndentLevel(String content) {
-        Scanner scanner = new Scanner(content);
-        outer: while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            if (line.trim().isEmpty()) continue;
-            int count = 0;
-            int len = line.length();
-            loop: for (int i=0; i<len; i++) {
-                char c = line.charAt(i);
-                switch (c) {
-                    case ' ': count++; break;
-                    case '\t': count++; break;
-                    case '\n': continue outer;
-                    default: break loop;
-                }
-            }
-            return count;
-        }
-
-        return 0;
-    }
-
-    private static String getLineSeparator(String content) {
-        if (content.contains("\r\n")) {
-            return "\r\n";
-        } else if (content.contains("\n")) {
-            return "\n";
-        } else {
-            return System.lineSeparator();
-        }
-    }
-
-
-
-    /**
-     * Extracts the indexed parameters from element.  Indexed parameter are specified both by attributes
-     * of the form _N_="..." where N is an integer, and via child elements with attribute rad-property="N" where N is an
-     * integer.  These parameters are used when calling the constructor that is created by this tag.
-     * @param element An element to check.
-     * @return
-     */
-    private static Set<Integer> extractIndexedParameters(org.w3c.dom.Element element) {
-        Set<Integer> out = new HashSet<Integer>();
-        forEachAttribute(element, attr -> {
-            String name = attr.getName();
-            if (name.startsWith("_") && name.endsWith("_") && name.length() > 2 && Character.isDigit(name.charAt(1))) {
-                try {
-                    out.add(Integer.parseInt(name.substring(1, name.length() - 1)));
-                } catch (NumberFormatException ex){}
-            }
-            return null;
-        });
-        forEachChild(element, child -> {
-            if (child.hasAttribute("rad-property")) {
-                String name = child.getAttribute("rad-property");
-                if (name.length() > 0 && Character.isDigit(name.charAt(0))) {
-                    try {
-                        out.add(Integer.parseInt(name));
-                    } catch (NumberFormatException ex){}
-                }
-            }
-            return null;
-        });
-        return out;
-    }
-
-
     private <T extends Element> T wrap(T element) {
         return env().wrap(element);
     }
 
-    static boolean isElementInsideRowTemplate(org.w3c.dom.Element el) {
-        if (el.getTagName().equalsIgnoreCase("row-template")) {
-            return true;
-        }
-        Node parentNode = el.getParentNode();
-        if (parentNode instanceof org.w3c.dom.Element) {
-            org.w3c.dom.Element parentEl = (org.w3c.dom.Element)parentNode;
-            return isElementInsideRowTemplate(parentEl);
-        }
-        return false;
-    }
+
 
     private boolean hasAttributeIgnoreCase(org.w3c.dom.Element el, String attName) {
         NamedNodeMap attributes = el.getAttributes();
@@ -6909,10 +6568,7 @@ public class ViewProcessor extends BaseProcessor {
         return false;
     }
 
-
-
     private class AttributeComparator implements Comparator<Attr> {
-
         @Override
         public int compare(Attr o1, Attr o2) {
             int diff = score(o1) - score(o2);
@@ -6921,7 +6577,6 @@ public class ViewProcessor extends BaseProcessor {
             } else {
                 return diff;
             }
-
         }
 
         private int countChars(String str, char ch) {
@@ -6951,12 +6606,9 @@ public class ViewProcessor extends BaseProcessor {
             if (name.toLowerCase().contains("style")) {
                 return base + 20;
             }
-
             return base + 250;
-
         }
     }
-
 
     public static class Transitions {
         private Map<String,Transition> transitions = new HashMap<>();
@@ -6974,21 +6626,18 @@ public class ViewProcessor extends BaseProcessor {
         }
 
         public Transition get(String property) {
-
             Transition out = transitions.get(property);
             if (out == null) {
                 out = transitions.get("all");
             }
             return out;
         }
-
     }
 
     public static class Transition {
         private Double delay, duration;
         private String property;
         private String timingFunction;
-
 
         public static Transition parse(String transitionString) {
             Transition out = new Transition();
@@ -7028,7 +6677,6 @@ public class ViewProcessor extends BaseProcessor {
                     continue;
                 }
             }
-
             return out;
         }
 
@@ -7051,7 +6699,6 @@ public class ViewProcessor extends BaseProcessor {
         }
 
         public void buildTransitionObject(StringBuilder sb, int indent, String varName) {
-
             if (timingFunction == null) return;
             indent(sb, indent).append("{\n");
             indent += 4;
@@ -7085,12 +6732,5 @@ public class ViewProcessor extends BaseProcessor {
         }
     }
 
-    private static void touch(final Path path) throws IOException {
-        if (path == null) throw new IllegalArgumentException("touch path is null");
-        if (Files.exists(path)) {
-            Files.setLastModifiedTime(path, FileTime.from(Instant.now()));
-        } else {
-            Files.createFile(path);
-        }
-    }
+
 }

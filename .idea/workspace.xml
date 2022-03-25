@@ -23,14 +23,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="791ac7de-2314-4871-80e8-bb25b13cdfb9" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/HelperFunctions.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/StaleXMLSchemaGarbageCollector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/BaseProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/BaseProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/EntityProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/EntityProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ProcessingEnvironmentWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ProcessingEnvironmentWrapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/ViewProcessor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/XMLSchemaGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/coderad-annotation-processor/src/main/java/com/codename1/rad/annotations/processors/XMLSchemaGenerator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/coderad-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/common/coderad-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/src/main/java/ca/weblite/shared/components/CollapsibleHeaderContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/ca/weblite/shared/components/CollapsibleHeaderContainer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/common/coderad-tests-common.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/javase/coderad-tests-javase.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,12 +52,16 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="MavenImportPreferences">
-    <option name="generalSettings">
-      <MavenGeneralSettings>
-        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
-      </MavenGeneralSettings>
-    </option>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="MavenRunner">
     <option name="delegateBuildToMaven" value="true" />
@@ -76,12 +83,16 @@
     <property name="settings.editor.selected.configurable" value="reference.projectsettings.compiler.annotationProcessors" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
-      <recent name="com.codename1.rad.nodes" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/images" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/common/src/main/resources/META-INF" />
+      <recent name="$PROJECT_DIR$/common/src/main/resources" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.codename1.rad.nodes" />
     </key>
     <key name="MoveInnerDialog.RECENTS_KEY">
       <recent name="com.codename1.rad.ui" />
@@ -93,10 +104,6 @@
       <recent name="com.codename1.rad.propertyviews" />
       <recent name="com.codename1.rad.annotations" />
       <recent name="com.codename1.rad.ui" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/common/src/main/resources/META-INF" />
-      <recent name="$PROJECT_DIR$/common/src/main/resources" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -123,45 +130,5 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="-1467" y="183" key="#com.intellij.ide.util.MemberChooser" timestamp="1625780214586">
-      <screen x="-2560" y="-250" width="2560" height="1417" />
-    </state>
-    <state x="-1467" y="183" key="#com.intellij.ide.util.MemberChooser/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1625780214586" />
-    <state width="1982" height="242" key="GridCell.Tab.0.bottom" timestamp="1626884656271">
-      <screen x="-2560" y="-250" width="2560" height="1417" />
-    </state>
-    <state width="1982" height="242" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626884656271" />
-    <state width="1884" height="230" key="GridCell.Tab.0.bottom/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625522861332" />
-    <state width="1982" height="242" key="GridCell.Tab.0.center" timestamp="1626884656269">
-      <screen x="-2560" y="-250" width="2560" height="1417" />
-    </state>
-    <state width="1982" height="242" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626884656269" />
-    <state width="1884" height="230" key="GridCell.Tab.0.center/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625522861331" />
-    <state width="1982" height="242" key="GridCell.Tab.0.left" timestamp="1626884656269">
-      <screen x="-2560" y="-250" width="2560" height="1417" />
-    </state>
-    <state width="1982" height="242" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626884656269" />
-    <state width="1884" height="230" key="GridCell.Tab.0.left/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625522861330" />
-    <state width="1982" height="242" key="GridCell.Tab.0.right" timestamp="1626884656270">
-      <screen x="-2560" y="-250" width="2560" height="1417" />
-    </state>
-    <state width="1982" height="242" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1626884656270" />
-    <state width="1884" height="230" key="GridCell.Tab.0.right/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625522861331" />
-    <state x="-1819" y="334" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1627911927987">
-      <screen x="-2560" y="-250" width="2560" height="1417" />
-    </state>
-    <state x="-1819" y="334" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1627911927987" />
-    <state x="-1745" y="216" width="1066" height="755" key="find.popup" timestamp="1632310090297">
-      <screen x="-2560" y="-250" width="2560" height="1417" />
-    </state>
-    <state x="-1745" y="216" width="1066" height="755" key="find.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1632310090297" />
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup" timestamp="1632310632052">
-      <screen x="-2560" y="-250" width="2560" height="1417" />
-    </state>
-    <state x="-1772" y="179" width="1021" height="677" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@-2560.-250.2560.1417" timestamp="1632310632052" />
-    <state x="517" y="334" width="670" height="490" key="search.everywhere.popup/-2560.-250.2560.1417/0.23.1680.1027@0.23.1680.1027" timestamp="1625588401127" />
   </component>
 </project>

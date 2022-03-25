@@ -27,8 +27,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar" />
         </processorPath>
         <module name="coderad-javascript" />
-        <module name="coderad-ios" />
         <module name="coderad-tests-javase" />
+        <module name="coderad-ios" />
         <module name="coderad-android" />
         <module name="coderad-win" />
         <module name="coderad-javase" />

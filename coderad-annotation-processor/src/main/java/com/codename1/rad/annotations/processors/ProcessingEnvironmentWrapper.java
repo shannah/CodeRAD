@@ -1532,15 +1532,11 @@ public class ProcessingEnvironmentWrapper implements ProcessingEnvironment {
 
             return param;
         }
-        System.out.println("getTypeParameter("+type+", "+method+", "+param);
         TypeElement typeEl = (TypeElement)type.asElement();
         int index = -1;
         for (TypeParameterElement typeParameterElement : typeEl.getTypeParameters()) {
-            System.out.println("Checking "+typeParameterElement);
             index++;
             if (typeParameterElement.asType().toString().equals(param.toString())) {
-                System.out.println("type: "+typeParameterElement.asType());
-                System.out.println("Type arguments " + type.getTypeArguments());
                 if (type.getTypeArguments().size() > index) {
                     return type.getTypeArguments().get(index);
                 } else {
