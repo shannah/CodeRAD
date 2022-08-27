@@ -6005,10 +6005,10 @@ public class ViewProcessor extends BaseProcessor {
             indent(sb, indent).append("super(wrapContext(context));\n");
             indent(sb, indent).append("this.context = getContext();\n");
 
-            indent(sb, indent).append("this.formController = context.getController().getFormController();\n");
-            indent(sb, indent).append("this.viewController = context.getController();\n");
-            indent(sb, indent).append("this.applicationController = context.getController().getApplicationController();\n");
-            indent(sb, indent).append("this.sectionController = context.getController().getSectionController();\n");
+            indent(sb, indent).append("this.formController = this.context.getController().getFormController();\n");
+            indent(sb, indent).append("this.viewController = this.context.getController();\n");
+            indent(sb, indent).append("this.applicationController = this.context.getController().getApplicationController();\n");
+            indent(sb, indent).append("this.sectionController = this.context.getController().getSectionController();\n");
             indent(sb, indent).append("this.parentFormController = (this.formController == null || this.formController.getParent() == null) ? null : this.formController.getParent().getFormController();\n");
             indent(sb, indent).append("getAllStyles().stripMarginAndPadding();\n");
             indent(sb, indent).append("setLayout(new BorderLayout());\n");

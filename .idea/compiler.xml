@@ -38,18 +38,18 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="annotations" target="1.7" />
-      <module name="codenameone-maven-manual" target="8" />
-      <module name="coderad-android" target="8" />
+      <module name="codenameone-maven-manual" target="1.8" />
+      <module name="coderad-android" target="1.8" />
       <module name="coderad-annotation-processor" target="1.8" />
-      <module name="coderad-common" target="8" />
-      <module name="coderad-ios" target="8" />
-      <module name="coderad-javascript" target="8" />
+      <module name="coderad-common" target="1.8" />
+      <module name="coderad-ios" target="1.8" />
+      <module name="coderad-javascript" target="1.8" />
       <module name="coderad-javase" target="1.8" />
       <module name="coderad-lib" target="1.8" />
-      <module name="coderad-tests" target="8" />
-      <module name="coderad-tests-common" target="8" />
+      <module name="coderad-tests" target="1.8" />
+      <module name="coderad-tests-common" target="1.8" />
       <module name="coderad-tests-javase" target="1.8" />
-      <module name="coderad-win" target="8" />
+      <module name="coderad-win" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
