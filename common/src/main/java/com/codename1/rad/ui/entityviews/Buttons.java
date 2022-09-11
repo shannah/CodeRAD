@@ -189,6 +189,7 @@ public class Buttons extends AbstractEntityView {
         switch (overflowMenuStyle) {
             case ActionSheet: {
                 ActionSheet sheet = new ActionSheet(null, getEntity(), overflowActions);
+                sheet.setOwner(this);
                 if (CN.isTablet() || !CN.isPortrait()) {
                     sheet.setPosition(BorderLayout.CENTER);
                 } else {
