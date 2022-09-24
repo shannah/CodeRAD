@@ -636,6 +636,15 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
         if (firstUpdate) {
             firstUpdate = false;
         } else {
+            EntityList<?> entityList = getEntity();
+
+
+            int index = 0;
+            for (Entity e : entityList) {
+                EntityView rowView = renderer.getListCellRendererComponent(this, e, index, selection.isSelected(index, 0), false);
+                rowView.update();
+                index++;
+            }
             return;
         }
         

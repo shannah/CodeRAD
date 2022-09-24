@@ -17,6 +17,7 @@ import com.codename1.ui.events.ActionListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 import java.util.Observer;
 
 import static com.codename1.ui.ComponentSelector.$;
@@ -223,6 +224,11 @@ public abstract class AbstractEntityView<T extends Entity> extends Container imp
 
         super.initComponent();
         bind();
+        if (getEntity() instanceof Observable) {
+            observer.update((Observable) getEntity(), null);
+        } else {
+            observer.update(null, null);
+        }
     }
 
     @Override
