@@ -4612,6 +4612,15 @@ public class ViewProcessor extends BaseProcessor {
 
 
                 JavaMethodProxy addListenerMethod = componentClass.findMethodProxy("add" + trigger + "listener", 1);
+                JavaMethodProxy getComponentMethod = componentClass.findMethodProxy("getComponent", 0);
+                JavaMethodProxy nestedComponentAddListenerMethod = null;
+                if (addListenerMethod == null &&
+                        getComponentMethod != null &&
+                        getComponentMethod.getReturnType() != null &&
+                        isComponent(getComponentMethod.getReturnType())) {
+                    JavaClassProxy nestedComponentClassProxy = componentClass.env.newJavaClassProxy(getComponentMethod.getReturnType());
+                    nestedComponentAddListenerMethod = nestedComponentClassProxy.findMethodProxy("add" + trigger + "listener", 1);
+                }
                 indent(sb, indent).append("{\n");
                 indent += 4;
                 String defaultHandler = getTextContent(el);
@@ -4670,11 +4679,11 @@ public class ViewProcessor extends BaseProcessor {
                     indent(sb, indent).append("    } else {\n");
                     indent(sb, indent).append("        addUpdateListener(_onUpdate);\n");
                     indent(sb, indent).append("    }\n");
+                } else if (addListenerMethod != null){
+                    indent(sb, indent).append("    _fcmp.").append(addListenerMethod.methodName).append("(evt -> _action.fireEvent(context.getEntity(), _fcmp));\n");
+                } else if (nestedComponentAddListenerMethod != null) {
+                    indent(sb, indent).append("    _fcmp.getComponent().").append(nestedComponentAddListenerMethod.methodName).append("(evt -> _action.fireEvent(context.getEntity(), _fcmp.getComponent()));\n");
                 }
-
-
-
-
                 indent(sb, indent).append("}\n");
 
                 indent -=4;
