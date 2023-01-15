@@ -1,0 +1,39 @@
+-classpath
+'/Users/shannah/cn1_files/cn1libs/CodeRAD/coderad-annotation-processor/target/coderad-annotation-processor-2.0.5.jar:/Users/shannah/.m2/repository/org/apache/commons/commons-text/1.9/commons-text-1.9.jar:/Users/shannah/.m2/repository/com/codenameone/codenameone-core/8.0-SNAPSHOT/codenameone-core-8.0-SNAPSHOT.jar:/Users/shannah/cn1_files/cn1libs/CodeRAD/annotations/target/coderad-annotations-2.0.5.jar:/Users/shannah/.m2/repository/org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar:/Users/shannah/.m2/repository/com/squareup/javapoet/1.13.0/javapoet-1.13.0.jar'
+-doclet
+'org.asciidoctor.Asciidoclet'
+-docletpath
+'/Users/shannah/.m2/repository/org/asciidoctor/asciidoclet/1.5.6/asciidoclet-1.5.6.jar:/Users/shannah/.m2/repository/org/asciidoctor/asciidoctorj/1.5.6/asciidoctorj-1.5.6.jar:/Users/shannah/.m2/repository/org/slf4j/slf4j-simple/1.7.25/slf4j-simple-1.7.25.jar:/Users/shannah/.m2/repository/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar:/Users/shannah/.m2/repository/com/google/guava/guava/20.0/guava-20.0.jar'
+-encoding
+'UTF-8'
+-overview
+'/Users/shannah/cn1_files/cn1libs/CodeRAD/common/src/main/resources/overview.adoc'
+-protected
+-quiet
+-source
+'1.8'
+-sourcepath
+'/Users/shannah/cn1_files/cn1libs/CodeRAD/common/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2023. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/Users/shannah/cn1_files/cn1libs/CodeRAD/common/target/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'coderad-common 2.0.5 API'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' '/Users/shannah/cn1_files/cn1libs/CodeRAD/common/target/javadoc-bundle-options'
+-linkoffline
+'https://www.codenameone.com/javadoc' '/Users/shannah/cn1_files/cn1libs/CodeRAD/common/../javadoc-dependencies/com.codename1'
+-linkoffline
+'http://www.example.com/apidocs' '/Users/shannah/cn1_files/cn1libs/CodeRAD/annotations/target/apidocs'
+-linkoffline
+'http://www.example.com/apidocs' '/Users/shannah/cn1_files/cn1libs/CodeRAD/coderad-annotation-processor/target/apidocs'
+-use
+-version
+-windowtitle
+'coderad-common 2.0.5 API'
