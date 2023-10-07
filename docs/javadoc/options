@@ -1,5 +1,5 @@
 -classpath
-'/Users/shannah/cn1_files/cn1libs/CodeRAD/coderad-annotation-processor/target/coderad-annotation-processor-2.0.5.jar:/Users/shannah/.m2/repository/org/apache/commons/commons-text/1.9/commons-text-1.9.jar:/Users/shannah/.m2/repository/com/codenameone/codenameone-core/8.0-SNAPSHOT/codenameone-core-8.0-SNAPSHOT.jar:/Users/shannah/cn1_files/cn1libs/CodeRAD/annotations/target/coderad-annotations-2.0.5.jar:/Users/shannah/.m2/repository/org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar:/Users/shannah/.m2/repository/com/squareup/javapoet/1.13.0/javapoet-1.13.0.jar'
+'/Users/shannah/cn1_files/cn1libs/CodeRAD/coderad-annotation-processor/target/coderad-annotation-processor-2.0.6.jar:/Users/shannah/.m2/repository/org/apache/commons/commons-text/1.9/commons-text-1.9.jar:/Users/shannah/.m2/repository/com/codenameone/codenameone-core/8.0-SNAPSHOT/codenameone-core-8.0-SNAPSHOT.jar:/Users/shannah/cn1_files/cn1libs/CodeRAD/annotations/target/coderad-annotations-2.0.6.jar:/Users/shannah/.m2/repository/org/apache/commons/commons-lang3/3.11/commons-lang3-3.11.jar:/Users/shannah/.m2/repository/com/squareup/javapoet/1.13.0/javapoet-1.13.0.jar'
 -doclet
 'org.asciidoctor.Asciidoclet'
 -docletpath
@@ -24,9 +24,7 @@
 -docencoding
 'UTF-8'
 -doctitle
-'coderad-common 2.0.5 API'
--linkoffline
-'https://docs.oracle.com/javase/8/docs/api' '/Users/shannah/cn1_files/cn1libs/CodeRAD/common/target/javadoc-bundle-options'
+'coderad-common 2.0.6 API'
 -linkoffline
 'https://www.codenameone.com/javadoc' '/Users/shannah/cn1_files/cn1libs/CodeRAD/common/../javadoc-dependencies/com.codename1'
 -linkoffline
@@ -36,4 +34,4 @@
 -use
 -version
 -windowtitle
-'coderad-common 2.0.5 API'
+'coderad-common 2.0.6 API'
