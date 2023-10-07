@@ -343,7 +343,7 @@ public class EntityProcessor extends BaseProcessor {
                 typeStr = "Double";
             }
             if (typeStr == null && propType.getQualifiedName().contentEquals("java.lang.Integer")) {
-                typeStr = "Integer";
+                typeStr = "Int";
             }
             if (typeStr == null && propType.getQualifiedName().contentEquals("java.lang.Float")) {
                 typeStr = "Float";
@@ -409,7 +409,7 @@ public class EntityProcessor extends BaseProcessor {
                 typeStr = "Double";
             }
             if (typeStr == null && propType.getQualifiedName().contentEquals("java.lang.Integer")) {
-                typeStr = "Integer";
+                typeStr = "Int";
             }
             if (typeStr == null && propType.getQualifiedName().contentEquals("java.lang.Float")) {
                 typeStr = "Float";
