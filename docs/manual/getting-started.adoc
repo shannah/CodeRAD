@@ -13,6 +13,18 @@ The press the _Download_ button.
 
 After a few seconds you should be prompted to download the project as a ZIP file.  Save this zip file somewhere on your local drive, extract it, then open it in IntelliJ IDEA.
 
+[TIP]
+====
+**Additional Steps for Eclipse Users**
+
+CodeRAD includes an annotation processor that needs to be activated. There are a few additional steps required to enable this in Eclipse.
+
+. Add `org.eclipse.m2e.apt.mode=jdt_apt` to the `./common/.settings/org.eclipse.m2e.apt.prefs`
+. Add `target/generated-sources/rad-views` to the .classpath.
+
+See https://github.com/codenameone/CodenameOne/issues/3724[this issue] for more details.
+====
+
 Once the project is opened, press the
 image:images/intellij-run-button.png[]
  icon on the toolbar to run the project in the Codename One simulator.
