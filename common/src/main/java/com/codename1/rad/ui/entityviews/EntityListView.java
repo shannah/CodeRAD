@@ -433,7 +433,7 @@ public class EntityListView<T extends EntityList> extends AbstractEntityView<T> 
      */
     private void handleEntityRemoved(EntityList.EntityRemovedEvent ere, boolean commit) {
         Component toRemove = null;
-        for (Component child : wrapper) {
+        for (Component child : wrapper.getChildrenAsList(true)) {
             if (child instanceof EntityView) {
                 EntityView ev = (EntityView)child;
                 if (ev.getEntity() == ere.getEntity()) {
