@@ -89,6 +89,19 @@
                 </configuration>
             </plugin>
             <plugin>
+                <!-- Name the processor explicitly instead of shipping a
+                     META-INF/services/javax.annotation.processing.Processor file. The processor is
+                     a provided dependency, so a service file in this jar/cn1lib points consumers at
+                     a class they don't have, and javac fails with "Provider ... not found". -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessors>
+                        <annotationProcessor>com.codename1.rad.annotations.processors.EntityProcessor</annotationProcessor>
+                    </annotationProcessors>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.codenameone</groupId>
                 <artifactId>codenameone-maven-plugin</artifactId>
                 <executions>

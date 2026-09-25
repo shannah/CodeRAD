@@ -836,13 +836,29 @@ public class EntityProcessor extends BaseProcessor {
                 .build();
         
         try {
-            JavaFileObject entityFile = processingEnv.getFiler().createSourceFile(entityPlan.packageName+"."+entityPlan.entityName+"Impl", entityPlan.entityAbstractClass, entityPlan.entityInterface);
+            JavaFileObject entityFile = processingEnv.getFiler().createSourceFile(entityPlan.packageName+"."+entityPlan.entityName+"Impl", originatingElements(entityPlan));
             try (PrintWriter writer = new PrintWriter(entityFile.openWriter())) {
                 //javaFile.writeTo(System.out);
                 entitiesAddedThisRound = true;
                 javaFile.writeTo(writer);
             }
         } catch (IOException ex){}
+    }
+
+    /**
+     * Returns the originating elements for a generated entity source file, skipping nulls.
+     * Entities defined only by an interface (e.g. view models generated from XML views) have
+     * no abstract class, and javac 21+ throws a NullPointerException on null originating elements.
+     */
+    private static Element[] originatingElements(EntityPlan entityPlan) {
+        List<Element> out = new ArrayList<>();
+        if (entityPlan.entityAbstractClass != null) {
+            out.add(entityPlan.entityAbstractClass);
+        }
+        if (entityPlan.entityInterface != null) {
+            out.add(entityPlan.entityInterface);
+        }
+        return out.toArray(new Element[out.size()]);
     }
 
     private void createEntityWrapper(EntityPlan entityPlan, RoundEnvironment roundEnv) {
@@ -917,7 +933,7 @@ public class EntityProcessor extends BaseProcessor {
                 .build();
         
         try {
-            JavaFileObject entityFile = processingEnv.getFiler().createSourceFile(entityPlan.packageName+"."+entityPlan.entityName+"Wrapper", entityPlan.entityAbstractClass, entityPlan.entityInterface);
+            JavaFileObject entityFile = processingEnv.getFiler().createSourceFile(entityPlan.packageName+"."+entityPlan.entityName+"Wrapper", originatingElements(entityPlan));
             try (PrintWriter writer = new PrintWriter(entityFile.openWriter())) {
                 //javaFile.writeTo(System.out);
                 entitiesAddedThisRound = true;
