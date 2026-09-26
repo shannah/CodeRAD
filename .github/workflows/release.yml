@@ -1,0 +1,41 @@
+name: Release
+
+# Publishes to GitHub Packages when a version tag is pushed. update-version.sh creates the tag:
+#   bash update-version.sh 2.0.7 && git push origin master v2.0.7
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Check the tag matches the project version
+        run: |
+          version=$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout)
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match project version ${version}"
+            exit 1
+          fi
+
+      - name: Publish to GitHub Packages
+        run: >
+          mvn -B -Djava.awt.headless=true deploy
+          -DaltDeploymentRepository=github::https://maven.pkg.github.com/${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

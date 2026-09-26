@@ -35,8 +35,8 @@
     </scm>
 	  
     <properties>
-        <cn1.plugin.version>8.0-SNAPSHOT</cn1.plugin.version>
-        <cn1.version>8.0-SNAPSHOT</cn1.version>
+        <cn1.plugin.version>7.0.273</cn1.plugin.version>
+        <cn1.version>7.0.273</cn1.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	      
         <java.version>1.8</java.version>
@@ -203,11 +203,24 @@
     </build>
     
 			
+    <!-- Codename One releases are published here rather than to Maven Central. -->
     <repositories>
-
+        <repository>
+            <id>codenameone</id>
+            <url>https://repo.codenameone.com/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
     <pluginRepositories>
-
+        <pluginRepository>
+            <id>codenameone-plugins</id>
+            <url>https://repo.codenameone.com/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
     </pluginRepositories>
 
 
