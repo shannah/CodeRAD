@@ -35,7 +35,7 @@ jobs:
 
       - name: Publish to GitHub Packages
         run: >
-          mvn -B -Djava.awt.headless=true deploy
+          xvfb-run -a mvn -B deploy
           -DaltDeploymentRepository=github::https://maven.pkg.github.com/${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

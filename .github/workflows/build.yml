@@ -27,5 +27,6 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
 
+      # The Codename One test runner in tests/javase starts the JavaSE port, which needs a display.
       - name: Build and test
-        run: mvn -B -Djava.awt.headless=true install
+        run: xvfb-run -a mvn -B install
